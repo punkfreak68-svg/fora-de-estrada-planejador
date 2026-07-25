@@ -1,0 +1,27 @@
+# Dependências (caso um dia o projeto passe a usar npm/node)
+node_modules/
+
+# Variáveis de ambiente / segredos
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores de código
+.vscode/
+.idea/
+*.swp
+
+# Estado local do Netlify CLI
+.netlify/
+
+# Build (caso um dia adicione uma etapa de build)
+dist/
+build/

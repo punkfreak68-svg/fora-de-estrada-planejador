@@ -1,0 +1,3228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Fora de Estrada Planejador</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+  background: #1b1f16;
+  color: #eee;
+}
+
+#app-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+  padding: 0 10px;
+  background: #2b3320;
+  border-bottom: 2px solid #4a5a34;
+  flex-wrap: nowrap;
+}
+
+#app-header h1 {
+  font-size: 1.1rem;
+  margin: 0;
+  white-space: nowrap;
+  color: #c9d9a8;
+}
+
+#route-name {
+  flex: 1 1 auto;
+  min-width: 80px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #4a5a34;
+  background: #22261b;
+  color: #eee;
+  font-size: 0.95rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.header-actions button {
+  white-space: nowrap;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #4a5a34;
+  background: #3d4a2a;
+  color: #eee;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.header-actions button:hover {
+  background: #4a5a34;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: #eee;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+#app-body {
+  display: flex;
+  height: calc(100% - 56px);
+  position: relative;
+}
+
+#side-panel {
+  width: 320px;
+  flex: 0 0 320px;
+  background: #22261b;
+  border-right: 2px solid #4a5a34;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 12px;
+  gap: 10px;
+  z-index: 500;
+}
+
+.panel-close {
+  display: none;
+}
+
+.panel-section {
+  border-bottom: 1px solid #3a4228;
+  padding-bottom: 12px;
+  margin-bottom: 4px;
+}
+
+.panel-section.grow {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.panel-section h2 {
+  font-size: 0.95rem;
+  margin: 0 0 8px 0;
+  color: #c9d9a8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.coord-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.coord-form input {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #4a5a34;
+  background: #1b1f16;
+  color: #eee;
+  font-size: 0.9rem;
+}
+
+.coord-form button {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #4a5a34;
+  background: #3d4a2a;
+  color: #eee;
+  cursor: pointer;
+}
+
+.coord-form button:hover {
+  background: #4a5a34;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: #8a9578;
+  margin: 6px 0 0 0;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  margin-top: 8px;
+  color: #cdd8b4;
+  cursor: pointer;
+}
+
+.point-list, .saved-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  max-height: 220px;
+}
+
+.point-list li, .saved-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #1b1f16;
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+}
+
+.point-list .point-index {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #4a5a34;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+
+.point-list .point-coords {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.point-list .remove-btn,
+.saved-list .load-btn,
+.saved-list .delete-btn {
+  flex: 0 0 auto;
+  background: #3d4a2a;
+  border: 1px solid #4a5a34;
+  color: #eee;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 4px 7px;
+  font-size: 0.75rem;
+}
+
+.point-list .remove-btn:hover {
+  background: #7a3030;
+  border-color: #a04040;
+}
+
+.saved-list li {
+  flex-wrap: wrap;
+}
+
+.saved-list .route-info {
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.saved-list .route-name {
+  font-weight: 600;
+  color: #eee;
+}
+
+.saved-list .route-meta {
+  font-size: 0.7rem;
+  color: #8a9578;
+}
+
+.saved-list .route-buttons {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.saved-list .delete-btn:hover {
+  background: #7a3030;
+  border-color: #a04040;
+}
+
+.saved-list .load-btn:hover {
+  background: #4a5a34;
+}
+
+#panel-overlay {
+  display: none;
+}
+
+#map {
+  flex: 1 1 auto;
+  height: 100%;
+  width: 100%;
+}
+
+#toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #2b3320;
+  border: 1px solid #4a5a34;
+  color: #eee;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 2000;
+  max-width: 90vw;
+  text-align: center;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Leaflet popup styling tweak */
+.leaflet-popup-content {
+  font-size: 0.85rem;
+}
+
+.popup-remove-btn {
+  margin-top: 6px;
+  background: #7a3030;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+/* Mobile layout */
+@media (max-width: 768px) {
+  #app-header h1 {
+    display: none;
+  }
+
+  #route-name {
+    font-size: 0.85rem;
+  }
+
+  .header-actions button {
+    padding: 8px 9px;
+    font-size: 0.9rem;
+  }
+
+  .header-actions .btn-label {
+    display: none;
+  }
+
+  #side-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 85%;
+    max-width: 340px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 12px rgba(0,0,0,0.5);
+    z-index: 1100;
+  }
+
+  #side-panel.open {
+    transform: translateX(0);
+  }
+
+  .panel-close {
+    display: block;
+    align-self: flex-end;
+  }
+
+  #panel-overlay.open {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 1050;
+  }
+}
+
+@media (min-width: 769px) {
+  #btn-menu {
+    display: none;
+  }
+}
+
+/* Plus Code form + point plus-code display */
+.pluscode-form {
+  margin-top: 10px;
+}
+
+.point-list li {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.point-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.point-pluscode {
+  margin-top: 4px;
+  padding-left: 30px;
+  font-size: 0.72rem;
+  color: #9db07d;
+  font-variant-numeric: tabular-nums;
+  user-select: text;
+}
+
+/* Numbered map pin markers */
+.olc-pin {
+  width: 30px;
+  height: 30px;
+  background: #e08a2c;
+  border: 2px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+.olc-pin span {
+  transform: rotate(45deg);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* Footer: author credit + version + changelog */
+.app-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid #3a4228;
+}
+
+.footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.app-version {
+  font-size: 0.78rem;
+  color: #9db07d;
+  font-weight: 600;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #cdd8b4;
+  text-decoration: underline;
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.link-btn:hover {
+  color: #fff;
+}
+
+.footer-author {
+  font-size: 0.72rem;
+  color: #7a8768;
+  margin-top: 4px;
+}
+
+/* Changelog modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 3000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal-box {
+  position: relative;
+  background: #22261b;
+  border: 1px solid #4a5a34;
+  border-radius: 10px;
+  padding: 20px;
+  width: 90%;
+  max-width: 460px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-box h2 {
+  margin: 0 0 12px 0;
+  color: #c9d9a8;
+  font-size: 1.05rem;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.changelog-entry {
+  margin-bottom: 14px;
+}
+
+.changelog-entry h3 {
+  margin: 0 0 4px 0;
+  font-size: 0.9rem;
+  color: #eee;
+}
+
+.changelog-entry .changelog-date {
+  font-size: 0.7rem;
+  color: #8a9578;
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+.changelog-entry ul {
+  margin: 4px 0 0 0;
+  padding-left: 18px;
+  font-size: 0.82rem;
+  color: #cdd8b4;
+}
+
+/* ==== Screens ==== */
+.hidden {
+  display: none !important;
+}
+
+#screen-planning {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#app-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+#screen-navigation {
+  height: 100%;
+}
+
+.nav-subview {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Folder field (planning) */
+.folder-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #4a5a34;
+  background: #1b1f16;
+  color: #eee;
+  font-size: 0.9rem;
+}
+
+.folder-heading,
+.nav-folder-heading {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9db07d;
+  margin: 14px 0 6px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #3a4228;
+}
+
+.saved-list li.folder-heading-item {
+  background: transparent;
+  padding: 4px 2px 2px;
+  margin-bottom: 4px;
+}
+
+.saved-list li.folder-heading-item:first-child {
+  margin-top: 0;
+}
+
+.saved-list .nav-btn {
+  flex: 0 0 auto;
+  background: #2a4a5a;
+  border: 1px solid #345a6e;
+  color: #eee;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 4px 7px;
+  font-size: 0.75rem;
+}
+
+.saved-list .nav-btn:hover {
+  background: #345a6e;
+}
+
+/* Generic modal action buttons (shared) */
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
+.modal-btn-primary,
+.modal-btn-secondary {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: 1px solid #4a5a34;
+}
+
+.modal-btn-primary {
+  background: #3d4a2a;
+  color: #fff;
+}
+
+.modal-btn-primary:hover {
+  background: #4a5a34;
+}
+
+.modal-btn-secondary {
+  background: transparent;
+  color: #cdd8b4;
+}
+
+.modal-btn-secondary:hover {
+  background: #2b3320;
+}
+
+.modal-box-small {
+  max-width: 320px;
+}
+
+.progress-bar-track {
+  height: 10px;
+  background: #1b1f16;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 10px;
+  border: 1px solid #3a4228;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: #5a8f3c;
+  transition: width 0.2s ease;
+}
+
+.offline-alert {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #5a3a12;
+  border: 1px solid #8a5a1a;
+  color: #ffd9a0;
+  font-size: 0.85rem;
+}
+
+#nav-threshold-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #4a5a34;
+  background: #1b1f16;
+  color: #eee;
+  font-size: 1rem;
+  margin-top: 8px;
+}
+
+/* ==== Navigation: route picker ==== */
+.nav-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+  padding: 0 10px;
+  background: #2b3320;
+  border-bottom: 2px solid #4a5a34;
+  flex: 0 0 auto;
+}
+
+.nav-header h1 {
+  font-size: 1.1rem;
+  margin: 0;
+  color: #c9d9a8;
+}
+
+.nav-picker-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.nav-route-card {
+  background: #22261b;
+  border: 1px solid #3a4228;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-route-card-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.nav-route-card-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #eee;
+}
+
+.nav-route-card-meta {
+  font-size: 0.78rem;
+  color: #8a9578;
+  margin-top: 2px;
+}
+
+.nav-route-card-btn {
+  flex: 0 0 auto;
+  background: #3d4a2a;
+  border: 1px solid #4a5a34;
+  color: #fff;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav-route-card-btn:hover {
+  background: #4a5a34;
+}
+
+/* ==== Navigation: active view (large, driving-focused) ==== */
+#nav-map {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+#nav-hud-top {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 900;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.nav-deviation-pill {
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.nav-deviation-ok {
+  background: #2e6b30;
+  color: #fff;
+}
+
+.nav-deviation-alert {
+  background: #a02020;
+  color: #fff;
+  animation: nav-pulse 1s infinite;
+}
+
+@keyframes nav-pulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(160,32,32,0.6); }
+  50% { box-shadow: 0 2px 22px rgba(255,60,60,0.95); }
+}
+
+.nav-threshold-btn {
+  background: rgba(34,38,27,0.9);
+  border: 1px solid #4a5a34;
+  color: #cdd8b4;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+#nav-hud-bottom {
+  position: absolute;
+  bottom: 96px;
+  left: 12px;
+  right: 12px;
+  z-index: 900;
+  display: flex;
+  gap: 10px;
+}
+
+.nav-stat-tile {
+  flex: 1;
+  background: rgba(20,24,15,0.9);
+  border: 1px solid #4a5a34;
+  border-radius: 12px;
+  padding: 14px 10px;
+  text-align: center;
+}
+
+.nav-stat-value {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-stat-label {
+  font-size: 0.85rem;
+  color: #9db07d;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.nav-end-btn {
+  position: absolute;
+  bottom: 16px;
+  left: 12px;
+  right: 12px;
+  z-index: 900;
+  background: #a02020;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 18px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.nav-end-btn:hover {
+  background: #c22626;
+}
+
+.nav-back-btn {
+  background: #2e6b30;
+}
+
+.nav-back-btn:hover {
+  background: #377d3a;
+}
+
+.nav-summary-panel {
+  position: absolute;
+  bottom: 92px;
+  left: 12px;
+  right: 12px;
+  z-index: 900;
+  background: rgba(20,24,15,0.94);
+  border: 1px solid #4a5a34;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.nav-summary-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.nav-summary-row {
+  font-size: 0.95rem;
+  color: #cdd8b4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.dot-orange { background: #e08a2c; }
+.dot-blue { background: #3ba6ff; }
+
+.you-are-here-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3ba6ff;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgba(59,166,255,0.35);
+}
+
+/* Google Drive sync */
+.drive-connect-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #4a5a34;
+  background: #3d4a2a;
+  color: #eee;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.drive-connect-btn:hover {
+  background: #4a5a34;
+}
+
+.drive-connect-btn.drive-connected {
+  background: #2e6b30;
+  border-color: #3a8a3d;
+}
+
+.drive-connect-btn.drive-connected:hover {
+  background: #377d3a;
+}
+
+.drive-connect-btn.drive-syncing {
+  opacity: 0.75;
+}
+</style>
+</head>
+<body>
+
+<div id="screen-planning">
+<header id="app-header">
+  <button id="btn-menu" class="icon-btn" title="Abrir painel" aria-label="Abrir painel">☰</button>
+  <h1>Fora de Estrada Planejador</h1>
+  <input id="route-name" type="text" placeholder="Nome da rota" />
+  <div class="header-actions">
+    <button id="btn-save" title="Salvar rota">💾 <span class="btn-label">Salvar</span></button>
+    <button id="btn-import" title="Importar rota (.gpx ou .kml)">📥 <span class="btn-label">Importar</span></button>
+    <button id="btn-export" title="Exportar GPX">⬇ <span class="btn-label">GPX</span></button>
+    <button id="btn-new" title="Nova rota">＋ <span class="btn-label">Nova</span></button>
+    <button id="btn-nav-mode" title="Modo Navegação">🧭 <span class="btn-label">Navegar</span></button>
+  </div>
+  <input type="file" id="import-file-input" accept=".gpx,.kml" class="hidden" />
+</header>
+
+<div id="app-body">
+  <aside id="side-panel">
+    <button id="btn-close-panel" class="icon-btn panel-close" aria-label="Fechar painel">✕</button>
+
+    <section class="panel-section">
+      <h2>Adicionar ponto manual</h2>
+      <div class="coord-form">
+        <input id="input-lat" type="text" inputmode="decimal" placeholder="Latitude (ex: -14.2350)" />
+        <input id="input-lng" type="text" inputmode="decimal" placeholder="Longitude (ex: -51.9253)" />
+        <button id="btn-add-coord">Adicionar ponto</button>
+      </div>
+      <p class="hint">Ou toque/clique diretamente no mapa para adicionar um ponto.</p>
+      <div class="coord-form pluscode-form">
+        <input id="input-pluscode" type="text" placeholder="Plus Code (ex: 589M22Q3+2X)" />
+        <button id="btn-add-pluscode">Adicionar por Plus Code</button>
+      </div>
+      <p class="hint">Use o código completo do Plus Code (sem nome de cidade).</p>
+      <label class="checkbox-row">
+        <input type="checkbox" id="toggle-labels" />
+        Mostrar nomes/estradas sobre o satélite
+      </label>
+    </section>
+
+    <section class="panel-section grow">
+      <h2>Pontos da rota (<span id="point-count">0</span>)</h2>
+      <ul id="point-list" class="point-list"></ul>
+      <p id="point-list-empty" class="hint">Nenhum ponto ainda. Clique no mapa para começar.</p>
+    </section>
+
+    <section class="panel-section">
+      <h2>Pasta</h2>
+      <input id="route-folder" type="text" class="folder-input" placeholder="Ex: Serra da Mantiqueira" />
+      <p class="hint">Agrupa esta rota na lista abaixo ao salvar.</p>
+    </section>
+
+    <section class="panel-section grow">
+      <h2>Rotas salvas</h2>
+      <ul id="saved-routes-list" class="saved-list"></ul>
+      <p id="saved-list-empty" class="hint">Nenhuma rota salva ainda.</p>
+    </section>
+
+    <section class="panel-section">
+      <h2>Sincronização</h2>
+      <button id="btn-drive-connect" class="drive-connect-btn">☁️ Conectar com Google Drive</button>
+      <p id="drive-status-hint" class="hint">Conecta com a pasta do app no seu Google Drive, pra sincronizar as rotas salvas entre aparelhos.</p>
+    </section>
+
+    <footer class="app-footer">
+      <div class="footer-row">
+        <span id="app-version-label" class="app-version">v1.1</span>
+        <button id="btn-changelog" class="link-btn">Changelog</button>
+      </div>
+      <div class="footer-author">por Luiz Augusto de Oliveira Júnior</div>
+    </footer>
+  </aside>
+
+  <div id="panel-overlay"></div>
+
+  <main id="map"></main>
+</div>
+</div>
+
+<div id="screen-navigation" class="hidden">
+
+  <div id="nav-picker-view" class="nav-subview">
+    <header class="nav-header">
+      <button id="btn-nav-back-to-planning" class="icon-btn" aria-label="Voltar ao planejamento">←</button>
+      <h1>Navegação</h1>
+    </header>
+    <div id="nav-picker-list" class="nav-picker-list"></div>
+    <p id="nav-picker-empty" class="hint" style="padding: 16px;">Nenhuma rota salva. Volte ao planejamento para criar uma.</p>
+  </div>
+
+  <div id="nav-active-view" class="nav-subview hidden">
+    <div id="nav-map"></div>
+
+    <div id="nav-hud-top">
+      <div id="nav-deviation-pill" class="nav-deviation-pill nav-deviation-ok">Aguardando GPS...</div>
+      <button id="btn-nav-threshold" class="nav-threshold-btn">Limite: 50m ✎</button>
+    </div>
+
+    <div id="nav-hud-bottom">
+      <div class="nav-stat-tile">
+        <div class="nav-stat-value" id="nav-distance-remaining">--</div>
+        <div class="nav-stat-label">restante</div>
+      </div>
+      <div class="nav-stat-tile">
+        <div class="nav-stat-value" id="nav-speed">--</div>
+        <div class="nav-stat-label">km/h</div>
+      </div>
+    </div>
+
+    <button id="btn-end-navigation" class="nav-end-btn">Encerrar Navegação</button>
+
+    <div id="nav-summary-panel" class="nav-summary-panel hidden">
+      <div class="nav-summary-title">Navegação encerrada</div>
+      <div class="nav-summary-row"><span class="dot dot-orange"></span> Planejado</div>
+      <div class="nav-summary-row"><span class="dot dot-blue"></span> Percorrido: <b id="nav-summary-distance">--</b></div>
+    </div>
+    <button id="btn-back-to-planning" class="nav-end-btn nav-back-btn hidden">Voltar ao Planejamento</button>
+  </div>
+</div>
+
+<div id="nav-confirm-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2 id="nav-confirm-title">Navegar?</h2>
+    <p class="hint">O mapa da região será baixado para uso offline, se houver internet.</p>
+    <div class="modal-actions">
+      <button id="btn-nav-confirm-cancel" class="modal-btn-secondary">Cancelar</button>
+      <button id="btn-nav-confirm-ok" class="modal-btn-primary">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div id="nav-download-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2>Preparando mapa offline</h2>
+    <p id="nav-download-status" class="hint">Verificando conexão...</p>
+    <div class="progress-bar-track"><div id="nav-download-progress-bar" class="progress-bar-fill"></div></div>
+    <div id="nav-offline-alert" class="offline-alert hidden">⚠ Sem internet — mapa pode não carregar offline.</div>
+    <div class="modal-actions">
+      <button id="btn-nav-download-skip" class="modal-btn-secondary">Pular e continuar</button>
+    </div>
+  </div>
+</div>
+
+<div id="nav-threshold-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2>Limite de desvio da rota</h2>
+    <input id="nav-threshold-input" type="number" min="5" max="2000" step="5" />
+    <p class="hint">Distância em metros para alertar quando você sair da rota planejada.</p>
+    <div class="modal-actions">
+      <button id="btn-nav-threshold-cancel" class="modal-btn-secondary">Cancelar</button>
+      <button id="btn-nav-threshold-save" class="modal-btn-primary">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="nav-end-confirm-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2>Encerrar navegação?</h2>
+    <p class="hint">O GPS vai parar de gravar o trajeto percorrido.</p>
+    <div class="modal-actions">
+      <button id="btn-nav-end-confirm-cancel" class="modal-btn-secondary">Cancelar</button>
+      <button id="btn-nav-end-confirm-ok" class="modal-btn-primary">Encerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="changelog-modal" class="modal-overlay">
+  <div class="modal-box">
+    <button id="btn-close-changelog" class="icon-btn modal-close" aria-label="Fechar changelog">✕</button>
+    <h2>Changelog</h2>
+    <div id="changelog-content"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
+  var DRAFT_KEY = "jipeRotas_draft_v1";
+
+  var APP_VERSION = "1.4";
+  var CHANGELOG = [
+    {
+      version: "1.4",
+      date: "25/07/2026",
+      changes: [
+        "Sincronização opcional das rotas salvas via Google Drive (pasta própria do app)",
+        "Conectar em outro aparelho com a mesma conta traz as rotas automaticamente",
+        "Mudanças sincronizam sozinhas quando há internet; offline continua funcionando com os dados já baixados",
+        "Exclusão de rota agora sincroniza corretamente entre aparelhos"
+      ]
+    },
+    {
+      version: "1.3",
+      date: "25/07/2026",
+      changes: [
+        "Novo botão \"Importar\" para trazer rotas de arquivos .gpx ou .kml",
+        "Rota importada aparece editável no planejamento, igual se tivesse sido desenhada na hora",
+        "Usa o nome de rota do arquivo como sugestão; se não houver, pede pra você nomear",
+        "Aviso claro se o arquivo estiver corrompido ou em formato não suportado"
+      ]
+    },
+    {
+      version: "1.2",
+      date: "25/07/2026",
+      changes: [
+        "Nova tela de Navegação, separada do planejamento",
+        "Rotas salvas podem ser organizadas em pastas (texto livre)",
+        "Cache automático dos mapas da região da rota para uso offline (IndexedDB)",
+        "Alerta claro quando não há internet para baixar o mapa, com opção de continuar mesmo assim",
+        "Posição atual em tempo real (GPS) sobre a rota planejada, funciona offline",
+        "Gravação do trajeto realmente percorrido, exibido separado do trajeto planejado",
+        "Alerta visual configurável quando o desvio da rota passa de um limite (padrão 50m)",
+        "Distância restante e velocidade atual em elementos grandes, pensados para uso dirigindo",
+        "Tela de navegação é somente para seguir a rota — edição continua exclusiva do planejamento"
+      ]
+    },
+    {
+      version: "1.1",
+      date: "24/07/2026",
+      changes: [
+        "App renomeado para \"Fora de Estrada Planejador\"",
+        "Crédito do autor no rodapé",
+        "Pontos numerados em sequência nos marcadores do mapa",
+        "Suporte a Plus Code: ver o código de cada ponto e adicionar pontos digitando um Plus Code",
+        "Controle de versão e changelog visível no app"
+      ]
+    },
+    {
+      version: "1.0",
+      date: "24/07/2026",
+      changes: [
+        "Lançamento inicial: mapa satélite, pontos por clique ou coordenada manual, arrastar, remover, nomear e salvar rotas (localStorage), exportar GPX"
+      ]
+    }
+  ];
+
+  // ---- Open Location Code (Plus Code) encode/decode ----
+  var OLC_ALPHABET = "23456789CFGHJMPQRVWX";
+  var OLC_PAIR_DIVISORS = [160000, 8000, 400, 20, 1];
+  var OLC_ROW_DIVISORS = [625, 125, 25, 5, 1];
+  var OLC_COL_DIVISORS = [256, 64, 16, 4, 1];
+
+  function olcEncode(lat, lng, codeLength) {
+    codeLength = Math.min(Math.max(codeLength || 11, 2), 15);
+    lat = Math.min(90, Math.max(-90, lat));
+    if (lat >= 90) lat = 90 - 1e-9;
+    lng = lng % 360;
+    if (lng < -180) lng += 360;
+    if (lng >= 180) lng -= 360;
+
+    var latInt = Math.floor((lat + 90) * 25000000);
+    var lngInt = Math.floor((lng + 180) * 8192000);
+
+    var pairLat = Math.floor(latInt / 3125);
+    var pairLng = Math.floor(lngInt / 1024);
+    var gridLat = latInt - pairLat * 3125;
+    var gridLng = lngInt - pairLng * 1024;
+
+    var latDigits = OLC_PAIR_DIVISORS.map(function (d) {
+      return Math.floor(pairLat / d) % 20;
+    });
+    var lngDigits = OLC_PAIR_DIVISORS.map(function (d) {
+      return Math.floor(pairLng / d) % 20;
+    });
+
+    var pairChars = [];
+    var i;
+    for (i = 0; i < 5; i++) {
+      pairChars.push(OLC_ALPHABET[latDigits[i]]);
+      pairChars.push(OLC_ALPHABET[lngDigits[i]]);
+    }
+
+    var gridChars = [];
+    for (i = 0; i < 5; i++) {
+      var row = Math.floor(gridLat / OLC_ROW_DIVISORS[i]) % 5;
+      var col = Math.floor(gridLng / OLC_COL_DIVISORS[i]) % 4;
+      gridChars.push(OLC_ALPHABET[row * 4 + col]);
+    }
+
+    var out = "";
+    for (i = 0; i < Math.min(8, codeLength); i++) out += pairChars[i];
+    for (; i < 8; i++) out += "0";
+    out += "+";
+    if (codeLength > 8) {
+      for (i = 8; i < Math.min(10, codeLength); i++) out += pairChars[i];
+    }
+    if (codeLength > 10) {
+      for (i = 0; i < codeLength - 10; i++) out += gridChars[i];
+    }
+    return out;
+  }
+
+  function olcDecode(code) {
+    if (typeof code !== "string") return null;
+    var c = code.trim().toUpperCase().replace(/\s+/g, "");
+    var plusIndex = c.indexOf("+");
+    if (plusIndex !== 8) return null;
+    var prefix = c.slice(0, 8);
+    var rest = c.slice(9);
+
+    var latDigits = [];
+    var lngDigits = [];
+    var i;
+    for (i = 0; i < 4; i++) {
+      var latCh = prefix.charAt(i * 2);
+      var lngCh = prefix.charAt(i * 2 + 1);
+      if (latCh === "0" || lngCh === "0" || latCh === "" || lngCh === "") break;
+      var li = OLC_ALPHABET.indexOf(latCh);
+      var lo = OLC_ALPHABET.indexOf(lngCh);
+      if (li === -1 || lo === -1) return null;
+      latDigits.push(li);
+      lngDigits.push(lo);
+    }
+    if (latDigits.length === 0) return null;
+
+    var pairComplete = latDigits.length === 4;
+    if (pairComplete && rest.length >= 2) {
+      var l4 = OLC_ALPHABET.indexOf(rest.charAt(0));
+      var g4 = OLC_ALPHABET.indexOf(rest.charAt(1));
+      if (l4 === -1 || g4 === -1) return null;
+      latDigits.push(l4);
+      lngDigits.push(g4);
+    }
+
+    var latVal = 0,
+      lngVal = 0;
+    for (i = 0; i < latDigits.length; i++) {
+      latVal += latDigits[i] * OLC_PAIR_DIVISORS[i];
+      lngVal += lngDigits[i] * OLC_PAIR_DIVISORS[i];
+    }
+
+    var latLow = -90 + latVal / 8000;
+    var lngLow = -180 + lngVal / 8000;
+    var latRes = Math.pow(20, 5 - latDigits.length) / 8000;
+    var lngRes = Math.pow(20, 5 - lngDigits.length) / 8000;
+
+    var gridChars = pairComplete && rest.length > 2 ? rest.slice(2) : "";
+    if (pairComplete && latDigits.length === 5) {
+      for (i = 0; i < gridChars.length && i < 5; i++) {
+        var idx = OLC_ALPHABET.indexOf(gridChars.charAt(i));
+        if (idx === -1) break;
+        var row = Math.floor(idx / 4);
+        var col = idx % 4;
+        latRes /= 5;
+        lngRes /= 4;
+        latLow += row * latRes;
+        lngLow += col * lngRes;
+      }
+    }
+
+    return {
+      lat: latLow + latRes / 2,
+      lng: lngLow + lngRes / 2
+    };
+  }
+
+  function pointPlusCode(point) {
+    return olcEncode(point.lat, point.lng, 11);
+  }
+
+  // ---- state ----
+  var state = {
+    id: null, // id of saved route if this working route was loaded from storage
+    name: "",
+    folder: "",
+    points: [] // [{lat, lng}]
+  };
+
+  var markers = []; // Leaflet markers, parallel to state.points
+  var polyline = null;
+  var map = null;
+  var labelsLayer = null;
+
+  // ---- DOM refs ----
+  var el = {
+    header: document.getElementById("app-header"),
+    btnMenu: document.getElementById("btn-menu"),
+    btnClosePanel: document.getElementById("btn-close-panel"),
+    sidePanel: document.getElementById("side-panel"),
+    panelOverlay: document.getElementById("panel-overlay"),
+    routeName: document.getElementById("route-name"),
+    routeFolder: document.getElementById("route-folder"),
+    btnSave: document.getElementById("btn-save"),
+    btnImport: document.getElementById("btn-import"),
+    importFileInput: document.getElementById("import-file-input"),
+    btnExport: document.getElementById("btn-export"),
+    btnNew: document.getElementById("btn-new"),
+    btnNavMode: document.getElementById("btn-nav-mode"),
+    inputLat: document.getElementById("input-lat"),
+    inputLng: document.getElementById("input-lng"),
+    btnAddCoord: document.getElementById("btn-add-coord"),
+    inputPlusCode: document.getElementById("input-pluscode"),
+    btnAddPlusCode: document.getElementById("btn-add-pluscode"),
+    toggleLabels: document.getElementById("toggle-labels"),
+    pointList: document.getElementById("point-list"),
+    pointListEmpty: document.getElementById("point-list-empty"),
+    pointCount: document.getElementById("point-count"),
+    savedRoutesList: document.getElementById("saved-routes-list"),
+    savedListEmpty: document.getElementById("saved-list-empty"),
+    appVersionLabel: document.getElementById("app-version-label"),
+    btnChangelog: document.getElementById("btn-changelog"),
+    btnDriveConnect: document.getElementById("btn-drive-connect"),
+    driveStatusHint: document.getElementById("drive-status-hint"),
+    btnCloseChangelog: document.getElementById("btn-close-changelog"),
+    changelogModal: document.getElementById("changelog-modal"),
+    changelogContent: document.getElementById("changelog-content"),
+    toast: document.getElementById("toast"),
+
+    screenPlanning: document.getElementById("screen-planning"),
+    screenNavigation: document.getElementById("screen-navigation"),
+    navPickerView: document.getElementById("nav-picker-view"),
+    navActiveView: document.getElementById("nav-active-view"),
+    btnNavBackToPlanning: document.getElementById("btn-nav-back-to-planning"),
+    navPickerList: document.getElementById("nav-picker-list"),
+    navPickerEmpty: document.getElementById("nav-picker-empty"),
+
+    navDeviationPill: document.getElementById("nav-deviation-pill"),
+    btnNavThreshold: document.getElementById("btn-nav-threshold"),
+    navHudBottom: document.getElementById("nav-hud-bottom"),
+    navHudTop: document.getElementById("nav-hud-top"),
+    navDistanceRemaining: document.getElementById("nav-distance-remaining"),
+    navSpeed: document.getElementById("nav-speed"),
+    btnEndNavigation: document.getElementById("btn-end-navigation"),
+    navSummaryPanel: document.getElementById("nav-summary-panel"),
+    navSummaryDistance: document.getElementById("nav-summary-distance"),
+    btnBackToPlanning: document.getElementById("btn-back-to-planning"),
+
+    navConfirmModal: document.getElementById("nav-confirm-modal"),
+    navConfirmTitle: document.getElementById("nav-confirm-title"),
+    btnNavConfirmCancel: document.getElementById("btn-nav-confirm-cancel"),
+    btnNavConfirmOk: document.getElementById("btn-nav-confirm-ok"),
+
+    navDownloadModal: document.getElementById("nav-download-modal"),
+    navDownloadStatus: document.getElementById("nav-download-status"),
+    navDownloadProgressBar: document.getElementById("nav-download-progress-bar"),
+    navOfflineAlert: document.getElementById("nav-offline-alert"),
+    btnNavDownloadSkip: document.getElementById("btn-nav-download-skip"),
+
+    navThresholdModal: document.getElementById("nav-threshold-modal"),
+    navThresholdInput: document.getElementById("nav-threshold-input"),
+    btnNavThresholdCancel: document.getElementById("btn-nav-threshold-cancel"),
+    btnNavThresholdSave: document.getElementById("btn-nav-threshold-save"),
+
+    navEndConfirmModal: document.getElementById("nav-end-confirm-modal"),
+    btnNavEndConfirmCancel: document.getElementById("btn-nav-end-confirm-cancel"),
+    btnNavEndConfirmOk: document.getElementById("btn-nav-end-confirm-ok")
+  };
+
+  // ---- toast ----
+  var toastTimer = null;
+  function showToast(msg) {
+    el.toast.textContent = msg;
+    el.toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      el.toast.classList.remove("show");
+    }, 2200);
+  }
+
+  // ---- offline tile cache (IndexedDB) ----
+  var TILE_URL_TEMPLATE = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+  var TILE_DB_NAME = "foraDeEstradaTiles";
+  var TILE_STORE = "tiles";
+  var tileDbPromise = null;
+
+  function openTileDb() {
+    if (tileDbPromise) return tileDbPromise;
+    tileDbPromise = new Promise(function (resolve, reject) {
+      if (!window.indexedDB) {
+        reject(new Error("IndexedDB indisponível"));
+        return;
+      }
+      var req = indexedDB.open(TILE_DB_NAME, 1);
+      req.onupgradeneeded = function () {
+        var db = req.result;
+        if (!db.objectStoreNames.contains(TILE_STORE)) {
+          db.createObjectStore(TILE_STORE);
+        }
+      };
+      req.onsuccess = function () {
+        resolve(req.result);
+      };
+      req.onerror = function () {
+        reject(req.error);
+      };
+    });
+    return tileDbPromise;
+  }
+
+  function putTile(key, blob) {
+    return openTileDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(TILE_STORE, "readwrite");
+        tx.objectStore(TILE_STORE).put(blob, key);
+        tx.oncomplete = function () {
+          resolve();
+        };
+        tx.onerror = function () {
+          reject(tx.error);
+        };
+      });
+    });
+  }
+
+  function getTile(key) {
+    return openTileDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(TILE_STORE, "readonly");
+        var req = tx.objectStore(TILE_STORE).get(key);
+        req.onsuccess = function () {
+          resolve(req.result || null);
+        };
+        req.onerror = function () {
+          reject(req.error);
+        };
+      });
+    });
+  }
+
+  function hasTile(key) {
+    return getTile(key)
+      .then(function (blob) {
+        return !!blob;
+      })
+      .catch(function () {
+        return false;
+      });
+  }
+
+  // Custom Leaflet tile layer: reads from IndexedDB first (works offline),
+  // falls back to network and caches what it fetches for next time.
+  var OfflineTileLayer = L.TileLayer.extend({
+    createTile: function (coords, done) {
+      var tile = document.createElement("img");
+      tile.alt = "";
+      var key = coords.z + "/" + coords.x + "/" + coords.y;
+      var url = this.getTileUrl(coords);
+
+      function showFromBlob(blob) {
+        var objUrl = URL.createObjectURL(blob);
+        tile.onload = function () {
+          done(null, tile);
+        };
+        tile.onerror = function () {
+          done(new Error("erro ao exibir tile"), tile);
+        };
+        tile.src = objUrl;
+      }
+
+      function fallbackToNetworkImg() {
+        tile.onload = function () {
+          done(null, tile);
+        };
+        tile.onerror = function () {
+          done(new Error("tile indisponível offline"), tile);
+        };
+        tile.src = url;
+      }
+
+      getTile(key)
+        .then(function (blob) {
+          if (blob) {
+            showFromBlob(blob);
+            return;
+          }
+          fetch(url, { mode: "cors" })
+            .then(function (resp) {
+              if (!resp.ok) throw new Error("status " + resp.status);
+              return resp.blob();
+            })
+            .then(function (fetchedBlob) {
+              putTile(key, fetchedBlob).catch(function () {});
+              showFromBlob(fetchedBlob);
+            })
+            .catch(fallbackToNetworkImg);
+        })
+        .catch(fallbackToNetworkImg);
+
+      return tile;
+    }
+  });
+
+  function createOfflineTileLayer() {
+    return new OfflineTileLayer(TILE_URL_TEMPLATE, {
+      attribution:
+        "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+      maxZoom: 19
+    });
+  }
+
+  // ---- map setup ----
+  function initMap() {
+    map = L.map("map", {
+      zoomControl: true,
+      maxZoom: 19
+    });
+
+    var satellite = createOfflineTileLayer();
+    satellite.addTo(map);
+
+    labelsLayer = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+      {
+        attribution: "Esri Reference",
+        maxZoom: 19,
+        pane: "overlayPane"
+      }
+    );
+
+    // default center: geographic center of Brazil, fallback if geolocation unavailable/denied
+    map.setView([-14.235, -51.9253], 5);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function (pos) {
+          if (state.points.length === 0) {
+            map.setView([pos.coords.latitude, pos.coords.longitude], 14);
+          }
+        },
+        function () {
+          /* ignore errors, keep default view */
+        },
+        { timeout: 5000 }
+      );
+    }
+
+    polyline = L.polyline([], { color: "#e08a2c", weight: 4 }).addTo(map);
+
+    map.on("click", function (e) {
+      addPoint(e.latlng.lat, e.latlng.lng);
+    });
+  }
+
+  // ---- point management ----
+  function addPoint(lat, lng) {
+    var point = { lat: lat, lng: lng };
+    state.points.push(point);
+    var index = state.points.length - 1;
+    var marker = createMarker(point, index);
+    markers.push(marker);
+    refreshPolyline();
+    renderPointList();
+    saveDraft();
+  }
+
+  function numberedIcon(number) {
+    return L.divIcon({
+      className: "olc-pin-wrapper",
+      html: '<div class="olc-pin"><span>' + number + "</span></div>",
+      iconSize: [30, 30],
+      iconAnchor: [15, 30],
+      popupAnchor: [0, -28]
+    });
+  }
+
+  function createMarker(point, index) {
+    var marker = L.marker([point.lat, point.lng], {
+      draggable: true,
+      icon: numberedIcon(index + 1)
+    }).addTo(map);
+    marker.bindPopup(buildPopupContent(index));
+
+    marker.on("dragend", function () {
+      var idx = markers.indexOf(marker);
+      if (idx === -1) return;
+      var latlng = marker.getLatLng();
+      state.points[idx].lat = latlng.lat;
+      state.points[idx].lng = latlng.lng;
+      refreshPolyline();
+      renderPointList();
+      marker.setPopupContent(buildPopupContent(idx));
+      saveDraft();
+    });
+
+    marker.on("popupopen", function () {
+      var btn = document.querySelector(".popup-remove-btn[data-marker-idx='" + markers.indexOf(marker) + "']");
+      if (btn) {
+        btn.addEventListener("click", function () {
+          removePoint(markers.indexOf(marker));
+        });
+      }
+    });
+
+    return marker;
+  }
+
+  function buildPopupContent(index) {
+    var p = state.points[index];
+    var div = document.createElement("div");
+    var coordText = document.createElement("div");
+    coordText.textContent = "Ponto " + (index + 1) + ": " + p.lat.toFixed(6) + ", " + p.lng.toFixed(6);
+    div.appendChild(coordText);
+    var plusCodeText = document.createElement("div");
+    plusCodeText.textContent = "Plus Code: " + pointPlusCode(p);
+    div.appendChild(plusCodeText);
+    var btn = document.createElement("button");
+    btn.className = "popup-remove-btn";
+    btn.setAttribute("data-marker-idx", String(index));
+    btn.textContent = "Remover ponto";
+    div.appendChild(btn);
+    return div;
+  }
+
+  function removePoint(index) {
+    if (index < 0 || index >= state.points.length) return;
+    map.removeLayer(markers[index]);
+    markers.splice(index, 1);
+    state.points.splice(index, 1);
+    reindexMarkers();
+    refreshPolyline();
+    renderPointList();
+    saveDraft();
+  }
+
+  function reindexMarkers() {
+    markers.forEach(function (marker, idx) {
+      marker.setIcon(numberedIcon(idx + 1));
+      marker.bindPopup(buildPopupContent(idx));
+    });
+  }
+
+  function refreshPolyline() {
+    var latlngs = state.points.map(function (p) {
+      return [p.lat, p.lng];
+    });
+    polyline.setLatLngs(latlngs);
+  }
+
+  function clearRoute() {
+    markers.forEach(function (m) {
+      map.removeLayer(m);
+    });
+    markers = [];
+    state.points = [];
+    state.id = null;
+    state.name = "";
+    state.folder = "";
+    el.routeName.value = "";
+    el.routeFolder.value = "";
+    refreshPolyline();
+    renderPointList();
+  }
+
+  // ---- point list panel ----
+  function renderPointList() {
+    el.pointList.innerHTML = "";
+    el.pointCount.textContent = String(state.points.length);
+    el.pointListEmpty.style.display = state.points.length === 0 ? "block" : "none";
+
+    state.points.forEach(function (p, idx) {
+      var li = document.createElement("li");
+
+      var row = document.createElement("div");
+      row.className = "point-row";
+
+      var badge = document.createElement("span");
+      badge.className = "point-index";
+      badge.textContent = String(idx + 1);
+      row.appendChild(badge);
+
+      var coords = document.createElement("span");
+      coords.className = "point-coords";
+      coords.textContent = p.lat.toFixed(5) + ", " + p.lng.toFixed(5);
+      row.appendChild(coords);
+
+      var goBtn = document.createElement("button");
+      goBtn.className = "remove-btn";
+      goBtn.textContent = "🎯";
+      goBtn.title = "Centralizar no mapa";
+      goBtn.addEventListener("click", function () {
+        map.setView([p.lat, p.lng], Math.max(map.getZoom(), 15));
+        markers[idx].openPopup();
+      });
+      row.appendChild(goBtn);
+
+      var removeBtn = document.createElement("button");
+      removeBtn.className = "remove-btn";
+      removeBtn.textContent = "✕";
+      removeBtn.title = "Remover ponto";
+      removeBtn.addEventListener("click", function () {
+        removePoint(idx);
+      });
+      row.appendChild(removeBtn);
+
+      li.appendChild(row);
+
+      var plusCode = document.createElement("div");
+      plusCode.className = "point-pluscode";
+      plusCode.textContent = "Plus Code: " + pointPlusCode(p);
+      li.appendChild(plusCode);
+
+      el.pointList.appendChild(li);
+    });
+  }
+
+  // ---- manual coordinate entry ----
+  function parseCoordInput() {
+    var latRaw = el.inputLat.value.trim().replace(",", ".");
+    var lngRaw = el.inputLng.value.trim().replace(",", ".");
+    var lat = parseFloat(latRaw);
+    var lng = parseFloat(lngRaw);
+
+    if (isNaN(lat) || isNaN(lng)) {
+      showToast("Coordenadas inválidas. Use números como -14.235");
+      return null;
+    }
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      showToast("Latitude deve estar entre -90 e 90, longitude entre -180 e 180");
+      return null;
+    }
+    return { lat: lat, lng: lng };
+  }
+
+  el.btnAddCoord.addEventListener("click", function () {
+    var coord = parseCoordInput();
+    if (!coord) return;
+    addPoint(coord.lat, coord.lng);
+    map.setView([coord.lat, coord.lng], Math.max(map.getZoom(), 14));
+    el.inputLat.value = "";
+    el.inputLng.value = "";
+  });
+
+  el.btnAddPlusCode.addEventListener("click", function () {
+    var raw = el.inputPlusCode.value.trim();
+    if (!raw) {
+      showToast("Digite um Plus Code.");
+      return;
+    }
+    var decoded = olcDecode(raw);
+    if (!decoded) {
+      showToast("Plus Code inválido. Use o código completo, ex: 589M22Q3+2X (sem nome de cidade).");
+      return;
+    }
+    addPoint(decoded.lat, decoded.lng);
+    map.setView([decoded.lat, decoded.lng], Math.max(map.getZoom(), 14));
+    el.inputPlusCode.value = "";
+  });
+
+  // ---- draft autosave/restore (protects against accidental reload/close) ----
+  function saveDraft() {
+    state.name = el.routeName.value;
+    state.folder = el.routeFolder.value;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+    } catch (e) {
+      /* storage full or unavailable; ignore */
+    }
+  }
+
+  function restoreDraft() {
+    var raw = null;
+    try {
+      raw = localStorage.getItem(DRAFT_KEY);
+    } catch (e) {
+      return;
+    }
+    if (!raw) return;
+    var draft;
+    try {
+      draft = JSON.parse(raw);
+    } catch (e) {
+      return;
+    }
+    if (!draft || !Array.isArray(draft.points) || draft.points.length === 0) return;
+
+    state.id = draft.id || null;
+    state.name = draft.name || "";
+    state.folder = draft.folder || "";
+    el.routeName.value = state.name;
+    el.routeFolder.value = state.folder;
+    draft.points.forEach(function (p) {
+      state.points.push({ lat: p.lat, lng: p.lng });
+      markers.push(createMarker(state.points[state.points.length - 1], state.points.length - 1));
+    });
+    refreshPolyline();
+    renderPointList();
+
+    if (state.points.length > 0) {
+      var group = L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.2));
+    }
+  }
+
+  el.routeName.addEventListener("input", saveDraft);
+  el.routeFolder.addEventListener("input", saveDraft);
+
+  // ---- saved routes (localStorage) ----
+  function loadSavedRoutes() {
+    var raw = null;
+    try {
+      raw = localStorage.getItem(STORAGE_KEY);
+    } catch (e) {
+      return [];
+    }
+    if (!raw) return [];
+    try {
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function persistSavedRoutesLocalOnly(routes) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(routes));
+    } catch (e) {
+      showToast("Erro ao salvar: armazenamento local indisponível ou cheio.");
+    }
+  }
+
+  function persistSavedRoutes(routes) {
+    persistSavedRoutesLocalOnly(routes);
+    scheduleDrivePush();
+  }
+
+  function groupRoutesByFolder(routes) {
+    var groups = {};
+    var order = [];
+    routes.forEach(function (r) {
+      var folder = (r.folder || "").trim() || "Sem pasta";
+      if (!groups[folder]) {
+        groups[folder] = [];
+        order.push(folder);
+      }
+      groups[folder].push(r);
+    });
+    order.sort(function (a, b) {
+      if (a === "Sem pasta") return 1;
+      if (b === "Sem pasta") return -1;
+      return a.localeCompare(b, "pt-BR");
+    });
+    return { groups: groups, order: order };
+  }
+
+  function renderSavedRoutesList() {
+    var routes = loadSavedRoutes().filter(function (r) {
+      return !r.deleted;
+    });
+    el.savedRoutesList.innerHTML = "";
+    el.savedListEmpty.style.display = routes.length === 0 ? "block" : "none";
+
+    var sorted = routes.slice().sort(function (a, b) {
+      return b.savedAt - a.savedAt;
+    });
+    var grouped = groupRoutesByFolder(sorted);
+
+    grouped.order.forEach(function (folder) {
+      var headingLi = document.createElement("li");
+      headingLi.className = "folder-heading-item";
+      var headingSpan = document.createElement("span");
+      headingSpan.className = "folder-heading";
+      headingSpan.textContent = folder;
+      headingLi.appendChild(headingSpan);
+      el.savedRoutesList.appendChild(headingLi);
+
+      grouped.groups[folder].forEach(function (route) {
+        var li = document.createElement("li");
+
+        var info = document.createElement("div");
+        info.className = "route-info";
+
+        var name = document.createElement("span");
+        name.className = "route-name";
+        name.textContent = route.name || "(sem nome)";
+        info.appendChild(name);
+
+        var meta = document.createElement("span");
+        meta.className = "route-meta";
+        var date = new Date(route.savedAt);
+        meta.textContent = route.points.length + " pontos · " + date.toLocaleString("pt-BR");
+        info.appendChild(meta);
+
+        li.appendChild(info);
+
+        var buttons = document.createElement("div");
+        buttons.className = "route-buttons";
+
+        var navBtn = document.createElement("button");
+        navBtn.className = "nav-btn";
+        navBtn.textContent = "Iniciar Navegação";
+        navBtn.addEventListener("click", function () {
+          showScreen("navigation");
+          showNavSubview("picker");
+          openNavConfirm(route, "planning");
+        });
+        buttons.appendChild(navBtn);
+
+        var loadBtn = document.createElement("button");
+        loadBtn.className = "load-btn";
+        loadBtn.textContent = "Abrir";
+        loadBtn.addEventListener("click", function () {
+          openSavedRoute(route);
+        });
+        buttons.appendChild(loadBtn);
+
+        var deleteBtn = document.createElement("button");
+        deleteBtn.className = "delete-btn";
+        deleteBtn.textContent = "Excluir";
+        deleteBtn.addEventListener("click", function () {
+          if (!window.confirm('Excluir a rota "' + (route.name || "(sem nome)") + '"?')) return;
+          var all = loadSavedRoutes();
+          var target = all.find(function (r) {
+            return r.id === route.id;
+          });
+          if (target) {
+            target.deleted = true;
+            target.deletedAt = Date.now();
+          }
+          persistSavedRoutes(all);
+          renderSavedRoutesList();
+          showToast("Rota excluída.");
+        });
+        buttons.appendChild(deleteBtn);
+
+        li.appendChild(buttons);
+        el.savedRoutesList.appendChild(li);
+      });
+    });
+  }
+
+  function openSavedRoute(route) {
+    clearRoute();
+    state.id = route.id;
+    state.name = route.name;
+    state.folder = route.folder || "";
+    el.routeName.value = route.name;
+    el.routeFolder.value = state.folder;
+    route.points.forEach(function (p) {
+      state.points.push({ lat: p.lat, lng: p.lng });
+      markers.push(createMarker(state.points[state.points.length - 1], state.points.length - 1));
+    });
+    refreshPolyline();
+    renderPointList();
+    saveDraft();
+
+    if (state.points.length > 0) {
+      var group = L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.2));
+    }
+
+    closeSidePanelOnMobile();
+    showToast('Rota "' + route.name + '" carregada.');
+  }
+
+  function saveCurrentRoute() {
+    var name = el.routeName.value.trim();
+    if (!name) {
+      showToast("Dê um nome para a rota antes de salvar.");
+      el.routeName.focus();
+      return;
+    }
+    if (state.points.length === 0) {
+      showToast("Adicione pelo menos um ponto antes de salvar.");
+      return;
+    }
+
+    var folder = el.routeFolder.value.trim();
+    var routes = loadSavedRoutes();
+    var id = state.id || ("route_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8));
+    var record = {
+      id: id,
+      name: name,
+      folder: folder,
+      points: state.points.map(function (p) {
+        return { lat: p.lat, lng: p.lng };
+      }),
+      savedAt: Date.now()
+    };
+
+    var existingIndex = routes.findIndex(function (r) {
+      return r.id === id;
+    });
+    if (existingIndex >= 0) {
+      routes[existingIndex] = record;
+    } else {
+      routes.push(record);
+    }
+    persistSavedRoutes(routes);
+
+    state.id = id;
+    state.name = name;
+    saveDraft();
+    renderSavedRoutesList();
+    showToast('Rota "' + name + '" salva.');
+  }
+
+  el.btnSave.addEventListener("click", saveCurrentRoute);
+
+  el.btnNew.addEventListener("click", function () {
+    if (state.points.length > 0) {
+      if (!window.confirm("Começar uma nova rota? Os pontos não salvos serão perdidos.")) return;
+    }
+    clearRoute();
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch (e) {
+      /* ignore */
+    }
+    showToast("Nova rota iniciada.");
+  });
+
+  // ---- GPX export ----
+  function escapeXml(str) {
+    return String(str).replace(/[<>&'"]/g, function (c) {
+      switch (c) {
+        case "<":
+          return "&lt;";
+        case ">":
+          return "&gt;";
+        case "&":
+          return "&amp;";
+        case "'":
+          return "&apos;";
+        case '"':
+          return "&quot;";
+      }
+    });
+  }
+
+  function buildGpx() {
+    var name = el.routeName.value.trim() || "Rota sem nome";
+    var lines = [];
+    lines.push('<?xml version="1.0" encoding="UTF-8"?>');
+    lines.push(
+      '<gpx version="1.1" creator="Jipe Rotas" xmlns="http://www.topografix.com/GPX/1/1" ' +
+        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
+        'xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">'
+    );
+    lines.push("  <trk>");
+    lines.push("    <name>" + escapeXml(name) + "</name>");
+    lines.push("    <trkseg>");
+    state.points.forEach(function (p) {
+      lines.push('      <trkpt lat="' + p.lat + '" lon="' + p.lng + '"></trkpt>');
+    });
+    lines.push("    </trkseg>");
+    lines.push("  </trk>");
+    lines.push("</gpx>");
+    return lines.join("\n");
+  }
+
+  function sanitizeFileName(name) {
+    return (
+      name
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-zA-Z0-9_-]+/g, "_")
+        .replace(/^_+|_+$/g, "") || "rota"
+    );
+  }
+
+  el.btnExport.addEventListener("click", function () {
+    if (state.points.length === 0) {
+      showToast("Adicione pontos antes de exportar.");
+      return;
+    }
+    var gpxContent = buildGpx();
+    var blob = new Blob([gpxContent], { type: "application/gpx+xml" });
+    var url = URL.createObjectURL(blob);
+    var fileName = sanitizeFileName(el.routeName.value.trim() || "rota") + ".gpx";
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 1000);
+    showToast("GPX exportado: " + fileName);
+  });
+
+  // ---- import route (.gpx / .kml) ----
+  function getElementsText(el, tagName) {
+    var found = el.getElementsByTagName(tagName);
+    return found.length > 0 ? found[0].textContent.trim() : "";
+  }
+
+  function parseGpxPoints(doc) {
+    var els = doc.getElementsByTagName("trkpt");
+    if (els.length === 0) els = doc.getElementsByTagName("rtept");
+    if (els.length === 0) els = doc.getElementsByTagName("wpt");
+    var points = [];
+    for (var i = 0; i < els.length; i++) {
+      var lat = parseFloat(els[i].getAttribute("lat"));
+      var lon = parseFloat(els[i].getAttribute("lon"));
+      if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+        points.push({ lat: lat, lng: lon });
+      }
+    }
+    return points;
+  }
+
+  function parseGpxName(doc) {
+    var trk = doc.getElementsByTagName("trk")[0];
+    if (trk) {
+      var n = getElementsText(trk, "name");
+      if (n) return n;
+    }
+    var rte = doc.getElementsByTagName("rte")[0];
+    if (rte) {
+      var n2 = getElementsText(rte, "name");
+      if (n2) return n2;
+    }
+    var metadata = doc.getElementsByTagName("metadata")[0];
+    if (metadata) {
+      var n3 = getElementsText(metadata, "name");
+      if (n3) return n3;
+    }
+    var root = doc.documentElement;
+    if (root && root.getAttribute && root.getAttribute("name")) {
+      return root.getAttribute("name").trim();
+    }
+    return "";
+  }
+
+  function parseKmlCoordinatesText(text) {
+    var out = [];
+    var tuples = text.trim().split(/\s+/);
+    for (var i = 0; i < tuples.length; i++) {
+      if (!tuples[i]) continue;
+      var parts = tuples[i].split(",");
+      var lon = parseFloat(parts[0]);
+      var lat = parseFloat(parts[1]);
+      if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+        out.push({ lat: lat, lng: lon });
+      }
+    }
+    return out;
+  }
+
+  function parseKmlPoints(doc) {
+    // 1) LineString (a route/track drawn as a line) — most common representation
+    var lineStrings = doc.getElementsByTagName("LineString");
+    for (var i = 0; i < lineStrings.length; i++) {
+      var coordEls = lineStrings[i].getElementsByTagName("coordinates");
+      if (coordEls.length > 0) {
+        var pts = parseKmlCoordinatesText(coordEls[0].textContent);
+        if (pts.length > 0) return pts;
+      }
+    }
+    // 2) gx:Track (Google Earth recorded tracks): <gx:coord>lon lat alt</gx:coord>, space-separated
+    var gxCoords = doc.getElementsByTagName("gx:coord");
+    if (gxCoords.length > 0) {
+      var pts2 = [];
+      for (var j = 0; j < gxCoords.length; j++) {
+        var parts = gxCoords[j].textContent.trim().split(/\s+/);
+        var lon = parseFloat(parts[0]);
+        var lat = parseFloat(parts[1]);
+        if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+          pts2.push({ lat: lat, lng: lon });
+        }
+      }
+      if (pts2.length > 0) return pts2;
+    }
+    // 3) Fallback: ordered list of Point placemarks (waypoints)
+    var placemarks = doc.getElementsByTagName("Placemark");
+    var pts3 = [];
+    for (var k = 0; k < placemarks.length; k++) {
+      var pointEls = placemarks[k].getElementsByTagName("Point");
+      if (pointEls.length > 0) {
+        var cEls = pointEls[0].getElementsByTagName("coordinates");
+        if (cEls.length > 0) {
+          var single = parseKmlCoordinatesText(cEls[0].textContent);
+          if (single.length > 0) pts3.push(single[0]);
+        }
+      }
+    }
+    return pts3;
+  }
+
+  function parseKmlName(doc) {
+    var placemark = doc.getElementsByTagName("Placemark")[0];
+    if (placemark) {
+      var n = getElementsText(placemark, "name");
+      if (n) return n;
+    }
+    var docEl = doc.getElementsByTagName("Document")[0];
+    if (docEl) {
+      var n2 = getElementsText(docEl, "name");
+      if (n2) return n2;
+    }
+    return "";
+  }
+
+  function applyImportedRoute(points, suggestedName) {
+    if (state.points.length > 0) {
+      if (!window.confirm("Importar essa rota vai substituir a rota atual não salva. Continuar?")) return;
+    }
+    clearRoute();
+    points.forEach(function (p) {
+      state.points.push({ lat: p.lat, lng: p.lng });
+      markers.push(createMarker(state.points[state.points.length - 1], state.points.length - 1));
+    });
+    state.name = suggestedName || "";
+    el.routeName.value = state.name;
+    refreshPolyline();
+    renderPointList();
+    saveDraft();
+
+    var group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.2));
+    closeSidePanelOnMobile();
+
+    if (!suggestedName) {
+      showToast("Rota importada (" + points.length + " pontos). Dê um nome pra ela.");
+      el.routeName.focus();
+    } else {
+      showToast('Rota "' + suggestedName + '" importada (' + points.length + " pontos).");
+    }
+  }
+
+  function handleImportFile(file) {
+    var lowerName = file.name.toLowerCase();
+    var isKml = lowerName.endsWith(".kml");
+    var isGpx = lowerName.endsWith(".gpx");
+    if (!isKml && !isGpx) {
+      showToast("Formato não suportado. Use um arquivo .gpx ou .kml.");
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onerror = function () {
+      showToast("Não foi possível ler o arquivo.");
+    };
+    reader.onload = function () {
+      try {
+        var text = String(reader.result);
+        var doc = new DOMParser().parseFromString(text, "application/xml");
+        if (doc.getElementsByTagName("parsererror").length > 0) {
+          showToast("Arquivo inválido ou corrompido. Não foi possível importar.");
+          return;
+        }
+
+        var points, suggestedName;
+        if (isGpx) {
+          points = parseGpxPoints(doc);
+          suggestedName = parseGpxName(doc);
+        } else {
+          points = parseKmlPoints(doc);
+          suggestedName = parseKmlName(doc);
+        }
+
+        if (!points || points.length === 0) {
+          showToast("Não foi possível encontrar uma rota válida nesse arquivo.");
+          return;
+        }
+
+        applyImportedRoute(points, suggestedName);
+      } catch (e) {
+        showToast("Erro ao importar o arquivo. Verifique se é um .gpx ou .kml válido.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  el.btnImport.addEventListener("click", function () {
+    el.importFileInput.click();
+  });
+
+  el.importFileInput.addEventListener("change", function () {
+    var file = el.importFileInput.files[0];
+    el.importFileInput.value = "";
+    if (!file) return;
+    handleImportFile(file);
+  });
+
+  // ---- labels overlay toggle ----
+  el.toggleLabels.addEventListener("change", function () {
+    if (el.toggleLabels.checked) {
+      labelsLayer.addTo(map);
+    } else {
+      map.removeLayer(labelsLayer);
+    }
+  });
+
+  // ---- responsive side panel ----
+  function openSidePanel() {
+    el.sidePanel.classList.add("open");
+    el.panelOverlay.classList.add("open");
+  }
+  function closeSidePanel() {
+    el.sidePanel.classList.remove("open");
+    el.panelOverlay.classList.remove("open");
+  }
+  function closeSidePanelOnMobile() {
+    if (window.innerWidth <= 768) closeSidePanel();
+  }
+
+  el.btnMenu.addEventListener("click", openSidePanel);
+  el.btnClosePanel.addEventListener("click", closeSidePanel);
+  el.panelOverlay.addEventListener("click", closeSidePanel);
+
+  // ---- version + changelog ----
+  function renderChangelog() {
+    el.appVersionLabel.textContent = "v" + APP_VERSION;
+    el.changelogContent.innerHTML = "";
+    CHANGELOG.forEach(function (entry) {
+      var block = document.createElement("div");
+      block.className = "changelog-entry";
+
+      var heading = document.createElement("h3");
+      heading.textContent = "v" + entry.version;
+      var dateSpan = document.createElement("span");
+      dateSpan.className = "changelog-date";
+      dateSpan.textContent = entry.date;
+      heading.appendChild(dateSpan);
+      block.appendChild(heading);
+
+      var list = document.createElement("ul");
+      entry.changes.forEach(function (change) {
+        var li = document.createElement("li");
+        li.textContent = change;
+        list.appendChild(li);
+      });
+      block.appendChild(list);
+
+      el.changelogContent.appendChild(block);
+    });
+  }
+
+  function openChangelog() {
+    el.changelogModal.classList.add("open");
+  }
+  function closeChangelog() {
+    el.changelogModal.classList.remove("open");
+  }
+
+  el.btnChangelog.addEventListener("click", openChangelog);
+  el.btnCloseChangelog.addEventListener("click", closeChangelog);
+  el.changelogModal.addEventListener("click", function (e) {
+    if (e.target === el.changelogModal) closeChangelog();
+  });
+
+  // ================= NAVIGATION MODULE =================
+
+  // ---- screen switching ----
+  function showScreen(name) {
+    if (name === "planning") {
+      el.screenPlanning.classList.remove("hidden");
+      el.screenNavigation.classList.add("hidden");
+    } else {
+      el.screenPlanning.classList.add("hidden");
+      el.screenNavigation.classList.remove("hidden");
+    }
+  }
+
+  function showNavSubview(name) {
+    if (name === "picker") {
+      el.navPickerView.classList.remove("hidden");
+      el.navActiveView.classList.add("hidden");
+      renderNavRoutePicker();
+    } else {
+      el.navPickerView.classList.add("hidden");
+      el.navActiveView.classList.remove("hidden");
+    }
+  }
+
+  el.btnNavMode.addEventListener("click", function () {
+    showScreen("navigation");
+    showNavSubview("picker");
+  });
+
+  el.btnNavBackToPlanning.addEventListener("click", function () {
+    showScreen("planning");
+  });
+
+  // ---- route picker ----
+  function renderNavRoutePicker() {
+    var routes = loadSavedRoutes().filter(function (r) {
+      return !r.deleted;
+    });
+    el.navPickerList.innerHTML = "";
+    el.navPickerEmpty.style.display = routes.length === 0 ? "block" : "none";
+
+    var sorted = routes.slice().sort(function (a, b) {
+      return b.savedAt - a.savedAt;
+    });
+    var grouped = groupRoutesByFolder(sorted);
+
+    grouped.order.forEach(function (folder) {
+      var heading = document.createElement("div");
+      heading.className = "nav-folder-heading";
+      heading.textContent = folder;
+      el.navPickerList.appendChild(heading);
+
+      grouped.groups[folder].forEach(function (route) {
+        var card = document.createElement("div");
+        card.className = "nav-route-card";
+
+        var info = document.createElement("div");
+        info.className = "nav-route-card-info";
+        var name = document.createElement("div");
+        name.className = "nav-route-card-name";
+        name.textContent = route.name || "(sem nome)";
+        info.appendChild(name);
+        var meta = document.createElement("div");
+        meta.className = "nav-route-card-meta";
+        meta.textContent = route.points.length + " pontos";
+        info.appendChild(meta);
+        card.appendChild(info);
+
+        var btn = document.createElement("button");
+        btn.className = "nav-route-card-btn";
+        btn.textContent = "Navegar";
+        btn.addEventListener("click", function () {
+          openNavConfirm(route, "picker");
+        });
+        card.appendChild(btn);
+
+        el.navPickerList.appendChild(card);
+      });
+    });
+  }
+
+  // ---- confirm modal ----
+  var pendingNavRoute = null;
+  var navConfirmReturnTo = "picker";
+
+  function openNavConfirm(route, returnTo) {
+    if (!route.points || route.points.length === 0) {
+      showToast("Essa rota não tem pontos.");
+      return;
+    }
+    pendingNavRoute = route;
+    navConfirmReturnTo = returnTo || "picker";
+    el.navConfirmTitle.textContent = 'Navegar por "' + (route.name || "(sem nome)") + '"?';
+    el.navConfirmModal.classList.add("open");
+  }
+
+  el.btnNavConfirmCancel.addEventListener("click", function () {
+    el.navConfirmModal.classList.remove("open");
+    if (navConfirmReturnTo === "planning") {
+      showScreen("planning");
+    }
+    pendingNavRoute = null;
+  });
+
+  el.btnNavConfirmOk.addEventListener("click", function () {
+    el.navConfirmModal.classList.remove("open");
+    beginTileDownload(pendingNavRoute);
+  });
+
+  // ---- geometry helpers ----
+  function haversineMeters(lat1, lng1, lat2, lng2) {
+    var R = 6371000;
+    var toRad = Math.PI / 180;
+    var dLat = (lat2 - lat1) * toRad;
+    var dLng = (lng2 - lng1) * toRad;
+    var a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  function localMetersProjection(refLat) {
+    var mPerDegLat = 111320;
+    var mPerDegLng = 111320 * Math.cos((refLat * Math.PI) / 180);
+    return { mPerDegLat: mPerDegLat, mPerDegLng: mPerDegLng };
+  }
+
+  function distanceToSegmentMeters(p, a, b) {
+    var proj = localMetersProjection(a.lat);
+    var bx = (b.lng - a.lng) * proj.mPerDegLng;
+    var by = (b.lat - a.lat) * proj.mPerDegLat;
+    var px = (p.lng - a.lng) * proj.mPerDegLng;
+    var py = (p.lat - a.lat) * proj.mPerDegLat;
+    var lenSq = bx * bx + by * by;
+    var t = lenSq === 0 ? 0 : (px * bx + py * by) / lenSq;
+    t = Math.max(0, Math.min(1, t));
+    var closestX = t * bx;
+    var closestY = t * by;
+    var distX = px - closestX;
+    var distY = py - closestY;
+    return { distance: Math.sqrt(distX * distX + distY * distY), t: t };
+  }
+
+  function nearestPointOnRoute(p, routePoints) {
+    if (routePoints.length === 1) {
+      return { segmentIndex: 0, t: 0, distance: haversineMeters(p.lat, p.lng, routePoints[0].lat, routePoints[0].lng) };
+    }
+    var best = null;
+    for (var i = 0; i < routePoints.length - 1; i++) {
+      var res = distanceToSegmentMeters(p, routePoints[i], routePoints[i + 1]);
+      if (!best || res.distance < best.distance) {
+        best = { segmentIndex: i, t: res.t, distance: res.distance };
+      }
+    }
+    return best;
+  }
+
+  function remainingDistanceMeters(routePoints, nearest) {
+    if (routePoints.length < 2) return 0;
+    var i = nearest.segmentIndex;
+    var segLen = haversineMeters(routePoints[i].lat, routePoints[i].lng, routePoints[i + 1].lat, routePoints[i + 1].lng);
+    var remaining = segLen * (1 - nearest.t);
+    for (var j = i + 1; j < routePoints.length - 1; j++) {
+      remaining += haversineMeters(routePoints[j].lat, routePoints[j].lng, routePoints[j + 1].lat, routePoints[j + 1].lng);
+    }
+    return remaining;
+  }
+
+  function polylineLengthMeters(points) {
+    var total = 0;
+    for (var i = 0; i < points.length - 1; i++) {
+      total += haversineMeters(points[i].lat, points[i].lng, points[i + 1].lat, points[i + 1].lng);
+    }
+    return total;
+  }
+
+  function formatDistance(meters) {
+    if (meters == null || isNaN(meters)) return "--";
+    if (meters < 1000) return Math.round(meters) + " m";
+    return (meters / 1000).toFixed(1) + " km";
+  }
+
+  // ---- tile pre-fetch for offline navigation ----
+  var TILE_ZOOM_LEVELS = [13, 14, 15, 16];
+
+  function lngLatToTile(lat, lng, zoom) {
+    var latRad = (lat * Math.PI) / 180;
+    var n = Math.pow(2, zoom);
+    var x = Math.floor(((lng + 180) / 360) * n);
+    var y = Math.floor(((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * n);
+    return { x: x, y: y };
+  }
+
+  function densifyRoute(points, stepMeters) {
+    if (points.length < 2) return points.slice();
+    var out = [points[0]];
+    for (var i = 0; i < points.length - 1; i++) {
+      var a = points[i],
+        b = points[i + 1];
+      var segLen = haversineMeters(a.lat, a.lng, b.lat, b.lng);
+      var steps = Math.max(1, Math.ceil(segLen / stepMeters));
+      for (var s = 1; s <= steps; s++) {
+        var t = s / steps;
+        out.push({ lat: a.lat + (b.lat - a.lat) * t, lng: a.lng + (b.lng - a.lng) * t });
+      }
+    }
+    return out;
+  }
+
+  function computeTileListForRoute(routePoints) {
+    var dense = densifyRoute(routePoints, 150);
+    var tileSet = {};
+    var list = [];
+    TILE_ZOOM_LEVELS.forEach(function (z) {
+      dense.forEach(function (p) {
+        var base = lngLatToTile(p.lat, p.lng, z);
+        for (var dx = -1; dx <= 1; dx++) {
+          for (var dy = -1; dy <= 1; dy++) {
+            var x = base.x + dx,
+              y = base.y + dy;
+            var key = z + "/" + x + "/" + y;
+            if (!tileSet[key]) {
+              tileSet[key] = true;
+              list.push({ z: z, x: x, y: y, key: key });
+            }
+          }
+        }
+      });
+    });
+    return list;
+  }
+
+  function downloadTiles(tileList, onProgress, isCancelled) {
+    return new Promise(function (resolve) {
+      var total = tileList.length;
+      var completed = 0;
+      var failed = 0;
+      var index = 0;
+      var CONCURRENCY = 6;
+      var active = 0;
+
+      if (total === 0) {
+        resolve({ completed: 0, failed: 0, total: 0, cancelled: false });
+        return;
+      }
+
+      function next() {
+        if (isCancelled()) {
+          resolve({ completed: completed, failed: failed, total: total, cancelled: true });
+          return;
+        }
+        if (index >= tileList.length) {
+          if (active === 0) resolve({ completed: completed, failed: failed, total: total, cancelled: false });
+          return;
+        }
+        var t = tileList[index++];
+        active++;
+        var url = TILE_URL_TEMPLATE.replace("{z}", t.z).replace("{x}", t.x).replace("{y}", t.y);
+        hasTile(t.key)
+          .then(function (exists) {
+            if (exists) return null;
+            return fetch(url, { mode: "cors" })
+              .then(function (resp) {
+                if (!resp.ok) throw new Error("bad status");
+                return resp.blob();
+              })
+              .then(function (blob) {
+                return putTile(t.key, blob);
+              });
+          })
+          .then(function () {
+            completed++;
+          })
+          .catch(function () {
+            failed++;
+          })
+          .then(function () {
+            active--;
+            onProgress(completed + failed, total);
+            next();
+          });
+      }
+
+      for (var i = 0; i < CONCURRENCY; i++) next();
+    });
+  }
+
+  function checkOnline() {
+    if (!navigator.onLine) return Promise.resolve(false);
+    return fetch(TILE_URL_TEMPLATE.replace("{z}", "0").replace("{x}", "0").replace("{y}", "0"), {
+      mode: "cors",
+      cache: "no-store"
+    })
+      .then(function (r) {
+        return r.ok;
+      })
+      .catch(function () {
+        return false;
+      });
+  }
+
+  var downloadCancelled = false;
+
+  function beginTileDownload(route) {
+    downloadCancelled = false;
+    el.navDownloadModal.classList.add("open");
+    el.navOfflineAlert.classList.add("hidden");
+    el.navDownloadProgressBar.style.width = "0%";
+    el.navDownloadStatus.textContent = "Verificando conexão...";
+
+    checkOnline().then(function (online) {
+      if (downloadCancelled) return;
+      if (!online) {
+        el.navOfflineAlert.classList.remove("hidden");
+        el.navDownloadStatus.textContent = "Sem internet no momento.";
+        finishDownloadFlow(route);
+        return;
+      }
+      var tileList = computeTileListForRoute(route.points);
+      if (tileList.length === 0) {
+        finishDownloadFlow(route);
+        return;
+      }
+      el.navDownloadStatus.textContent = "Baixando tiles: 0 / " + tileList.length;
+      downloadTiles(
+        tileList,
+        function (done, total) {
+          el.navDownloadStatus.textContent = "Baixando tiles: " + done + " / " + total;
+          el.navDownloadProgressBar.style.width = Math.round((done / total) * 100) + "%";
+        },
+        function () {
+          return downloadCancelled;
+        }
+      ).then(function (result) {
+        if (downloadCancelled) return;
+        if (result.completed === 0 && result.failed > 0) {
+          el.navOfflineAlert.classList.remove("hidden");
+          el.navDownloadStatus.textContent = "Não foi possível baixar os mapas agora.";
+        } else {
+          el.navDownloadStatus.textContent = "Mapa da região salvo (" + result.completed + " blocos).";
+        }
+        finishDownloadFlow(route);
+      });
+    });
+  }
+
+  function finishDownloadFlow(route) {
+    if (downloadCancelled) return;
+    setTimeout(function () {
+      if (downloadCancelled) return;
+      el.navDownloadModal.classList.remove("open");
+      startNavigation(route);
+    }, 700);
+  }
+
+  el.btnNavDownloadSkip.addEventListener("click", function () {
+    downloadCancelled = true;
+    el.navDownloadModal.classList.remove("open");
+    startNavigation(pendingNavRoute);
+  });
+
+  // ---- deviation threshold (adjustable, persisted) ----
+  var THRESHOLD_KEY = "jipeRotas_deviationThreshold_v1";
+  var deviationThreshold = 50;
+
+  function loadThreshold() {
+    try {
+      var raw = localStorage.getItem(THRESHOLD_KEY);
+      if (raw) deviationThreshold = parseInt(raw, 10) || 50;
+    } catch (e) {
+      /* ignore */
+    }
+    el.btnNavThreshold.textContent = "Limite: " + deviationThreshold + "m ✎";
+  }
+
+  function saveThreshold(v) {
+    deviationThreshold = v;
+    try {
+      localStorage.setItem(THRESHOLD_KEY, String(v));
+    } catch (e) {
+      /* ignore */
+    }
+    el.btnNavThreshold.textContent = "Limite: " + deviationThreshold + "m ✎";
+  }
+
+  el.btnNavThreshold.addEventListener("click", function () {
+    el.navThresholdInput.value = String(deviationThreshold);
+    el.navThresholdModal.classList.add("open");
+  });
+  el.btnNavThresholdCancel.addEventListener("click", function () {
+    el.navThresholdModal.classList.remove("open");
+  });
+  el.btnNavThresholdSave.addEventListener("click", function () {
+    var v = parseInt(el.navThresholdInput.value, 10);
+    if (isNaN(v) || v < 5) v = 5;
+    if (v > 2000) v = 2000;
+    saveThreshold(v);
+    el.navThresholdModal.classList.remove("open");
+    showToast("Limite de desvio: " + v + "m");
+  });
+
+  // ---- active navigation ----
+  var navMap = null;
+  var navPlannedPolyline = null;
+  var navRecordedPolyline = null;
+  var navYouAreHereMarker = null;
+  var navWatchId = null;
+  var navCurrentRoute = null;
+  var navRecordedTrack = [];
+  var navLastRecordedPoint = null;
+  var navLastSpeedPoint = null;
+
+  function initNavMapIfNeeded() {
+    if (navMap) return;
+    navMap = L.map("nav-map", { zoomControl: false, maxZoom: 19 });
+    createOfflineTileLayer().addTo(navMap);
+    navPlannedPolyline = L.polyline([], { color: "#e08a2c", weight: 5 }).addTo(navMap);
+    navRecordedPolyline = L.polyline([], { color: "#3ba6ff", weight: 4, dashArray: "2,8" }).addTo(navMap);
+  }
+
+  function setEndedSummaryMode(ended) {
+    el.navHudBottom.classList.toggle("hidden", ended);
+    el.navHudTop.classList.toggle("hidden", ended);
+    el.btnEndNavigation.classList.toggle("hidden", ended);
+    el.navSummaryPanel.classList.toggle("hidden", !ended);
+    el.btnBackToPlanning.classList.toggle("hidden", !ended);
+  }
+
+  function startNavigation(route) {
+    initNavMapIfNeeded();
+    navCurrentRoute = route;
+    navRecordedTrack = [];
+    navLastRecordedPoint = null;
+    navLastSpeedPoint = null;
+
+    var latlngs = route.points.map(function (p) {
+      return [p.lat, p.lng];
+    });
+    navPlannedPolyline.setLatLngs(latlngs);
+    navRecordedPolyline.setLatLngs([]);
+
+    showScreen("navigation");
+    showNavSubview("active");
+    setEndedSummaryMode(false);
+
+    el.navDeviationPill.className = "nav-deviation-pill nav-deviation-ok";
+    el.navDeviationPill.textContent = "Aguardando GPS...";
+    el.navDistanceRemaining.textContent = "--";
+    el.navSpeed.textContent = "--";
+
+    setTimeout(function () {
+      navMap.invalidateSize();
+      if (route.points.length) {
+        navMap.fitBounds(L.polyline(latlngs).getBounds().pad(0.25));
+      }
+    }, 50);
+
+    startWatchingPosition();
+  }
+
+  function startWatchingPosition() {
+    stopWatchingPosition();
+    if (!navigator.geolocation) {
+      showToast("Geolocalização não disponível neste navegador.");
+      return;
+    }
+    navWatchId = navigator.geolocation.watchPosition(onNavPosition, onNavPositionError, {
+      enableHighAccuracy: true,
+      maximumAge: 2000,
+      timeout: 20000
+    });
+  }
+
+  function stopWatchingPosition() {
+    if (navWatchId !== null && navigator.geolocation) {
+      navigator.geolocation.clearWatch(navWatchId);
+    }
+    navWatchId = null;
+  }
+
+  function onNavPositionError(err) {
+    showToast("Erro de GPS: " + (err && err.message ? err.message : "sinal indisponível"));
+  }
+
+  function onNavPosition(pos) {
+    var lat = pos.coords.latitude,
+      lng = pos.coords.longitude;
+    var current = { lat: lat, lng: lng };
+
+    if (!navYouAreHereMarker) {
+      navYouAreHereMarker = L.marker([lat, lng], {
+        icon: L.divIcon({
+          className: "you-are-here-wrapper",
+          html: '<div class="you-are-here-dot"></div>',
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        })
+      }).addTo(navMap);
+    } else {
+      navYouAreHereMarker.setLatLng([lat, lng]);
+    }
+    navMap.setView([lat, lng], navMap.getZoom() < 15 ? 16 : navMap.getZoom());
+
+    var shouldRecord = true;
+    if (navLastRecordedPoint) {
+      var d = haversineMeters(navLastRecordedPoint.lat, navLastRecordedPoint.lng, lat, lng);
+      if (d < 5) shouldRecord = false;
+    }
+    if (shouldRecord) {
+      navRecordedTrack.push(current);
+      navLastRecordedPoint = current;
+      navRecordedPolyline.setLatLngs(
+        navRecordedTrack.map(function (p) {
+          return [p.lat, p.lng];
+        })
+      );
+    }
+
+    if (navCurrentRoute && navCurrentRoute.points.length) {
+      var nearest = nearestPointOnRoute(current, navCurrentRoute.points);
+      var remaining = remainingDistanceMeters(navCurrentRoute.points, nearest);
+      el.navDistanceRemaining.textContent = formatDistance(remaining);
+
+      if (nearest.distance > deviationThreshold) {
+        el.navDeviationPill.className = "nav-deviation-pill nav-deviation-alert";
+        el.navDeviationPill.textContent = "⚠ Fora da rota (" + Math.round(nearest.distance) + "m)";
+      } else {
+        el.navDeviationPill.className = "nav-deviation-pill nav-deviation-ok";
+        el.navDeviationPill.textContent = "No caminho";
+      }
+    }
+
+    var speedKmh = null;
+    if (pos.coords.speed != null && !isNaN(pos.coords.speed)) {
+      speedKmh = pos.coords.speed * 3.6;
+    } else if (navLastSpeedPoint) {
+      var dt = (pos.timestamp - navLastSpeedPoint.timestamp) / 1000;
+      if (dt > 0) {
+        var dd = haversineMeters(navLastSpeedPoint.lat, navLastSpeedPoint.lng, lat, lng);
+        speedKmh = (dd / dt) * 3.6;
+      }
+    }
+    navLastSpeedPoint = { lat: lat, lng: lng, timestamp: pos.timestamp };
+    el.navSpeed.textContent = speedKmh == null ? "--" : String(Math.round(speedKmh));
+  }
+
+  el.btnEndNavigation.addEventListener("click", function () {
+    el.navEndConfirmModal.classList.add("open");
+  });
+
+  el.btnNavEndConfirmCancel.addEventListener("click", function () {
+    el.navEndConfirmModal.classList.remove("open");
+  });
+
+  el.btnNavEndConfirmOk.addEventListener("click", function () {
+    el.navEndConfirmModal.classList.remove("open");
+    finishNavigationSession();
+  });
+
+  function finishNavigationSession() {
+    stopWatchingPosition();
+    var recordedMeters = polylineLengthMeters(navRecordedTrack);
+    el.navSummaryDistance.textContent = formatDistance(recordedMeters);
+    setEndedSummaryMode(true);
+  }
+
+  el.btnBackToPlanning.addEventListener("click", function () {
+    showScreen("planning");
+  });
+
+  // ================= GOOGLE DRIVE SYNC =================
+  //
+  // Preencha GOOGLE_CLIENT_ID com o Client ID criado no Google Cloud Console
+  // (veja as instruções que acompanham esta entrega). Sem isso, o botão
+  // "Conectar com Google Drive" mostra um aviso pedindo pra configurar.
+  var GOOGLE_CLIENT_ID = "610835944075-rvedu5e07bq140mdl0r6cd4db6fvacu1.apps.googleusercontent.com";
+  var DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+  var DRIVE_FOLDER_NAME = "Fora de Estrada Planejador";
+  var DRIVE_FILE_NAME = "rotas.json";
+  var DRIVE_API = "https://www.googleapis.com/drive/v3";
+  var DRIVE_UPLOAD_API = "https://www.googleapis.com/upload/drive/v3";
+  var DRIVE_CONNECTED_KEY = "jipeRotas_driveConnected_v1";
+
+  var driveTokenClient = null;
+  var driveAccessToken = null;
+  var driveConnected = false;
+  var driveFolderId = null;
+  var driveFileId = null;
+  var driveSyncTimer = null;
+  var drivePendingSilent = false;
+
+  function isGoogleClientIdConfigured() {
+    return GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID.indexOf("SEU_CLIENT_ID_AQUI") !== 0;
+  }
+
+  function setDriveConnected(connected) {
+    driveConnected = connected;
+    el.btnDriveConnect.classList.toggle("drive-connected", connected);
+    el.btnDriveConnect.textContent = connected ? "✅ Google Drive conectado" : "☁️ Conectar com Google Drive";
+    el.driveStatusHint.textContent = connected
+      ? "Suas rotas salvas sincronizam com a pasta \"" + DRIVE_FOLDER_NAME + "\" no seu Google Drive."
+      : "Conecta com a pasta do app no seu Google Drive, pra sincronizar as rotas salvas entre aparelhos.";
+  }
+
+  function initGoogleTokenClient() {
+    if (!window.google || !google.accounts || !google.accounts.oauth2) return null;
+    return google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: DRIVE_SCOPE,
+      callback: function (resp) {
+        if (!resp || resp.error) {
+          if (!drivePendingSilent) showToast("Não foi possível conectar ao Google Drive.");
+          setDriveConnected(false);
+          return;
+        }
+        driveAccessToken = resp.access_token;
+        setDriveConnected(true);
+        try {
+          localStorage.setItem(DRIVE_CONNECTED_KEY, "1");
+        } catch (e) {
+          /* ignore */
+        }
+        onDriveConnected();
+      }
+    });
+  }
+
+  function requestDriveToken(silent) {
+    if (!isGoogleClientIdConfigured()) {
+      showToast("Configure o GOOGLE_CLIENT_ID no código antes de conectar (veja instruções).");
+      return;
+    }
+    if (!driveTokenClient) driveTokenClient = initGoogleTokenClient();
+    if (!driveTokenClient) {
+      if (!silent) showToast("Google ainda carregando, tente novamente em instantes.");
+      return;
+    }
+    drivePendingSilent = !!silent;
+    driveTokenClient.requestAccessToken({ prompt: silent ? "none" : driveAccessToken ? "" : "consent" });
+  }
+
+  el.btnDriveConnect.addEventListener("click", function () {
+    if (driveConnected) {
+      if (!window.confirm("Desconectar do Google Drive? Suas rotas continuam salvas neste aparelho.")) return;
+      driveAccessToken = null;
+      driveFolderId = null;
+      driveFileId = null;
+      setDriveConnected(false);
+      try {
+        localStorage.removeItem(DRIVE_CONNECTED_KEY);
+      } catch (e) {
+        /* ignore */
+      }
+      showToast("Desconectado do Google Drive.");
+      return;
+    }
+    requestDriveToken(false);
+  });
+
+  function tryAutoReconnect() {
+    var wasConnected = false;
+    try {
+      wasConnected = localStorage.getItem(DRIVE_CONNECTED_KEY) === "1";
+    } catch (e) {
+      /* ignore */
+    }
+    if (!wasConnected || !isGoogleClientIdConfigured()) return;
+
+    var attempts = 0;
+    var waitForGoogle = setInterval(function () {
+      attempts++;
+      if (window.google && google.accounts && google.accounts.oauth2) {
+        clearInterval(waitForGoogle);
+        requestDriveToken(true);
+      } else if (attempts > 40) {
+        clearInterval(waitForGoogle);
+      }
+    }, 250);
+  }
+
+  // ---- Drive REST helpers ----
+  function driveFetch(url, options) {
+    options = options || {};
+    var headers = options.headers || {};
+    headers["Authorization"] = "Bearer " + driveAccessToken;
+    options.headers = headers;
+    return fetch(url, options);
+  }
+
+  function findAppFolderId() {
+    var q = encodeURIComponent("mimeType='application/vnd.google-apps.folder' and name='" + DRIVE_FOLDER_NAME + "' and trashed=false");
+    return driveFetch(DRIVE_API + "/files?q=" + q + "&spaces=drive&fields=files(id,name)")
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (data) {
+        if (data.files && data.files.length > 0) return data.files[0].id;
+        return createAppFolder();
+      });
+  }
+
+  function createAppFolder() {
+    return driveFetch(DRIVE_API + "/files", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: DRIVE_FOLDER_NAME, mimeType: "application/vnd.google-apps.folder" })
+    })
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (data) {
+        return data.id;
+      });
+  }
+
+  function findRoutesFileId(folderId) {
+    var q = encodeURIComponent("name='" + DRIVE_FILE_NAME + "' and '" + folderId + "' in parents and trashed=false");
+    return driveFetch(DRIVE_API + "/files?q=" + q + "&spaces=drive&fields=files(id,name)")
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (data) {
+        return data.files && data.files.length > 0 ? data.files[0].id : null;
+      });
+  }
+
+  function downloadRoutesFile(fileId) {
+    return driveFetch(DRIVE_API + "/files/" + fileId + "?alt=media")
+      .then(function (r) {
+        return r.ok ? r.json() : [];
+      })
+      .catch(function () {
+        return [];
+      });
+  }
+
+  function uploadRoutesFile(folderId, fileId, routesArray) {
+    var metadata = fileId ? {} : { name: DRIVE_FILE_NAME, mimeType: "application/json", parents: [folderId] };
+    var boundary = "foraDeEstradaBoundary" + Date.now();
+    var body =
+      "--" + boundary + "\r\n" +
+      "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
+      JSON.stringify(metadata) + "\r\n" +
+      "--" + boundary + "\r\n" +
+      "Content-Type: application/json\r\n\r\n" +
+      JSON.stringify(routesArray) + "\r\n" +
+      "--" + boundary + "--";
+
+    var url = fileId ? DRIVE_UPLOAD_API + "/files/" + fileId + "?uploadType=multipart" : DRIVE_UPLOAD_API + "/files?uploadType=multipart";
+    var method = fileId ? "PATCH" : "POST";
+
+    return driveFetch(url, {
+      method: method,
+      headers: { "Content-Type": "multipart/related; boundary=" + boundary },
+      body: body
+    }).then(function (r) {
+      return r.json();
+    });
+  }
+
+  // ---- merge (last-write-wins per route id, tombstones for deletes) ----
+  function mergeRouteSets(localRoutes, remoteRoutes) {
+    var byId = {};
+    localRoutes.forEach(function (r) {
+      byId[r.id] = r;
+    });
+    remoteRoutes.forEach(function (r) {
+      var existing = byId[r.id];
+      if (!existing) {
+        byId[r.id] = r;
+        return;
+      }
+      var existingTime = existing.deletedAt || existing.savedAt || 0;
+      var incomingTime = r.deletedAt || r.savedAt || 0;
+      if (incomingTime > existingTime) byId[r.id] = r;
+    });
+    return Object.keys(byId).map(function (k) {
+      return byId[k];
+    });
+  }
+
+  // ---- sync orchestration ----
+  function onDriveConnected() {
+    findAppFolderId()
+      .then(function (folderId) {
+        driveFolderId = folderId;
+        return findRoutesFileId(folderId);
+      })
+      .then(function (fileId) {
+        driveFileId = fileId;
+        if (fileId) {
+          return downloadRoutesFile(fileId).then(function (remoteRoutes) {
+            var merged = mergeRouteSets(loadSavedRoutes(), remoteRoutes || []);
+            persistSavedRoutesLocalOnly(merged);
+            renderSavedRoutesList();
+            showToast("Rotas sincronizadas do Google Drive.");
+          });
+        }
+        return pushRoutesToDrive();
+      })
+      .catch(function () {
+        showToast("Conectado, mas houve um problema ao sincronizar agora. Vai tentar de novo em breve.");
+      });
+  }
+
+  function scheduleDrivePush() {
+    if (!driveConnected) return;
+    clearTimeout(driveSyncTimer);
+    driveSyncTimer = setTimeout(pushRoutesToDrive, 3000);
+  }
+
+  function pushRoutesToDrive() {
+    if (!driveConnected || !driveFolderId) return Promise.resolve();
+    var routes = loadSavedRoutes();
+    return uploadRoutesFile(driveFolderId, driveFileId, routes)
+      .then(function (data) {
+        if (data && data.id) driveFileId = data.id;
+      })
+      .catch(function () {
+        /* offline or error: silently skip, localStorage remains source of truth */
+      });
+  }
+
+  function pullRoutesFromDrive() {
+    if (!driveConnected || !driveFileId) return Promise.resolve();
+    return downloadRoutesFile(driveFileId)
+      .then(function (remoteRoutes) {
+        var merged = mergeRouteSets(loadSavedRoutes(), remoteRoutes || []);
+        persistSavedRoutesLocalOnly(merged);
+        renderSavedRoutesList();
+      })
+      .catch(function () {
+        /* ignore, offline */
+      });
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && driveConnected) {
+      pullRoutesFromDrive();
+    }
+  });
+
+  // ---- init ----
+  function init() {
+    initMap();
+    restoreDraft();
+    renderPointList();
+    renderSavedRoutesList();
+    renderChangelog();
+    loadThreshold();
+    tryAutoReconnect();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
