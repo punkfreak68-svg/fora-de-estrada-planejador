@@ -2942,6 +2942,7 @@ html, body {
   var navLastSpeedPoint = null;
   var navFollowMode = true;
   var navFreeModeSavedRouteId = null;
+  var navHasSetInitialZoom = false;
 
   function initNavMapIfNeeded() {
     if (navMap) return;
@@ -3019,6 +3020,7 @@ html, body {
     navFreeModeSavedRouteId = null;
     navFollowMode = true;
     navHasHeadingIconState = false;
+    navHasSetInitialZoom = false;
     if (navYouAreHereMarker) {
       navMap.removeLayer(navYouAreHereMarker);
       navYouAreHereMarker = null;
@@ -3127,8 +3129,11 @@ html, body {
 
     if (navFollowMode) {
       var targetZoom = navMap.getZoom();
-      if (targetZoom == null || isNaN(targetZoom) || targetZoom < 15) targetZoom = 16;
+      if (!navHasSetInitialZoom && (targetZoom == null || isNaN(targetZoom) || targetZoom < 15)) {
+        targetZoom = 16;
+      }
       navMap.setView([lat, lng], targetZoom);
+      navHasSetInitialZoom = true;
       if (hasHeading) navMap.setBearing(pos.coords.heading);
     }
     el.navCompassNeedle.style.transform = "rotate(" + -navMap.getBearing() + "deg)";
