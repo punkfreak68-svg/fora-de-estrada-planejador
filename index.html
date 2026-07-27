@@ -821,33 +821,113 @@ html, body {
   letter-spacing: 0.03em;
 }
 
-.nav-end-btn {
+.nav-bottom-buttons {
   position: absolute;
   bottom: 16px;
   left: 12px;
   right: 12px;
   z-index: 900;
-  background: #a02020;
-  color: #fff;
+  display: flex;
+  gap: 10px;
+}
+
+.nav-action-btn {
+  flex: 1;
   border: none;
   border-radius: 12px;
-  padding: 18px;
-  font-size: 1.15rem;
+  padding: 18px 10px;
+  font-size: 1.05rem;
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  color: #fff;
+}
+
+.nav-end-btn {
+  background: #a02020;
 }
 
 .nav-end-btn:hover {
   background: #c22626;
 }
 
+.nav-save-track-btn,
 .nav-back-btn {
   background: #2e6b30;
 }
 
+.nav-save-track-btn:hover,
 .nav-back-btn:hover {
   background: #377d3a;
+}
+
+.nav-free-mode-banner {
+  padding: 14px 14px 0 14px;
+}
+
+.nav-free-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #345a6e;
+  background: #2a4a5a;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav-free-btn:hover {
+  background: #345a6e;
+}
+
+.nav-compass {
+  position: absolute;
+  top: 72px;
+  right: 12px;
+  z-index: 895;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(20,24,15,0.85);
+  border: 2px solid #4a5a34;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.nav-compass-needle {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 5px;
+  box-sizing: border-box;
+  color: #ff5050;
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+.nav-recenter-btn {
+  position: absolute;
+  bottom: 190px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 900;
+  background: #2a4a5a;
+  color: #fff;
+  border: 1px solid #345a6e;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.nav-recenter-btn:hover {
+  background: #345a6e;
 }
 
 .nav-summary-panel {
@@ -896,6 +976,36 @@ html, body {
   background: #3ba6ff;
   border: 3px solid #fff;
   box-shadow: 0 0 0 6px rgba(59,166,255,0.35);
+}
+
+.you-are-here-puck {
+  position: relative;
+  width: 26px;
+  height: 30px;
+}
+
+.puck-dot {
+  position: absolute;
+  left: 3px;
+  top: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3ba6ff;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgba(59,166,255,0.35);
+}
+
+.puck-arrow {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 12px solid #3ba6ff;
 }
 
 /* Google Drive sync */
@@ -1014,12 +1124,21 @@ html, body {
       <button id="btn-nav-back-to-planning" class="icon-btn" aria-label="Voltar ao planejamento">←</button>
       <h1>Navegação</h1>
     </header>
+    <div class="nav-free-mode-banner">
+      <button id="btn-nav-free-mode" class="nav-free-btn">🧭 Navegar Livre (sem rota)</button>
+    </div>
     <div id="nav-picker-list" class="nav-picker-list"></div>
     <p id="nav-picker-empty" class="hint" style="padding: 16px;">Nenhuma rota salva. Volte ao planejamento para criar uma.</p>
   </div>
 
   <div id="nav-active-view" class="nav-subview hidden">
     <div id="nav-map"></div>
+
+    <div id="nav-compass" class="nav-compass hidden">
+      <div id="nav-compass-needle" class="nav-compass-needle">N</div>
+    </div>
+
+    <button id="btn-nav-recenter" class="nav-recenter-btn hidden">🎯 Centralizar</button>
 
     <div id="nav-hud-top">
       <div id="nav-deviation-pill" class="nav-deviation-pill nav-deviation-ok">Aguardando GPS...</div>
@@ -1029,7 +1148,7 @@ html, body {
     <div id="nav-hud-bottom">
       <div class="nav-stat-tile">
         <div class="nav-stat-value" id="nav-distance-remaining">--</div>
-        <div class="nav-stat-label">restante</div>
+        <div class="nav-stat-label" id="nav-distance-label">restante</div>
       </div>
       <div class="nav-stat-tile">
         <div class="nav-stat-value" id="nav-speed">--</div>
@@ -1037,14 +1156,29 @@ html, body {
       </div>
     </div>
 
-    <button id="btn-end-navigation" class="nav-end-btn">Encerrar Navegação</button>
+    <div id="nav-bottom-buttons" class="nav-bottom-buttons">
+      <button id="btn-save-track" class="nav-action-btn nav-save-track-btn hidden">💾 Salvar Trajeto</button>
+      <button id="btn-end-navigation" class="nav-action-btn nav-end-btn">Encerrar Navegação</button>
+      <button id="btn-back-to-planning" class="nav-action-btn nav-back-btn hidden">Voltar ao Planejamento</button>
+    </div>
 
     <div id="nav-summary-panel" class="nav-summary-panel hidden">
       <div class="nav-summary-title">Navegação encerrada</div>
       <div class="nav-summary-row"><span class="dot dot-orange"></span> Planejado</div>
       <div class="nav-summary-row"><span class="dot dot-blue"></span> Percorrido: <b id="nav-summary-distance">--</b></div>
     </div>
-    <button id="btn-back-to-planning" class="nav-end-btn nav-back-btn hidden">Voltar ao Planejamento</button>
+  </div>
+</div>
+
+<div id="save-track-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2>Salvar trajeto como rota</h2>
+    <input id="save-track-name" type="text" placeholder="Nome da rota" class="folder-input" />
+    <input id="save-track-folder" type="text" placeholder="Pasta (opcional)" class="folder-input" style="margin-top: 8px;" />
+    <div class="modal-actions">
+      <button id="btn-save-track-cancel" class="modal-btn-secondary">Cancelar</button>
+      <button id="btn-save-track-confirm" class="modal-btn-primary">Salvar</button>
+    </div>
   </div>
 </div>
 
@@ -1105,6 +1239,7 @@ html, body {
 <div id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script>
 <script>
 (function () {
   "use strict";
@@ -1112,8 +1247,19 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "1.4";
+  var APP_VERSION = "1.5";
   var CHANGELOG = [
+    {
+      version: "1.5",
+      date: "27/07/2026",
+      changes: [
+        "Novo \"Navegar Livre\": grava seu trajeto sem precisar de uma rota planejada",
+        "Botão \"Salvar Trajeto\" no modo livre — vira uma rota normal, editável e exportável em .gpx",
+        "Mapa gira automaticamente na direção do movimento, com seta indicando pra onde você está indo",
+        "Bússola fixa na tela mostrando onde fica o Norte, mesmo com o mapa girado",
+        "Zoom e arraste livre durante a navegação, com botão \"Centralizar\" para voltar a seguir sua posição"
+      ]
+    },
     {
       version: "1.4",
       date: "25/07/2026",
@@ -1346,19 +1492,32 @@ html, body {
     navPickerView: document.getElementById("nav-picker-view"),
     navActiveView: document.getElementById("nav-active-view"),
     btnNavBackToPlanning: document.getElementById("btn-nav-back-to-planning"),
+    btnNavFreeMode: document.getElementById("btn-nav-free-mode"),
     navPickerList: document.getElementById("nav-picker-list"),
     navPickerEmpty: document.getElementById("nav-picker-empty"),
+
+    navCompass: document.getElementById("nav-compass"),
+    navCompassNeedle: document.getElementById("nav-compass-needle"),
+    btnNavRecenter: document.getElementById("btn-nav-recenter"),
 
     navDeviationPill: document.getElementById("nav-deviation-pill"),
     btnNavThreshold: document.getElementById("btn-nav-threshold"),
     navHudBottom: document.getElementById("nav-hud-bottom"),
     navHudTop: document.getElementById("nav-hud-top"),
     navDistanceRemaining: document.getElementById("nav-distance-remaining"),
+    navDistanceLabel: document.getElementById("nav-distance-label"),
     navSpeed: document.getElementById("nav-speed"),
+    btnSaveTrack: document.getElementById("btn-save-track"),
     btnEndNavigation: document.getElementById("btn-end-navigation"),
     navSummaryPanel: document.getElementById("nav-summary-panel"),
     navSummaryDistance: document.getElementById("nav-summary-distance"),
     btnBackToPlanning: document.getElementById("btn-back-to-planning"),
+
+    saveTrackModal: document.getElementById("save-track-modal"),
+    saveTrackName: document.getElementById("save-track-name"),
+    saveTrackFolder: document.getElementById("save-track-folder"),
+    btnSaveTrackCancel: document.getElementById("btn-save-track-cancel"),
+    btnSaveTrackConfirm: document.getElementById("btn-save-track-confirm"),
 
     navConfirmModal: document.getElementById("nav-confirm-modal"),
     navConfirmTitle: document.getElementById("nav-confirm-title"),
@@ -2774,44 +2933,115 @@ html, body {
   var navPlannedPolyline = null;
   var navRecordedPolyline = null;
   var navYouAreHereMarker = null;
+  var navHasHeadingIconState = false;
   var navWatchId = null;
   var navCurrentRoute = null;
+  var navMode = "route"; // "route" | "free"
   var navRecordedTrack = [];
   var navLastRecordedPoint = null;
   var navLastSpeedPoint = null;
+  var navFollowMode = true;
+  var navFreeModeSavedRouteId = null;
 
   function initNavMapIfNeeded() {
     if (navMap) return;
-    navMap = L.map("nav-map", { zoomControl: false, maxZoom: 19 });
+    navMap = L.map("nav-map", {
+      zoomControl: false,
+      maxZoom: 19,
+      rotate: true,
+      rotateControl: false,
+      touchRotate: false,
+      bearing: 0
+    });
+    navMap.setView([-14.235, -51.9253], 5);
     createOfflineTileLayer().addTo(navMap);
     navPlannedPolyline = L.polyline([], { color: "#e08a2c", weight: 5 }).addTo(navMap);
     navRecordedPolyline = L.polyline([], { color: "#3ba6ff", weight: 4, dashArray: "2,8" }).addTo(navMap);
+
+    navMap.on("dragstart", function () {
+      setNavFollowMode(false);
+    });
+  }
+
+  function youAreHereIcon(hasHeading) {
+    var html = hasHeading
+      ? '<div class="you-are-here-puck"><div class="puck-arrow"></div><div class="puck-dot"></div></div>'
+      : '<div class="you-are-here-dot"></div>';
+    return L.divIcon({
+      className: "you-are-here-wrapper",
+      html: html,
+      iconSize: hasHeading ? [26, 30] : [20, 20],
+      iconAnchor: hasHeading ? [13, 15] : [10, 10]
+    });
+  }
+
+  function setNavFollowMode(follow) {
+    navFollowMode = follow;
+    el.btnNavRecenter.classList.toggle("hidden", follow);
+  }
+
+  el.btnNavRecenter.addEventListener("click", function () {
+    setNavFollowMode(true);
+    if (navLastRecordedPoint) {
+      navMap.setView([navLastRecordedPoint.lat, navLastRecordedPoint.lng], navMap.getZoom());
+    }
+  });
+
+  function applyNavModeUi(mode) {
+    if (mode === "free") {
+      el.btnNavThreshold.classList.add("hidden");
+      el.navDeviationPill.className = "nav-deviation-pill nav-deviation-ok";
+      el.navDeviationPill.textContent = "🧭 Modo Livre";
+      el.navDistanceLabel.textContent = "percorrido";
+      el.btnSaveTrack.classList.remove("hidden");
+    } else {
+      el.btnNavThreshold.classList.remove("hidden");
+      el.navDistanceLabel.textContent = "restante";
+      el.btnSaveTrack.classList.add("hidden");
+    }
   }
 
   function setEndedSummaryMode(ended) {
     el.navHudBottom.classList.toggle("hidden", ended);
     el.navHudTop.classList.toggle("hidden", ended);
+    el.navCompass.classList.toggle("hidden", ended);
+    el.btnNavRecenter.classList.toggle("hidden", ended || navFollowMode);
     el.btnEndNavigation.classList.toggle("hidden", ended);
+    el.btnSaveTrack.classList.toggle("hidden", ended || navMode !== "free");
     el.navSummaryPanel.classList.toggle("hidden", !ended);
     el.btnBackToPlanning.classList.toggle("hidden", !ended);
   }
 
-  function startNavigation(route) {
-    initNavMapIfNeeded();
-    navCurrentRoute = route;
+  function resetNavSession() {
     navRecordedTrack = [];
     navLastRecordedPoint = null;
     navLastSpeedPoint = null;
+    navFreeModeSavedRouteId = null;
+    navFollowMode = true;
+    navHasHeadingIconState = false;
+    if (navYouAreHereMarker) {
+      navMap.removeLayer(navYouAreHereMarker);
+      navYouAreHereMarker = null;
+    }
+    navMap.setBearing(0);
+    navRecordedPolyline.setLatLngs([]);
+  }
+
+  function startNavigation(route) {
+    initNavMapIfNeeded();
+    navMode = "route";
+    navCurrentRoute = route;
+    resetNavSession();
 
     var latlngs = route.points.map(function (p) {
       return [p.lat, p.lng];
     });
     navPlannedPolyline.setLatLngs(latlngs);
-    navRecordedPolyline.setLatLngs([]);
 
     showScreen("navigation");
     showNavSubview("active");
     setEndedSummaryMode(false);
+    applyNavModeUi("route");
 
     el.navDeviationPill.className = "nav-deviation-pill nav-deviation-ok";
     el.navDeviationPill.textContent = "Aguardando GPS...";
@@ -2827,6 +3057,32 @@ html, body {
 
     startWatchingPosition();
   }
+
+  function startFreeNavigation() {
+    initNavMapIfNeeded();
+    navMode = "free";
+    navCurrentRoute = null;
+    resetNavSession();
+    navPlannedPolyline.setLatLngs([]);
+
+    showScreen("navigation");
+    showNavSubview("active");
+    setEndedSummaryMode(false);
+    applyNavModeUi("free");
+
+    el.navDistanceRemaining.textContent = "0 m";
+    el.navSpeed.textContent = "--";
+
+    setTimeout(function () {
+      navMap.invalidateSize();
+    }, 50);
+
+    startWatchingPosition();
+  }
+
+  el.btnNavFreeMode.addEventListener("click", function () {
+    startFreeNavigation();
+  });
 
   function startWatchingPosition() {
     stopWatchingPosition();
@@ -2856,20 +3112,26 @@ html, body {
     var lat = pos.coords.latitude,
       lng = pos.coords.longitude;
     var current = { lat: lat, lng: lng };
+    var hasHeading = pos.coords.heading != null && !isNaN(pos.coords.heading);
 
     if (!navYouAreHereMarker) {
-      navYouAreHereMarker = L.marker([lat, lng], {
-        icon: L.divIcon({
-          className: "you-are-here-wrapper",
-          html: '<div class="you-are-here-dot"></div>',
-          iconSize: [20, 20],
-          iconAnchor: [10, 10]
-        })
-      }).addTo(navMap);
+      navYouAreHereMarker = L.marker([lat, lng], { icon: youAreHereIcon(hasHeading) }).addTo(navMap);
+      navHasHeadingIconState = hasHeading;
     } else {
       navYouAreHereMarker.setLatLng([lat, lng]);
+      if (hasHeading !== navHasHeadingIconState) {
+        navYouAreHereMarker.setIcon(youAreHereIcon(hasHeading));
+        navHasHeadingIconState = hasHeading;
+      }
     }
-    navMap.setView([lat, lng], navMap.getZoom() < 15 ? 16 : navMap.getZoom());
+
+    if (navFollowMode) {
+      var targetZoom = navMap.getZoom();
+      if (targetZoom == null || isNaN(targetZoom) || targetZoom < 15) targetZoom = 16;
+      navMap.setView([lat, lng], targetZoom);
+      if (hasHeading) navMap.setBearing(pos.coords.heading);
+    }
+    el.navCompassNeedle.style.transform = "rotate(" + -navMap.getBearing() + "deg)";
 
     var shouldRecord = true;
     if (navLastRecordedPoint) {
@@ -2886,7 +3148,7 @@ html, body {
       );
     }
 
-    if (navCurrentRoute && navCurrentRoute.points.length) {
+    if (navMode === "route" && navCurrentRoute && navCurrentRoute.points.length) {
       var nearest = nearestPointOnRoute(current, navCurrentRoute.points);
       var remaining = remainingDistanceMeters(navCurrentRoute.points, nearest);
       el.navDistanceRemaining.textContent = formatDistance(remaining);
@@ -2898,6 +3160,8 @@ html, body {
         el.navDeviationPill.className = "nav-deviation-pill nav-deviation-ok";
         el.navDeviationPill.textContent = "No caminho";
       }
+    } else if (navMode === "free") {
+      el.navDistanceRemaining.textContent = formatDistance(polylineLengthMeters(navRecordedTrack));
     }
 
     var speedKmh = null;
@@ -2912,6 +3176,70 @@ html, body {
     }
     navLastSpeedPoint = { lat: lat, lng: lng, timestamp: pos.timestamp };
     el.navSpeed.textContent = speedKmh == null ? "--" : String(Math.round(speedKmh));
+  }
+
+  // ---- save track (Modo Livre) ----
+  el.btnSaveTrack.addEventListener("click", function () {
+    if (navRecordedTrack.length < 2) {
+      showToast("Ande um pouco antes de salvar o trajeto.");
+      return;
+    }
+    if (navFreeModeSavedRouteId) {
+      updateSavedTrack(navFreeModeSavedRouteId);
+      return;
+    }
+    el.saveTrackName.value = "";
+    el.saveTrackFolder.value = "";
+    el.saveTrackModal.classList.add("open");
+    el.saveTrackName.focus();
+  });
+
+  el.btnSaveTrackCancel.addEventListener("click", function () {
+    el.saveTrackModal.classList.remove("open");
+  });
+
+  el.btnSaveTrackConfirm.addEventListener("click", function () {
+    var name = el.saveTrackName.value.trim();
+    if (!name) {
+      showToast("Dê um nome pro trajeto.");
+      return;
+    }
+    var folder = el.saveTrackFolder.value.trim();
+    var id = "route_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+    var record = {
+      id: id,
+      name: name,
+      folder: folder,
+      points: navRecordedTrack.map(function (p) {
+        return { lat: p.lat, lng: p.lng };
+      }),
+      savedAt: Date.now()
+    };
+    var routes = loadSavedRoutes();
+    routes.push(record);
+    persistSavedRoutes(routes);
+    renderSavedRoutesList();
+    navFreeModeSavedRouteId = id;
+    el.saveTrackModal.classList.remove("open");
+    showToast('Trajeto salvo como "' + name + '".');
+  });
+
+  function updateSavedTrack(id) {
+    var routes = loadSavedRoutes();
+    var target = routes.find(function (r) {
+      return r.id === id;
+    });
+    if (!target) {
+      navFreeModeSavedRouteId = null;
+      return;
+    }
+    target.points = navRecordedTrack.map(function (p) {
+      return { lat: p.lat, lng: p.lng };
+    });
+    target.savedAt = Date.now();
+    persistSavedRoutes(routes);
+    renderSavedRoutesList();
+    showToast("Trajeto atualizado (" + target.points.length + " pontos).");
   }
 
   el.btnEndNavigation.addEventListener("click", function () {
