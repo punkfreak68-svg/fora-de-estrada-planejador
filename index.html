@@ -1069,6 +1069,13 @@ html, body {
   text-align: center;
 }
 
+.dashboard-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  margin-bottom: 10px;
+}
+
 .dashboard-header h1 {
   margin: 0;
   font-size: 1.3rem;
@@ -1176,6 +1183,7 @@ html, body {
 
 <div id="screen-dashboard">
   <header class="dashboard-header">
+    <img src="icons/icon-192.png" alt="Logo Fora de Estrada" class="dashboard-logo">
     <h1>Fora de Estrada - Navegador e Planejador</h1>
     <p class="dashboard-author">por Luiz Augusto de Oliveira Júnior</p>
   </header>
@@ -1425,8 +1433,15 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "2.2";
+  var APP_VERSION = "2.3";
   var CHANGELOG = [
+    {
+      version: "2.3",
+      date: "28/07/2026",
+      changes: [
+        "O logo (bússola verde-oliva) agora também aparece visualmente no topo da tela inicial (Dashboard), não só como ícone do app"
+      ]
+    },
     {
       version: "2.2",
       date: "28/07/2026",
@@ -1434,6 +1449,7 @@ html, body {
         "Novo ícone do app: bússola estilizada verde-oliva, no favicon, ícone de instalação (PWA) e ícone de tela inicial"
       ]
     },
+
     {
       version: "2.1",
       date: "28/07/2026",
