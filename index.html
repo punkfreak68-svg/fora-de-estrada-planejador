@@ -1247,8 +1247,17 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "1.5";
+  var APP_VERSION = "1.6";
   var CHANGELOG = [
+    {
+      version: "1.6",
+      date: "27/07/2026",
+      changes: [
+        "Corrige direção do mapa/seta durante a navegação, que apontava invertida (180°)",
+        "Adiciona Service Worker para o app abrir normalmente sem internet, mesmo em aparelhos/sessões novas",
+        "Falha ao carregar o mapa não trava mais o resto do app (rotas salvas, changelog etc. continuam funcionando)"
+      ]
+    },
     {
       version: "1.5",
       date: "27/07/2026",
@@ -1623,7 +1632,12 @@ html, body {
 
   // Custom Leaflet tile layer: reads from IndexedDB first (works offline),
   // falls back to network and caches what it fetches for next time.
-  var OfflineTileLayer = L.TileLayer.extend({
+  // Built lazily (only on first real use) so a missing/not-yet-loaded `L`
+  // never throws at script-parse time and takes down the whole app.
+  var OfflineTileLayer = null;
+  function getOfflineTileLayerClass() {
+    if (OfflineTileLayer) return OfflineTileLayer;
+    OfflineTileLayer = L.TileLayer.extend({
     createTile: function (coords, done) {
       var tile = document.createElement("img");
       tile.alt = "";
@@ -1672,10 +1686,13 @@ html, body {
 
       return tile;
     }
-  });
+    });
+    return OfflineTileLayer;
+  }
 
   function createOfflineTileLayer() {
-    return new OfflineTileLayer(TILE_URL_TEMPLATE, {
+    var LayerClass = getOfflineTileLayerClass();
+    return new LayerClass(TILE_URL_TEMPLATE, {
       attribution:
         "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
       maxZoom: 19
@@ -3134,9 +3151,9 @@ html, body {
       }
       navMap.setView([lat, lng], targetZoom);
       navHasSetInitialZoom = true;
-      if (hasHeading) navMap.setBearing(pos.coords.heading);
+      if (hasHeading) navMap.setBearing(-pos.coords.heading);
     }
-    el.navCompassNeedle.style.transform = "rotate(" + -navMap.getBearing() + "deg)";
+    el.navCompassNeedle.style.transform = "rotate(" + navMap.getBearing() + "deg)";
 
     var shouldRecord = true;
     if (navLastRecordedPoint) {
@@ -3544,17 +3561,36 @@ html, body {
   });
 
   // ---- init ----
+  function safeInit(fn, label) {
+    try {
+      fn();
+    } catch (e) {
+      console.warn("Falha ao inicializar (" + label + "):", e);
+    }
+  }
+
   function init() {
-    initMap();
-    restoreDraft();
-    renderPointList();
-    renderSavedRoutesList();
-    renderChangelog();
-    loadThreshold();
-    tryAutoReconnect();
+    safeInit(initMap, "mapa");
+    safeInit(restoreDraft, "rascunho da rota");
+    safeInit(renderPointList, "lista de pontos");
+    safeInit(renderSavedRoutesList, "rotas salvas");
+    safeInit(renderChangelog, "changelog");
+    safeInit(loadThreshold, "limite de desvio");
+    safeInit(tryAutoReconnect, "reconexão com Google Drive");
   }
 
   init();
+
+  // Register the service worker so the app shell (this page + Leaflet +
+  // leaflet-rotate) is available offline, independent of any CDN/network
+  // being reachable. Registration itself never blocks page rendering.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {
+        /* offline-shell caching just won't be available this session; app still works online */
+      });
+    });
+  }
 })();
 </script>
 </body>
