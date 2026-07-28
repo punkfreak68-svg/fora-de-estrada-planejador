@@ -11,6 +11,10 @@ $mimeMap = @{
   ".js"   = "application/javascript; charset=utf-8"
   ".json" = "application/json; charset=utf-8"
   ".gpx"  = "application/gpx+xml"
+  ".png"  = "image/png"
+  ".svg"  = "image/svg+xml"
+  ".ico"  = "image/x-icon"
+  ".webmanifest" = "application/manifest+json"
 }
 
 while ($listener.IsListening) {

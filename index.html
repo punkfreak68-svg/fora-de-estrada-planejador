@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Fora de Estrada Planejador</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2b3320">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fora de Estrada">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -112,7 +121,6 @@ html, body {
 .panel-section.grow {
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 .panel-section h2 {
@@ -1259,8 +1267,17 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "1.7";
+  var APP_VERSION = "1.8";
   var CHANGELOG = [
+    {
+      version: "1.8",
+      date: "27/07/2026",
+      changes: [
+        "App agora instalável como PWA de verdade: ícone próprio, nome e modo tela cheia (sem barra do navegador)",
+        "Sessão do Google Drive agora persiste entre aberturas do app enquanto o token continuar válido (~1h), sem pedir login toda vez",
+        "Corrige sobreposição de texto entre \"Pontos da Rota\" e \"Pasta\" no planejamento em telas pequenas"
+      ]
+    },
     {
       version: "1.7",
       date: "27/07/2026",
@@ -3341,6 +3358,7 @@ html, body {
   var DRIVE_API = "https://www.googleapis.com/drive/v3";
   var DRIVE_UPLOAD_API = "https://www.googleapis.com/upload/drive/v3";
   var DRIVE_CONNECTED_KEY = "jipeRotas_driveConnected_v1";
+  var DRIVE_TOKEN_KEY = "jipeRotas_driveToken_v1";
 
   var driveTokenClient = null;
   var driveAccessToken = null;
@@ -3352,6 +3370,56 @@ html, body {
 
   function isGoogleClientIdConfigured() {
     return GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID.indexOf("SEU_CLIENT_ID_AQUI") !== 0;
+  }
+
+  // Persist the (short-lived, ~1h) access token itself — not just a "was
+  // connected" flag — so reopening the app within its validity window
+  // restores the session instantly with no network round-trip and no
+  // re-consent prompt. Google's browser-side token flow deliberately never
+  // issues a long-lived refresh token (that requires a confidential/server
+  // client), so once this expires a fresh login is unavoidable — but we
+  // avoid asking again on every single open, which was the actual bug.
+  var DRIVE_TOKEN_EXPIRY_SAFETY_MARGIN_MS = 2 * 60 * 1000;
+
+  function saveTokenToStorage(token, expiresInSeconds) {
+    try {
+      localStorage.setItem(
+        DRIVE_TOKEN_KEY,
+        JSON.stringify({
+          token: token,
+          expiresAt: Date.now() + (Number(expiresInSeconds) || 0) * 1000
+        })
+      );
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function loadValidTokenFromStorage() {
+    var raw = null;
+    try {
+      raw = localStorage.getItem(DRIVE_TOKEN_KEY);
+    } catch (e) {
+      return null;
+    }
+    if (!raw) return null;
+    var parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+    if (!parsed || !parsed.token || !parsed.expiresAt) return null;
+    if (Date.now() > parsed.expiresAt - DRIVE_TOKEN_EXPIRY_SAFETY_MARGIN_MS) return null;
+    return parsed.token;
+  }
+
+  function clearTokenStorage() {
+    try {
+      localStorage.removeItem(DRIVE_TOKEN_KEY);
+    } catch (e) {
+      /* ignore */
+    }
   }
 
   function setDriveConnected(connected) {
@@ -3375,6 +3443,7 @@ html, body {
           return;
         }
         driveAccessToken = resp.access_token;
+        saveTokenToStorage(resp.access_token, resp.expires_in);
         setDriveConnected(true);
         try {
           localStorage.setItem(DRIVE_CONNECTED_KEY, "1");
@@ -3407,6 +3476,7 @@ html, body {
       driveFolderId = null;
       driveFileId = null;
       setDriveConnected(false);
+      clearTokenStorage();
       try {
         localStorage.removeItem(DRIVE_CONNECTED_KEY);
       } catch (e) {
@@ -3427,6 +3497,21 @@ html, body {
     }
     if (!wasConnected || !isGoogleClientIdConfigured()) return;
 
+    // First choice: reuse the still-valid cached token directly — no network
+    // round-trip, no re-consent prompt, works instantly even in a freshly
+    // opened installed PWA window.
+    var cachedToken = loadValidTokenFromStorage();
+    if (cachedToken) {
+      driveAccessToken = cachedToken;
+      setDriveConnected(true);
+      onDriveConnected();
+      return;
+    }
+
+    // Token expired (or never cached) — fall back to a silent re-consent
+    // request, which succeeds quietly as long as the browser still has an
+    // active Google session, and only otherwise requires the user to tap
+    // "Conectar com Google Drive" again.
     var attempts = 0;
     var waitForGoogle = setInterval(function () {
       attempts++;
@@ -3445,7 +3530,18 @@ html, body {
     var headers = options.headers || {};
     headers["Authorization"] = "Bearer " + driveAccessToken;
     options.headers = headers;
-    return fetch(url, options);
+    return fetch(url, options).then(function (resp) {
+      if (resp.status === 401) {
+        // Google invalidated/revoked this token behind our back (e.g. access
+        // removed from myaccount.google.com/permissions) — drop the stale
+        // cached token so the next connect attempt starts a clean login
+        // instead of silently retrying with a dead token forever.
+        clearTokenStorage();
+        driveAccessToken = null;
+        setDriveConnected(false);
+      }
+      return resp;
+    });
   }
 
   function findAppFolderId() {
