@@ -316,12 +316,23 @@ html, body {
     display: none;
   }
 
+  #app-header {
+    gap: 6px;
+    padding: 0 6px;
+  }
+
   #route-name {
     font-size: 0.85rem;
+    min-width: 50px;
+    padding: 8px 6px;
+  }
+
+  .header-actions {
+    gap: 3px;
   }
 
   .header-actions button {
-    padding: 8px 9px;
+    padding: 8px 6px;
     font-size: 0.9rem;
   }
 
@@ -1049,6 +1060,7 @@ html, body {
     <button id="btn-save" title="Salvar rota">💾 <span class="btn-label">Salvar</span></button>
     <button id="btn-import" title="Importar rota (.gpx ou .kml)">📥 <span class="btn-label">Importar</span></button>
     <button id="btn-export" title="Exportar GPX">⬇ <span class="btn-label">GPX</span></button>
+    <button id="btn-clear-points" title="Limpar pontos da rota atual">🧹 <span class="btn-label">Limpar</span></button>
     <button id="btn-new" title="Nova rota">＋ <span class="btn-label">Nova</span></button>
     <button id="btn-nav-mode" title="Modo Navegação">🧭 <span class="btn-label">Navegar</span></button>
   </div>
@@ -1247,8 +1259,15 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "1.6";
+  var APP_VERSION = "1.7";
   var CHANGELOG = [
+    {
+      version: "1.7",
+      date: "27/07/2026",
+      changes: [
+        "Novo botão \"Limpar Pontos\" no planejamento, com confirmação, para reiniciar o desenho da rota atual sem apagar rotas já salvas"
+      ]
+    },
     {
       version: "1.6",
       date: "27/07/2026",
@@ -1474,6 +1493,7 @@ html, body {
     btnImport: document.getElementById("btn-import"),
     importFileInput: document.getElementById("import-file-input"),
     btnExport: document.getElementById("btn-export"),
+    btnClearPoints: document.getElementById("btn-clear-points"),
     btnNew: document.getElementById("btn-new"),
     btnNavMode: document.getElementById("btn-nav-mode"),
     inputLat: document.getElementById("input-lat"),
@@ -1852,6 +1872,17 @@ html, body {
     renderPointList();
   }
 
+  function clearPointsOnly() {
+    markers.forEach(function (m) {
+      map.removeLayer(m);
+    });
+    markers = [];
+    state.points = [];
+    refreshPolyline();
+    renderPointList();
+    saveDraft();
+  }
+
   // ---- point list panel ----
   function renderPointList() {
     el.pointList.innerHTML = "";
@@ -2197,6 +2228,16 @@ html, body {
   }
 
   el.btnSave.addEventListener("click", saveCurrentRoute);
+
+  el.btnClearPoints.addEventListener("click", function () {
+    if (state.points.length === 0) {
+      showToast("Não há pontos para limpar.");
+      return;
+    }
+    if (!window.confirm("Tem certeza que deseja limpar todos os pontos da rota atual?")) return;
+    clearPointsOnly();
+    showToast("Pontos removidos.");
+  });
 
   el.btnNew.addEventListener("click", function () {
     if (state.points.length > 0) {
