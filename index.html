@@ -1055,12 +1055,145 @@ html, body {
 .drive-connect-btn.drive-syncing {
   opacity: 0.75;
 }
+
+/* Dashboard (home screen) */
+#screen-dashboard {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #1b1f16;
+}
+
+.dashboard-header {
+  padding: 24px 20px 8px;
+  text-align: center;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #c9d9a8;
+}
+
+.dashboard-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  padding: 20px;
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.dashboard-tile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #22261b;
+  border: 1px solid #4a5a34;
+  border-radius: 14px;
+  padding: 22px 20px;
+  cursor: pointer;
+  color: #eee;
+  text-align: left;
+}
+
+.dashboard-tile:hover {
+  background: #2b3320;
+  border-color: #5a6f40;
+}
+
+.dashboard-tile-icon {
+  font-size: 2.2rem;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+
+.dashboard-tile-label {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #eee;
+}
+
+.dashboard-footer {
+  text-align: center;
+  padding: 12px;
+  color: #8a9578;
+  font-size: 0.78rem;
+}
+
+/* Saved routes screen (reuses .nav-picker-list / .nav-route-card look) */
+.saved-screen-card {
+  background: #22261b;
+  border: 1px solid #3a4228;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.saved-screen-card-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.saved-screen-card-buttons button {
+  flex: 1 1 auto;
+  padding: 10px 8px;
+  border-radius: 8px;
+  border: 1px solid #4a5a34;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #eee;
+}
+
+.saved-screen-card-buttons .nav-btn {
+  background: #2a4a5a;
+  border-color: #345a6e;
+}
+
+.saved-screen-card-buttons .load-btn {
+  background: #3d4a2a;
+}
+
+.saved-screen-card-buttons .delete-btn {
+  background: #5a2a2a;
+  border-color: #6e3434;
+}
 </style>
 </head>
 <body>
 
-<div id="screen-planning">
+<div id="screen-dashboard">
+  <header class="dashboard-header">
+    <h1>Fora de Estrada Planejador</h1>
+  </header>
+  <div class="dashboard-body">
+    <button id="btn-dash-plan" class="dashboard-tile">
+      <span class="dashboard-tile-icon">🗺️</span>
+      <span class="dashboard-tile-label">Planejar Nova Rota</span>
+    </button>
+    <button id="btn-dash-navigate" class="dashboard-tile">
+      <span class="dashboard-tile-icon">🧭</span>
+      <span class="dashboard-tile-label">Navegar</span>
+    </button>
+    <button id="btn-dash-saved" class="dashboard-tile">
+      <span class="dashboard-tile-icon">📁</span>
+      <span class="dashboard-tile-label">Rotas Salvas</span>
+    </button>
+  </div>
+  <div class="dashboard-footer">
+    <span id="dash-version-label" class="app-version">v1.9</span>
+  </div>
+</div>
+
+<div id="screen-planning" class="hidden">
 <header id="app-header">
+  <button id="btn-home" class="icon-btn" title="Início" aria-label="Voltar ao início">🏠</button>
   <button id="btn-menu" class="icon-btn" title="Abrir painel" aria-label="Abrir painel">☰</button>
   <h1>Fora de Estrada Planejador</h1>
   <input id="route-name" type="text" placeholder="Nome da rota" />
@@ -1122,6 +1255,11 @@ html, body {
       <p id="drive-status-hint" class="hint">Conecta com a pasta do app no seu Google Drive, pra sincronizar as rotas salvas entre aparelhos.</p>
     </section>
 
+    <section class="panel-section">
+      <h2>Mapa offline</h2>
+      <p class="hint">🗺️ <strong id="tile-cache-count">0</strong> blocos de mapa salvos neste aparelho para uso sem internet.</p>
+    </section>
+
     <footer class="app-footer">
       <div class="footer-row">
         <span id="app-version-label" class="app-version">v1.1</span>
@@ -1141,7 +1279,7 @@ html, body {
 
   <div id="nav-picker-view" class="nav-subview">
     <header class="nav-header">
-      <button id="btn-nav-back-to-planning" class="icon-btn" aria-label="Voltar ao planejamento">←</button>
+      <button id="btn-nav-back-to-planning" class="icon-btn" aria-label="Voltar ao início">←</button>
       <h1>Navegação</h1>
     </header>
     <div class="nav-free-mode-banner">
@@ -1179,7 +1317,7 @@ html, body {
     <div id="nav-bottom-buttons" class="nav-bottom-buttons">
       <button id="btn-save-track" class="nav-action-btn nav-save-track-btn hidden">💾 Salvar Trajeto</button>
       <button id="btn-end-navigation" class="nav-action-btn nav-end-btn">Encerrar Navegação</button>
-      <button id="btn-back-to-planning" class="nav-action-btn nav-back-btn hidden">Voltar ao Planejamento</button>
+      <button id="btn-back-to-planning" class="nav-action-btn nav-back-btn hidden">Voltar ao Início</button>
     </div>
 
     <div id="nav-summary-panel" class="nav-summary-panel hidden">
@@ -1200,6 +1338,15 @@ html, body {
       <button id="btn-save-track-confirm" class="modal-btn-primary">Salvar</button>
     </div>
   </div>
+</div>
+
+<div id="screen-saved-routes" class="hidden">
+  <header class="nav-header">
+    <button id="btn-saved-back" class="icon-btn" aria-label="Voltar ao início">←</button>
+    <h1>Rotas Salvas</h1>
+  </header>
+  <div id="saved-routes-screen-list" class="nav-picker-list"></div>
+  <p id="saved-routes-screen-empty" class="hint" style="padding: 16px;">Nenhuma rota salva ainda.</p>
 </div>
 
 <div id="nav-confirm-modal" class="modal-overlay">
@@ -1267,8 +1414,18 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "1.9";
+  var APP_VERSION = "2.0";
   var CHANGELOG = [
+    {
+      version: "2.0",
+      date: "28/07/2026",
+      changes: [
+        "Spec #001: reforça o cache offline de mapas — pede armazenamento persistente ao navegador e adiciona um contador visível de blocos de mapa salvos (o mecanismo em si já funcionava; agora dá pra confirmar isso na tela)",
+        "Spec #002: nova tela inicial (Dashboard), com atalhos grandes para Planejar Nova Rota, Navegar e Rotas Salvas — passa a ser a primeira tela ao abrir o app",
+        "Nova tela dedicada \"Rotas Salvas\", organizada por pasta, acessível pelo Dashboard",
+        "Botão \"Início\" para voltar ao Dashboard a partir do Planejamento ou da Navegação"
+      ]
+    },
     {
       version: "1.9",
       date: "27/07/2026",
@@ -1536,13 +1693,24 @@ html, body {
     btnChangelog: document.getElementById("btn-changelog"),
     btnDriveConnect: document.getElementById("btn-drive-connect"),
     driveStatusHint: document.getElementById("drive-status-hint"),
+    tileCacheCount: document.getElementById("tile-cache-count"),
     btnCloseChangelog: document.getElementById("btn-close-changelog"),
     changelogModal: document.getElementById("changelog-modal"),
     changelogContent: document.getElementById("changelog-content"),
     toast: document.getElementById("toast"),
 
+    screenDashboard: document.getElementById("screen-dashboard"),
     screenPlanning: document.getElementById("screen-planning"),
     screenNavigation: document.getElementById("screen-navigation"),
+    screenSavedRoutes: document.getElementById("screen-saved-routes"),
+    btnHome: document.getElementById("btn-home"),
+    btnDashPlan: document.getElementById("btn-dash-plan"),
+    btnDashNavigate: document.getElementById("btn-dash-navigate"),
+    btnDashSaved: document.getElementById("btn-dash-saved"),
+    dashVersionLabel: document.getElementById("dash-version-label"),
+    btnSavedBack: document.getElementById("btn-saved-back"),
+    savedRoutesScreenList: document.getElementById("saved-routes-screen-list"),
+    savedRoutesScreenEmpty: document.getElementById("saved-routes-screen-empty"),
     navPickerView: document.getElementById("nav-picker-view"),
     navActiveView: document.getElementById("nav-active-view"),
     btnNavBackToPlanning: document.getElementById("btn-nav-back-to-planning"),
@@ -1610,6 +1778,38 @@ html, body {
   var TILE_DB_NAME = "foraDeEstradaTiles";
   var TILE_STORE = "tiles";
   var tileDbPromise = null;
+  var cachedTileCount = 0;
+
+  function refreshTileCountDisplay() {
+    if (el.tileCacheCount) el.tileCacheCount.textContent = String(cachedTileCount);
+  }
+
+  function loadInitialTileCount() {
+    openTileDb()
+      .then(function (db) {
+        var tx = db.transaction(TILE_STORE, "readonly");
+        var req = tx.objectStore(TILE_STORE).count();
+        req.onsuccess = function () {
+          cachedTileCount = req.result;
+          refreshTileCountDisplay();
+        };
+      })
+      .catch(function () {
+        /* IndexedDB unavailable; counter just stays at 0 */
+      });
+  }
+
+  // Ask the browser not to evict this site's storage under pressure — relevant
+  // for long trips where the tile cache can grow to thousands of entries.
+  // Best-effort only: many browsers grant this automatically once the app is
+  // installed/used enough, and silently ignore the request otherwise.
+  function requestPersistentStorage() {
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().catch(function () {
+        /* ignore — not critical, just a hardening attempt */
+      });
+    }
+  }
 
   function openTileDb() {
     if (tileDbPromise) return tileDbPromise;
@@ -1641,6 +1841,10 @@ html, body {
         var tx = db.transaction(TILE_STORE, "readwrite");
         tx.objectStore(TILE_STORE).put(blob, key);
         tx.oncomplete = function () {
+          // Callers only ever putTile() after confirming the key was absent,
+          // so every successful write here is a genuinely new cached tile.
+          cachedTileCount++;
+          refreshTileCountDisplay();
           resolve();
         };
         tx.onerror = function () {
@@ -2571,6 +2775,7 @@ html, body {
   // ---- version + changelog ----
   function renderChangelog() {
     el.appVersionLabel.textContent = "v" + APP_VERSION;
+    if (el.dashVersionLabel) el.dashVersionLabel.textContent = "v" + APP_VERSION;
     el.changelogContent.innerHTML = "";
     CHANGELOG.forEach(function (entry) {
       var block = document.createElement("div");
@@ -2613,13 +2818,15 @@ html, body {
 
   // ---- screen switching ----
   function showScreen(name) {
-    if (name === "planning") {
-      el.screenPlanning.classList.remove("hidden");
-      el.screenNavigation.classList.add("hidden");
-    } else {
-      el.screenPlanning.classList.add("hidden");
-      el.screenNavigation.classList.remove("hidden");
-    }
+    var screens = {
+      dashboard: el.screenDashboard,
+      planning: el.screenPlanning,
+      navigation: el.screenNavigation,
+      "saved-routes": el.screenSavedRoutes
+    };
+    Object.keys(screens).forEach(function (key) {
+      screens[key].classList.toggle("hidden", key !== name);
+    });
   }
 
   function showNavSubview(name) {
@@ -2639,8 +2846,123 @@ html, body {
   });
 
   el.btnNavBackToPlanning.addEventListener("click", function () {
-    showScreen("planning");
+    showScreen("dashboard");
   });
+
+  // ---- dashboard (home screen) ----
+  // The planning map can be created while its screen is hidden behind the
+  // dashboard, which leaves Leaflet with a wrong (zero) container size —
+  // invalidateSize() once it's actually visible fixes that.
+  function goToPlanningScreen(afterShown) {
+    showScreen("planning");
+    setTimeout(function () {
+      if (map) map.invalidateSize();
+      if (typeof afterShown === "function") afterShown();
+    }, 50);
+  }
+
+  el.btnHome.addEventListener("click", function () {
+    showScreen("dashboard");
+  });
+
+  el.btnDashPlan.addEventListener("click", function () {
+    goToPlanningScreen();
+  });
+
+  el.btnDashNavigate.addEventListener("click", function () {
+    showScreen("navigation");
+    showNavSubview("picker");
+  });
+
+  el.btnDashSaved.addEventListener("click", function () {
+    showScreen("saved-routes");
+    renderSavedRoutesScreen();
+  });
+
+  el.btnSavedBack.addEventListener("click", function () {
+    showScreen("dashboard");
+  });
+
+  function renderSavedRoutesScreen() {
+    var routes = loadSavedRoutes().filter(function (r) {
+      return !r.deleted;
+    });
+    el.savedRoutesScreenList.innerHTML = "";
+    el.savedRoutesScreenEmpty.style.display = routes.length === 0 ? "block" : "none";
+
+    var sorted = routes.slice().sort(function (a, b) {
+      return b.savedAt - a.savedAt;
+    });
+    var grouped = groupRoutesByFolder(sorted);
+
+    grouped.order.forEach(function (folder) {
+      var heading = document.createElement("div");
+      heading.className = "nav-folder-heading";
+      heading.textContent = folder;
+      el.savedRoutesScreenList.appendChild(heading);
+
+      grouped.groups[folder].forEach(function (route) {
+        var card = document.createElement("div");
+        card.className = "saved-screen-card";
+
+        var name = document.createElement("div");
+        name.className = "nav-route-card-name";
+        name.textContent = route.name || "(sem nome)";
+        card.appendChild(name);
+
+        var meta = document.createElement("div");
+        meta.className = "nav-route-card-meta";
+        var date = new Date(route.savedAt);
+        meta.textContent = route.points.length + " pontos · " + date.toLocaleString("pt-BR");
+        card.appendChild(meta);
+
+        var buttons = document.createElement("div");
+        buttons.className = "saved-screen-card-buttons";
+
+        var navBtn = document.createElement("button");
+        navBtn.className = "nav-btn";
+        navBtn.textContent = "Iniciar Navegação";
+        navBtn.addEventListener("click", function () {
+          showScreen("navigation");
+          showNavSubview("picker");
+          openNavConfirm(route, "saved-routes");
+        });
+        buttons.appendChild(navBtn);
+
+        var openBtn = document.createElement("button");
+        openBtn.className = "load-btn";
+        openBtn.textContent = "Abrir";
+        openBtn.addEventListener("click", function () {
+          goToPlanningScreen(function () {
+            openSavedRoute(route);
+          });
+        });
+        buttons.appendChild(openBtn);
+
+        var deleteBtn = document.createElement("button");
+        deleteBtn.className = "delete-btn";
+        deleteBtn.textContent = "Excluir";
+        deleteBtn.addEventListener("click", function () {
+          if (!window.confirm('Excluir a rota "' + (route.name || "(sem nome)") + '"?')) return;
+          var all = loadSavedRoutes();
+          var target = all.find(function (r) {
+            return r.id === route.id;
+          });
+          if (target) {
+            target.deleted = true;
+            target.deletedAt = Date.now();
+          }
+          persistSavedRoutes(all);
+          renderSavedRoutesScreen();
+          showToast("Rota excluída.");
+        });
+        buttons.appendChild(deleteBtn);
+
+        card.appendChild(buttons);
+        el.savedRoutesScreenList.appendChild(card);
+      });
+    });
+  }
 
   // ---- route picker ----
   function renderNavRoutePicker() {
@@ -2709,6 +3031,8 @@ html, body {
     el.navConfirmModal.classList.remove("open");
     if (navConfirmReturnTo === "planning") {
       showScreen("planning");
+    } else if (navConfirmReturnTo === "saved-routes") {
+      showScreen("saved-routes");
     }
     pendingNavRoute = null;
   });
@@ -3351,7 +3675,7 @@ html, body {
   }
 
   el.btnBackToPlanning.addEventListener("click", function () {
-    showScreen("planning");
+    showScreen("dashboard");
   });
 
   // ================= GOOGLE DRIVE SYNC =================
@@ -3832,12 +4156,17 @@ html, body {
   }
 
   function init() {
+    safeInit(function () {
+      showScreen("dashboard");
+    }, "tela inicial");
     safeInit(initMap, "mapa");
     safeInit(restoreDraft, "rascunho da rota");
     safeInit(renderPointList, "lista de pontos");
     safeInit(renderSavedRoutesList, "rotas salvas");
     safeInit(renderChangelog, "changelog");
     safeInit(loadThreshold, "limite de desvio");
+    safeInit(loadInitialTileCount, "contador de tiles em cache");
+    safeInit(requestPersistentStorage, "armazenamento persistente");
     safeInit(handleOAuthRedirectReturn, "retorno do login do Google (redirect)");
     safeInit(tryAutoReconnect, "reconexão com Google Drive");
   }
