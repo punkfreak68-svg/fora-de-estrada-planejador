@@ -1235,6 +1235,7 @@ html, body {
         <button id="btn-add-coord">Adicionar ponto</button>
       </div>
       <p class="hint">Ou toque/clique diretamente no mapa para adicionar um ponto.</p>
+      <p class="hint">Também aceita colar coordenadas em GMS (ex: 22°55'47.7"S) ou o par completo copiado do Google Maps em um único campo.</p>
       <div class="coord-form pluscode-form">
         <input id="input-pluscode" type="text" placeholder="Plus Code (ex: 589M22Q3+2X)" />
         <button id="btn-add-pluscode">Adicionar por Plus Code</button>
@@ -1433,8 +1434,17 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "2.3";
+  var APP_VERSION = "2.4";
   var CHANGELOG = [
+    {
+      version: "2.4",
+      date: "28/07/2026",
+      changes: [
+        "Spec #005: os campos de Latitude/Longitude agora aceitam coordenadas em GMS (graus/minutos/segundos, ex: 22°55'47.7\"S), além do formato decimal",
+        "Também dá pra colar o par completo de coordenadas (decimal ou GMS) em um único campo, copiado direto do Google Maps",
+        "Aviso claro quando a coordenada colada não é reconhecida, em vez de adicionar um ponto errado"
+      ]
+    },
     {
       version: "2.3",
       date: "28/07/2026",
@@ -2211,14 +2221,110 @@ html, body {
   }
 
   // ---- manual coordinate entry ----
-  function parseCoordInput() {
-    var latRaw = el.inputLat.value.trim().replace(",", ".");
-    var lngRaw = el.inputLng.value.trim().replace(",", ".");
-    var lat = parseFloat(latRaw);
-    var lng = parseFloat(lngRaw);
+  //
+  // Accepts plain decimal ("-22.9299"), Brazilian comma-decimal ("-22,9299"),
+  // and DMS ("22°55'47.7\"S", with or without minutes/seconds and with or
+  // without the ° symbol as long as a hemisphere letter is present). Also
+  // accepts a full "lat, lng" or "lat lng" pair pasted into a single field
+  // (either Latitude or Longitude), which is how Google Maps' own "copy
+  // coordinates" text looks in both decimal and DMS mode.
+  var COORD_FORMAT_HINT = "Use decimal (ex: -14.235, -51.925) ou GMS (ex: 22°55'47.7\"S 47°37'13.0\"W).";
 
-    if (isNaN(lat) || isNaN(lng)) {
-      showToast("Coordenadas inválidas. Use números como -14.235");
+  var DMS_TOKEN_RE = /^\s*([NSEWnsew])?\s*(-?\d+(?:\.\d+)?)\s*°\s*(?:(\d+(?:\.\d+)?)\s*['′]\s*)?(?:(\d+(?:\.\d+)?)\s*["″]\s*)?\s*([NSEWnsew])?\s*$/;
+  var DECIMAL_HEMI_RE = /^\s*(?:([NSEWnsew])\s*(-?\d+(?:\.\d+)?)|(-?\d+(?:\.\d+)?)\s*([NSEWnsew]))\s*$/;
+  var DMS_PAIR_NO_COMMA_RE = /^\s*([NSEWnsew]?\s*-?\d+(?:\.\d+)?\s*°\s*(?:\d+(?:\.\d+)?\s*['′]\s*)?(?:\d+(?:\.\d+)?\s*["″]\s*)?\s*[NSEWnsew]?)\s+([NSEWnsew]?\s*-?\d+(?:\.\d+)?\s*°\s*(?:\d+(?:\.\d+)?\s*['′]\s*)?(?:\d+(?:\.\d+)?\s*["″]\s*)?\s*[NSEWnsew]?)\s*$/;
+
+  function axisForHemisphere(hemi) {
+    if (!hemi) return null;
+    hemi = hemi.toUpperCase();
+    if (hemi === "N" || hemi === "S") return "lat";
+    if (hemi === "E" || hemi === "W") return "lng";
+    return null;
+  }
+
+  // Parses ONE coordinate token (not a pair). Returns { decimal, axis } or null.
+  function parseCoordToken(token) {
+    token = (token || "").trim();
+    if (!token) return null;
+
+    var m = DMS_TOKEN_RE.exec(token);
+    if (m) {
+      var hemi = (m[5] || m[1] || "").toUpperCase() || null;
+      var deg = Math.abs(parseFloat(m[2]));
+      var min = m[3] ? parseFloat(m[3]) : 0;
+      var sec = m[4] ? parseFloat(m[4]) : 0;
+      var decimal = deg + min / 60 + sec / 3600;
+      if (hemi === "S" || hemi === "W") decimal = -decimal;
+      else if (!hemi && parseFloat(m[2]) < 0) decimal = -decimal;
+      return { decimal: decimal, axis: axisForHemisphere(hemi) };
+    }
+
+    m = DECIMAL_HEMI_RE.exec(token);
+    if (m) {
+      var hemi2 = (m[1] || m[4] || "").toUpperCase();
+      var val = parseFloat(m[2] !== undefined ? m[2] : m[3]);
+      var decimal2 = Math.abs(val);
+      if (hemi2 === "S" || hemi2 === "W") decimal2 = -decimal2;
+      return { decimal: decimal2, axis: axisForHemisphere(hemi2) };
+    }
+
+    var normalized = token.replace(",", ".");
+    if (/^-?\d+(\.\d+)?$/.test(normalized)) {
+      return { decimal: parseFloat(normalized), axis: null };
+    }
+    return null;
+  }
+
+  // Assigns two parsed tokens to {lat, lng}, preferring the hemisphere-derived
+  // axis when available and falling back to positional order otherwise.
+  function assignLatLng(tokenA, tokenB) {
+    var result = { lat: null, lng: null };
+    var remaining = [];
+    [tokenA, tokenB].forEach(function (t) {
+      if (t.axis === "lat" && result.lat === null) result.lat = t.decimal;
+      else if (t.axis === "lng" && result.lng === null) result.lng = t.decimal;
+      else remaining.push(t);
+    });
+    remaining.forEach(function (t) {
+      if (result.lat === null) result.lat = t.decimal;
+      else if (result.lng === null) result.lng = t.decimal;
+    });
+    return result;
+  }
+
+  // Tries to parse a full "lat, lng" / "lat lng" pair out of one field's raw
+  // text. Returns { lat, lng } or null (not a recognized pair).
+  function parseCoordPair(rawText) {
+    var text = (rawText || "").trim();
+    if (!text) return null;
+
+    var commaIdx = text.indexOf(",");
+    if (commaIdx !== -1) {
+      var tA = parseCoordToken(text.slice(0, commaIdx));
+      var tB = parseCoordToken(text.slice(commaIdx + 1));
+      if (tA && tB) {
+        var pair = assignLatLng(tA, tB);
+        if (pair.lat >= -90 && pair.lat <= 90 && pair.lng >= -180 && pair.lng <= 180) {
+          return pair;
+        }
+        // doesn't look like a real lat,lng pair (e.g. a single value that used
+        // a comma as its decimal separator) -- fall through to other attempts
+      }
+    }
+
+    var m = DMS_PAIR_NO_COMMA_RE.exec(text);
+    if (m) {
+      var tA2 = parseCoordToken(m[1]);
+      var tB2 = parseCoordToken(m[2]);
+      if (tA2 && tB2) return assignLatLng(tA2, tB2);
+    }
+
+    return null;
+  }
+
+  function validateLatLng(lat, lng) {
+    if (lat == null || lng == null || isNaN(lat) || isNaN(lng)) {
+      showToast("Coordenadas inválidas. " + COORD_FORMAT_HINT);
       return null;
     }
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
@@ -2226,6 +2332,38 @@ html, body {
       return null;
     }
     return { lat: lat, lng: lng };
+  }
+
+  function parseCoordInput() {
+    var latRaw = el.inputLat.value.trim();
+    var lngRaw = el.inputLng.value.trim();
+
+    if (!latRaw && !lngRaw) {
+      showToast("Preencha latitude e longitude.");
+      return null;
+    }
+
+    if (latRaw && !lngRaw) {
+      var pairFromLat = parseCoordPair(latRaw);
+      if (pairFromLat) return validateLatLng(pairFromLat.lat, pairFromLat.lng);
+      showToast("Informe também a longitude, ou cole o par completo em um dos campos. " + COORD_FORMAT_HINT);
+      return null;
+    }
+    if (lngRaw && !latRaw) {
+      var pairFromLng = parseCoordPair(lngRaw);
+      if (pairFromLng) return validateLatLng(pairFromLng.lat, pairFromLng.lng);
+      showToast("Informe também a latitude, ou cole o par completo em um dos campos. " + COORD_FORMAT_HINT);
+      return null;
+    }
+
+    var tLat = parseCoordToken(latRaw);
+    var tLng = parseCoordToken(lngRaw);
+    if (!tLat || !tLng) {
+      showToast("Coordenadas inválidas. " + COORD_FORMAT_HINT);
+      return null;
+    }
+    var assigned = assignLatLng(tLat, tLng);
+    return validateLatLng(assigned.lat, assigned.lng);
   }
 
   el.btnAddCoord.addEventListener("click", function () {
