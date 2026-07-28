@@ -1,5 +1,5 @@
 {
-  "name": "Fora de Estrada Planejador",
+  "name": "Fora de Estrada - Navegador e Planejador",
   "short_name": "Fora de Estrada",
   "description": "Planejador de rotas off-road com mapa de satélite, navegação por GPS e sincronização via Google Drive.",
   "start_url": "./index.html",

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Fora de Estrada Planejador</title>
+<title>Fora de Estrada - Navegador e Planejador</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2b3320">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1075,6 +1075,12 @@ html, body {
   color: #c9d9a8;
 }
 
+.dashboard-header .dashboard-author {
+  margin: 4px 0 0;
+  font-size: 0.82rem;
+  color: #8a9578;
+}
+
 .dashboard-body {
   flex: 1 1 auto;
   display: flex;
@@ -1170,7 +1176,8 @@ html, body {
 
 <div id="screen-dashboard">
   <header class="dashboard-header">
-    <h1>Fora de Estrada Planejador</h1>
+    <h1>Fora de Estrada - Navegador e Planejador</h1>
+    <p class="dashboard-author">por Luiz Augusto de Oliveira Júnior</p>
   </header>
   <div class="dashboard-body">
     <button id="btn-dash-plan" class="dashboard-tile">
@@ -1195,7 +1202,7 @@ html, body {
 <header id="app-header">
   <button id="btn-home" class="icon-btn" title="Início" aria-label="Voltar ao início">🏠</button>
   <button id="btn-menu" class="icon-btn" title="Abrir painel" aria-label="Abrir painel">☰</button>
-  <h1>Fora de Estrada Planejador</h1>
+  <h1>Fora de Estrada - Navegador e Planejador</h1>
   <input id="route-name" type="text" placeholder="Nome da rota" />
   <div class="header-actions">
     <button id="btn-save" title="Salvar rota">💾 <span class="btn-label">Salvar</span></button>
@@ -1300,8 +1307,12 @@ html, body {
 
     <div id="nav-hud-top">
       <div id="nav-deviation-pill" class="nav-deviation-pill nav-deviation-ok">Aguardando GPS...</div>
+      <button id="btn-nav-pip" class="nav-threshold-btn hidden" title="Mini janela flutuante (experimental)">📺 PiP</button>
       <button id="btn-nav-threshold" class="nav-threshold-btn">Limite: 50m ✎</button>
     </div>
+
+    <canvas id="nav-pip-canvas" width="320" height="180" style="display:none;"></canvas>
+    <video id="nav-pip-video" muted playsinline style="display:none;"></video>
 
     <div id="nav-hud-bottom">
       <div class="nav-stat-tile">
@@ -1414,8 +1425,18 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "2.0";
+  var APP_VERSION = "2.1";
   var CHANGELOG = [
+    {
+      version: "2.1",
+      date: "28/07/2026",
+      changes: [
+        "Spec #003: app renomeado para \"Fora de Estrada - Navegador e Planejador\" (título, PWA e telas)",
+        "Nome do autor (Luiz Augusto de Oliveira Júnior) agora aparece também na tela inicial (Dashboard), além do painel lateral",
+        "Novo botão experimental \"PiP\" na Navegação: abre uma mini janela flutuante com distância, velocidade e status da rota, para continuar visível ao trocar de app no Android — ver observação sobre limitações no changelog completo/aviso no app",
+        "Ícone do app: aguardando o arquivo definitivo do logo (bússola verde-oliva) para substituir o ícone atual"
+      ]
+    },
     {
       version: "2.0",
       date: "28/07/2026",
@@ -1724,6 +1745,9 @@ html, body {
 
     navDeviationPill: document.getElementById("nav-deviation-pill"),
     btnNavThreshold: document.getElementById("btn-nav-threshold"),
+    btnNavPip: document.getElementById("btn-nav-pip"),
+    navPipCanvas: document.getElementById("nav-pip-canvas"),
+    navPipVideo: document.getElementById("nav-pip-video"),
     navHudBottom: document.getElementById("nav-hud-bottom"),
     navHudTop: document.getElementById("nav-hud-top"),
     navDistanceRemaining: document.getElementById("nav-distance-remaining"),
@@ -3513,6 +3537,131 @@ html, body {
     navWatchId = null;
   }
 
+  // ---- Picture-in-Picture (experimental) ----
+  //
+  // Web PiP only exposes a <video> element, so we draw the nav stats onto a
+  // hidden canvas, turn that canvas into a video stream (captureStream), and
+  // request PiP on the resulting <video>. This keeps a small floating window
+  // on screen when the user switches to another app.
+  //
+  // Known limitation (not fixable from app code): Android Chrome suspends or
+  // heavily throttles background-tab timers (requestAnimationFrame,
+  // setInterval/setTimeout, and geolocation.watchPosition) once the browser
+  // itself is no longer the foreground app. That means the PiP window may
+  // keep floating but stop receiving fresh GPS fixes, so the numbers can go
+  // stale until the user switches back to the browser. There is no public
+  // API to opt a background tab out of this. The alternative API that
+  // supports arbitrary HTML in a floating window without this canvas/video
+  // workaround, documentPictureInPicture, is desktop-only and does not exist
+  // on Android at all.
+  var navPipSupported =
+    typeof document.pictureInPictureEnabled !== "undefined" &&
+    document.pictureInPictureEnabled &&
+    el.navPipCanvas &&
+    typeof el.navPipCanvas.captureStream === "function";
+  var navPipActive = false;
+  var navPipStream = null;
+  var navPipLastStats = { distance: "--", distanceLabel: "restante", speed: "--", deviationText: "Aguardando GPS...", alert: false };
+
+  if (el.btnNavPip) {
+    el.btnNavPip.classList.toggle("hidden", !navPipSupported);
+    el.btnNavPip.addEventListener("click", function () {
+      if (navPipActive) {
+        if (document.pictureInPictureElement) document.exitPictureInPicture().catch(function () {});
+      } else {
+        startNavPip();
+      }
+    });
+  }
+
+  function drawNavPipFrame() {
+    var ctx = el.navPipCanvas.getContext("2d");
+    var w = el.navPipCanvas.width,
+      h = el.navPipCanvas.height;
+    ctx.fillStyle = "#1b1f16";
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.fillStyle = navPipLastStats.alert ? "#e0703a" : "#8fae5a";
+    ctx.font = "bold 20px sans-serif";
+    ctx.fillText(navPipLastStats.deviationText, 14, 30);
+
+    ctx.fillStyle = "#eeeeee";
+    ctx.font = "bold 46px sans-serif";
+    ctx.fillText(navPipLastStats.distance, 14, 92);
+    ctx.font = "16px sans-serif";
+    ctx.fillStyle = "#8a9578";
+    ctx.fillText(navPipLastStats.distanceLabel, 14, 114);
+
+    ctx.fillStyle = "#eeeeee";
+    ctx.font = "bold 40px sans-serif";
+    ctx.fillText(navPipLastStats.speed + " km/h", 14, 160);
+  }
+
+  function updateNavPipStats(distance, distanceLabel, speed, deviationText, alert) {
+    navPipLastStats = { distance: distance, distanceLabel: distanceLabel, speed: speed, deviationText: deviationText, alert: alert };
+    if (navPipActive) drawNavPipFrame();
+  }
+
+  function requestNavPip() {
+    el.navPipVideo
+      .requestPictureInPicture()
+      .then(function () {
+        navPipActive = true;
+        el.btnNavPip.textContent = "📺 Fechar PiP";
+      })
+      .catch(function (err) {
+        showToast("Não foi possível abrir a janela flutuante: " + (err && err.message ? err.message : "recurso indisponível neste navegador."));
+        stopNavPip();
+      });
+  }
+
+  function startNavPip() {
+    // requestPictureInPicture() needs the video's metadata loaded first (or
+    // it rejects with "Metadata ... not loaded yet"), but it also needs to
+    // stay close enough to the click's user-gesture window to be allowed.
+    // Chrome keeps that gesture "active" for a few seconds, so waiting for
+    // the loadedmetadata event (which fires almost immediately for a canvas
+    // stream) is safe and reliable — unlike chaining through play()'s own
+    // promise, which can resolve late enough to lose the gesture entirely.
+    drawNavPipFrame();
+    try {
+      navPipStream = el.navPipCanvas.captureStream(2);
+      el.navPipVideo.srcObject = navPipStream;
+      if (el.navPipVideo.readyState >= 1) {
+        el.navPipVideo.play().catch(function () {});
+        requestNavPip();
+      } else {
+        el.navPipVideo.addEventListener(
+          "loadedmetadata",
+          function onLoaded() {
+            el.navPipVideo.removeEventListener("loadedmetadata", onLoaded);
+            el.navPipVideo.play().catch(function () {});
+            requestNavPip();
+          },
+          { once: true }
+        );
+      }
+    } catch (err) {
+      showToast("Janela flutuante não é suportada neste navegador.");
+    }
+  }
+
+  function stopNavPip() {
+    navPipActive = false;
+    if (el.btnNavPip) el.btnNavPip.textContent = "📺 PiP";
+    if (navPipStream) {
+      navPipStream.getTracks().forEach(function (t) {
+        t.stop();
+      });
+      navPipStream = null;
+    }
+    el.navPipVideo.srcObject = null;
+  }
+
+  el.navPipVideo.addEventListener("leavepictureinpicture", function () {
+    stopNavPip();
+  });
+
   function onNavPositionError(err) {
     showToast("Erro de GPS: " + (err && err.message ? err.message : "sinal indisponível"));
   }
@@ -3588,6 +3737,14 @@ html, body {
     }
     navLastSpeedPoint = { lat: lat, lng: lng, timestamp: pos.timestamp };
     el.navSpeed.textContent = speedKmh == null ? "--" : String(Math.round(speedKmh));
+
+    updateNavPipStats(
+      el.navDistanceRemaining.textContent,
+      el.navDistanceLabel.textContent,
+      el.navSpeed.textContent,
+      el.navDeviationPill.textContent,
+      el.navDeviationPill.className.indexOf("nav-deviation-alert") !== -1
+    );
   }
 
   // ---- save track (Modo Livre) ----
@@ -3669,6 +3826,8 @@ html, body {
 
   function finishNavigationSession() {
     stopWatchingPosition();
+    if (navPipActive && document.pictureInPictureElement) document.exitPictureInPicture().catch(function () {});
+    stopNavPip();
     var recordedMeters = polylineLengthMeters(navRecordedTrack);
     el.navSummaryDistance.textContent = formatDistance(recordedMeters);
     setEndedSummaryMode(true);

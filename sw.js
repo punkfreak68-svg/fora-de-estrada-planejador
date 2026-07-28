@@ -1,4 +1,4 @@
-// Service Worker for "Fora de Estrada Planejador".
+// Service Worker for "Fora de Estrada - Navegador e Planejador".
 // Caches the app shell (this HTML page + its core script/style/icon/manifest
 // dependencies) so the app can open and function with zero network
 // connectivity. Map tiles, Google Drive API calls and Google auth are
