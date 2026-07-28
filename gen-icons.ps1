@@ -12,8 +12,8 @@ function New-AppIcon {
     $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
     $g.Clear([System.Drawing.Color]::Transparent)
 
-    # Background: rounded square, dark green (app theme background)
-    $bgColor = [System.Drawing.Color]::FromArgb(255, 27, 31, 22)
+    # Background: rounded square, dark olive-green (matches the app's compass logo)
+    $bgColor = [System.Drawing.Color]::FromArgb(255, 58, 74, 30)
     $bgBrush = New-Object System.Drawing.SolidBrush $bgColor
     $radius = [double]$Size * 0.18
     $d = $radius * 2
@@ -26,46 +26,60 @@ function New-AppIcon {
     $g.FillPath($bgBrush, $path)
 
     $cx = $Size / 2.0
-    $scale = $ContentScale
+    $cy = $Size / 2.0
+    $s = [double]$Size * $ContentScale
 
-    # Orange pin/teardrop shape (matches the in-app numbered route markers)
-    $pinColor = [System.Drawing.Color]::FromArgb(255, 224, 138, 44)
-    $pinBrush = New-Object System.Drawing.SolidBrush $pinColor
-    $circleR = $Size * 0.27 * $scale
-    $circleCy = $Size * (0.5 - 0.12 * $scale)
+    # Stylized compass: two concentric rings with N/E/S/W tick marks, and a
+    # kite-shaped needle (cream north point, olive-green south point) with a
+    # small center dot.
+    $ringColor = [System.Drawing.Color]::FromArgb(255, 163, 185, 117)
+    $ringPen = New-Object System.Drawing.Pen($ringColor, [Math]::Max(1.0, $s * 0.012))
+    $innerRingPen = New-Object System.Drawing.Pen($ringColor, [Math]::Max(1.0, $s * 0.007))
 
-    $pinPath = New-Object System.Drawing.Drawing2D.GraphicsPath
-    $pinPath.FillMode = [System.Drawing.Drawing2D.FillMode]::Winding
-    $pinPath.AddEllipse($cx - $circleR, $circleCy - $circleR, $circleR * 2, $circleR * 2)
+    $outerR = $s * 0.31
+    $innerR = $s * 0.245
+    $g.DrawEllipse($ringPen, $cx - $outerR, $cy - $outerR, $outerR * 2, $outerR * 2)
+    $g.DrawEllipse($innerRingPen, $cx - $innerR, $cy - $innerR, $innerR * 2, $innerR * 2)
 
-    $tipY = $circleCy + $circleR * 1.9
-    $leftX = $cx - $circleR * 0.85
-    $rightX = $cx + $circleR * 0.85
-    $topY = $circleCy + $circleR * 0.55
-    $tri = @(
-        New-Object System.Drawing.PointF($leftX, $topY)
-        New-Object System.Drawing.PointF($rightX, $topY)
-        New-Object System.Drawing.PointF($cx, $tipY)
+    # Tick marks at N/E/S/W, straddling the outer ring
+    $tickHalf = $s * 0.05
+    $tickPen = New-Object System.Drawing.Pen($ringColor, [Math]::Max(1.0, $s * 0.014))
+    $g.DrawLine($tickPen, $cx, $cy - $outerR - $tickHalf, $cx, $cy - $outerR + $tickHalf)
+    $g.DrawLine($tickPen, $cx, $cy + $outerR - $tickHalf, $cx, $cy + $outerR + $tickHalf)
+    $g.DrawLine($tickPen, $cx - $outerR - $tickHalf, $cy, $cx - $outerR + $tickHalf, $cy)
+    $g.DrawLine($tickPen, $cx + $outerR - $tickHalf, $cy, $cx + $outerR + $tickHalf, $cy)
+
+    # Needle: kite shape split at the horizontal midline
+    $needleHalfWidth = $s * 0.09
+    $topLen = $s * 0.24
+    $bottomLen = $s * 0.20
+
+    $topColor = [System.Drawing.Color]::FromArgb(255, 233, 227, 208)
+    $bottomColor = [System.Drawing.Color]::FromArgb(255, 133, 160, 90)
+    $topBrush = New-Object System.Drawing.SolidBrush $topColor
+    $bottomBrush = New-Object System.Drawing.SolidBrush $bottomColor
+
+    $topTipY = $cy - $topLen
+    $bottomTipY = $cy + $bottomLen
+    $needleLeftX = $cx - $needleHalfWidth
+    $needleRightX = $cx + $needleHalfWidth
+
+    $topTri = @(
+        New-Object System.Drawing.PointF($cx, $topTipY)
+        New-Object System.Drawing.PointF($needleRightX, $cy)
+        New-Object System.Drawing.PointF($needleLeftX, $cy)
     )
-    $pinPath.AddPolygon($tri)
-    $g.FillPath($pinBrush, $pinPath)
-
-    # White ring around the circle part (contrast, matches in-app marker style)
-    $ringWidth = [Math]::Max(1.0, $Size * 0.018)
-    $whitePen = New-Object System.Drawing.Pen([System.Drawing.Color]::White, $ringWidth)
-    $g.DrawEllipse($whitePen, $cx - $circleR, $circleCy - $circleR, $circleR * 2, $circleR * 2)
-
-    # Simple white mountain silhouette inside the circle
-    $whiteBrush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::White)
-    $mR = $circleR * 0.62
-    $mPoints = @(
-        New-Object System.Drawing.PointF(($cx - $mR), ($circleCy + $mR * 0.55))
-        New-Object System.Drawing.PointF(($cx - $mR * 0.15), ($circleCy - $mR * 0.6))
-        New-Object System.Drawing.PointF(($cx + $mR * 0.25), ($circleCy - $mR * 0.05))
-        New-Object System.Drawing.PointF(($cx + $mR * 0.6), ($circleCy - $mR * 0.5))
-        New-Object System.Drawing.PointF(($cx + $mR), ($circleCy + $mR * 0.55))
+    $bottomTri = @(
+        New-Object System.Drawing.PointF($cx, $bottomTipY)
+        New-Object System.Drawing.PointF($needleRightX, $cy)
+        New-Object System.Drawing.PointF($needleLeftX, $cy)
     )
-    $g.FillPolygon($whiteBrush, $mPoints)
+    $g.FillPolygon($topBrush, $topTri)
+    $g.FillPolygon($bottomBrush, $bottomTri)
+
+    # Center dot
+    $dotR = $s * 0.045
+    $g.FillEllipse($topBrush, $cx - $dotR, $cy - $dotR, $dotR * 2, $dotR * 2)
 
     $bmp.Save($OutPath, [System.Drawing.Imaging.ImageFormat]::Png)
     $g.Dispose()
