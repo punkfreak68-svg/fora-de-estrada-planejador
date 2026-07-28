@@ -1267,8 +1267,16 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "1.8";
+  var APP_VERSION = "1.9";
   var CHANGELOG = [
+    {
+      version: "1.9",
+      date: "27/07/2026",
+      changes: [
+        "Corrige login do Google Drive falhando no app instalado (modo tela cheia): agora usa redirecionamento de página inteira nesse modo, em vez de pop-up (que o Google bloqueia silenciosamente em apps instalados)",
+        "Mensagens de erro mais claras se o login do Google não completar, tanto no app instalado quanto no navegador comum"
+      ]
+    },
     {
       version: "1.8",
       date: "27/07/2026",
@@ -3451,8 +3459,120 @@ html, body {
           /* ignore */
         }
         onDriveConnected();
+      },
+      // Fires when the popup fails/gets closed WITHOUT ever calling the
+      // callback above (blocked popup, closed by the user or by the OS/
+      // browser before completing) — without this, that case failed
+      // completely silently, which is exactly what installed-PWA users saw.
+      error_callback: function () {
+        if (!drivePendingSilent) {
+          showToast(
+            isStandaloneDisplayMode()
+              ? "Não foi possível abrir o login do Google neste app instalado. Tentando pelo navegador..."
+              : "A janela de login do Google fechou antes de terminar. Tente novamente."
+          );
+        }
+        setDriveConnected(false);
       }
     });
+  }
+
+  // ---- standalone-mode (installed PWA) OAuth via full-page redirect ----
+  //
+  // google.accounts.oauth2.initTokenClient() only ever opens a popup, with
+  // no redirect mode. Google's own OAuth servers actively reject that popup
+  // when it detects the calling window as an "embedded user agent" — which
+  // installed/standalone PWA windows commonly get misidentified as — and the
+  // popup silently closes without ever invoking our callback. A full top-level
+  // navigation sidesteps that check entirely, so we use it only in standalone
+  // mode (regular browser tabs already work fine with the popup flow above).
+  var DRIVE_OAUTH_STATE_KEY = "jipeRotas_driveOAuthState_v1";
+
+  function isStandaloneDisplayMode() {
+    return (
+      (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+      window.navigator.standalone === true
+    );
+  }
+
+  function getOAuthRedirectUri() {
+    return window.location.origin + "/index.html";
+  }
+
+  function startRedirectOAuthFlow() {
+    if (!isGoogleClientIdConfigured()) {
+      showToast("Configure o GOOGLE_CLIENT_ID no código antes de conectar (veja instruções).");
+      return;
+    }
+    var state = String(Date.now()) + "_" + Math.random().toString(36).slice(2, 10);
+    try {
+      sessionStorage.setItem(DRIVE_OAUTH_STATE_KEY, state);
+    } catch (e) {
+      /* ignore */
+    }
+    var params = {
+      client_id: GOOGLE_CLIENT_ID,
+      redirect_uri: getOAuthRedirectUri(),
+      response_type: "token",
+      scope: DRIVE_SCOPE,
+      include_granted_scopes: "true",
+      state: state,
+      prompt: driveAccessToken ? "" : "consent"
+    };
+    var query = Object.keys(params)
+      .filter(function (k) {
+        return params[k] !== "" && params[k] != null;
+      })
+      .map(function (k) {
+        return encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
+      })
+      .join("&");
+    window.location.href = "https://accounts.google.com/o/oauth2/v2/auth?" + query;
+  }
+
+  var oauthRedirectHandledThisLoad = false;
+
+  function handleOAuthRedirectReturn() {
+    var hash = window.location.hash;
+    if (!hash || (hash.indexOf("access_token=") === -1 && hash.indexOf("error=") === -1)) return;
+    oauthRedirectHandledThisLoad = true;
+
+    var params = new URLSearchParams(hash.replace(/^#/, ""));
+    var expectedState = null;
+    try {
+      expectedState = sessionStorage.getItem(DRIVE_OAUTH_STATE_KEY);
+      sessionStorage.removeItem(DRIVE_OAUTH_STATE_KEY);
+    } catch (e) {
+      /* ignore */
+    }
+
+    // Strip the token/state out of the visible URL either way, so it never
+    // lingers in the address bar or browser history.
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+
+    if (params.get("error")) {
+      showToast("Login do Google cancelado ou não concluído.");
+      return;
+    }
+    var returnedState = params.get("state");
+    if (!expectedState || returnedState !== expectedState) {
+      showToast("Não foi possível confirmar o login do Google (tente novamente).");
+      return;
+    }
+    var accessToken = params.get("access_token");
+    var expiresIn = params.get("expires_in");
+    if (!accessToken) return;
+
+    driveAccessToken = accessToken;
+    saveTokenToStorage(accessToken, expiresIn);
+    setDriveConnected(true);
+    try {
+      localStorage.setItem(DRIVE_CONNECTED_KEY, "1");
+    } catch (e) {
+      /* ignore */
+    }
+    onDriveConnected();
+    showToast("Conectado ao Google Drive.");
   }
 
   function requestDriveToken(silent) {
@@ -3485,10 +3605,15 @@ html, body {
       showToast("Desconectado do Google Drive.");
       return;
     }
+    if (isStandaloneDisplayMode()) {
+      startRedirectOAuthFlow();
+      return;
+    }
     requestDriveToken(false);
   });
 
   function tryAutoReconnect() {
+    if (oauthRedirectHandledThisLoad) return;
     var wasConnected = false;
     try {
       wasConnected = localStorage.getItem(DRIVE_CONNECTED_KEY) === "1";
@@ -3713,6 +3838,7 @@ html, body {
     safeInit(renderSavedRoutesList, "rotas salvas");
     safeInit(renderChangelog, "changelog");
     safeInit(loadThreshold, "limite de desvio");
+    safeInit(handleOAuthRedirectReturn, "retorno do login do Google (redirect)");
     safeInit(tryAutoReconnect, "reconexão com Google Drive");
   }
 
