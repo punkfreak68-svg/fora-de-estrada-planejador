@@ -452,6 +452,54 @@ html, body {
   line-height: 1;
 }
 
+.olc-pin-start {
+  background: #2e8b3d;
+}
+
+.olc-pin-end {
+  background: #a02020;
+}
+
+.point-role-tag {
+  margin-left: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.point-role-tag.role-start {
+  background: #2e8b3d;
+}
+
+.point-role-tag.role-end {
+  background: #a02020;
+}
+
+.coord-role-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.coord-role-btn {
+  flex: 1 1 0;
+  padding: 8px 6px;
+  border-radius: 6px;
+  border: 1px solid #4a5a34;
+  background: #2a3320;
+  color: #eee;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.coord-role-btn:hover {
+  background: #3d4a2a;
+}
+
 /* Footer: author credit + version + changelog */
 .app-footer {
   margin-top: auto;
@@ -1356,6 +1404,10 @@ html, body {
         <input id="input-lng" type="text" inputmode="decimal" placeholder="Longitude (ex: -51.9253)" />
         <button id="btn-add-coord">Adicionar ponto</button>
       </div>
+      <div class="coord-role-buttons">
+        <button id="btn-add-coord-start" class="coord-role-btn">🚩 Marcar como Início</button>
+        <button id="btn-add-coord-end" class="coord-role-btn">🏁 Marcar como Destino</button>
+      </div>
       <p class="hint">Ou toque/clique diretamente no mapa para adicionar um ponto.</p>
       <p class="hint">Também aceita colar coordenadas em GMS (ex: 22°55'47.7"S) ou o par completo copiado do Google Maps em um único campo.</p>
       <label class="checkbox-row">
@@ -1551,8 +1603,17 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "2.5";
+  var APP_VERSION = "2.6";
   var CHANGELOG = [
+    {
+      version: "2.6",
+      date: "28/07/2026",
+      changes: [
+        "Spec #008: ao adicionar um ponto por coordenada, agora dá pra marcar como \"Início\" (sempre vira o 1º ponto) ou \"Destino\" (sempre vira o último) — pontos adicionados depois entram entre os dois automaticamente",
+        "Só pode haver um ponto marcado como Início e um como Destino; marcar um segundo pergunta se quer substituir o anterior",
+        "Mover manualmente um ponto marcado (▲/▼) remove a marcação dele, virando um ponto normal"
+      ]
+    },
     {
       version: "2.5",
       date: "28/07/2026",
@@ -1863,6 +1924,8 @@ html, body {
     inputLat: document.getElementById("input-lat"),
     inputLng: document.getElementById("input-lng"),
     btnAddCoord: document.getElementById("btn-add-coord"),
+    btnAddCoordStart: document.getElementById("btn-add-coord-start"),
+    btnAddCoordEnd: document.getElementById("btn-add-coord-end"),
     toggleLabels: document.getElementById("toggle-labels"),
     pointList: document.getElementById("point-list"),
     pointListEmpty: document.getElementById("point-list-empty"),
@@ -2180,21 +2243,53 @@ html, body {
   }
 
   // ---- point management ----
-  function addPoint(lat, lng) {
+  // role is optional: "start" (always 1st point) or "end" (always last point).
+  // Unmarked points (map click, or "Adicionar ponto" without a role) are
+  // inserted after any "start" point and before any "end" point.
+  function addPoint(lat, lng, role) {
     var point = { lat: lat, lng: lng };
-    state.points.push(point);
-    var index = state.points.length - 1;
+
+    if (role === "start" || role === "end") {
+      var roleLabel = role === "start" ? "Início" : "Destino";
+      var existingIdx = state.points.findIndex(function (p) {
+        return p.role === role;
+      });
+      if (existingIdx !== -1) {
+        if (window.confirm('Já existe um ponto marcado como "' + roleLabel + '". Substituir pelo novo ponto?')) {
+          delete state.points[existingIdx].role;
+        } else {
+          role = null;
+        }
+      }
+      if (role) point.role = role;
+    }
+
+    var index;
+    if (role === "start") {
+      index = 0;
+    } else if (role === "end") {
+      index = state.points.length;
+    } else {
+      var endIdx = state.points.findIndex(function (p) {
+        return p.role === "end";
+      });
+      index = endIdx === -1 ? state.points.length : endIdx;
+    }
+
+    state.points.splice(index, 0, point);
     var marker = createMarker(point, index);
-    markers.push(marker);
+    markers.splice(index, 0, marker);
+    reindexMarkers();
     refreshPolyline();
     renderPointList();
     saveDraft();
   }
 
-  function numberedIcon(number) {
+  function numberedIcon(number, role) {
+    var extraClass = role === "start" ? " olc-pin-start" : role === "end" ? " olc-pin-end" : "";
     return L.divIcon({
       className: "olc-pin-wrapper",
-      html: '<div class="olc-pin"><span>' + number + "</span></div>",
+      html: '<div class="olc-pin' + extraClass + '"><span>' + number + "</span></div>",
       iconSize: [30, 30],
       iconAnchor: [15, 30],
       popupAnchor: [0, -28]
@@ -2204,7 +2299,7 @@ html, body {
   function createMarker(point, index) {
     var marker = L.marker([point.lat, point.lng], {
       draggable: true,
-      icon: numberedIcon(index + 1)
+      icon: numberedIcon(index + 1, point.role)
     }).addTo(map);
     marker.bindPopup(buildPopupContent(index));
 
@@ -2252,6 +2347,7 @@ html, body {
   function movePoint(index, delta) {
     var newIndex = index + delta;
     if (newIndex < 0 || newIndex >= state.points.length) return;
+    if (state.points[index].role) delete state.points[index].role;
     var pt = state.points.splice(index, 1)[0];
     state.points.splice(newIndex, 0, pt);
     var mk = markers.splice(index, 1)[0];
@@ -2275,7 +2371,7 @@ html, body {
 
   function reindexMarkers() {
     markers.forEach(function (marker, idx) {
-      marker.setIcon(numberedIcon(idx + 1));
+      marker.setIcon(numberedIcon(idx + 1, state.points[idx].role));
       marker.bindPopup(buildPopupContent(idx));
     });
   }
@@ -2333,13 +2429,19 @@ html, body {
       var coords = document.createElement("span");
       coords.className = "point-coords";
       coords.textContent = p.lat.toFixed(5) + ", " + p.lng.toFixed(5);
+      if (p.role === "start" || p.role === "end") {
+        var roleTag = document.createElement("span");
+        roleTag.className = "point-role-tag role-" + p.role;
+        roleTag.textContent = p.role === "start" ? "Início" : "Destino";
+        coords.appendChild(roleTag);
+      }
       row.appendChild(coords);
 
       var upBtn = document.createElement("button");
       upBtn.className = "move-btn";
       upBtn.textContent = "▲";
       upBtn.title = "Mover para cima";
-      upBtn.disabled = idx === 0;
+      upBtn.disabled = idx === 0 || (idx === 1 && state.points[0].role === "start");
       upBtn.addEventListener("click", function () {
         movePoint(idx, -1);
       });
@@ -2349,7 +2451,9 @@ html, body {
       downBtn.className = "move-btn";
       downBtn.textContent = "▼";
       downBtn.title = "Mover para baixo";
-      downBtn.disabled = idx === state.points.length - 1;
+      downBtn.disabled =
+        idx === state.points.length - 1 ||
+        (idx === state.points.length - 2 && state.points[state.points.length - 1].role === "end");
       downBtn.addEventListener("click", function () {
         movePoint(idx, 1);
       });
@@ -2531,13 +2635,25 @@ html, body {
     return validateLatLng(assigned.lat, assigned.lng);
   }
 
-  el.btnAddCoord.addEventListener("click", function () {
+  function addCoordFromInputs(role) {
     var coord = parseCoordInput();
     if (!coord) return;
-    addPoint(coord.lat, coord.lng);
+    addPoint(coord.lat, coord.lng, role);
     map.setView([coord.lat, coord.lng], Math.max(map.getZoom(), 14));
     el.inputLat.value = "";
     el.inputLng.value = "";
+  }
+
+  el.btnAddCoord.addEventListener("click", function () {
+    addCoordFromInputs();
+  });
+
+  el.btnAddCoordStart.addEventListener("click", function () {
+    addCoordFromInputs("start");
+  });
+
+  el.btnAddCoordEnd.addEventListener("click", function () {
+    addCoordFromInputs("end");
   });
 
   // ---- draft autosave/restore (protects against accidental reload/close) ----
@@ -2576,8 +2692,10 @@ html, body {
     el.routeName.value = state.name;
     updateFolderLabel();
     draft.points.forEach(function (p) {
-      state.points.push({ lat: p.lat, lng: p.lng });
-      markers.push(createMarker(state.points[state.points.length - 1], state.points.length - 1));
+      var restored = { lat: p.lat, lng: p.lng };
+      if (p.role === "start" || p.role === "end") restored.role = p.role;
+      state.points.push(restored);
+      markers.push(createMarker(restored, state.points.length - 1));
     });
     refreshPolyline();
     renderPointList();
