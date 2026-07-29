@@ -233,6 +233,26 @@ html, body {
   border-color: #a04040;
 }
 
+.point-list .move-btn {
+  flex: 0 0 auto;
+  background: #3d4a2a;
+  border: 1px solid #4a5a34;
+  color: #eee;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 0.7rem;
+}
+
+.point-list .move-btn:hover:not(:disabled) {
+  background: #4a5a34;
+}
+
+.point-list .move-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
 .saved-list li {
   flex-wrap: wrap;
 }
@@ -560,6 +580,17 @@ html, body {
   display: flex;
   flex-direction: column;
   position: relative;
+}
+
+.folder-indicator-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.folder-indicator-row .hint {
+  margin: 0;
 }
 
 /* Folder field (planning) */
@@ -1062,6 +1093,7 @@ html, body {
   display: flex;
   flex-direction: column;
   background: #1b1f16;
+  overflow-y: auto;
 }
 
 .dashboard-header {
@@ -1098,6 +1130,80 @@ html, body {
   max-width: 420px;
   margin: 0 auto;
   width: 100%;
+}
+
+.dashboard-section {
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 20px 20px;
+  box-sizing: border-box;
+}
+
+.dashboard-section h2 {
+  font-size: 0.95rem;
+  color: #c9d9a8;
+  margin: 0 0 10px;
+}
+
+.dashboard-folder-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard-folder-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #22261b;
+  border: 1px solid #3a4228;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.dashboard-folder-name {
+  font-weight: 600;
+  color: #eee;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-folder-meta {
+  font-size: 0.72rem;
+  color: #8a9578;
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+.dashboard-folder-buttons {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+}
+
+.dashboard-folder-buttons button {
+  background: #3d4a2a;
+  border: 1px solid #4a5a34;
+  color: #eee;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+}
+
+.dashboard-folder-buttons button:hover {
+  background: #4a5a34;
+}
+
+.dashboard-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
 
 .dashboard-tile {
@@ -1201,8 +1307,24 @@ html, body {
       <span class="dashboard-tile-label">Rotas Salvas</span>
     </button>
   </div>
+
+  <section class="dashboard-section">
+    <h2>Sincronização</h2>
+    <button id="btn-drive-connect" class="drive-connect-btn">☁️ Conectar com Google Drive</button>
+    <p id="drive-status-hint" class="hint">Conecta com a pasta do app no seu Google Drive, pra sincronizar as rotas salvas entre aparelhos.</p>
+  </section>
+
+  <section class="dashboard-section">
+    <h2>Pastas</h2>
+    <ul id="dashboard-folder-list" class="dashboard-folder-list"></ul>
+    <p id="dashboard-folder-empty" class="hint">Nenhuma pasta criada ainda. Pastas aparecem aqui quando você salva uma rota nelas.</p>
+  </section>
+
   <div class="dashboard-footer">
-    <span id="dash-version-label" class="app-version">v1.9</span>
+    <div class="dashboard-footer-row">
+      <span id="dash-version-label" class="app-version">v1.9</span>
+      <button id="btn-changelog" class="link-btn">Changelog</button>
+    </div>
   </div>
 </div>
 
@@ -1236,11 +1358,6 @@ html, body {
       </div>
       <p class="hint">Ou toque/clique diretamente no mapa para adicionar um ponto.</p>
       <p class="hint">Também aceita colar coordenadas em GMS (ex: 22°55'47.7"S) ou o par completo copiado do Google Maps em um único campo.</p>
-      <div class="coord-form pluscode-form">
-        <input id="input-pluscode" type="text" placeholder="Plus Code (ex: 589M22Q3+2X)" />
-        <button id="btn-add-pluscode">Adicionar por Plus Code</button>
-      </div>
-      <p class="hint">Use o código completo do Plus Code (sem nome de cidade).</p>
       <label class="checkbox-row">
         <input type="checkbox" id="toggle-labels" />
         Mostrar nomes/estradas sobre o satélite
@@ -1254,21 +1371,10 @@ html, body {
     </section>
 
     <section class="panel-section">
-      <h2>Pasta</h2>
-      <input id="route-folder" type="text" class="folder-input" placeholder="Ex: Serra da Mantiqueira" />
-      <p class="hint">Agrupa esta rota na lista abaixo ao salvar.</p>
-    </section>
-
-    <section class="panel-section grow">
-      <h2>Rotas salvas</h2>
-      <ul id="saved-routes-list" class="saved-list"></ul>
-      <p id="saved-list-empty" class="hint">Nenhuma rota salva ainda.</p>
-    </section>
-
-    <section class="panel-section">
-      <h2>Sincronização</h2>
-      <button id="btn-drive-connect" class="drive-connect-btn">☁️ Conectar com Google Drive</button>
-      <p id="drive-status-hint" class="hint">Conecta com a pasta do app no seu Google Drive, pra sincronizar as rotas salvas entre aparelhos.</p>
+      <div class="folder-indicator-row">
+        <span class="hint">Pasta: <strong id="current-folder-label">Sem pasta</strong></span>
+        <button id="btn-change-folder" class="link-btn">Trocar</button>
+      </div>
     </section>
 
     <section class="panel-section">
@@ -1279,7 +1385,6 @@ html, body {
     <footer class="app-footer">
       <div class="footer-row">
         <span id="app-version-label" class="app-version">v1.1</span>
-        <button id="btn-changelog" class="link-btn">Changelog</button>
       </div>
       <div class="footer-author">por Luiz Augusto de Oliveira Júnior</div>
     </footer>
@@ -1423,6 +1528,18 @@ html, body {
   </div>
 </div>
 
+<div id="folder-picker-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2>Em qual pasta salvar?</h2>
+    <select id="folder-picker-select" class="folder-input"></select>
+    <input id="folder-picker-new-input" type="text" class="folder-input hidden" placeholder="Ex: Serra da Mantiqueira ou Mombuca-SP" style="margin-top: 8px;" />
+    <div class="modal-actions">
+      <button id="btn-folder-picker-cancel" class="modal-btn-secondary">Cancelar</button>
+      <button id="btn-folder-picker-confirm" class="modal-btn-primary">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1434,8 +1551,19 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "2.4";
+  var APP_VERSION = "2.5";
   var CHANGELOG = [
+    {
+      version: "2.5",
+      date: "28/07/2026",
+      changes: [
+        "Spec #006: pontos da rota agora podem ser reordenados na lista com os botões ▲/▼ — a rota desenhada no mapa acompanha a nova ordem",
+        "Spec #007: tela de Planejamento simplificada — removidos Plus Code, Rotas Salvas, Sincronização e o campo solto de Pasta (a coordenada já aceita colar Plus Code/GMS/par completo)",
+        "Ao salvar uma rota nova pela primeira vez, um popup pergunta em qual pasta salvar (existente ou \"+ Nova pasta\"); rotas já vinculadas a uma pasta não perguntam de novo, mas dá pra trocar manualmente pelo link \"Trocar\"",
+        "Novo gerenciamento de pastas no Dashboard: renomear ou excluir pastas (rotas de uma pasta excluída ficam \"Sem pasta\", sem serem apagadas)",
+        "Botão \"Conectar com Google Drive\" e o link \"Changelog\" agora ficam direto na tela inicial (Dashboard)"
+      ]
+    },
     {
       version: "2.4",
       date: "28/07/2026",
@@ -1723,7 +1851,8 @@ html, body {
     sidePanel: document.getElementById("side-panel"),
     panelOverlay: document.getElementById("panel-overlay"),
     routeName: document.getElementById("route-name"),
-    routeFolder: document.getElementById("route-folder"),
+    currentFolderLabel: document.getElementById("current-folder-label"),
+    btnChangeFolder: document.getElementById("btn-change-folder"),
     btnSave: document.getElementById("btn-save"),
     btnImport: document.getElementById("btn-import"),
     importFileInput: document.getElementById("import-file-input"),
@@ -1734,15 +1863,18 @@ html, body {
     inputLat: document.getElementById("input-lat"),
     inputLng: document.getElementById("input-lng"),
     btnAddCoord: document.getElementById("btn-add-coord"),
-    inputPlusCode: document.getElementById("input-pluscode"),
-    btnAddPlusCode: document.getElementById("btn-add-pluscode"),
     toggleLabels: document.getElementById("toggle-labels"),
     pointList: document.getElementById("point-list"),
     pointListEmpty: document.getElementById("point-list-empty"),
     pointCount: document.getElementById("point-count"),
-    savedRoutesList: document.getElementById("saved-routes-list"),
-    savedListEmpty: document.getElementById("saved-list-empty"),
     appVersionLabel: document.getElementById("app-version-label"),
+    folderPickerModal: document.getElementById("folder-picker-modal"),
+    folderPickerSelect: document.getElementById("folder-picker-select"),
+    folderPickerNewInput: document.getElementById("folder-picker-new-input"),
+    btnFolderPickerCancel: document.getElementById("btn-folder-picker-cancel"),
+    btnFolderPickerConfirm: document.getElementById("btn-folder-picker-confirm"),
+    dashboardFolderList: document.getElementById("dashboard-folder-list"),
+    dashboardFolderEmpty: document.getElementById("dashboard-folder-empty"),
     btnChangelog: document.getElementById("btn-changelog"),
     btnDriveConnect: document.getElementById("btn-drive-connect"),
     driveStatusHint: document.getElementById("drive-status-hint"),
@@ -2117,6 +2249,19 @@ html, body {
     return div;
   }
 
+  function movePoint(index, delta) {
+    var newIndex = index + delta;
+    if (newIndex < 0 || newIndex >= state.points.length) return;
+    var pt = state.points.splice(index, 1)[0];
+    state.points.splice(newIndex, 0, pt);
+    var mk = markers.splice(index, 1)[0];
+    markers.splice(newIndex, 0, mk);
+    reindexMarkers();
+    refreshPolyline();
+    renderPointList();
+    saveDraft();
+  }
+
   function removePoint(index) {
     if (index < 0 || index >= state.points.length) return;
     map.removeLayer(markers[index]);
@@ -2152,7 +2297,7 @@ html, body {
     state.name = "";
     state.folder = "";
     el.routeName.value = "";
-    el.routeFolder.value = "";
+    updateFolderLabel();
     refreshPolyline();
     renderPointList();
   }
@@ -2189,6 +2334,26 @@ html, body {
       coords.className = "point-coords";
       coords.textContent = p.lat.toFixed(5) + ", " + p.lng.toFixed(5);
       row.appendChild(coords);
+
+      var upBtn = document.createElement("button");
+      upBtn.className = "move-btn";
+      upBtn.textContent = "▲";
+      upBtn.title = "Mover para cima";
+      upBtn.disabled = idx === 0;
+      upBtn.addEventListener("click", function () {
+        movePoint(idx, -1);
+      });
+      row.appendChild(upBtn);
+
+      var downBtn = document.createElement("button");
+      downBtn.className = "move-btn";
+      downBtn.textContent = "▼";
+      downBtn.title = "Mover para baixo";
+      downBtn.disabled = idx === state.points.length - 1;
+      downBtn.addEventListener("click", function () {
+        movePoint(idx, 1);
+      });
+      row.appendChild(downBtn);
 
       var goBtn = document.createElement("button");
       goBtn.className = "remove-btn";
@@ -2375,31 +2540,18 @@ html, body {
     el.inputLng.value = "";
   });
 
-  el.btnAddPlusCode.addEventListener("click", function () {
-    var raw = el.inputPlusCode.value.trim();
-    if (!raw) {
-      showToast("Digite um Plus Code.");
-      return;
-    }
-    var decoded = olcDecode(raw);
-    if (!decoded) {
-      showToast("Plus Code inválido. Use o código completo, ex: 589M22Q3+2X (sem nome de cidade).");
-      return;
-    }
-    addPoint(decoded.lat, decoded.lng);
-    map.setView([decoded.lat, decoded.lng], Math.max(map.getZoom(), 14));
-    el.inputPlusCode.value = "";
-  });
-
   // ---- draft autosave/restore (protects against accidental reload/close) ----
   function saveDraft() {
     state.name = el.routeName.value;
-    state.folder = el.routeFolder.value;
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
     } catch (e) {
       /* storage full or unavailable; ignore */
     }
+  }
+
+  function updateFolderLabel() {
+    el.currentFolderLabel.textContent = state.folder || "Sem pasta";
   }
 
   function restoreDraft() {
@@ -2422,7 +2574,7 @@ html, body {
     state.name = draft.name || "";
     state.folder = draft.folder || "";
     el.routeName.value = state.name;
-    el.routeFolder.value = state.folder;
+    updateFolderLabel();
     draft.points.forEach(function (p) {
       state.points.push({ lat: p.lat, lng: p.lng });
       markers.push(createMarker(state.points[state.points.length - 1], state.points.length - 1));
@@ -2437,7 +2589,6 @@ html, body {
   }
 
   el.routeName.addEventListener("input", saveDraft);
-  el.routeFolder.addEventListener("input", saveDraft);
 
   // ---- saved routes (localStorage) ----
   function loadSavedRoutes() {
@@ -2488,99 +2639,13 @@ html, body {
     return { groups: groups, order: order };
   }
 
-  function renderSavedRoutesList() {
-    var routes = loadSavedRoutes().filter(function (r) {
-      return !r.deleted;
-    });
-    el.savedRoutesList.innerHTML = "";
-    el.savedListEmpty.style.display = routes.length === 0 ? "block" : "none";
-
-    var sorted = routes.slice().sort(function (a, b) {
-      return b.savedAt - a.savedAt;
-    });
-    var grouped = groupRoutesByFolder(sorted);
-
-    grouped.order.forEach(function (folder) {
-      var headingLi = document.createElement("li");
-      headingLi.className = "folder-heading-item";
-      var headingSpan = document.createElement("span");
-      headingSpan.className = "folder-heading";
-      headingSpan.textContent = folder;
-      headingLi.appendChild(headingSpan);
-      el.savedRoutesList.appendChild(headingLi);
-
-      grouped.groups[folder].forEach(function (route) {
-        var li = document.createElement("li");
-
-        var info = document.createElement("div");
-        info.className = "route-info";
-
-        var name = document.createElement("span");
-        name.className = "route-name";
-        name.textContent = route.name || "(sem nome)";
-        info.appendChild(name);
-
-        var meta = document.createElement("span");
-        meta.className = "route-meta";
-        var date = new Date(route.savedAt);
-        meta.textContent = route.points.length + " pontos · " + date.toLocaleString("pt-BR");
-        info.appendChild(meta);
-
-        li.appendChild(info);
-
-        var buttons = document.createElement("div");
-        buttons.className = "route-buttons";
-
-        var navBtn = document.createElement("button");
-        navBtn.className = "nav-btn";
-        navBtn.textContent = "Iniciar Navegação";
-        navBtn.addEventListener("click", function () {
-          showScreen("navigation");
-          showNavSubview("picker");
-          openNavConfirm(route, "planning");
-        });
-        buttons.appendChild(navBtn);
-
-        var loadBtn = document.createElement("button");
-        loadBtn.className = "load-btn";
-        loadBtn.textContent = "Abrir";
-        loadBtn.addEventListener("click", function () {
-          openSavedRoute(route);
-        });
-        buttons.appendChild(loadBtn);
-
-        var deleteBtn = document.createElement("button");
-        deleteBtn.className = "delete-btn";
-        deleteBtn.textContent = "Excluir";
-        deleteBtn.addEventListener("click", function () {
-          if (!window.confirm('Excluir a rota "' + (route.name || "(sem nome)") + '"?')) return;
-          var all = loadSavedRoutes();
-          var target = all.find(function (r) {
-            return r.id === route.id;
-          });
-          if (target) {
-            target.deleted = true;
-            target.deletedAt = Date.now();
-          }
-          persistSavedRoutes(all);
-          renderSavedRoutesList();
-          showToast("Rota excluída.");
-        });
-        buttons.appendChild(deleteBtn);
-
-        li.appendChild(buttons);
-        el.savedRoutesList.appendChild(li);
-      });
-    });
-  }
-
   function openSavedRoute(route) {
     clearRoute();
     state.id = route.id;
     state.name = route.name;
     state.folder = route.folder || "";
     el.routeName.value = route.name;
-    el.routeFolder.value = state.folder;
+    updateFolderLabel();
     route.points.forEach(function (p) {
       state.points.push({ lat: p.lat, lng: p.lng });
       markers.push(createMarker(state.points[state.points.length - 1], state.points.length - 1));
@@ -2598,19 +2663,12 @@ html, body {
     showToast('Rota "' + route.name + '" carregada.');
   }
 
-  function saveCurrentRoute() {
-    var name = el.routeName.value.trim();
-    if (!name) {
-      showToast("Dê um nome para a rota antes de salvar.");
-      el.routeName.focus();
-      return;
-    }
-    if (state.points.length === 0) {
-      showToast("Adicione pelo menos um ponto antes de salvar.");
-      return;
-    }
+  function refreshSavedRoutesUI() {
+    renderSavedRoutesScreen();
+    renderDashboardFolders();
+  }
 
-    var folder = el.routeFolder.value.trim();
+  function performSaveCurrentRoute(name, folder) {
     var routes = loadSavedRoutes();
     var id = state.id || ("route_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8));
     var record = {
@@ -2635,12 +2693,213 @@ html, body {
 
     state.id = id;
     state.name = name;
+    state.folder = folder;
+    updateFolderLabel();
     saveDraft();
-    renderSavedRoutesList();
+    refreshSavedRoutesUI();
     showToast('Rota "' + name + '" salva.');
   }
 
+  function saveCurrentRoute() {
+    var name = el.routeName.value.trim();
+    if (!name) {
+      showToast("Dê um nome para a rota antes de salvar.");
+      el.routeName.focus();
+      return;
+    }
+    if (state.points.length === 0) {
+      showToast("Adicione pelo menos um ponto antes de salvar.");
+      return;
+    }
+
+    if (!state.folder) {
+      openFolderPicker(state.folder, function (chosenFolder) {
+        performSaveCurrentRoute(name, chosenFolder);
+      });
+      return;
+    }
+
+    performSaveCurrentRoute(name, state.folder);
+  }
+
   el.btnSave.addEventListener("click", saveCurrentRoute);
+
+  // ---- folder picker modal (used on first save, and to change folder manually) ----
+  var folderPickerOnConfirm = null;
+
+  function populateFolderPickerOptions(selectedFolder) {
+    var folders = Array.from(
+      new Set(
+        loadSavedRoutes()
+          .filter(function (r) {
+            return !r.deleted;
+          })
+          .map(function (r) {
+            return (r.folder || "").trim();
+          })
+          .filter(Boolean)
+      )
+    ).sort(function (a, b) {
+      return a.localeCompare(b, "pt-BR");
+    });
+
+    el.folderPickerSelect.innerHTML = "";
+
+    var noneOpt = document.createElement("option");
+    noneOpt.value = "";
+    noneOpt.textContent = "Sem pasta";
+    el.folderPickerSelect.appendChild(noneOpt);
+
+    folders.forEach(function (f) {
+      var opt = document.createElement("option");
+      opt.value = f;
+      opt.textContent = f;
+      el.folderPickerSelect.appendChild(opt);
+    });
+
+    var newOpt = document.createElement("option");
+    newOpt.value = "__new__";
+    newOpt.textContent = "+ Nova pasta";
+    el.folderPickerSelect.appendChild(newOpt);
+
+    el.folderPickerSelect.value = selectedFolder && folders.indexOf(selectedFolder) !== -1 ? selectedFolder : "";
+    el.folderPickerNewInput.value = "";
+    el.folderPickerNewInput.classList.add("hidden");
+  }
+
+  el.folderPickerSelect.addEventListener("change", function () {
+    var isNew = el.folderPickerSelect.value === "__new__";
+    el.folderPickerNewInput.classList.toggle("hidden", !isNew);
+    if (isNew) el.folderPickerNewInput.focus();
+  });
+
+  function openFolderPicker(currentFolder, onConfirm) {
+    populateFolderPickerOptions(currentFolder);
+    folderPickerOnConfirm = onConfirm;
+    el.folderPickerModal.classList.add("open");
+  }
+
+  el.btnFolderPickerCancel.addEventListener("click", function () {
+    el.folderPickerModal.classList.remove("open");
+    folderPickerOnConfirm = null;
+  });
+
+  el.btnFolderPickerConfirm.addEventListener("click", function () {
+    var chosen;
+    if (el.folderPickerSelect.value === "__new__") {
+      chosen = el.folderPickerNewInput.value.trim();
+      if (!chosen) {
+        showToast("Digite um nome para a nova pasta.");
+        el.folderPickerNewInput.focus();
+        return;
+      }
+    } else {
+      chosen = el.folderPickerSelect.value;
+    }
+    el.folderPickerModal.classList.remove("open");
+    var callback = folderPickerOnConfirm;
+    folderPickerOnConfirm = null;
+    if (callback) callback(chosen);
+  });
+
+  el.btnChangeFolder.addEventListener("click", function () {
+    openFolderPicker(state.folder, function (chosenFolder) {
+      state.folder = chosenFolder;
+      updateFolderLabel();
+      saveDraft();
+      if (state.id) {
+        var routes = loadSavedRoutes();
+        var target = routes.find(function (r) {
+          return r.id === state.id;
+        });
+        if (target) {
+          target.folder = chosenFolder;
+          persistSavedRoutes(routes);
+        }
+      }
+      refreshSavedRoutesUI();
+      showToast("Pasta atualizada.");
+    });
+  });
+
+  // ---- dashboard folder management ----
+  function renderDashboardFolders() {
+    var routes = loadSavedRoutes().filter(function (r) {
+      return !r.deleted;
+    });
+    var counts = {};
+    routes.forEach(function (r) {
+      var f = (r.folder || "").trim();
+      if (!f) return;
+      counts[f] = (counts[f] || 0) + 1;
+    });
+    var folders = Object.keys(counts).sort(function (a, b) {
+      return a.localeCompare(b, "pt-BR");
+    });
+
+    el.dashboardFolderList.innerHTML = "";
+    el.dashboardFolderEmpty.style.display = folders.length === 0 ? "block" : "none";
+
+    folders.forEach(function (folder) {
+      var li = document.createElement("li");
+
+      var name = document.createElement("span");
+      name.className = "dashboard-folder-name";
+      name.textContent = folder;
+      var meta = document.createElement("span");
+      meta.className = "dashboard-folder-meta";
+      meta.textContent = counts[folder] + (counts[folder] === 1 ? " rota" : " rotas");
+      name.appendChild(meta);
+      li.appendChild(name);
+
+      var buttons = document.createElement("div");
+      buttons.className = "dashboard-folder-buttons";
+
+      var renameBtn = document.createElement("button");
+      renameBtn.textContent = "✎ Renomear";
+      renameBtn.addEventListener("click", function () {
+        var newName = window.prompt('Renomear pasta "' + folder + '" para:', folder);
+        if (newName == null) return;
+        newName = newName.trim();
+        if (!newName || newName === folder) return;
+        var all = loadSavedRoutes();
+        all.forEach(function (r) {
+          if ((r.folder || "").trim() === folder) r.folder = newName;
+        });
+        persistSavedRoutes(all);
+        if (state.folder === folder) {
+          state.folder = newName;
+          updateFolderLabel();
+          saveDraft();
+        }
+        refreshSavedRoutesUI();
+        showToast('Pasta renomeada para "' + newName + '".');
+      });
+      buttons.appendChild(renameBtn);
+
+      var deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "🗑 Excluir";
+      deleteBtn.addEventListener("click", function () {
+        if (!window.confirm('Excluir a pasta "' + folder + '"? As rotas dentro dela não serão apagadas, só ficarão sem pasta.')) return;
+        var all = loadSavedRoutes();
+        all.forEach(function (r) {
+          if ((r.folder || "").trim() === folder) r.folder = "";
+        });
+        persistSavedRoutes(all);
+        if (state.folder === folder) {
+          state.folder = "";
+          updateFolderLabel();
+          saveDraft();
+        }
+        refreshSavedRoutesUI();
+        showToast('Pasta "' + folder + '" excluída.');
+      });
+      buttons.appendChild(deleteBtn);
+
+      li.appendChild(buttons);
+      el.dashboardFolderList.appendChild(li);
+    });
+  }
 
   el.btnClearPoints.addEventListener("click", function () {
     if (state.points.length === 0) {
@@ -3947,7 +4206,7 @@ html, body {
     var routes = loadSavedRoutes();
     routes.push(record);
     persistSavedRoutes(routes);
-    renderSavedRoutesList();
+    refreshSavedRoutesUI();
     navFreeModeSavedRouteId = id;
     el.saveTrackModal.classList.remove("open");
     showToast('Trajeto salvo como "' + name + '".');
@@ -3967,7 +4226,7 @@ html, body {
     });
     target.savedAt = Date.now();
     persistSavedRoutes(routes);
-    renderSavedRoutesList();
+    refreshSavedRoutesUI();
     showToast("Trajeto atualizado (" + target.points.length + " pontos).");
   }
 
@@ -4417,7 +4676,7 @@ html, body {
           return downloadRoutesFile(fileId).then(function (remoteRoutes) {
             var merged = mergeRouteSets(loadSavedRoutes(), remoteRoutes || []);
             persistSavedRoutesLocalOnly(merged);
-            renderSavedRoutesList();
+            refreshSavedRoutesUI();
             showToast("Rotas sincronizadas do Google Drive.");
           });
         }
@@ -4452,7 +4711,7 @@ html, body {
       .then(function (remoteRoutes) {
         var merged = mergeRouteSets(loadSavedRoutes(), remoteRoutes || []);
         persistSavedRoutesLocalOnly(merged);
-        renderSavedRoutesList();
+        refreshSavedRoutesUI();
       })
       .catch(function () {
         /* ignore, offline */
@@ -4480,8 +4739,9 @@ html, body {
     }, "tela inicial");
     safeInit(initMap, "mapa");
     safeInit(restoreDraft, "rascunho da rota");
+    safeInit(updateFolderLabel, "rótulo da pasta atual");
     safeInit(renderPointList, "lista de pontos");
-    safeInit(renderSavedRoutesList, "rotas salvas");
+    safeInit(refreshSavedRoutesUI, "rotas salvas");
     safeInit(renderChangelog, "changelog");
     safeInit(loadThreshold, "limite de desvio");
     safeInit(loadInitialTileCount, "contador de tiles em cache");
