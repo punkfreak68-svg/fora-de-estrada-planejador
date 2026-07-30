@@ -460,6 +460,29 @@ html, body {
   background: #a02020;
 }
 
+/* Points of interest (Google Places) markers */
+.poi-pin {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.poi-popup-name {
+  font-weight: 700;
+}
+
+.poi-popup-type {
+  color: #555;
+  font-size: 0.85em;
+}
+
 .point-role-tag {
   margin-left: 6px;
   font-size: 0.68rem;
@@ -1414,6 +1437,10 @@ html, body {
         <input type="checkbox" id="toggle-labels" />
         Mostrar nomes/estradas sobre o satélite
       </label>
+      <label class="checkbox-row">
+        <input type="checkbox" id="toggle-poi" />
+        Mostrar restaurantes, lazer/turismo e postos de combustível
+      </label>
     </section>
 
     <section class="panel-section grow">
@@ -1603,8 +1630,18 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "2.6";
+  var APP_VERSION = "2.7";
   var CHANGELOG = [
+    {
+      version: "2.7",
+      date: "29/07/2026",
+      changes: [
+        "Spec #009: nova opção \"Mostrar restaurantes, lazer/turismo e postos de combustível\" no Planejamento, com pontos de interesse reais via Google Places",
+        "Ícones coloridos por categoria (🍽️ restaurante, ⛽ posto de combustível, 🏞️ lazer/turismo); toque num ícone mostra nome, categoria e nota (quando disponível)",
+        "A busca acompanha a área visível do mapa enquanto a exibição estiver ativada",
+        "A chave da Places API é injetada só no build do Netlify (variável de ambiente), nunca fica no código-fonte do GitHub"
+      ]
+    },
     {
       version: "2.6",
       date: "28/07/2026",
@@ -1927,6 +1964,7 @@ html, body {
     btnAddCoordStart: document.getElementById("btn-add-coord-start"),
     btnAddCoordEnd: document.getElementById("btn-add-coord-end"),
     toggleLabels: document.getElementById("toggle-labels"),
+    togglePoi: document.getElementById("toggle-poi"),
     pointList: document.getElementById("point-list"),
     pointListEmpty: document.getElementById("point-list-empty"),
     pointCount: document.getElementById("point-count"),
@@ -2239,6 +2277,12 @@ html, body {
 
     map.on("click", function (e) {
       addPoint(e.latlng.lat, e.latlng.lng);
+    });
+
+    map.on("moveend", function () {
+      if (!el.togglePoi.checked) return;
+      clearTimeout(poiRefetchTimer);
+      poiRefetchTimer = setTimeout(refreshPoiMarkers, 1200);
     });
   }
 
@@ -3313,6 +3357,170 @@ html, body {
       labelsLayer.addTo(map);
     } else {
       map.removeLayer(labelsLayer);
+    }
+  });
+
+  // ================= POINTS OF INTEREST (Google Places) =================
+  //
+  // GOOGLE_PLACES_API_KEY is substituted at Netlify build time (see
+  // netlify.toml) from the GOOGLE_PLACES_API_KEY environment variable, so
+  // the real key is never committed to the repository. When testing locally
+  // (serve.ps1, no build step), this stays as the placeholder below and the
+  // feature degrades to a clear toast instead of a broken/silent failure.
+  var GOOGLE_PLACES_API_KEY = "__GOOGLE_PLACES_API_KEY__";
+
+  var POI_CATEGORIES = [
+    { key: "food", label: "Restaurante", icon: "🍽️", color: "#c9622a", types: ["restaurant", "cafe", "fast_food_restaurant"] },
+    { key: "fuel", label: "Posto de combustível", icon: "⛽", color: "#2a6bc9", types: ["gas_station"] },
+    { key: "leisure", label: "Lazer/Turismo", icon: "🏞️", color: "#3d8b40", types: ["tourist_attraction", "park", "campground"] }
+  ];
+
+  var poiMarkers = [];
+  var poiFetchToken = 0;
+  var poiRefetchTimer = null;
+  var placesLibraryPromise = null;
+
+  function poiFieldText(v) {
+    if (v == null) return "";
+    if (typeof v === "string") return v;
+    if (typeof v === "object" && typeof v.text === "string") return v.text;
+    return String(v);
+  }
+
+  function loadPlacesLibrary() {
+    if (placesLibraryPromise) return placesLibraryPromise;
+    placesLibraryPromise = new Promise(function (resolve, reject) {
+      if (!GOOGLE_PLACES_API_KEY || GOOGLE_PLACES_API_KEY.indexOf("__") === 0) {
+        reject(new Error("missing-key"));
+        return;
+      }
+      if (window.google && window.google.maps && window.google.maps.places && window.google.maps.places.Place) {
+        resolve(window.google.maps.places);
+        return;
+      }
+      var script = document.createElement("script");
+      script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(GOOGLE_PLACES_API_KEY) + "&libraries=places&v=weekly";
+      script.async = true;
+      script.onerror = function () {
+        reject(new Error("script-load-failed"));
+      };
+      script.onload = function () {
+        if (window.google && window.google.maps && window.google.maps.places) {
+          resolve(window.google.maps.places);
+        } else {
+          reject(new Error("script-load-failed"));
+        }
+      };
+      document.head.appendChild(script);
+    });
+    return placesLibraryPromise;
+  }
+
+  function searchNearbyCategory(places, center, radiusMeters, category) {
+    return places.Place.searchNearby({
+      locationRestriction: {
+        center: { lat: center.lat, lng: center.lng },
+        radius: radiusMeters
+      },
+      includedPrimaryTypes: category.types,
+      maxResultCount: 10,
+      fields: ["displayName", "location", "primaryTypeDisplayName", "rating"]
+    })
+      .then(function (result) {
+        return (result && result.places) || [];
+      })
+      .catch(function () {
+        return [];
+      });
+  }
+
+  function poiIcon(category) {
+    return L.divIcon({
+      className: "poi-pin-wrapper",
+      html: '<div class="poi-pin" style="background:' + category.color + ';">' + category.icon + "</div>",
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+      popupAnchor: [0, -12]
+    });
+  }
+
+  function buildPoiPopupContent(place, category) {
+    var div = document.createElement("div");
+
+    var nameEl = document.createElement("div");
+    nameEl.className = "poi-popup-name";
+    nameEl.textContent = poiFieldText(place.displayName) || "(sem nome)";
+    div.appendChild(nameEl);
+
+    var typeEl = document.createElement("div");
+    typeEl.className = "poi-popup-type";
+    typeEl.textContent = poiFieldText(place.primaryTypeDisplayName) || category.label;
+    div.appendChild(typeEl);
+
+    if (place.rating != null) {
+      var ratingEl = document.createElement("div");
+      ratingEl.textContent = "⭐ " + place.rating;
+      div.appendChild(ratingEl);
+    }
+    return div;
+  }
+
+  function clearPoiMarkers() {
+    poiMarkers.forEach(function (m) {
+      map.removeLayer(m);
+    });
+    poiMarkers = [];
+  }
+
+  function refreshPoiMarkers() {
+    if (!el.togglePoi.checked) return;
+    var myToken = ++poiFetchToken;
+    var center = map.getCenter();
+    var bounds = map.getBounds();
+    var ne = bounds.getNorthEast();
+    var radius = Math.min(50000, Math.max(500, haversineMeters(center.lat, center.lng, ne.lat, ne.lng)));
+
+    loadPlacesLibrary()
+      .then(function (places) {
+        return Promise.all(
+          POI_CATEGORIES.map(function (category) {
+            return searchNearbyCategory(places, center, radius, category).then(function (results) {
+              return { category: category, results: results };
+            });
+          })
+        );
+      })
+      .then(function (byCategory) {
+        if (myToken !== poiFetchToken) return;
+        clearPoiMarkers();
+        byCategory.forEach(function (entry) {
+          entry.results.forEach(function (place) {
+            if (!place.location) return;
+            var marker = L.marker([place.location.lat(), place.location.lng()], {
+              icon: poiIcon(entry.category)
+            }).addTo(map);
+            marker.bindPopup(buildPoiPopupContent(place, entry.category));
+            poiMarkers.push(marker);
+          });
+        });
+      })
+      .catch(function (err) {
+        if (myToken !== poiFetchToken) return;
+        if (err && err.message === "missing-key") {
+          showToast("Pontos de interesse não configurados (chave de API ausente).");
+        } else {
+          showToast("Não foi possível carregar pontos de interesse agora.");
+        }
+        el.togglePoi.checked = false;
+      });
+  }
+
+  el.togglePoi.addEventListener("change", function () {
+    if (el.togglePoi.checked) {
+      refreshPoiMarkers();
+    } else {
+      clearTimeout(poiRefetchTimer);
+      clearPoiMarkers();
     }
   });
 
