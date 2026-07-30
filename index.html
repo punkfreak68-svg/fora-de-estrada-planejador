@@ -1641,8 +1641,17 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "3.0";
+  var APP_VERSION = "3.1";
   var CHANGELOG = [
+    {
+      version: "3.1",
+      date: "29/07/2026",
+      changes: [
+        "Pontos de interesse (Spec #009): reduzido de 3 chamadas à Places API por busca para 1 só (categorias combinadas e classificadas depois, no app)",
+        "Adicionado cache: mover o mapa de volta pra uma área já pesquisada recentemente não gasta cota de API de novo",
+        "Mensagens de erro mais específicas para limite de cota (RESOURCE_EXHAUSTED) e permissão negada"
+      ]
+    },
     {
       version: "3.0",
       date: "29/07/2026",
@@ -3426,10 +3435,37 @@ html, body {
     { key: "leisure", label: "Lazer/Turismo", icon: "🏞️", color: "#3d8b40", types: ["tourist_attraction", "park", "campground"] }
   ];
 
+  var ALL_POI_TYPES = POI_CATEGORIES.reduce(function (acc, c) {
+    return acc.concat(c.types);
+  }, []);
+
+  function categorizeByTypes(placeTypes) {
+    if (!Array.isArray(placeTypes)) return null;
+    for (var i = 0; i < POI_CATEGORIES.length; i++) {
+      for (var j = 0; j < placeTypes.length; j++) {
+        if (POI_CATEGORIES[i].types.indexOf(placeTypes[j]) !== -1) return POI_CATEGORIES[i];
+      }
+    }
+    return null;
+  }
+
   var poiMarkers = [];
   var poiFetchToken = 0;
   var poiRefetchTimer = null;
   var placesLibraryPromise = null;
+
+  // Small cache so panning back over an already-searched area (or toggling
+  // the checkbox off/on) doesn't re-spend API quota — keyed by a coarse
+  // grid cell so nearby positions share a cache hit.
+  var poiCache = {};
+  var POI_CACHE_TTL_MS = 5 * 60 * 1000;
+
+  function poiCacheKey(center, radiusMeters) {
+    var latBucket = Math.round(center.lat * 100) / 100;
+    var lngBucket = Math.round(center.lng * 100) / 100;
+    var radiusBucket = Math.round(radiusMeters / 2000) * 2000;
+    return latBucket + "," + lngBucket + "," + radiusBucket;
+  }
 
   function poiFieldText(v) {
     if (v == null) return "";
@@ -3467,15 +3503,18 @@ html, body {
     return placesLibraryPromise;
   }
 
-  function searchNearbyCategory(places, center, radiusMeters, category) {
+  // Single request covering all 3 categories at once (instead of one request
+  // per category) — cuts API usage to a third. Each result is sorted into a
+  // category afterward, client-side, using its `types` field.
+  function searchNearbyAll(places, center, radiusMeters) {
     return places.Place.searchNearby({
       locationRestriction: {
         center: { lat: center.lat, lng: center.lng },
         radius: radiusMeters
       },
-      includedPrimaryTypes: category.types,
-      maxResultCount: 10,
-      fields: ["displayName", "location", "primaryTypeDisplayName", "rating"]
+      includedTypes: ALL_POI_TYPES,
+      maxResultCount: 20,
+      fields: ["displayName", "location", "primaryTypeDisplayName", "rating", "types"]
     }).then(function (result) {
       return (result && result.places) || [];
     });
@@ -3523,6 +3562,19 @@ html, body {
     poiMarkers = [];
   }
 
+  function renderPoiResults(results) {
+    clearPoiMarkers();
+    results.forEach(function (place) {
+      if (!place.location) return;
+      var category = categorizeByTypes(place.types) || POI_CATEGORIES[0];
+      var marker = L.marker([place.location.lat(), place.location.lng()], {
+        icon: poiIcon(category)
+      }).addTo(map);
+      marker.bindPopup(buildPoiPopupContent(place, category));
+      poiMarkers.push(marker);
+    });
+  }
+
   function refreshPoiMarkers() {
     if (!el.togglePoi.checked) return;
     var myToken = ++poiFetchToken;
@@ -3531,36 +3583,30 @@ html, body {
     var ne = bounds.getNorthEast();
     var radius = Math.min(50000, Math.max(500, haversineMeters(center.lat, center.lng, ne.lat, ne.lng)));
 
+    var cacheKey = poiCacheKey(center, radius);
+    var cached = poiCache[cacheKey];
+    if (cached && Date.now() - cached.timestamp < POI_CACHE_TTL_MS) {
+      renderPoiResults(cached.places);
+      return;
+    }
+
     loadPlacesLibrary()
       .then(function (places) {
-        return Promise.all(
-          POI_CATEGORIES.map(function (category) {
-            return searchNearbyCategory(places, center, radius, category).then(function (results) {
-              return { category: category, results: results };
-            });
-          })
-        );
+        return searchNearbyAll(places, center, radius);
       })
-      .then(function (byCategory) {
+      .then(function (results) {
         if (myToken !== poiFetchToken) return;
-        clearPoiMarkers();
-        byCategory.forEach(function (entry) {
-          entry.results.forEach(function (place) {
-            if (!place.location) return;
-            var marker = L.marker([place.location.lat(), place.location.lng()], {
-              icon: poiIcon(entry.category)
-            }).addTo(map);
-            marker.bindPopup(buildPoiPopupContent(place, entry.category));
-            poiMarkers.push(marker);
-          });
-        });
+        poiCache[cacheKey] = { timestamp: Date.now(), places: results };
+        renderPoiResults(results);
       })
       .catch(function (err) {
         if (myToken !== poiFetchToken) return;
         if (err && err.message === "missing-key") {
           showToast("Pontos de interesse não configurados (chave de API ausente).");
+        } else if (err && err.code === "RESOURCE_EXHAUSTED") {
+          showToast("Limite de uso da Places API atingido por agora. Tente novamente em alguns minutos.");
         } else if (err && err.code === "PERMISSION_DENIED") {
-          showToast("Places API (New) não está habilitada para essa chave no Google Cloud. Ative-a no console e tente de novo.");
+          showToast("Sem permissão para buscar pontos de interesse. Verifique a chave da Places API no Google Cloud.");
         } else {
           showToast("Não foi possível carregar pontos de interesse agora." + (err && err.message ? " (" + err.message.slice(0, 80) + ")" : ""));
         }
