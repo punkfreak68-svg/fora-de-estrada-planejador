@@ -1641,8 +1641,17 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "3.1";
+  var APP_VERSION = "3.2";
   var CHANGELOG = [
+    {
+      version: "3.2",
+      date: "29/07/2026",
+      changes: [
+        "Corrige bug (Spec #010): marcação Início/Destino podia se perder ao usar Planejamento no PC e Navegação no celular (ou qualquer troca entre aparelhos sincronizados pelo Google Drive)",
+        "Causa: ao salvar, a sincronização com o Drive esperava até 3s antes de subir a mudança — se o app fosse fechado antes disso, o Drive ficava com uma versão desatualizada, que o outro aparelho baixava depois",
+        "Agora a sincronização é enviada imediatamente ao trocar de app/aba ou fechar, e a espera normal caiu de 3s para 1.5s"
+      ]
+    },
     {
       version: "3.1",
       date: "29/07/2026",
@@ -5115,7 +5124,21 @@ html, body {
   function scheduleDrivePush() {
     if (!driveConnected) return;
     clearTimeout(driveSyncTimer);
-    driveSyncTimer = setTimeout(pushRoutesToDrive, 3000);
+    driveSyncTimer = setTimeout(pushRoutesToDrive, 1500);
+  }
+
+  // If the user closes the app / switches away within the 3s debounce
+  // window above, the scheduled push would otherwise never run, leaving an
+  // outdated copy on Drive that a second device could then pull down and
+  // overwrite a newer local save with (e.g. losing an Início/Destino mark
+  // made right before closing). Flush any pending push immediately whenever
+  // the page is about to go into the background or unload.
+  function flushPendingDrivePush() {
+    if (driveSyncTimer) {
+      clearTimeout(driveSyncTimer);
+      driveSyncTimer = null;
+      pushRoutesToDrive();
+    }
   }
 
   function pushRoutesToDrive() {
@@ -5146,8 +5169,12 @@ html, body {
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible" && driveConnected) {
       pullRoutesFromDrive();
+    } else if (document.visibilityState === "hidden") {
+      flushPendingDrivePush();
     }
   });
+
+  window.addEventListener("pagehide", flushPendingDrivePush);
 
   // ---- init ----
   function safeInit(fn, label) {
