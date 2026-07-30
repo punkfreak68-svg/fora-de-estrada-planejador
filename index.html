@@ -233,7 +233,8 @@ html, body {
   border-color: #a04040;
 }
 
-.point-list .move-btn {
+.point-list .move-btn,
+.block-list .move-btn {
   flex: 0 0 auto;
   background: #3d4a2a;
   border: 1px solid #4a5a34;
@@ -244,11 +245,13 @@ html, body {
   font-size: 0.7rem;
 }
 
-.point-list .move-btn:hover:not(:disabled) {
+.point-list .move-btn:hover:not(:disabled),
+.block-list .move-btn:hover:not(:disabled) {
   background: #4a5a34;
 }
 
-.point-list .move-btn:disabled {
+.point-list .move-btn:disabled,
+.block-list .move-btn:disabled {
   opacity: 0.3;
   cursor: default;
 }
@@ -531,6 +534,52 @@ html, body {
 
 .coord-role-btn:hover {
   background: #3d4a2a;
+}
+
+/* Route blocks (Spec #012) */
+.block-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.block-list li {
+  margin-bottom: 6px;
+}
+
+.block-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #22261b;
+  border: 1px solid #3a4228;
+  border-radius: 8px;
+  padding: 8px 10px;
+  flex-wrap: wrap;
+}
+
+.block-label {
+  flex: 1 1 auto;
+  font-size: 0.85rem;
+  color: #eee;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.block-reverse-btn {
+  flex: 0 0 auto;
+  background: #3d4a2a;
+  border: 1px solid #4a5a34;
+  color: #eee;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+}
+
+.block-reverse-btn:hover {
+  background: #4a5a34;
 }
 
 /* Footer: author credit + version + changelog */
@@ -1453,6 +1502,11 @@ html, body {
       </label>
     </section>
 
+    <section class="panel-section hidden" id="blocks-section">
+      <h2>Blocos importados</h2>
+      <ul id="block-list" class="block-list"></ul>
+    </section>
+
     <section class="panel-section grow">
       <h2>Pontos da rota (<span id="point-count">0</span>)</h2>
       <p id="route-total-distance" class="route-total-distance hidden">Distância total: <strong>--</strong></p>
@@ -1630,6 +1684,17 @@ html, body {
   </div>
 </div>
 
+<div id="import-mode-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2>Importar rota</h2>
+    <p class="hint">Substituir a rota atual pelo arquivo importado, ou adicionar como um novo bloco combinável (pra montar uma rota juntando vários arquivos)?</p>
+    <div class="modal-actions">
+      <button id="btn-import-mode-replace" class="modal-btn-secondary">Substituir rota atual</button>
+      <button id="btn-import-mode-add-block" class="modal-btn-primary">Adicionar como bloco</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1641,8 +1706,17 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "3.2";
+  var APP_VERSION = "3.3";
   var CHANGELOG = [
+    {
+      version: "3.3",
+      date: "29/07/2026",
+      changes: [
+        "Spec #012: importar agora oferece \"Substituir rota atual\" ou \"Adicionar como bloco\", pra combinar várias rotas importadas (ex: do Wikiloc) numa só",
+        "Cada arquivo importado como bloco aparece numa lista nova (\"Blocos importados\"), com botões pra reordenar e inverter a direção de cada bloco",
+        "A rota final é a junção dos blocos na ordem escolhida; ao salvar, vira uma rota normal (os blocos somem, são só uma ferramenta de montagem)"
+      ]
+    },
     {
       version: "3.2",
       date: "29/07/2026",
@@ -1985,7 +2059,8 @@ html, body {
     id: null, // id of saved route if this working route was loaded from storage
     name: "",
     folder: "",
-    points: [] // [{lat, lng}]
+    points: [], // [{lat, lng, role?, blockId?}]
+    blocks: [] // [{id, label}] - assembly-time only, discarded on save (Spec #012)
   };
 
   var markers = []; // Leaflet markers, parallel to state.points
@@ -2006,6 +2081,11 @@ html, body {
     btnSave: document.getElementById("btn-save"),
     btnImport: document.getElementById("btn-import"),
     importFileInput: document.getElementById("import-file-input"),
+    importModeModal: document.getElementById("import-mode-modal"),
+    btnImportModeReplace: document.getElementById("btn-import-mode-replace"),
+    btnImportModeAddBlock: document.getElementById("btn-import-mode-add-block"),
+    blocksSection: document.getElementById("blocks-section"),
+    blockList: document.getElementById("block-list"),
     btnExport: document.getElementById("btn-export"),
     btnClearPoints: document.getElementById("btn-clear-points"),
     btnNew: document.getElementById("btn-new"),
@@ -2486,6 +2566,7 @@ html, body {
     });
     markers = [];
     state.points = [];
+    state.blocks = [];
     state.id = null;
     state.name = "";
     state.folder = "";
@@ -2493,6 +2574,7 @@ html, body {
     updateFolderLabel();
     refreshPolyline();
     renderPointList();
+    renderBlockList();
   }
 
   function clearPointsOnly() {
@@ -2501,8 +2583,10 @@ html, body {
     });
     markers = [];
     state.points = [];
+    state.blocks = [];
     refreshPolyline();
     renderPointList();
+    renderBlockList();
     saveDraft();
   }
 
@@ -2797,16 +2881,19 @@ html, body {
     state.id = draft.id || null;
     state.name = draft.name || "";
     state.folder = draft.folder || "";
+    state.blocks = Array.isArray(draft.blocks) ? draft.blocks : [];
     el.routeName.value = state.name;
     updateFolderLabel();
     draft.points.forEach(function (p) {
       var restored = { lat: p.lat, lng: p.lng };
       if (p.role === "start" || p.role === "end") restored.role = p.role;
+      if (p.blockId) restored.blockId = p.blockId;
       state.points.push(restored);
       markers.push(createMarker(restored, state.points.length - 1));
     });
     refreshPolyline();
     renderPointList();
+    renderBlockList();
 
     if (state.points.length > 0) {
       var group = L.featureGroup(markers);
@@ -2925,6 +3012,13 @@ html, body {
     state.id = id;
     state.name = name;
     state.folder = folder;
+    // Blocks are just an assembly aid (Spec #012) — once saved, the route is
+    // a normal flat point list and the block grouping no longer applies.
+    state.blocks = [];
+    state.points.forEach(function (p) {
+      delete p.blockId;
+    });
+    renderBlockList();
     updateFolderLabel();
     saveDraft();
     refreshSavedRoutesUI();
@@ -3338,6 +3432,159 @@ html, body {
     return "";
   }
 
+  // ---- route blocks (Spec #012: combine multiple imported routes) ----
+  //
+  // A block is a tag (blockId) shared by a group of points, plus an entry in
+  // state.blocks recording the block's label and its position in the final
+  // sequence. Blocks are purely an assembly-time aid: reordering/reversing
+  // them rearranges state.points directly, and saving the route discards the
+  // grouping entirely (see performSaveCurrentRoute).
+  function renderBlockList() {
+    el.blocksSection.classList.toggle("hidden", state.blocks.length === 0);
+    el.blockList.innerHTML = "";
+    state.blocks.forEach(function (block, idx) {
+      var li = document.createElement("li");
+      var row = document.createElement("div");
+      row.className = "block-row";
+
+      var count = state.points.filter(function (p) {
+        return p.blockId === block.id;
+      }).length;
+
+      var label = document.createElement("span");
+      label.className = "block-label";
+      label.textContent = block.label + " (" + count + (count === 1 ? " ponto" : " pontos") + ")";
+      row.appendChild(label);
+
+      var upBtn = document.createElement("button");
+      upBtn.className = "move-btn";
+      upBtn.textContent = "▲";
+      upBtn.title = "Mover bloco para cima";
+      upBtn.disabled = idx === 0;
+      upBtn.addEventListener("click", function () {
+        moveBlock(idx, -1);
+      });
+      row.appendChild(upBtn);
+
+      var downBtn = document.createElement("button");
+      downBtn.className = "move-btn";
+      downBtn.textContent = "▼";
+      downBtn.title = "Mover bloco para baixo";
+      downBtn.disabled = idx === state.blocks.length - 1;
+      downBtn.addEventListener("click", function () {
+        moveBlock(idx, 1);
+      });
+      row.appendChild(downBtn);
+
+      var reverseBtn = document.createElement("button");
+      reverseBtn.className = "block-reverse-btn";
+      reverseBtn.textContent = "🔄 Inverter";
+      reverseBtn.title = "Inverter a direção deste bloco";
+      reverseBtn.addEventListener("click", function () {
+        reverseBlock(idx);
+      });
+      row.appendChild(reverseBtn);
+
+      li.appendChild(row);
+      el.blockList.appendChild(li);
+    });
+  }
+
+  // Rebuilds state.points/markers so blocks sit contiguously in state.blocks
+  // order (each block's own internal point order is preserved). Points with
+  // no blockId ("loose" points, added/edited outside any block) are kept
+  // afterward, in their existing relative order.
+  function rebuildPointsFromBlocks() {
+    var groups = {};
+    var loose = [];
+    state.points.forEach(function (p, i) {
+      var entry = { point: p, marker: markers[i] };
+      if (p.blockId) {
+        if (!groups[p.blockId]) groups[p.blockId] = [];
+        groups[p.blockId].push(entry);
+      } else {
+        loose.push(entry);
+      }
+    });
+
+    var newPoints = [];
+    var newMarkers = [];
+    state.blocks.forEach(function (block) {
+      (groups[block.id] || []).forEach(function (entry) {
+        newPoints.push(entry.point);
+        newMarkers.push(entry.marker);
+      });
+    });
+    loose.forEach(function (entry) {
+      newPoints.push(entry.point);
+      newMarkers.push(entry.marker);
+    });
+
+    state.points = newPoints;
+    markers = newMarkers;
+  }
+
+  function moveBlock(blockIndex, delta) {
+    var newIndex = blockIndex + delta;
+    if (newIndex < 0 || newIndex >= state.blocks.length) return;
+    var block = state.blocks.splice(blockIndex, 1)[0];
+    state.blocks.splice(newIndex, 0, block);
+    rebuildPointsFromBlocks();
+    reindexMarkers();
+    refreshPolyline();
+    renderPointList();
+    renderBlockList();
+    saveDraft();
+  }
+
+  function reverseBlock(blockIndex) {
+    var block = state.blocks[blockIndex];
+    if (!block) return;
+    var groupIndices = [];
+    state.points.forEach(function (p, i) {
+      if (p.blockId === block.id) groupIndices.push(i);
+    });
+    if (groupIndices.length < 2) return;
+
+    var reversedPoints = groupIndices.map(function (i) {
+      return state.points[i];
+    }).reverse();
+    var reversedMarkers = groupIndices.map(function (i) {
+      return markers[i];
+    }).reverse();
+    groupIndices.forEach(function (originalIndex, k) {
+      state.points[originalIndex] = reversedPoints[k];
+      markers[originalIndex] = reversedMarkers[k];
+    });
+
+    reindexMarkers();
+    refreshPolyline();
+    renderPointList();
+    renderBlockList();
+    saveDraft();
+    showToast('"' + block.label + '" invertido.');
+  }
+
+  function addImportedBlock(points, label) {
+    var blockId = "block_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+    state.blocks.push({ id: blockId, label: label });
+    points.forEach(function (p) {
+      var point = { lat: p.lat, lng: p.lng, blockId: blockId };
+      var index = state.points.length;
+      state.points.push(point);
+      markers.push(createMarker(point, index));
+    });
+    refreshPolyline();
+    renderPointList();
+    renderBlockList();
+    saveDraft();
+
+    var group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.2));
+    closeSidePanelOnMobile();
+    showToast('"' + label + '" adicionado como bloco (' + points.length + " pontos).");
+  }
+
   function applyImportedRoute(points, suggestedName) {
     if (state.points.length > 0) {
       if (!window.confirm("Importar essa rota vai substituir a rota atual não salva. Continuar?")) return;
@@ -3365,7 +3612,7 @@ html, body {
     }
   }
 
-  function handleImportFile(file) {
+  function handleImportFile(file, mode) {
     var lowerName = file.name.toLowerCase();
     var isKml = lowerName.endsWith(".kml");
     var isGpx = lowerName.endsWith(".gpx");
@@ -3401,7 +3648,12 @@ html, body {
           return;
         }
 
-        applyImportedRoute(points, suggestedName);
+        if (mode === "block") {
+          var label = suggestedName || file.name.replace(/\.(gpx|kml)$/i, "") || "Bloco " + (state.blocks.length + 1);
+          addImportedBlock(points, label);
+        } else {
+          applyImportedRoute(points, suggestedName);
+        }
       } catch (e) {
         showToast("Erro ao importar o arquivo. Verifique se é um .gpx ou .kml válido.");
       }
@@ -3409,7 +3661,21 @@ html, body {
     reader.readAsText(file);
   }
 
+  var pendingImportMode = "replace";
+
   el.btnImport.addEventListener("click", function () {
+    el.importModeModal.classList.add("open");
+  });
+
+  el.btnImportModeReplace.addEventListener("click", function () {
+    pendingImportMode = "replace";
+    el.importModeModal.classList.remove("open");
+    el.importFileInput.click();
+  });
+
+  el.btnImportModeAddBlock.addEventListener("click", function () {
+    pendingImportMode = "block";
+    el.importModeModal.classList.remove("open");
     el.importFileInput.click();
   });
 
@@ -3417,7 +3683,7 @@ html, body {
     var file = el.importFileInput.files[0];
     el.importFileInput.value = "";
     if (!file) return;
-    handleImportFile(file);
+    handleImportFile(file, pendingImportMode);
   });
 
   // ---- labels overlay toggle ----
