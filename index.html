@@ -582,6 +582,22 @@ html, body {
   background: #4a5a34;
 }
 
+.block-delete-btn {
+  flex: 0 0 auto;
+  background: #5a2a2a;
+  border: 1px solid #6e3434;
+  color: #eee;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+}
+
+.block-delete-btn:hover {
+  background: #7a3030;
+  border-color: #a04040;
+}
+
 /* Footer: author credit + version + changelog */
 .app-footer {
   margin-top: auto;
@@ -1706,8 +1722,17 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "3.4";
+  var APP_VERSION = "3.5";
   var CHANGELOG = [
+    {
+      version: "3.5",
+      date: "31/07/2026",
+      changes: [
+        "Spec #013: blocos de rota (importar/combinar) agora persistem ao salvar e reabrir a rota — antes eram descartados no salvamento",
+        "Novo botão \"Excluir bloco\" em cada bloco, com confirmação antes de remover seus pontos (não afeta os outros blocos)",
+        "Reconfirmado com um teste mais completo (salvar → fechar → reabrir → continuar editando, com 3 blocos): mover e inverter blocos recalculam corretamente a posição de todos os pontos da rota"
+      ]
+    },
     {
       version: "3.4",
       date: "31/07/2026",
@@ -2965,17 +2990,20 @@ html, body {
     state.id = route.id;
     state.name = route.name;
     state.folder = route.folder || "";
+    state.blocks = Array.isArray(route.blocks) ? route.blocks.slice() : [];
     el.routeName.value = route.name;
     updateFolderLabel();
     route.points.forEach(function (p) {
       var restored = { lat: p.lat, lng: p.lng };
       if (p.role === "start" || p.role === "end") restored.role = p.role;
+      if (p.blockId) restored.blockId = p.blockId;
       state.points.push(restored);
       markers.push(createMarker(restored, state.points.length - 1));
     });
     reindexMarkers();
     refreshPolyline();
     renderPointList();
+    renderBlockList();
     saveDraft();
 
     if (state.points.length > 0) {
@@ -3002,8 +3030,15 @@ html, body {
       points: state.points.map(function (p) {
         var saved = { lat: p.lat, lng: p.lng };
         if (p.role === "start" || p.role === "end") saved.role = p.role;
+        if (p.blockId) saved.blockId = p.blockId;
         return saved;
       }),
+      // Blocks (Spec #012/#013): the order/labels persist with the route, so
+      // reopening it later keeps them reorderable/reversible/removable. The
+      // "reversed" state of a block isn't tracked separately — reversing
+      // already permanently reorders the affected points in state.points, so
+      // whatever order they're saved in already reflects it.
+      blocks: state.blocks.slice(),
       savedAt: Date.now()
     };
 
@@ -3020,13 +3055,6 @@ html, body {
     state.id = id;
     state.name = name;
     state.folder = folder;
-    // Blocks are just an assembly aid (Spec #012) — once saved, the route is
-    // a normal flat point list and the block grouping no longer applies.
-    state.blocks = [];
-    state.points.forEach(function (p) {
-      delete p.blockId;
-    });
-    renderBlockList();
     updateFolderLabel();
     saveDraft();
     refreshSavedRoutesUI();
@@ -3493,9 +3521,50 @@ html, body {
       });
       row.appendChild(reverseBtn);
 
+      var deleteBtn = document.createElement("button");
+      deleteBtn.className = "block-delete-btn";
+      deleteBtn.textContent = "✕ Excluir bloco";
+      deleteBtn.title = "Excluir este bloco e seus pontos";
+      deleteBtn.addEventListener("click", function () {
+        deleteBlock(idx);
+      });
+      row.appendChild(deleteBtn);
+
       li.appendChild(row);
       el.blockList.appendChild(li);
     });
+  }
+
+  function deleteBlock(blockIndex) {
+    var block = state.blocks[blockIndex];
+    if (!block) return;
+    var count = state.points.filter(function (p) {
+      return p.blockId === block.id;
+    }).length;
+    if (!window.confirm('Excluir o bloco "' + block.label + '" e seus ' + count + " pontos? Os outros blocos não são afetados.")) {
+      return;
+    }
+
+    var keptPoints = [];
+    var keptMarkers = [];
+    state.points.forEach(function (p, i) {
+      if (p.blockId === block.id) {
+        map.removeLayer(markers[i]);
+      } else {
+        keptPoints.push(p);
+        keptMarkers.push(markers[i]);
+      }
+    });
+    state.points = keptPoints;
+    markers = keptMarkers;
+    state.blocks.splice(blockIndex, 1);
+
+    reindexMarkers();
+    refreshPolyline();
+    renderPointList();
+    renderBlockList();
+    saveDraft();
+    showToast('Bloco "' + block.label + '" excluído.');
   }
 
   // Rebuilds state.points/markers so blocks sit contiguously in state.blocks
