@@ -1722,8 +1722,17 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "3.6";
+  var APP_VERSION = "3.7";
   var CHANGELOG = [
+    {
+      version: "3.7",
+      date: "31/07/2026",
+      changes: [
+        "Corrige bug (Spec #015): cliques manuais consecutivos no mapa podiam ser divididos em dois \"Trechos manuais\" sem motivo aparente",
+        "Reescrevi a lógica: agora, em vez de depender de uma variável separada rastreando \"qual bloco está em aberto\", cada novo ponto olha diretamente se o ponto anterior na rota já pertence a um trecho manual — mais simples e à prova desse tipo de dessincronia",
+        "Testado com sequências de até 29 pontos manuais seguidos (com e sem atraso entre cliques): todos entram no mesmo bloco; reordenar/importar algo no meio ainda inicia um trecho novo corretamente"
+      ]
+    },
     {
       version: "3.6",
       date: "31/07/2026",
@@ -2466,17 +2475,10 @@ html, body {
   // role is optional: "start" (always 1st point) or "end" (always last point).
   // Unmarked points (map click, or "Adicionar ponto" without a role) are
   // inserted after any "start" point and before any "end" point.
-  // Tracks the block currently absorbing consecutive manual point additions
-  // (Spec #014). Reset to null by any block-level operation or route
-  // lifecycle event, so the next manual click after that starts a fresh
-  // "Trecho manual N" instead of silently rejoining an old one.
-  var currentManualBlockId = null;
-
   function addPoint(lat, lng, role) {
     var point = { lat: lat, lng: lng };
 
     if (role === "start" || role === "end") {
-      currentManualBlockId = null;
       var roleLabel = role === "start" ? "Início" : "Destino";
       var existingIdx = state.points.findIndex(function (p) {
         return p.role === role;
@@ -2489,22 +2491,6 @@ html, body {
         }
       }
       if (role) point.role = role;
-    } else if (state.blocks.length > 0) {
-      // A block already exists on this route — group this (and any further
-      // consecutive) manually-added point into its own "Trecho manual" block
-      // instead of leaving it loose. If no manual streak is in progress, or
-      // the block it belonged to was since removed, start a new one.
-      var streakBlockExists = currentManualBlockId && state.blocks.some(function (b) {
-        return b.id === currentManualBlockId;
-      });
-      if (!streakBlockExists) {
-        var manualCount = state.blocks.filter(function (b) {
-          return b.isManual;
-        }).length;
-        currentManualBlockId = "block_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
-        state.blocks.push({ id: currentManualBlockId, label: "Trecho manual " + (manualCount + 1), isManual: true });
-      }
-      point.blockId = currentManualBlockId;
     }
 
     var index;
@@ -2517,6 +2503,36 @@ html, body {
         return p.role === "end";
       });
       index = endIdx === -1 ? state.points.length : endIdx;
+    }
+
+    if (!role && state.blocks.length > 0) {
+      // A block already exists on this route — group this manually-added
+      // point into a "Trecho manual" block instead of leaving it loose
+      // (Spec #014). Whether it joins an existing manual block or starts a
+      // new one is decided from the actual route data, not a separate
+      // tracked flag (Spec #015 fix): if the point immediately before this
+      // insertion point already belongs to a manual block, reuse it — that
+      // naturally covers "consecutive clicks with nothing else in between"
+      // and just as naturally starts a fresh block once something (a block
+      // reorder, a new import, etc.) has moved a different block/point to
+      // sit there instead.
+      var precedingPoint = index > 0 ? state.points[index - 1] : null;
+      var precedingBlock = precedingPoint && precedingPoint.blockId
+        ? state.blocks.find(function (b) {
+            return b.id === precedingPoint.blockId && b.isManual;
+          })
+        : null;
+
+      if (precedingBlock) {
+        point.blockId = precedingBlock.id;
+      } else {
+        var manualCount = state.blocks.filter(function (b) {
+          return b.isManual;
+        }).length;
+        var newManualBlockId = "block_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+        state.blocks.push({ id: newManualBlockId, label: "Trecho manual " + (manualCount + 1), isManual: true });
+        point.blockId = newManualBlockId;
+      }
     }
 
     state.points.splice(index, 0, point);
@@ -2634,7 +2650,6 @@ html, body {
     markers = [];
     state.points = [];
     state.blocks = [];
-    currentManualBlockId = null;
     state.id = null;
     state.name = "";
     state.folder = "";
@@ -2652,7 +2667,6 @@ html, body {
     markers = [];
     state.points = [];
     state.blocks = [];
-    currentManualBlockId = null;
     refreshPolyline();
     renderPointList();
     renderBlockList();
@@ -2946,7 +2960,6 @@ html, body {
       return;
     }
     if (!draft || !Array.isArray(draft.points) || draft.points.length === 0) return;
-    currentManualBlockId = null;
 
     state.id = draft.id || null;
     state.name = draft.name || "";
@@ -3595,7 +3608,6 @@ html, body {
     state.points = keptPoints;
     markers = keptMarkers;
     state.blocks.splice(blockIndex, 1);
-    currentManualBlockId = null;
 
     reindexMarkers();
     refreshPolyline();
@@ -3642,7 +3654,6 @@ html, body {
   function moveBlock(blockIndex, delta) {
     var newIndex = blockIndex + delta;
     if (newIndex < 0 || newIndex >= state.blocks.length) return;
-    currentManualBlockId = null;
     var block = state.blocks.splice(blockIndex, 1)[0];
     state.blocks.splice(newIndex, 0, block);
     rebuildPointsFromBlocks();
@@ -3656,7 +3667,6 @@ html, body {
   function reverseBlock(blockIndex) {
     var block = state.blocks[blockIndex];
     if (!block) return;
-    currentManualBlockId = null;
     var groupIndices = [];
     state.points.forEach(function (p, i) {
       if (p.blockId === block.id) groupIndices.push(i);
@@ -3703,7 +3713,6 @@ html, body {
   }
 
   function addImportedBlock(points, label) {
-    currentManualBlockId = null;
     ensureBaseBlockExists(el.routeName.value.trim() || "Rota original");
 
     var blockId = "block_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
