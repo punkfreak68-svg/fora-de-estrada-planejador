@@ -1778,8 +1778,17 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "3.8";
+  var APP_VERSION = "3.9";
   var CHANGELOG = [
+    {
+      version: "3.9",
+      date: "01/08/2026",
+      changes: [
+        "Corrige bug (Spec #016): um ponto novo adicionado ao bloco ativo ganhava a posição/numeração global do final de TODA a rota, em vez de entrar logo após o último ponto daquele bloco específico",
+        "Agora o ponto novo é inserido imediatamente após o último ponto do próprio bloco ativo na sequência da rota, deslocando (renumerando) os pontos posteriores — inclusive quando o bloco ativo não é o último da lista",
+        "Testado com 3 blocos (base + 2 manuais): reativar um bloco do meio e adicionar um ponto insere-o corretamente logo após aquele bloco, empurrando os pontos dos blocos seguintes; confirmado também após salvar e reabrir a rota"
+      ]
+    },
     {
       version: "3.8",
       date: "01/08/2026",
@@ -2544,6 +2553,32 @@ html, body {
   // role is optional: "start" (always 1st point) or "end" (always last point).
   // Unmarked points (map click, or "Adicionar ponto" without a role) are
   // inserted after any "start" point and before any "end" point.
+  // Global-position index for a point being added to blockId (Spec #016
+  // fix): must land right after that block's own last point in the route
+  // sequence, not at the end of the whole route. If the block has no
+  // points yet (freshly created/activated), fall back to right after the
+  // nearest preceding block (in block order) that does have points, so an
+  // empty block still gets inserted in the right place.
+  function indexAfterLastPointOfBlock(blockId) {
+    for (var i = state.points.length - 1; i >= 0; i--) {
+      if (state.points[i].blockId === blockId) return i + 1;
+    }
+    return null;
+  }
+
+  function computeInsertionIndexForActiveBlock(blockId) {
+    var direct = indexAfterLastPointOfBlock(blockId);
+    if (direct !== null) return direct;
+    var blockPos = state.blocks.findIndex(function (b) {
+      return b.id === blockId;
+    });
+    for (var bi = blockPos - 1; bi >= 0; bi--) {
+      var idx = indexAfterLastPointOfBlock(state.blocks[bi].id);
+      if (idx !== null) return idx;
+    }
+    return 0;
+  }
+
   function addPoint(lat, lng, role) {
     var point = { lat: lat, lng: lng };
 
@@ -2562,18 +2597,7 @@ html, body {
       if (role) point.role = role;
     }
 
-    var index;
-    if (role === "start") {
-      index = 0;
-    } else if (role === "end") {
-      index = state.points.length;
-    } else {
-      var endIdx = state.points.findIndex(function (p) {
-        return p.role === "end";
-      });
-      index = endIdx === -1 ? state.points.length : endIdx;
-    }
-
+    var joinedBlockId = null;
     if (!role && state.activeBlockId) {
       // Points only ever join a block by explicit user action now (Spec
       // #015 v2): either "+ Novo Bloco Manual" or a block's "Editar" button
@@ -2584,9 +2608,26 @@ html, body {
       });
       if (activeBlockStillExists) {
         point.blockId = state.activeBlockId;
+        joinedBlockId = state.activeBlockId;
       } else {
         state.activeBlockId = null;
       }
+    }
+
+    var index;
+    if (role === "start") {
+      index = 0;
+    } else if (role === "end") {
+      index = state.points.length;
+    } else if (joinedBlockId) {
+      // Spec #016: insert right after the active block's own last point in
+      // the global sequence, not at the end of the whole route.
+      index = computeInsertionIndexForActiveBlock(joinedBlockId);
+    } else {
+      var endIdx = state.points.findIndex(function (p) {
+        return p.role === "end";
+      });
+      index = endIdx === -1 ? state.points.length : endIdx;
     }
 
     state.points.splice(index, 0, point);
