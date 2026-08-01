@@ -536,6 +536,23 @@ html, body {
   background: #3d4a2a;
 }
 
+.new-manual-block-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 9px;
+  border-radius: 6px;
+  border: 1px dashed #5a6f40;
+  background: transparent;
+  color: #c9d9a8;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.new-manual-block-btn:hover {
+  background: #22261b;
+}
+
 /* Route blocks (Spec #012) */
 .block-list {
   list-style: none;
@@ -596,6 +613,44 @@ html, body {
 .block-delete-btn:hover {
   background: #7a3030;
   border-color: #a04040;
+}
+
+.block-row-active {
+  border-color: #8fae5a;
+  background: #2b3320;
+  box-shadow: inset 0 0 0 1px #8fae5a;
+}
+
+.block-active-tag {
+  margin-left: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #8fae5a;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.block-activate-btn {
+  flex: 0 0 auto;
+  background: #2a4a5a;
+  border: 1px solid #345a6e;
+  color: #eee;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+}
+
+.block-activate-btn:hover:not(:disabled) {
+  background: #345a6e;
+}
+
+.block-activate-btn:disabled {
+  background: #2e6b30;
+  border-color: #3a8a3d;
+  color: #eee;
+  opacity: 1;
+  cursor: default;
 }
 
 /* Footer: author credit + version + changelog */
@@ -1506,6 +1561,7 @@ html, body {
         <button id="btn-add-coord-start" class="coord-role-btn">🚩 Marcar como Início</button>
         <button id="btn-add-coord-end" class="coord-role-btn">🏁 Marcar como Destino</button>
       </div>
+      <button id="btn-new-manual-block" class="new-manual-block-btn">+ Novo Bloco Manual</button>
       <p class="hint">Ou toque/clique diretamente no mapa para adicionar um ponto.</p>
       <p class="hint">Também aceita colar coordenadas em GMS (ex: 22°55'47.7"S) ou o par completo copiado do Google Maps em um único campo.</p>
       <label class="checkbox-row">
@@ -1722,8 +1778,19 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "3.7";
+  var APP_VERSION = "3.8";
   var CHANGELOG = [
+    {
+      version: "3.8",
+      date: "01/08/2026",
+      changes: [
+        "Spec #015 (v2): substituída a detecção automática de blocos manuais por controle manual explícito — o app não tenta mais adivinhar quando criar ou juntar um bloco",
+        "Novo botão \"+ Novo Bloco Manual\" perto de \"Adicionar ponto manual\": cria um bloco vazio e já o marca como ativo",
+        "Cada bloco da lista (importado ou manual) agora tem um botão \"Editar\"/\"✓ Ativo\" para marcá-lo como o bloco ativo no momento, com destaque visual (borda + \"(editando)\") indicando qual é",
+        "Todo ponto novo clicado no mapa ou por coordenada entra sempre no bloco ativo no momento — nunca cria nem troca de bloco sozinho",
+        "Tocar num ponto de outro bloco (ex: \"Centralizar\") não muda mais qual bloco está ativo — só o botão \"Editar\" faz isso, eliminando as divisões indesejadas de blocos das versões anteriores"
+      ]
+    },
     {
       version: "3.7",
       date: "31/07/2026",
@@ -2112,7 +2179,8 @@ html, body {
     name: "",
     folder: "",
     points: [], // [{lat, lng, role?, blockId?}]
-    blocks: [] // [{id, label}] - assembly-time only, discarded on save (Spec #012)
+    blocks: [], // [{id, label, isManual?}] - persists with the saved route (Spec #013)
+    activeBlockId: null // which block new unmarked points join (Spec #015 v2); not persisted to the saved route
   };
 
   var markers = []; // Leaflet markers, parallel to state.points
@@ -2147,6 +2215,7 @@ html, body {
     btnAddCoord: document.getElementById("btn-add-coord"),
     btnAddCoordStart: document.getElementById("btn-add-coord-start"),
     btnAddCoordEnd: document.getElementById("btn-add-coord-end"),
+    btnNewManualBlock: document.getElementById("btn-new-manual-block"),
     toggleLabels: document.getElementById("toggle-labels"),
     togglePoi: document.getElementById("toggle-poi"),
     pointList: document.getElementById("point-list"),
@@ -2505,33 +2574,18 @@ html, body {
       index = endIdx === -1 ? state.points.length : endIdx;
     }
 
-    if (!role && state.blocks.length > 0) {
-      // A block already exists on this route — group this manually-added
-      // point into a "Trecho manual" block instead of leaving it loose
-      // (Spec #014). Whether it joins an existing manual block or starts a
-      // new one is decided from the actual route data, not a separate
-      // tracked flag (Spec #015 fix): if the point immediately before this
-      // insertion point already belongs to a manual block, reuse it — that
-      // naturally covers "consecutive clicks with nothing else in between"
-      // and just as naturally starts a fresh block once something (a block
-      // reorder, a new import, etc.) has moved a different block/point to
-      // sit there instead.
-      var precedingPoint = index > 0 ? state.points[index - 1] : null;
-      var precedingBlock = precedingPoint && precedingPoint.blockId
-        ? state.blocks.find(function (b) {
-            return b.id === precedingPoint.blockId && b.isManual;
-          })
-        : null;
-
-      if (precedingBlock) {
-        point.blockId = precedingBlock.id;
+    if (!role && state.activeBlockId) {
+      // Points only ever join a block by explicit user action now (Spec
+      // #015 v2): either "+ Novo Bloco Manual" or a block's "Editar" button
+      // set state.activeBlockId, and every unmarked point goes there until
+      // the user explicitly changes or clears it. No auto-detection.
+      var activeBlockStillExists = state.blocks.some(function (b) {
+        return b.id === state.activeBlockId;
+      });
+      if (activeBlockStillExists) {
+        point.blockId = state.activeBlockId;
       } else {
-        var manualCount = state.blocks.filter(function (b) {
-          return b.isManual;
-        }).length;
-        var newManualBlockId = "block_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
-        state.blocks.push({ id: newManualBlockId, label: "Trecho manual " + (manualCount + 1), isManual: true });
-        point.blockId = newManualBlockId;
+        state.activeBlockId = null;
       }
     }
 
@@ -2650,6 +2704,7 @@ html, body {
     markers = [];
     state.points = [];
     state.blocks = [];
+    state.activeBlockId = null;
     state.id = null;
     state.name = "";
     state.folder = "";
@@ -2667,6 +2722,7 @@ html, body {
     markers = [];
     state.points = [];
     state.blocks = [];
+    state.activeBlockId = null;
     refreshPolyline();
     renderPointList();
     renderBlockList();
@@ -2931,6 +2987,10 @@ html, body {
     addCoordFromInputs("end");
   });
 
+  el.btnNewManualBlock.addEventListener("click", function () {
+    createNewManualBlock();
+  });
+
   // ---- draft autosave/restore (protects against accidental reload/close) ----
   function saveDraft() {
     state.name = el.routeName.value;
@@ -2965,6 +3025,7 @@ html, body {
     state.name = draft.name || "";
     state.folder = draft.folder || "";
     state.blocks = Array.isArray(draft.blocks) ? draft.blocks : [];
+    state.activeBlockId = draft.activeBlockId || null;
     el.routeName.value = state.name;
     updateFolderLabel();
     draft.points.forEach(function (p) {
@@ -3529,9 +3590,10 @@ html, body {
     el.blocksSection.classList.toggle("hidden", state.blocks.length === 0);
     el.blockList.innerHTML = "";
     state.blocks.forEach(function (block, idx) {
+      var isActive = block.id === state.activeBlockId;
       var li = document.createElement("li");
       var row = document.createElement("div");
-      row.className = "block-row";
+      row.className = "block-row" + (isActive ? " block-row-active" : "");
 
       var count = state.points.filter(function (p) {
         return p.blockId === block.id;
@@ -3540,7 +3602,30 @@ html, body {
       var label = document.createElement("span");
       label.className = "block-label";
       label.textContent = block.label + " (" + count + (count === 1 ? " ponto" : " pontos") + ")";
+      if (isActive) {
+        var activeTag = document.createElement("span");
+        activeTag.className = "block-active-tag";
+        activeTag.textContent = "(editando)";
+        label.appendChild(activeTag);
+      }
       row.appendChild(label);
+
+      var activateBtn = document.createElement("button");
+      activateBtn.className = "block-activate-btn";
+      if (isActive) {
+        activateBtn.textContent = "✓ Ativo";
+        activateBtn.disabled = true;
+      } else {
+        activateBtn.textContent = "✎ Editar";
+        activateBtn.title = "Novos pontos passam a entrar neste bloco";
+        activateBtn.addEventListener("click", function () {
+          state.activeBlockId = block.id;
+          renderBlockList();
+          saveDraft();
+          showToast('Bloco "' + block.label + '" ativo — novos pontos entram nele.');
+        });
+      }
+      row.appendChild(activateBtn);
 
       var upBtn = document.createElement("button");
       upBtn.className = "move-btn";
@@ -3608,6 +3693,7 @@ html, body {
     state.points = keptPoints;
     markers = keptMarkers;
     state.blocks.splice(blockIndex, 1);
+    if (state.activeBlockId === block.id) state.activeBlockId = null;
 
     reindexMarkers();
     refreshPolyline();
@@ -3710,6 +3796,27 @@ html, body {
     state.points.forEach(function (p) {
       if (!p.blockId) p.blockId = baseBlockId;
     });
+  }
+
+  // "+ Novo Bloco Manual" (Spec #015 v2): creates an empty block and makes it
+  // the active one immediately, so the next map clicks/coordinate entries go
+  // straight into it. Any pre-existing loose points become their own base
+  // block too (same rule as importing), so they stay just as manageable.
+  function createNewManualBlock() {
+    ensureBaseBlockExists(el.routeName.value.trim() || "Rota original");
+
+    var manualCount = state.blocks.filter(function (b) {
+      return b.isManual;
+    }).length;
+    var blockId = "block_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+    var label = "Trecho manual " + (manualCount + 1);
+    state.blocks.push({ id: blockId, label: label, isManual: true });
+    state.activeBlockId = blockId;
+
+    renderBlockList();
+    renderPointList();
+    saveDraft();
+    showToast('"' + label + '" criado e ativo — novos pontos entram nele.');
   }
 
   function addImportedBlock(points, label) {
