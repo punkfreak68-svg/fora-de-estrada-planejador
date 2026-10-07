@@ -1778,8 +1778,19 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "3.9";
+  var APP_VERSION = "4.0";
   var CHANGELOG = [
+    {
+      version: "4.0",
+      date: "07/10/2026",
+      changes: [
+        "Mapa de satélite do Google (Map Tiles API) agora é o mapa principal quando há internet e a chave do Google está configurada; o Esri continua disponível",
+        "Novo seletor de mapa no canto do Planejamento: \"Satélite Google (online)\" ou \"Satélite Esri (offline)\" — a escolha fica salva e vale também na Navegação",
+        "O mapa offline continua sendo o Esri: os termos do Google não permitem guardar tiles, então o cache no aparelho e o pré-carregamento da rota seguem só com o Esri",
+        "Se o Google falhar (cota, chave ou queda de conexão) ou o app abrir sem internet, ele troca sozinho para o Esri, com aviso na tela",
+        "Migração de hospedagem: o app passa a poder ser publicado em qualquer hospedagem estática (script preparar-deploy.ps1 monta a pasta pronta para upload)"
+      ]
+    },
     {
       version: "3.9",
       date: "01/08/2026",
@@ -2500,6 +2511,160 @@ html, body {
     });
   }
 
+  // ---- Google satellite base map (Map Tiles API, 2D tiles) ----
+  // Online-only on purpose: Google's terms forbid caching/pre-fetching their
+  // tiles, so these NEVER go through the IndexedDB cache. Esri stays the
+  // offline-capable base map (and the automatic fallback if Google fails).
+  var BASEMAP_PREF_STORE = "foraDeEstradaBasemap";
+  var GOOGLE_SESSION_STORE = "foraDeEstradaGoogleTilesSession";
+  var googleSessionPromise = null;
+
+  function googleTilesAvailable() {
+    return !!GOOGLE_PLACES_API_KEY && GOOGLE_PLACES_API_KEY.indexOf("__") !== 0;
+  }
+
+  function readBasemapPref() {
+    try {
+      return localStorage.getItem(BASEMAP_PREF_STORE) || "google";
+    } catch (e) {
+      return "google";
+    }
+  }
+
+  function saveBasemapPref(value) {
+    try {
+      localStorage.setItem(BASEMAP_PREF_STORE, value);
+    } catch (e) {
+      /* preference just won't persist */
+    }
+  }
+
+  // Session tokens last ~2 weeks; reuse a stored one (until <1 day left) so
+  // the map can paint immediately and open offline with a known token.
+  function peekCachedGoogleSession() {
+    try {
+      var cached = JSON.parse(localStorage.getItem(GOOGLE_SESSION_STORE) || "null");
+      if (
+        cached &&
+        cached.token &&
+        cached.key === GOOGLE_PLACES_API_KEY &&
+        cached.expiryMs - Date.now() > 24 * 60 * 60 * 1000
+      ) {
+        return cached.token;
+      }
+    } catch (e) {
+      /* fall through to a fresh session */
+    }
+    return null;
+  }
+
+  function getGoogleTilesSession() {
+    var cachedToken = peekCachedGoogleSession();
+    if (cachedToken) return Promise.resolve(cachedToken);
+    if (googleSessionPromise) return googleSessionPromise;
+    googleSessionPromise = fetch(
+      "https://tile.googleapis.com/v1/createSession?key=" + encodeURIComponent(GOOGLE_PLACES_API_KEY),
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mapType: "satellite", language: "pt-BR", region: "BR" })
+      }
+    )
+      .then(function (resp) {
+        if (!resp.ok) throw new Error("createSession status " + resp.status);
+        return resp.json();
+      })
+      .then(function (data) {
+        try {
+          localStorage.setItem(
+            GOOGLE_SESSION_STORE,
+            JSON.stringify({
+              token: data.session,
+              expiryMs: Number(data.expiry) * 1000,
+              key: GOOGLE_PLACES_API_KEY
+            })
+          );
+        } catch (e) {
+          /* token just won't be reused next time */
+        }
+        return data.session;
+      })
+      .catch(function (err) {
+        googleSessionPromise = null;
+        throw err;
+      });
+    return googleSessionPromise;
+  }
+
+  function createGoogleTileLayer(token) {
+    return L.tileLayer(
+      "https://tile.googleapis.com/v1/2dtiles/{z}/{x}/{y}?session=" +
+        encodeURIComponent(token) +
+        "&key=" +
+        encodeURIComponent(GOOGLE_PLACES_API_KEY),
+      { attribution: "Imagens &copy; Google", maxZoom: 19 }
+    );
+  }
+
+  // Installs the base map on a Leaflet map: Google when configured/online/
+  // preferred, otherwise Esri. withControl adds the Google/Esri switcher.
+  function setupBaseMap(mapInstance, withControl) {
+    var esri = createOfflineTileLayer();
+    var online = navigator.onLine !== false;
+    var wantGoogle = googleTilesAvailable() && online && readBasemapPref() !== "esri";
+
+    function install(google) {
+      var useGoogle = !!google && wantGoogle;
+      (useGoogle ? google : esri).addTo(mapInstance);
+
+      if (google) {
+        // If Google starts failing (quota, key restriction, connection drop),
+        // fall back to Esri once instead of leaving a grey map.
+        var tileErrors = 0;
+        google.on("tileerror", function () {
+          tileErrors++;
+          if (tileErrors === 8 && mapInstance.hasLayer(google)) {
+            mapInstance.removeLayer(google);
+            esri.addTo(mapInstance);
+            showToast("Mapa do Google indisponível — usando o mapa Esri.");
+          }
+        });
+      }
+
+      if (withControl && google) {
+        L.control
+          .layers({ "Satélite Google (online)": google, "Satélite Esri (offline)": esri }, null, {
+            position: "topright",
+            collapsed: true
+          })
+          .addTo(mapInstance);
+        mapInstance.on("baselayerchange", function (e) {
+          saveBasemapPref(e.layer === google ? "google" : "esri");
+        });
+      }
+    }
+
+    if (!googleTilesAvailable() || !online) {
+      install(null);
+      return;
+    }
+
+    var cachedToken = peekCachedGoogleSession();
+    if (cachedToken) {
+      install(createGoogleTileLayer(cachedToken));
+      return;
+    }
+
+    getGoogleTilesSession()
+      .then(function (token) {
+        install(createGoogleTileLayer(token));
+      })
+      .catch(function () {
+        install(null);
+        if (wantGoogle) showToast("Não foi possível carregar o mapa do Google — usando o mapa Esri.");
+      });
+  }
+
   // ---- map setup ----
   function initMap() {
     map = L.map("map", {
@@ -2507,8 +2672,7 @@ html, body {
       maxZoom: 19
     });
 
-    var satellite = createOfflineTileLayer();
-    satellite.addTo(map);
+    setupBaseMap(map, true);
 
     labelsLayer = L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
@@ -3994,11 +4158,12 @@ html, body {
 
   // ================= POINTS OF INTEREST (Google Places) =================
   //
-  // GOOGLE_PLACES_API_KEY is substituted at Netlify build time (see
-  // netlify.toml) from the GOOGLE_PLACES_API_KEY environment variable, so
-  // the real key is never committed to the repository. When testing locally
-  // (serve.ps1, no build step), this stays as the placeholder below and the
-  // feature degrades to a clear toast instead of a broken/silent failure.
+  // GOOGLE_PLACES_API_KEY is substituted at deploy time (preparar-deploy.ps1,
+  // or the Netlify build in netlify.toml) so the real key is never committed
+  // to the repository. The same key also powers the Google satellite base map
+  // (Map Tiles API) — it needs Places API (New) + Map Tiles API enabled.
+  // When testing locally (serve.ps1, no build step), this stays as the
+  // placeholder below: POIs degrade to a clear toast and the map uses Esri.
   var GOOGLE_PLACES_API_KEY = "__GOOGLE_PLACES_API_KEY__";
 
   var POI_CATEGORIES = [
@@ -4802,7 +4967,7 @@ html, body {
       bearing: 0
     });
     navMap.setView([-14.235, -51.9253], 5);
-    createOfflineTileLayer().addTo(navMap);
+    setupBaseMap(navMap, false);
     navPlannedPolyline = L.polyline([], { color: "#e08a2c", weight: 5 }).addTo(navMap);
     navRecordedPolyline = L.polyline([], { color: "#3ba6ff", weight: 4, dashArray: "2,8" }).addTo(navMap);
 
