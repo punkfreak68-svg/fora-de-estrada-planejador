@@ -5,7 +5,7 @@
 // deliberately left untouched here — those already have their own offline
 // handling in app code (IndexedDB tile cache, graceful catch on sync failures).
 
-var CACHE_NAME = "fora-de-estrada-shell-v6";
+var CACHE_NAME = "fora-de-estrada-shell-v7";
 
 var SHELL_RELATIVE_PATHS = [
   "./",
@@ -80,6 +80,8 @@ self.addEventListener("fetch", function (event) {
   var req = event.request;
   if (req.method !== "GET") return;
 
+  // a API da comunidade nunca passa pelo cache (sessão/dados sempre ao vivo)
+  if (new URL(req.url).pathname.indexOf("/api/") !== -1) return;
   var isShellUrl = APP_SHELL_URLS.indexOf(req.url) !== -1 || req.mode === "navigate";
   if (!isShellUrl) return; // let map tiles, Drive API, Google auth, etc. go straight to network as usual
 

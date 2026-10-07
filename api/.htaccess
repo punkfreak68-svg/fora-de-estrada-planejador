@@ -1,0 +1,10 @@
+# Fora de Estrada — API
+Options -Indexes
+# arquivos internos (começam com "_") nunca são servidos
+<FilesMatch "^_">
+  Require all denied
+</FilesMatch>
+<IfModule mod_headers.c>
+  Header set Cache-Control "no-store"
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>

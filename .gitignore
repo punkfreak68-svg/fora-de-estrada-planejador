@@ -25,3 +25,6 @@ desktop.ini
 # Build (caso um dia adicione uma etapa de build)
 dist/
 build/
+
+# Comunidade: fotos enviadas pelos usuários (ficam só no servidor)
+uploads/avatars/

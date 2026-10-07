@@ -1830,6 +1830,56 @@ html, body {
 .timing-gate-tip::before { display: none; }
 .timing-best-card { border-color: #8a6a1a; }
 .timing-history-splits { font-size: 0.78rem; color: #cdd8b4; margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+/* ==== v5.0 Comunidade (etapa 1: contas e perfil) ==== */
+#screen-community { height: 100%; display: flex; flex-direction: column; }
+.com-body { flex: 1 1 auto; overflow-y: auto; padding: 14px; max-width: 560px; width: 100%; margin: 0 auto; }
+.com-pad { padding: 8px 0; }
+.com-lead { color: #cdd8b4; margin: 0 0 12px; font-size: 0.95rem; }
+.com-card { background: #22261b; border: 1px solid #3a4228; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+.com-card h2 { margin: 0 0 4px; font-size: 1rem; color: #c9d9a8; }
+.com-card p { margin: 0 0 8px; }
+.com-form { display: flex; flex-direction: column; gap: 10px; }
+.com-form label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: #cdd8b4; }
+.com-form .hint { margin-top: -6px; }
+.com-form input:not([type=checkbox]), .com-form textarea {
+  width: 100%; padding: 11px 10px; border-radius: 8px; border: 1px solid #4a5a34;
+  background: #1b1f16; color: #eee; font-size: 1rem; font-family: inherit;
+}
+.com-form input:focus, .com-form textarea:focus { outline: 2px solid #f0b429; outline-offset: 0; }
+.com-check { flex-direction: row !important; align-items: flex-start; gap: 8px !important; line-height: 1.35; }
+.com-check input { margin-top: 3px; width: 18px; height: 18px; flex: 0 0 auto; }
+.com-body a { color: #f0b429; }
+.com-btn {
+  display: block; width: 100%; text-align: center; text-decoration: none; padding: 12px; border-radius: 8px;
+  border: 1px solid #4a5a34; background: #3d4a2a; color: #eee !important; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+}
+.com-btn:disabled { opacity: 0.55; cursor: wait; }
+.com-btn-primary { background: #2e6b30; border-color: #3a8a3d; }
+.com-btn-danger { background: #a02020; border-color: #c03030; }
+.com-link { align-self: center; }
+.com-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.com-tab { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #3a4228; background: #1b1f16; color: #cdd8b4; font-weight: 700; cursor: pointer; }
+.com-tab.active { background: #3d4a2a; border-color: #6b8040; color: #fff; }
+.com-or { display: flex; align-items: center; gap: 10px; color: #8a9578; font-size: 0.8rem; margin: 6px 0 12px; }
+.com-or::before, .com-or::after { content: ""; flex: 1; border-top: 1px solid #3a4228; }
+.com-google-btn { display: flex; justify-content: center; min-height: 44px; }
+.com-center { text-align: center; }
+.com-msg { position: sticky; bottom: 0; margin: 10px 0 0; padding: 10px 12px; border-radius: 8px; background: #1f3b52; color: #fff; font-size: 0.9rem; }
+.com-msg.com-msg-error { background: #7a1f1f; }
+.com-msg.com-msg-ok { background: #2e6b30; }
+.com-banner { background: #4a3b10; border: 1px solid #8a6a1a; color: #fbe6b0; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.88rem; }
+.com-me { display: flex; align-items: center; gap: 14px; }
+.com-avatar-wrap { position: relative; cursor: pointer; flex: 0 0 auto; }
+.com-avatar { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; background: #3d4a2a; border: 2px solid #6b8040; display: block; }
+.com-avatar-edit { position: absolute; right: -2px; bottom: -2px; background: #1b1f16; border: 1px solid #6b8040; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+.com-me-info { min-width: 0; }
+.com-me-name { font-size: 1.15rem; font-weight: 800; color: #fff; overflow-wrap: anywhere; }
+.com-me-user { color: #f0b429; font-weight: 600; }
+.com-badge { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: #8a6a1a; color: #fff; font-size: 0.7rem; font-weight: 700; vertical-align: middle; }
+.com-danger summary { cursor: pointer; color: #ff8a80; font-weight: 600; padding: 6px 0; }
+.com-danger[open] summary { margin-bottom: 8px; }
+.dashboard-tile .com-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4cd964; margin-left: 6px; vertical-align: middle; }
 </style>
 </head>
 <body>
@@ -1856,6 +1906,10 @@ html, body {
     <button id="btn-dash-timing" class="dashboard-tile">
       <span class="dashboard-tile-icon">⏱️</span>
       <span class="dashboard-tile-label">Tomada de Tempo</span>
+    </button>
+    <button id="btn-dash-community" class="dashboard-tile">
+      <span class="dashboard-tile-icon">👥</span>
+      <span id="dash-community-label" class="dashboard-tile-label">Comunidade</span>
     </button>
   </div>
 
@@ -2187,6 +2241,129 @@ html, body {
   </div>
 </div>
 
+<div id="screen-community" class="hidden">
+  <header class="nav-header">
+    <button id="btn-com-back" class="icon-btn" aria-label="Voltar ao início">←</button>
+    <h1>👥 Comunidade</h1>
+  </header>
+  <div class="com-body">
+    <p id="com-loading" class="hint com-pad">Carregando…</p>
+
+    <div id="com-offline" class="com-card hidden">
+      <p>Sem conexão com o servidor da comunidade. As rotas, a navegação e a tomada de tempo continuam funcionando normalmente.</p>
+      <button id="btn-com-retry" class="com-btn">Tentar de novo</button>
+    </div>
+
+    <div id="com-auth" class="hidden">
+      <p class="com-lead">Crie sua conta para compartilhar trilhas, comparar tempos e andar em comboio com a galera.</p>
+      <div class="com-tabs" role="tablist">
+        <button type="button" class="com-tab active" data-tab="login">Entrar</button>
+        <button type="button" class="com-tab" data-tab="register">Criar conta</button>
+      </div>
+
+      <form id="com-login-form" class="com-card com-form" data-pane="login" novalidate>
+        <label>Usuário ou e-mail<input name="login" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+        <label>Senha<input name="password" type="password" autocomplete="current-password" required></label>
+        <button type="submit" class="com-btn com-btn-primary">Entrar</button>
+        <button type="button" id="btn-com-forgot" class="link-btn com-link">Esqueci a senha</button>
+      </form>
+
+      <form id="com-register-form" class="com-card com-form hidden" data-pane="register" novalidate>
+        <label>Nome de usuário<input name="username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" placeholder="ex.: luiz_jipe" required></label>
+        <p class="hint">3 a 20 caracteres: letras minúsculas, números, ponto e _.</p>
+        <label>Seu nome (aparece no perfil)<input name="display_name" autocomplete="name" maxlength="60"></label>
+        <label>E-mail<input name="email" type="email" autocomplete="email" autocapitalize="none" required></label>
+        <label>Senha<input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
+        <p class="hint">Mínimo de 8 caracteres.</p>
+        <label class="com-check"><input type="checkbox" name="accept_terms"> <span>Tenho 18 anos ou mais e li e aceito os <a href="termos.html" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.</span></label>
+        <button type="submit" class="com-btn com-btn-primary">Criar conta</button>
+      </form>
+
+      <form id="com-forgot-form" class="com-card com-form hidden" data-pane="forgot" novalidate>
+        <p>Informe o e-mail da conta. Se ele estiver cadastrado, enviamos um link para criar uma nova senha.</p>
+        <label>E-mail<input name="email" type="email" autocomplete="email" autocapitalize="none" required></label>
+        <button type="submit" class="com-btn com-btn-primary">Enviar link</button>
+        <button type="button" class="link-btn com-link" data-tab-go="login">Voltar</button>
+      </form>
+
+      <form id="com-reset-form" class="com-card com-form hidden" data-pane="reset" novalidate>
+        <p>Crie sua nova senha.</p>
+        <label>Nova senha<input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
+        <label>Repita a nova senha<input name="password2" type="password" autocomplete="new-password" minlength="8" required></label>
+        <button type="submit" class="com-btn com-btn-primary">Salvar nova senha</button>
+      </form>
+
+      <div id="com-google-box" class="com-google-box">
+        <div class="com-or"><span>ou</span></div>
+        <div id="com-google-btn" class="com-google-btn"></div>
+        <p id="com-google-unavailable" class="hint hidden">O login com Google não carregou (sem internet?). Tente de novo mais tarde.</p>
+        <p class="hint com-center">Ao continuar com o Google você confirma ter 18 anos ou mais e concorda com os <a href="termos.html" target="_blank" rel="noopener">Termos</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.</p>
+      </div>
+    </div>
+
+    <div id="com-profile" class="hidden">
+      <div id="com-banner-username" class="com-banner hidden">Escolha seu nome de usuário (é como a galera vai te encontrar) e toque em <b>Salvar perfil</b>.</div>
+      <div id="com-banner-verify" class="com-banner hidden">
+        Confirme seu e-mail: mandamos um link para <b id="com-verify-email"></b>.
+        <button type="button" id="btn-com-resend" class="link-btn com-link">Reenviar e-mail</button>
+      </div>
+
+      <div class="com-card com-me">
+        <label class="com-avatar-wrap" title="Trocar foto">
+          <img id="com-avatar" class="com-avatar" alt="Sua foto">
+          <span class="com-avatar-edit">📷</span>
+          <input id="com-avatar-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+        </label>
+        <div class="com-me-info">
+          <div id="com-me-name" class="com-me-name"></div>
+          <div id="com-me-user" class="com-me-user"></div>
+          <div id="com-me-meta" class="hint"></div>
+        </div>
+      </div>
+
+      <form id="com-profile-form" class="com-card com-form" novalidate>
+        <h2>Perfil</h2>
+        <label>Nome de usuário<input name="username" autocapitalize="none" spellcheck="false" maxlength="20"></label>
+        <label>Seu nome<input name="display_name" maxlength="60"></label>
+        <label>Veículo<input name="vehicle" maxlength="80" placeholder="ex.: Jeep Willys 1962"></label>
+        <label>Cidade<input name="city" maxlength="80"></label>
+        <label>Sobre você<textarea name="bio" maxlength="300" rows="3"></textarea></label>
+        <button type="submit" class="com-btn com-btn-primary">Salvar perfil</button>
+      </form>
+
+      <form id="com-password-form" class="com-card com-form" novalidate>
+        <h2 id="com-password-title">Senha</h2>
+        <p id="com-password-hint" class="hint"></p>
+        <label id="com-current-wrap">Senha atual<input name="current_password" type="password" autocomplete="current-password"></label>
+        <label>Nova senha<input name="new_password" type="password" autocomplete="new-password" minlength="8"></label>
+        <button type="submit" class="com-btn">Salvar senha</button>
+      </form>
+
+      <div class="com-card">
+        <h2>Em breve</h2>
+        <p class="hint">📰 Feed de trilhas · 🏁 Ranking de tempos · 🚙 Comboio ao vivo · seguir amigos.</p>
+      </div>
+
+      <div class="com-card com-form">
+        <h2>Conta</h2>
+        <a id="com-export" class="com-btn" href="api/profile.php?action=export" download="meus-dados-fora-de-estrada.json">⬇️ Baixar meus dados</a>
+        <button type="button" id="btn-com-logout" class="com-btn">Sair</button>
+        <details class="com-danger">
+          <summary>Excluir minha conta</summary>
+          <p class="hint">Apaga a conta, a foto e tudo que você publicou. Não dá para desfazer. Suas rotas salvas neste aparelho e no Google Drive não são afetadas.</p>
+          <form id="com-delete-form" class="com-form" novalidate>
+            <label id="com-delete-label">Digite sua senha para confirmar<input name="confirm" type="password" autocomplete="current-password"></label>
+            <button type="submit" class="com-btn com-btn-danger">Excluir conta definitivamente</button>
+          </form>
+        </details>
+      </div>
+      <p class="hint com-center"><a href="termos.html" target="_blank" rel="noopener">Termos de Uso</a> · <a href="privacidade.html" target="_blank" rel="noopener">Privacidade</a></p>
+    </div>
+
+    <p id="com-msg" class="com-msg hidden" role="status"></p>
+  </div>
+</div>
+
 <div id="timing-config-modal" class="modal-overlay">
   <div class="modal-box modal-box-small">
     <h2 id="timing-config-title">Configurar tomada</h2>
@@ -2378,8 +2555,18 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "4.3";
+  var APP_VERSION = "5.0";
   var CHANGELOG = [
+    {
+      version: "5.0",
+      date: "07/10/2026",
+      changes: [
+        "Nova tela 👥 Comunidade (etapa 1 — em teste fechado): crie sua conta com nome de usuário e senha, ou entre com o Google (e depois crie uma senha também, se quiser)",
+        "Perfil com foto, nome, veículo, cidade e \"sobre você\"; confirmação de e-mail, \"esqueci a senha\" por link, troca de senha",
+        "Termos de Uso e Política de Privacidade (LGPD): baixar meus dados e excluir a conta a qualquer momento",
+        "Próximas etapas: feed de trilhas, ranking de tempos e comboio ao vivo"
+      ]
+    },
     {
       version: "4.3",
       date: "07/10/2026",
@@ -5096,7 +5283,8 @@ html, body {
       planning: el.screenPlanning,
       navigation: el.screenNavigation,
       "saved-routes": el.screenSavedRoutes,
-      timing: document.getElementById("screen-timing")
+      timing: document.getElementById("screen-timing"),
+      community: document.getElementById("screen-community")
     };
     Object.keys(screens).forEach(function (key) {
       screens[key].classList.toggle("hidden", key !== name);
@@ -10302,6 +10490,473 @@ html, body {
     if (voiceEnabled) speak("Voz ligada.");
   });
 
+  // ==== v5.0 Comunidade — etapa 1: contas (usuário/senha ou Google) e perfil ====
+  var cx = {
+    screen: document.getElementById("screen-community"),
+    btnDash: document.getElementById("btn-dash-community"),
+    dashLabel: document.getElementById("dash-community-label"),
+    btnBack: document.getElementById("btn-com-back"),
+    loading: document.getElementById("com-loading"),
+    offline: document.getElementById("com-offline"),
+    btnRetry: document.getElementById("btn-com-retry"),
+    auth: document.getElementById("com-auth"),
+    tabs: Array.prototype.slice.call(document.querySelectorAll("#com-auth .com-tab")),
+    loginForm: document.getElementById("com-login-form"),
+    registerForm: document.getElementById("com-register-form"),
+    forgotForm: document.getElementById("com-forgot-form"),
+    resetForm: document.getElementById("com-reset-form"),
+    btnForgot: document.getElementById("btn-com-forgot"),
+    googleBox: document.getElementById("com-google-box"),
+    googleBtn: document.getElementById("com-google-btn"),
+    googleUnavailable: document.getElementById("com-google-unavailable"),
+    profile: document.getElementById("com-profile"),
+    bannerUsername: document.getElementById("com-banner-username"),
+    bannerVerify: document.getElementById("com-banner-verify"),
+    verifyEmail: document.getElementById("com-verify-email"),
+    btnResend: document.getElementById("btn-com-resend"),
+    avatar: document.getElementById("com-avatar"),
+    avatarInput: document.getElementById("com-avatar-input"),
+    meName: document.getElementById("com-me-name"),
+    meUser: document.getElementById("com-me-user"),
+    meMeta: document.getElementById("com-me-meta"),
+    profileForm: document.getElementById("com-profile-form"),
+    passwordForm: document.getElementById("com-password-form"),
+    passwordTitle: document.getElementById("com-password-title"),
+    passwordHint: document.getElementById("com-password-hint"),
+    currentWrap: document.getElementById("com-current-wrap"),
+    btnLogout: document.getElementById("btn-com-logout"),
+    deleteForm: document.getElementById("com-delete-form"),
+    deleteLabel: document.getElementById("com-delete-label"),
+    msg: document.getElementById("com-msg")
+  };
+  var com = { user: null, loaded: false, resetToken: null, googleReady: false, msgTimer: null };
+
+  function comApi(path, body) {
+    var opts = { method: "GET", credentials: "same-origin", cache: "no-store", headers: { "X-FDE": "1" } };
+    if (body !== undefined) {
+      opts.method = "POST";
+      if (typeof FormData !== "undefined" && body instanceof FormData) {
+        opts.body = body;
+      } else {
+        opts.headers["Content-Type"] = "application/json";
+        opts.body = JSON.stringify(body);
+      }
+    }
+    return fetch("api/" + path, opts).then(
+      function (resp) {
+        return resp.json().then(
+          function (data) {
+            if (data && data.ok) return data;
+            var err = new Error((data && data.error) || "Erro no servidor (" + resp.status + ").");
+            err.status = resp.status;
+            err.data = data;
+            throw err;
+          },
+          function () {
+            var err = new Error(resp.status === 503 ? "Comunidade em manutenção. Tente mais tarde." : "Servidor da comunidade indisponível.");
+            err.offline = true;
+            throw err;
+          }
+        );
+      },
+      function () {
+        var err = new Error("Sem conexão com a internet.");
+        err.offline = true;
+        throw err;
+      }
+    );
+  }
+
+  function comMsg(text, kind) {
+    clearTimeout(com.msgTimer);
+    if (!text) {
+      cx.msg.classList.add("hidden");
+      return;
+    }
+    cx.msg.textContent = text;
+    cx.msg.className = "com-msg" + (kind ? " com-msg-" + kind : "");
+    com.msgTimer = setTimeout(function () {
+      cx.msg.classList.add("hidden");
+    }, kind === "error" ? 9000 : 5000);
+  }
+
+  function comBusy(form, busy) {
+    Array.prototype.forEach.call(form.querySelectorAll("button"), function (b) {
+      b.disabled = busy;
+    });
+  }
+
+  function comFormData(form) {
+    var out = {};
+    Array.prototype.forEach.call(form.elements, function (f) {
+      if (!f.name) return;
+      out[f.name] = f.type === "checkbox" ? f.checked : f.value.trim();
+    });
+    return out;
+  }
+
+  // wraps a submit handler: prevents default, disables buttons, shows errors
+  function comSubmit(form, fn) {
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      comBusy(form, true);
+      comMsg("");
+      Promise.resolve()
+        .then(function () {
+          return fn(comFormData(form));
+        })
+        .catch(function (err) {
+          comMsg(err.message || "Algo deu errado.", "error");
+        })
+        .then(function () {
+          comBusy(form, false);
+        });
+    });
+  }
+
+  function comInitialAvatar(name) {
+    var ch = (name || "?").charAt(0).toUpperCase().replace(/[^A-Z0-9]/, "?");
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#3d4a2a"/>' +
+      '<text x="32" y="42" font-size="30" font-family="Arial,sans-serif" font-weight="700" text-anchor="middle" fill="#c9d9a8">' + ch + "</text></svg>";
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  function comSetUser(user) {
+    com.user = user || null;
+    com.loaded = true;
+    cx.dashLabel.textContent = com.user ? "@" + com.user.username : "Comunidade";
+    comRender();
+  }
+
+  function comShowPane(name) {
+    [cx.loginForm, cx.registerForm, cx.forgotForm, cx.resetForm].forEach(function (f) {
+      f.classList.toggle("hidden", f.getAttribute("data-pane") !== name);
+    });
+    cx.tabs.forEach(function (t) {
+      t.classList.toggle("active", t.getAttribute("data-tab") === name);
+    });
+    var authTabs = name === "login" || name === "register";
+    cx.tabs[0].parentNode.classList.toggle("hidden", !authTabs);
+    cx.googleBox.classList.toggle("hidden", !authTabs);
+  }
+
+  function comRender() {
+    cx.loading.classList.toggle("hidden", com.loaded);
+    if (!com.loaded) return;
+    cx.offline.classList.add("hidden");
+    var u = com.user;
+    cx.auth.classList.toggle("hidden", !!u);
+    cx.profile.classList.toggle("hidden", !u);
+    if (!u) {
+      comShowPane(com.resetToken ? "reset" : (cx.forgotForm.classList.contains("hidden") ? (cx.registerForm.classList.contains("hidden") ? "login" : "register") : "forgot"));
+      comRenderGoogleButton();
+      return;
+    }
+    cx.avatar.src = u.avatar_url || comInitialAvatar(u.username);
+    cx.meName.textContent = u.display_name || u.username;
+    cx.meUser.textContent = "@" + u.username;
+    if (u.role === "admin") {
+      var badge = document.createElement("span");
+      badge.className = "com-badge";
+      badge.textContent = "admin";
+      cx.meUser.appendChild(badge);
+    }
+    var meta = [];
+    if (u.vehicle) meta.push("🚙 " + u.vehicle);
+    if (u.city) meta.push("📍 " + u.city);
+    cx.meMeta.textContent = meta.join(" · ");
+    cx.bannerUsername.classList.toggle("hidden", !u.needs_username);
+    cx.bannerVerify.classList.toggle("hidden", !!u.email_verified);
+    cx.verifyEmail.textContent = u.email;
+    var pf = cx.profileForm.elements;
+    pf.username.value = u.username;
+    pf.display_name.value = u.display_name === u.username ? "" : u.display_name;
+    pf.vehicle.value = u.vehicle || "";
+    pf.city.value = u.city || "";
+    pf.bio.value = u.bio || "";
+    cx.passwordTitle.textContent = u.has_password ? "Trocar senha" : "Criar senha";
+    cx.passwordHint.textContent = u.has_password
+      ? "Ao trocar, os outros aparelhos conectados saem da conta."
+      : "Sua conta entra pelo Google. Criando uma senha você também pode entrar com usuário/e-mail e senha.";
+    cx.currentWrap.classList.toggle("hidden", !u.has_password);
+    cx.passwordForm.reset();
+    cx.deleteForm.reset();
+    var delInput = cx.deleteForm.elements.confirm;
+    cx.deleteLabel.firstChild.textContent = u.has_password ? "Digite sua senha para confirmar" : "Digite EXCLUIR para confirmar";
+    delInput.type = u.has_password ? "password" : "text";
+  }
+
+  function comLoad() {
+    com.loaded = false;
+    cx.offline.classList.add("hidden");
+    cx.auth.classList.add("hidden");
+    cx.profile.classList.add("hidden");
+    cx.loading.classList.remove("hidden");
+    return comApi("auth.php?action=me")
+      .then(function (data) {
+        comSetUser(data.user);
+      })
+      .catch(function (err) {
+        com.loaded = true;
+        cx.loading.classList.add("hidden");
+        cx.offline.classList.remove("hidden");
+        cx.offline.querySelector("p").textContent = err.message + " As rotas, a navegação e a tomada de tempo continuam funcionando normalmente.";
+      });
+  }
+
+  function openCommunityScreen() {
+    showScreen("community");
+    comMsg("");
+    if (!com.loaded || !com.user) comLoad();
+    else comRender();
+  }
+
+  // ---- Google (Sign in with Google / GIS) ----
+  function comOnGoogleCredential(resp) {
+    if (!resp || !resp.credential) return;
+    comMsg("Entrando com o Google…");
+    comApi("auth.php?action=google", { credential: resp.credential, accept_terms: true })
+      .then(function (data) {
+        comSetUser(data.user);
+        comMsg(data.user.needs_username ? "Conta criada! Escolha seu nome de usuário." : "Bem-vindo(a), " + (data.user.display_name || data.user.username) + "!", "ok");
+      })
+      .catch(function (err) {
+        comMsg(err.message, "error");
+      });
+  }
+
+  function comRenderGoogleButton(attempt) {
+    if (com.googleReady) return;
+    attempt = attempt || 0;
+    var gis = window.google && google.accounts && google.accounts.id;
+    if (!gis) {
+      if (attempt < 20) {
+        setTimeout(function () {
+          if (!cx.auth.classList.contains("hidden")) comRenderGoogleButton(attempt + 1);
+        }, 500);
+      } else {
+        cx.googleUnavailable.classList.remove("hidden");
+      }
+      return;
+    }
+    var redirect = isStandaloneDisplayMode();
+    try {
+      gis.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: comOnGoogleCredential,
+        ux_mode: redirect ? "redirect" : "popup",
+        login_uri: new URL("api/google.php", window.location.href).href,
+        auto_select: false,
+        itp_support: true
+      });
+      gis.renderButton(cx.googleBtn, {
+        type: "standard",
+        theme: "filled_black",
+        size: "large",
+        text: "continue_with",
+        shape: "pill",
+        locale: "pt-BR",
+        width: Math.min(320, Math.max(200, cx.googleBtn.clientWidth || 300))
+      });
+      com.googleReady = true;
+      cx.googleUnavailable.classList.add("hidden");
+    } catch (e) {
+      cx.googleUnavailable.classList.remove("hidden");
+    }
+  }
+
+  // ---- links que voltam para o app: #senha=<token> (redefinir senha) e #comunidade=ok|erro|fechado (Google redirect) ----
+  function handleCommunityHash() {
+    var hash = window.location.hash || "";
+    var m = hash.match(/^#senha=([a-f0-9]{48})$/);
+    var g = hash.match(/^#comunidade=(ok|erro|fechado)$/);
+    if (!m && !g) return;
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+    if (m) {
+      com.resetToken = m[1];
+      com.loaded = true;
+      com.user = null;
+      showScreen("community");
+      comRender();
+      return;
+    }
+    openCommunityScreen();
+    if (g[1] === "ok") comMsg("Login com Google concluído.", "ok");
+    else if (g[1] === "fechado") comMsg("A comunidade está em teste fechado. Em breve abre para todos!", "error");
+    else comMsg("Não foi possível entrar com o Google. Tente de novo.", "error");
+  }
+
+  // ---- eventos ----
+  cx.btnDash.addEventListener("click", openCommunityScreen);
+  cx.btnBack.addEventListener("click", function () {
+    showScreen("dashboard");
+  });
+  cx.btnRetry.addEventListener("click", comLoad);
+  cx.tabs.forEach(function (t) {
+    t.addEventListener("click", function () {
+      comMsg("");
+      comShowPane(t.getAttribute("data-tab"));
+    });
+  });
+  cx.btnForgot.addEventListener("click", function () {
+    var login = cx.loginForm.elements.login.value.trim();
+    if (login.indexOf("@") > 0) cx.forgotForm.elements.email.value = login;
+    comMsg("");
+    comShowPane("forgot");
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("#com-auth [data-tab-go]"), function (b) {
+    b.addEventListener("click", function () {
+      comShowPane(b.getAttribute("data-tab-go"));
+    });
+  });
+
+  comSubmit(cx.loginForm, function (d) {
+    if (!d.login || !d.password) throw new Error("Preencha usuário/e-mail e senha.");
+    return comApi("auth.php?action=login", { login: d.login, password: d.password }).then(function (data) {
+      cx.loginForm.reset();
+      comSetUser(data.user);
+      comMsg("Bem-vindo(a) de volta, " + (data.user.display_name || data.user.username) + "!", "ok");
+    });
+  });
+
+  comSubmit(cx.registerForm, function (d) {
+    d.username = d.username.toLowerCase();
+    if (!/^[a-z0-9_.]{3,20}$/.test(d.username)) throw new Error("Nome de usuário: 3 a 20 caracteres (letras minúsculas, números, ponto e _).");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) throw new Error("Informe um e-mail válido.");
+    if (d.password.length < 8) throw new Error("A senha precisa ter pelo menos 8 caracteres.");
+    if (!d.accept_terms) throw new Error("Para criar a conta, confirme que tem 18 anos ou mais e aceite os Termos e a Política de Privacidade.");
+    return comApi("auth.php?action=register", d).then(function (data) {
+      cx.registerForm.reset();
+      comSetUser(data.user);
+      comMsg("Conta criada! Mandamos um link de confirmação para " + data.user.email + ".", "ok");
+    });
+  });
+
+  comSubmit(cx.forgotForm, function (d) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) throw new Error("Informe um e-mail válido.");
+    return comApi("auth.php?action=forgot", { email: d.email }).then(function () {
+      comShowPane("login");
+      comMsg("Se esse e-mail estiver cadastrado, o link chega em alguns minutos (confira o spam).", "ok");
+    });
+  });
+
+  comSubmit(cx.resetForm, function (d) {
+    if (d.password.length < 8) throw new Error("A senha precisa ter pelo menos 8 caracteres.");
+    if (d.password !== d.password2) throw new Error("As duas senhas não são iguais.");
+    return comApi("auth.php?action=reset", { token: com.resetToken, password: d.password }).then(function (data) {
+      com.resetToken = null;
+      cx.resetForm.reset();
+      comSetUser(data.user);
+      comMsg("Senha alterada. Você já está dentro.", "ok");
+    });
+  });
+
+  comSubmit(cx.profileForm, function (d) {
+    d.username = d.username.toLowerCase();
+    if (!/^[a-z0-9_.]{3,20}$/.test(d.username)) throw new Error("Nome de usuário: 3 a 20 caracteres (letras minúsculas, números, ponto e _).");
+    return comApi("profile.php?action=update", d).then(function (data) {
+      comSetUser(data.user);
+      comMsg("Perfil salvo.", "ok");
+    });
+  });
+
+  comSubmit(cx.passwordForm, function (d) {
+    if (d.new_password.length < 8) throw new Error("A nova senha precisa ter pelo menos 8 caracteres.");
+    var body = { new_password: d.new_password };
+    if (com.user && com.user.has_password) body.current_password = d.current_password;
+    return comApi("profile.php?action=password", body).then(function (data) {
+      comSetUser(data.user);
+      comMsg("Senha salva.", "ok");
+    });
+  });
+
+  comSubmit(cx.deleteForm, function (d) {
+    if (!d.confirm) throw new Error(com.user && com.user.has_password ? "Digite sua senha." : "Digite EXCLUIR.");
+    if (!window.confirm("Excluir sua conta da comunidade? Isso não pode ser desfeito.")) return;
+    var body = com.user && com.user.has_password ? { password: d.confirm } : { confirm: d.confirm };
+    return comApi("profile.php?action=delete", body).then(function () {
+      cx.deleteForm.closest("details").open = false;
+      comSetUser(null);
+      comShowPane("login");
+      comMsg("Conta excluída. Seus dados da comunidade foram apagados.", "ok");
+    });
+  });
+
+  cx.btnResend.addEventListener("click", function () {
+    cx.btnResend.disabled = true;
+    comApi("auth.php?action=resend_verification", {})
+      .then(function (data) {
+        if (data.already) {
+          com.user.email_verified = true;
+          comRender();
+          comMsg("Seu e-mail já está confirmado.", "ok");
+        } else {
+          comMsg("E-mail reenviado. Confira a caixa de entrada e o spam.", "ok");
+        }
+      })
+      .catch(function (err) {
+        comMsg(err.message, "error");
+      })
+      .then(function () {
+        cx.btnResend.disabled = false;
+      });
+  });
+
+  cx.avatarInput.addEventListener("change", function () {
+    var file = cx.avatarInput.files && cx.avatarInput.files[0];
+    cx.avatarInput.value = "";
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) {
+      comMsg("Imagem grande demais (máx. 3 MB).", "error");
+      return;
+    }
+    var fd = new FormData();
+    fd.append("photo", file);
+    comMsg("Enviando foto…");
+    comApi("profile.php?action=avatar", fd)
+      .then(function (data) {
+        comSetUser(data.user);
+        comMsg("Foto atualizada.", "ok");
+      })
+      .catch(function (err) {
+        comMsg(err.message, "error");
+      });
+  });
+
+  cx.btnLogout.addEventListener("click", function () {
+    comApi("auth.php?action=logout", {})
+      .catch(function () {
+        /* sai localmente mesmo sem rede */
+      })
+      .then(function () {
+        if (window.google && google.accounts && google.accounts.id) {
+          try {
+            google.accounts.id.disableAutoSelect();
+          } catch (e) {
+            /* ignore */
+          }
+        }
+        comSetUser(null);
+        comShowPane("login");
+        comMsg("Você saiu da conta.");
+      });
+  });
+
+  function initCommunity() {
+    handleCommunityHash();
+    window.addEventListener("hashchange", handleCommunityHash);
+    // mostra no painel se já está logado (sem travar a abertura do app)
+    if (navigator.onLine !== false && !com.loaded) {
+      comApi("auth.php?action=me")
+        .then(function (data) {
+          if (!com.loaded) comSetUser(data.user);
+        })
+        .catch(function () {
+          /* sem servidor: o painel continua mostrando "Comunidade" */
+        });
+    }
+  }
+
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -10330,6 +10985,7 @@ html, body {
     safeInit(requestPersistentStorage, "armazenamento persistente");
     safeInit(handleOAuthRedirectReturn, "retorno do login do Google (redirect)");
     safeInit(tryAutoReconnect, "reconexão com Google Drive");
+    safeInit(initCommunity, "comunidade");
   }
 
   init();
