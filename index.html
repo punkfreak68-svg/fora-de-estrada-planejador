@@ -1701,6 +1701,87 @@ html, body {
 .weather-row .w-temp b { color: #fff; }
 .weather-row.risk { border-color: #8a5a1a; background: #2c2112; }
 .weather-alert { color: #ffd9a0; font-size: 0.78rem; margin-top: 2px; }
+
+/* ==== v4.2 Modo Rally (Specs #025–#028) ==== */
+.roadbook-list { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.rb-row {
+  display: grid;
+  grid-template-columns: 54px 60px 1fr;
+  gap: 6px;
+  align-items: center;
+  background: #f4f1e6;
+  color: #111;
+  border: 2px solid #111;
+  border-radius: 6px;
+  padding: 4px;
+}
+.rb-row.rb-danger-2, .rb-row.rb-danger-3 { background: #ffe4e0; }
+.rb-km { text-align: center; line-height: 1.15; }
+.rb-km b { display: block; font-size: 0.75rem; color: #555; }
+.rb-km span { display: block; font-size: 0.95rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.rb-km small { font-size: 0.7rem; color: #444; font-variant-numeric: tabular-nums; }
+.rb-tulip { color: #111; cursor: pointer; display: flex; justify-content: center; }
+.rb-info { min-width: 0; font-size: 0.78rem; }
+.rb-title { font-weight: 700; }
+.rb-autonote { color: #333; margin-top: 2px; }
+.rb-edit { display: flex; gap: 4px; margin-top: 4px; }
+.rb-edit input { flex: 1 1 auto; min-width: 0; font-size: 0.75rem; padding: 4px 6px; border: 1px solid #999; border-radius: 4px; background: #fff; color: #111; }
+.rb-edit select { font-size: 0.75rem; border: 1px solid #999; border-radius: 4px; background: #fff; color: #c00; font-weight: 700; }
+
+.nav-tool-btn.off { opacity: 0.55; }
+#nav-hud-bottom.rally-hidden { display: none; }
+.rally-on .nav-recenter-btn { bottom: 330px; }
+.rally-panel {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 84px;
+  z-index: 901;
+  background: rgba(20,24,15,0.95);
+  border: 1px solid #4a5a34;
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #fff;
+}
+.rally-top { display: flex; gap: 8px; }
+.rally-cap-box { flex: 1 1 50%; text-align: center; background: #111; border-radius: 8px; padding: 6px; }
+.rally-cap { font-size: clamp(1.4rem, 7vw, 2.2rem); font-weight: 800; font-variant-numeric: tabular-nums; color: #f0b429; }
+.rally-heading-row { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem; color: #cdd8b4; }
+.rally-cap-arrow { display: inline-block; font-size: 1.2rem; color: #ff7043; transition: transform 0.3s ease; }
+.rally-cap-arrow.ok { color: #66bb6a; }
+.rally-odo-box { flex: 1 1 50%; text-align: center; background: #111; border-radius: 8px; padding: 6px; }
+.rally-odo-label { font-size: 0.7rem; color: #9db07d; text-transform: uppercase; letter-spacing: 0.04em; }
+.rally-odo { font-size: clamp(1.4rem, 7vw, 2.2rem); font-weight: 800; font-variant-numeric: tabular-nums; }
+.rally-odo-btns { display: flex; gap: 4px; justify-content: center; margin-top: 2px; }
+.rally-odo-btns button { flex: 1; min-width: 0; padding: 7px 0; border-radius: 6px; border: 1px solid #4a5a34; background: #3d4a2a; color: #fff; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+.rally-odo-btns #btn-rally-setbox { flex: 2; background: #5a4a12; border-color: #8a6a1a; }
+.rally-boxes { display: grid; grid-template-columns: 1fr 1.25fr; gap: 6px; }
+.rb-nav-box {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 6px;
+  align-items: center;
+  background: #f4f1e6;
+  color: #111;
+  border: 2px solid #111;
+  border-radius: 8px;
+  padding: 4px 6px;
+  min-height: 84px;
+}
+.rb-nav-current { opacity: 0.75; }
+.rb-nav-next { border-color: #f0b429; box-shadow: 0 0 0 2px #f0b429 inset; }
+.rb-nav-box.rb-danger-2, .rb-nav-box.rb-danger-3 { background: #ffe4e0; }
+.rb-nav-n { grid-row: 1; grid-column: 1; font-weight: 800; font-size: 0.75rem; color: #555; }
+.rb-nav-km { grid-row: 1; grid-column: 2; font-weight: 800; font-size: 1rem; text-align: right; font-variant-numeric: tabular-nums; }
+.rb-nav-tulip { grid-row: 2; grid-column: 1; color: #111; }
+.rb-nav-txt { grid-row: 2; grid-column: 2; font-size: 0.78rem; line-height: 1.2; min-width: 0; overflow: hidden; }
+.rb-nav-txt span { color: #333; }
+.rb-dg { color: #c00; font-weight: 800; }
+.rally-tonext { font-size: 0.8rem; color: #cdd8b4; text-align: center; }
 </style>
 </head>
 <body>
@@ -1845,6 +1926,13 @@ html, body {
       <p class="hint">Atoleiro, porteira, água, perigo... com foto e anotação. Não entram no traçado da rota.</p>
     </details>
 
+    <details class="panel-section panel-details" id="roadbook-section">
+      <summary>Roadbook (rally) <span id="roadbook-summary" class="details-hint"></span></summary>
+      <p class="hint">Casas geradas da rota: curvas, marcações, largada e chegada. Toque na tulipa para ver no mapa; escreva notas e marque o perigo (!, !!, !!!). Na navegação, ligue o 🏁.</p>
+      <button id="btn-roadbook-print" class="new-manual-block-btn">🖨️ Imprimir roadbook</button>
+      <div id="roadbook-list" class="roadbook-list"></div>
+    </details>
+
     <details class="panel-section panel-details" id="elevation-section">
       <summary>Altimetria <span id="elevation-summary" class="details-hint"></span></summary>
       <button id="btn-elevation" class="new-manual-block-btn">⛰️ Calcular perfil de altitude</button>
@@ -1915,6 +2003,31 @@ html, body {
       <button id="btn-nav-waypoint" class="nav-tool-btn" title="Marcar este local (foto e anotação)" aria-label="Marcar local">📌</button>
       <button id="btn-nav-sendpos" class="nav-tool-btn" title="Enviar minha posição" aria-label="Enviar posição">📤</button>
       <button id="btn-nav-stats" class="nav-tool-btn" title="Estatísticas do trajeto" aria-label="Estatísticas">📊</button>
+      <button id="btn-nav-rally" class="nav-tool-btn off" title="Modo Rally" aria-label="Modo Rally">🏁</button>
+    </div>
+
+    <div id="rally-panel" class="rally-panel hidden">
+      <div class="rally-top">
+        <div class="rally-cap-box">
+          <div id="rally-cap" class="rally-cap">CAP —</div>
+          <div class="rally-heading-row"><span id="rally-cap-arrow" class="rally-cap-arrow hidden">⬆</span><span id="rally-heading" class="rally-heading"></span></div>
+        </div>
+        <div class="rally-odo-box">
+          <div class="rally-odo-label">hodômetro km</div>
+          <div id="rally-odo" class="rally-odo">0,00</div>
+          <div class="rally-odo-btns">
+            <button id="btn-rally-minus" title="Tirar 10 m">−</button>
+            <button id="btn-rally-setbox" title="Ajustar para o km da casa atual">= casa</button>
+            <button id="btn-rally-plus" title="Somar 10 m">+</button>
+            <button id="btn-rally-zero" title="Zerar">0</button>
+          </div>
+        </div>
+      </div>
+      <div class="rally-boxes">
+        <div id="rally-current" class="rb-nav-box rb-nav-current"></div>
+        <div id="rally-next" class="rb-nav-box rb-nav-next"></div>
+      </div>
+      <div id="rally-tonext" class="rally-tonext"></div>
     </div>
 
     <div id="nav-hud-top">
@@ -2141,8 +2254,19 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "4.1";
+  var APP_VERSION = "4.2";
   var CHANGELOG = [
+    {
+      version: "4.2",
+      date: "07/10/2026",
+      changes: [
+        "Modo Rally 🏁 — inspirado nos navegadores do Dakar",
+        "Spec #025: roadbook gerado da rota no planejamento (seção \"Roadbook (rally)\"): casas nas curvas, nas marcações, largada e chegada, com tulipa, km total e parcial, CAP e notas/perigo (!, !!, !!!) editáveis; salvo com a rota e pronto para imprimir",
+        "Spec #026: na navegação, CAP grande da casa atual e o seu rumo real, com seta indicando para que lado corrigir",
+        "Spec #027: hodômetro do rally corrigível (− 10 m, + 10 m, \"= casa\" para ajustar ao km da casa, zerar), comparado com o km da próxima casa, como no roadbook de papel",
+        "Spec #028: avisos falados no ritmo da trilha — \"Em 200 metros, direita forte, porteira\" e \"Direita forte agora\", com antecedência maior quanto mais rápido; avisa perigo e vibra nas casas !! e !!!"
+      ]
+    },
     {
       version: "4.1",
       date: "07/10/2026",
@@ -2580,7 +2704,8 @@ html, body {
     activeBlockId: null, // which block new unmarked points join (Spec #015 v2); not persisted to the saved route
     meta: { difficulty: 0, vehicle: "", season: "", notes: "" }, // Spec #020
     waypoints: [], // Spec #022: [{id, lat, lng, type, note, photoId, createdAt}]
-    elevation: null // Spec #023: {sig, samples, stats, at}
+    elevation: null, // Spec #023: {sig, samples, stats, at}
+    roadbookNotes: {} // Spec #025: {chaveDaCasa: {note, danger}}
   };
 
   var markers = []; // Leaflet markers, parallel to state.points
@@ -3300,6 +3425,7 @@ html, body {
     state.meta = emptyMeta();
     state.waypoints = [];
     state.elevation = null;
+    state.roadbookNotes = {};
     weatherState = null;
     el.routeName.value = "";
     updateFolderLabel();
@@ -3416,6 +3542,7 @@ html, body {
     if (typeof renderElevation === "function" && x) {
       renderElevation();
       renderWeather();
+      if (typeof renderRoadbook === "function" && rx) renderRoadbook();
     }
   }
 
@@ -3628,6 +3755,7 @@ html, body {
     state.meta = normalizeMeta(draft.meta);
     state.waypoints = normalizeWaypoints(draft.waypoints);
     state.elevation = draft.elevation || null;
+    state.roadbookNotes = draft.roadbookNotes && typeof draft.roadbookNotes === "object" ? draft.roadbookNotes : {};
     el.routeName.value = state.name;
     updateFolderLabel();
     draft.points.forEach(function (p) {
@@ -3707,6 +3835,7 @@ html, body {
     state.meta = normalizeMeta(route.meta);
     state.waypoints = normalizeWaypoints(route.waypoints);
     state.elevation = route.elevation || null;
+    state.roadbookNotes = route.roadbookNotes && typeof route.roadbookNotes === "object" ? JSON.parse(JSON.stringify(route.roadbookNotes)) : {};
     el.routeName.value = route.name;
     updateFolderLabel();
     route.points.forEach(function (p) {
@@ -3759,6 +3888,7 @@ html, body {
       meta: normalizeMeta(state.meta),
       waypoints: normalizeWaypoints(state.waypoints),
       elevation: state.elevation && state.elevation.sig === routeSignature(state.points) ? state.elevation : null,
+      roadbookNotes: state.roadbookNotes || {},
       savedAt: Date.now()
     };
 
@@ -5745,6 +5875,7 @@ html, body {
     navLastSpeedPoint = { lat: lat, lng: lng, timestamp: pos.timestamp };
     el.navSpeed.textContent = speedKmh == null ? "--" : String(Math.round(speedKmh));
     navExtrasOnPosition(pos, speedKmh, addedMeters);
+    rallyOnPosition(pos, speedKmh, addedMeters);
 
     updateNavPipStats(
       el.navDistanceRemaining.textContent,
@@ -6828,6 +6959,7 @@ html, body {
     refreshVoiceButton();
     refreshTripDisplay();
     renderNavWaypointMarkers();
+    rallyOnStart();
     if (navMode === "route") speak("Navegação iniciada.");
   }
 
@@ -6835,6 +6967,9 @@ html, body {
     if (navStats) navStats.endedAt = Date.now();
     renderStatsGrid(x.navSummaryStats, statsSnapshot(navStats), true);
     x.navSideTools.classList.add("hidden");
+    rx.rallyPanel.classList.add("hidden");
+    el.navHudBottom.classList.remove("rally-hidden");
+    document.getElementById("nav-active-view").classList.remove("rally-on");
     if ("speechSynthesis" in window) {
       try {
         window.speechSynthesis.cancel();
@@ -7489,6 +7624,7 @@ html, body {
     else state.waypoints.push(wp);
     saveDraft();
     renderPlanningWaypoints();
+    renderRoadbook();
   }
 
   function deletePlanningWaypoint(id) {
@@ -7498,6 +7634,7 @@ html, body {
     });
     saveDraft();
     renderPlanningWaypoints();
+    renderRoadbook();
   }
 
   function editPlanningWaypoint(wp) {
@@ -7656,6 +7793,11 @@ html, body {
           }
         }
         renderNavWaypointMarkers();
+        if (rally && navCurrentRoute) {
+          rally.boxes = buildRoadbook(rally.points, navCurrentRoute.waypoints, navCurrentRoute.roadbookNotes);
+          if (rally.along != null) rally.idx = rallyCurrentIndex(rally.along);
+          if (rallyActive()) renderRallyPanel();
+        }
         buzz(80);
       }
     });
@@ -8522,9 +8664,612 @@ html, body {
     renderRouteInfo();
     renderPlanningWaypoints();
     renderElevation();
+    renderRoadbook();
     if (weatherState && weatherState.sig !== routeSignature(state.points) && state.points.length < 2) weatherState = null;
     renderWeather();
   }
+
+
+  // ================= v4.2 MODO RALLY (Specs #025–#028) =================
+  //
+  // Roadbook gerado a partir da rota (curvas, marcações, largada e chegada),
+  // com tulipas, km total/parcial, CAP e notas; na navegação: CAP até a
+  // próxima casa, hodômetro corrigível e avisos falados no ritmo da trilha.
+
+  var RALLY_MODE_KEY = "jipeRotas_rallyMode_v1";
+  var RALLY_ODO_KEY = "jipeRotas_rallyOdometer_v1";
+
+  var rx = {
+    rallySection: document.getElementById("roadbook-section"),
+    roadbookSummary: document.getElementById("roadbook-summary"),
+    btnRoadbookPrint: document.getElementById("btn-roadbook-print"),
+    roadbookList: document.getElementById("roadbook-list"),
+    btnNavRally: document.getElementById("btn-nav-rally"),
+    rallyPanel: document.getElementById("rally-panel"),
+    rallyCap: document.getElementById("rally-cap"),
+    rallyHeading: document.getElementById("rally-heading"),
+    rallyCapArrow: document.getElementById("rally-cap-arrow"),
+    rallyOdo: document.getElementById("rally-odo"),
+    btnRallyMinus: document.getElementById("btn-rally-minus"),
+    btnRallyPlus: document.getElementById("btn-rally-plus"),
+    btnRallySetBox: document.getElementById("btn-rally-setbox"),
+    btnRallyZero: document.getElementById("btn-rally-zero"),
+    rallyCurrent: document.getElementById("rally-current"),
+    rallyNext: document.getElementById("rally-next"),
+    rallyToNext: document.getElementById("rally-tonext")
+  };
+
+  // ---- geometria ----
+  function bearingDeg(a, b) {
+    var toRad = Math.PI / 180;
+    var y = Math.sin((b.lng - a.lng) * toRad) * Math.cos(b.lat * toRad);
+    var xx =
+      Math.cos(a.lat * toRad) * Math.sin(b.lat * toRad) -
+      Math.sin(a.lat * toRad) * Math.cos(b.lat * toRad) * Math.cos((b.lng - a.lng) * toRad);
+    var brng = (Math.atan2(y, xx) * 180) / Math.PI;
+    return (brng + 360) % 360;
+  }
+
+  function angleDiff(from, to) {
+    var d = ((to - from + 540) % 360) - 180;
+    return d === -180 ? 180 : d;
+  }
+
+  function cumulativeDistances(points) {
+    var cum = [0];
+    for (var i = 1; i < points.length; i++) {
+      cum.push(cum[i - 1] + haversineMeters(points[i - 1].lat, points[i - 1].lng, points[i].lat, points[i].lng));
+    }
+    return cum;
+  }
+
+  function pointAtDistance(points, cum, d) {
+    var total = cum[cum.length - 1];
+    d = Math.max(0, Math.min(total, d));
+    var lo = 0,
+      hi = cum.length - 1;
+    while (hi - lo > 1) {
+      var mid = (lo + hi) >> 1;
+      if (cum[mid] <= d) lo = mid;
+      else hi = mid;
+    }
+    var segLen = cum[hi] - cum[lo];
+    var t = segLen > 0 ? (d - cum[lo]) / segLen : 0;
+    return {
+      lat: points[lo].lat + (points[hi].lat - points[lo].lat) * t,
+      lng: points[lo].lng + (points[hi].lng - points[lo].lng) * t
+    };
+  }
+
+  // Projeta p na rota; se hint (km atual) vier, procura só perto dele
+  // (evita "pular" para outro trecho quando a rota passa perto de si mesma).
+  function projectOnRoute(p, points, cum, hint) {
+    var best = null;
+    for (var i = 0; i < points.length - 1; i++) {
+      if (hint != null && (cum[i + 1] < hint - 300 || cum[i] > hint + 3000)) continue;
+      var r = distanceToSegmentMeters(p, points[i], points[i + 1]);
+      if (!best || r.distance < best.distance) best = { distance: r.distance, along: cum[i] + r.t * (cum[i + 1] - cum[i]) };
+    }
+    if (!best && hint != null) return projectOnRoute(p, points, cum, null);
+    return best;
+  }
+
+  // ---- linguagem de curva (estilo pace note) ----
+  function turnInfo(turn) {
+    var a = Math.abs(turn);
+    var side = turn > 0 ? "direita" : "esquerda";
+    var sideShort = turn > 0 ? "D" : "E";
+    if (a < 20) return { words: "siga reto", short: "reto", sev: 0 };
+    if (a < 50) return { words: "leve à " + side, short: "leve " + sideShort, sev: 1 };
+    if (a < 110) return { words: "à " + side, short: sideShort, sev: 2 };
+    if (a < 150) return { words: side + " forte", short: sideShort + " forte", sev: 3 };
+    return { words: "retorno à " + side, short: "retorno " + sideShort, sev: 4 };
+  }
+
+  var DANGER_WORDS = ["", "Atenção.", "Cuidado, perigo.", "Perigo! Devagar."];
+
+  function roadbookKey(lat, lng) {
+    return lat.toFixed(4) + "," + lng.toFixed(4);
+  }
+
+  // ================= #025 Roadbook com tulipas =================
+  // Gera as "casas" do roadbook a partir dos pontos da rota.
+  // notes: {key: {note, danger}}
+  function buildRoadbook(points, waypoints, notes) {
+    if (!points || points.length < 2) return [];
+    notes = notes || {};
+    var cum = cumulativeDistances(points);
+    var total = cum[cum.length - 1];
+    if (total < 30) return [];
+    var LOOK = Math.min(40, total / 6); // metros antes/depois para medir o ângulo (ignora zigue-zague do GPS)
+    var STEP = 10;
+    var raw = [];
+    for (var d = LOOK; d <= total - LOOK; d += STEP) {
+      var p = pointAtDistance(points, cum, d);
+      var before = pointAtDistance(points, cum, d - LOOK);
+      var after = pointAtDistance(points, cum, d + LOOK);
+      var turn = angleDiff(bearingDeg(before, p), bearingDeg(p, after));
+      raw.push({ d: d, turn: turn });
+    }
+    // picos de curva (>= 35°) — junta os vizinhos e fica com o ponto de maior ângulo
+    var candidates = [];
+    var group = null;
+    raw.forEach(function (r) {
+      if (Math.abs(r.turn) >= 35) {
+        if (group && r.d - group.last <= STEP * 1.5 && (r.turn > 0) === (group.best.turn > 0)) {
+          group.last = r.d;
+          if (Math.abs(r.turn) > Math.abs(group.best.turn)) group.best = r;
+        } else {
+          if (group) candidates.push(group.best);
+          group = { best: r, last: r.d };
+        }
+      } else if (group) {
+        candidates.push(group.best);
+        group = null;
+      }
+    });
+    if (group) candidates.push(group.best);
+
+    var boxes = [];
+    function capAt(d) {
+      var a = pointAtDistance(points, cum, d);
+      var b = pointAtDistance(points, cum, Math.min(total, d + Math.max(LOOK, 30)));
+      return Math.round(bearingDeg(a, b)) % 360;
+    }
+    function inAt(d) {
+      var a = pointAtDistance(points, cum, Math.max(0, d - Math.max(LOOK, 30)));
+      var b = pointAtDistance(points, cum, d);
+      return bearingDeg(a, b);
+    }
+
+    boxes.push({ kind: "start", d: 0, turn: 0, cap: capAt(0) });
+    candidates.forEach(function (c) {
+      boxes.push({ kind: "turn", d: c.d, turn: c.turn, cap: capAt(c.d) });
+    });
+    normalizeWaypoints(waypoints).forEach(function (w) {
+      var pr = projectOnRoute(w, points, cum, null);
+      if (!pr || pr.distance > 80) return;
+      boxes.push({ kind: "wp", d: pr.along, turn: angleDiff(inAt(pr.along), capAt(pr.along)), cap: capAt(pr.along), wp: w });
+    });
+    boxes.push({ kind: "end", d: total, turn: 0, cap: null });
+    boxes.sort(function (a, b) {
+      return a.d - b.d;
+    });
+
+    // junta casas muito próximas (< 25 m): marcação "absorve" a curva
+    var merged = [];
+    boxes.forEach(function (b) {
+      var prev = merged[merged.length - 1];
+      if (prev && b.d - prev.d < 25 && prev.kind !== "start" && b.kind !== "end") {
+        if (b.kind === "wp" && prev.kind === "turn") {
+          b.turn = prev.turn;
+          merged[merged.length - 1] = b;
+        } else if (prev.kind === "wp" && b.kind === "turn") {
+          prev.turn = b.turn;
+        } else if (Math.abs(b.turn) > Math.abs(prev.turn)) {
+          merged[merged.length - 1] = b;
+        }
+        return;
+      }
+      merged.push(b);
+    });
+
+    return merged.map(function (b, i) {
+      var pos = b.kind === "wp" ? { lat: b.wp.lat, lng: b.wp.lng } : pointAtDistance(points, cum, b.d);
+      var key = b.kind === "wp" ? "wp:" + b.wp.id : b.kind === "start" ? "start" : b.kind === "end" ? "end" : roadbookKey(pos.lat, pos.lng);
+      var saved = notes[key] || {};
+      var autoNote = "";
+      if (b.kind === "wp") {
+        var t = waypointType(b.wp.type);
+        autoNote = t.emoji + " " + t.label + (b.wp.note ? " — " + b.wp.note : "");
+      }
+      var danger = saved.danger != null ? saved.danger : b.kind === "wp" && b.wp.type === "perigo" ? 2 : b.kind === "wp" && b.wp.type === "atoleiro" ? 1 : 0;
+      return {
+        n: i + 1,
+        kind: b.kind,
+        km: b.d,
+        partial: i === 0 ? 0 : b.d - merged[i - 1].d,
+        turn: b.turn,
+        cap: b.cap,
+        lat: pos.lat,
+        lng: pos.lng,
+        key: key,
+        autoNote: autoNote,
+        note: saved.note || "",
+        danger: danger
+      };
+    });
+  }
+
+  // Tulipa: entrada vem de baixo, seta de saída no ângulo da curva.
+  function tulipSvg(box, size) {
+    size = size || 64;
+    var cx = 50,
+      cy = 56;
+    var parts = [];
+    parts.push('<svg viewBox="0 0 100 100" width="' + size + '" height="' + size + '" class="tulip" aria-hidden="true">');
+    if (box.kind === "start") {
+      parts.push('<circle cx="50" cy="78" r="9" fill="none" stroke="currentColor" stroke-width="6"/>');
+      parts.push('<line x1="50" y1="69" x2="50" y2="22" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>');
+      parts.push('<path d="M36 34 L50 14 L64 34 Z" fill="currentColor"/>');
+    } else if (box.kind === "end") {
+      parts.push('<line x1="50" y1="94" x2="50" y2="48" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>');
+      for (var r = 0; r < 3; r++) {
+        for (var c = 0; c < 4; c++) {
+          if ((r + c) % 2 === 0) parts.push('<rect x="' + (30 + c * 10) + '" y="' + (16 + r * 10) + '" width="10" height="10" fill="currentColor"/>');
+        }
+      }
+      parts.push('<rect x="30" y="16" width="40" height="30" fill="none" stroke="currentColor" stroke-width="2"/>');
+    } else {
+      var ang = ((box.turn || 0) * Math.PI) / 180;
+      var ex = cx + Math.sin(ang) * 40,
+        ey = cy - Math.cos(ang) * 40;
+      var hx = cx + Math.sin(ang) * 26,
+        hy = cy - Math.cos(ang) * 26;
+      var px = Math.cos(ang) * 11,
+        py = Math.sin(ang) * 11;
+      parts.push('<circle cx="50" cy="92" r="6" fill="currentColor"/>');
+      parts.push('<line x1="50" y1="92" x2="' + cx + '" y2="' + cy + '" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>');
+      parts.push('<line x1="' + cx + '" y1="' + cy + '" x2="' + hx.toFixed(1) + '" y2="' + hy.toFixed(1) + '" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>');
+      parts.push(
+        '<path d="M' + ex.toFixed(1) + " " + ey.toFixed(1) + " L" + (hx + px).toFixed(1) + " " + (hy + py).toFixed(1) + " L" + (hx - px).toFixed(1) + " " + (hy - py).toFixed(1) + ' Z" fill="currentColor"/>'
+      );
+    }
+    parts.push("</svg>");
+    return parts.join("");
+  }
+
+  function dangerMarks(n) {
+    return n ? new Array(n + 1).join("!") : "";
+  }
+
+  function boxDescription(box) {
+    if (box.kind === "start") return "Largada";
+    if (box.kind === "end") return "Chegada";
+    var t = turnInfo(box.turn);
+    return t.sev === 0 ? "Siga reto" : t.words.charAt(0).toUpperCase() + t.words.slice(1);
+  }
+
+  function capText(cap) {
+    return cap == null ? "—" : ("00" + cap).slice(-3) + "°";
+  }
+
+  var planningRoadbook = [];
+
+  function currentRoadbookNotes() {
+    if (!state.roadbookNotes || typeof state.roadbookNotes !== "object") state.roadbookNotes = {};
+    return state.roadbookNotes;
+  }
+
+  function renderRoadbook() {
+    if (!rx.roadbookList) return;
+    rx.roadbookList.innerHTML = "";
+    planningRoadbook = buildRoadbook(state.points, state.waypoints, currentRoadbookNotes());
+    rx.roadbookSummary.textContent = planningRoadbook.length ? planningRoadbook.length + " casas" : "";
+    if (!planningRoadbook.length) {
+      var p = document.createElement("p");
+      p.className = "hint";
+      p.textContent = "Desenhe ou importe uma rota com pelo menos 2 pontos para gerar o roadbook.";
+      rx.roadbookList.appendChild(p);
+      return;
+    }
+    // só monta a lista quando a seção está aberta (rotas longas têm muitas casas)
+    if (!rx.rallySection.open) return;
+    planningRoadbook.forEach(function (box) {
+      var row = document.createElement("div");
+      row.className = "rb-row" + (box.danger ? " rb-danger-" + box.danger : "");
+      var c1 = document.createElement("div");
+      c1.className = "rb-km";
+      c1.innerHTML = "<b>" + box.n + "</b><span>" + fmtKm(box.km) + "</span><small>+" + fmtKm(box.partial) + "</small>";
+      var c2 = document.createElement("div");
+      c2.className = "rb-tulip";
+      c2.innerHTML = tulipSvg(box, 56);
+      c2.title = "Mostrar no mapa";
+      c2.addEventListener("click", function () {
+        if (!map) return;
+        closeSidePanelOnMobile();
+        map.setView([box.lat, box.lng], Math.max(map.getZoom(), 17));
+        showElevationCursor({ lat: box.lat, lng: box.lng });
+        setTimeout(function () {
+          showElevationCursor(null);
+        }, 2500);
+      });
+      var c3 = document.createElement("div");
+      c3.className = "rb-info";
+      var title = document.createElement("div");
+      title.className = "rb-title";
+      title.textContent = boxDescription(box) + (box.cap != null ? " · CAP " + capText(box.cap) : "") + (box.danger ? "  " + dangerMarks(box.danger) : "");
+      c3.appendChild(title);
+      if (box.autoNote) {
+        var an = document.createElement("div");
+        an.className = "rb-autonote";
+        an.textContent = box.autoNote;
+        c3.appendChild(an);
+      }
+      var edit = document.createElement("div");
+      edit.className = "rb-edit";
+      var input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = "nota (ex: porteira, mata-burro, erosão)";
+      input.value = box.note;
+      input.addEventListener("change", function () {
+        var notes = currentRoadbookNotes();
+        notes[box.key] = notes[box.key] || {};
+        notes[box.key].note = input.value.trim();
+        if (notes[box.key].danger == null) notes[box.key].danger = box.danger;
+        saveDraft();
+      });
+      var sel = document.createElement("select");
+      sel.title = "Nível de perigo";
+      ["—", "!", "!!", "!!!"].forEach(function (label, v) {
+        var o = document.createElement("option");
+        o.value = String(v);
+        o.textContent = label;
+        if (v === box.danger) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.addEventListener("change", function () {
+        var notes = currentRoadbookNotes();
+        notes[box.key] = notes[box.key] || {};
+        notes[box.key].danger = parseInt(sel.value, 10) || 0;
+        if (notes[box.key].note == null) notes[box.key].note = input.value.trim();
+        saveDraft();
+        renderRoadbook();
+      });
+      edit.appendChild(input);
+      edit.appendChild(sel);
+      c3.appendChild(edit);
+      row.appendChild(c1);
+      row.appendChild(c2);
+      row.appendChild(c3);
+      rx.roadbookList.appendChild(row);
+    });
+  }
+
+  if (rx.rallySection) {
+    rx.rallySection.addEventListener("toggle", function () {
+      if (rx.rallySection.open) renderRoadbook();
+    });
+  }
+
+  // Roadbook para imprimir (folha clássica: km | tulipa | nota)
+  function printRoadbook(route) {
+    var boxes = buildRoadbook(route.points, route.waypoints, route.roadbookNotes);
+    if (!boxes.length) {
+      showToast("A rota precisa de pelo menos 2 pontos.");
+      return;
+    }
+    var w = window.open("", "_blank");
+    if (!w) {
+      showToast("Permita pop-ups para imprimir o roadbook.");
+      return;
+    }
+    var rows = boxes
+      .map(function (b) {
+        var note = [b.autoNote, b.note].filter(Boolean).join(" — ");
+        return (
+          '<tr class="d' + b.danger + '"><td class="n">' + b.n + '</td><td class="km"><b>' + fmtKm(b.km) + "</b><br><small>+" + fmtKm(b.partial) + "</small></td>" +
+          '<td class="tu">' + tulipSvg(b, 70) + "</td>" +
+          '<td class="tx"><b>' + escapeXml(boxDescription(b)) + "</b>" + (b.cap != null ? " · CAP " + capText(b.cap) : "") +
+          (b.danger ? ' <span class="dg">' + dangerMarks(b.danger) + "</span>" : "") + (note ? "<br>" + escapeXml(note) : "") + "</td></tr>"
+        );
+      })
+      .join("");
+    var meta = routeMetaSummary(route.meta);
+    w.document.write(
+      '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Roadbook — ' + escapeXml(route.name || "rota") + "</title>" +
+        "<style>body{font-family:Arial,Helvetica,sans-serif;margin:16px;color:#000}h1{font-size:18px;margin:0 0 4px}p{margin:0 0 10px;font-size:12px}" +
+        "table{width:100%;border-collapse:collapse}td{border:2px solid #000;padding:6px;vertical-align:middle}" +
+        ".n{width:34px;text-align:center;font-size:18px;font-weight:bold}.km{width:80px;text-align:center;font-size:16px}" +
+        ".tu{width:84px;text-align:center}.tx{font-size:14px}.dg{color:#c00;font-weight:bold;font-size:18px}" +
+        "tr.d2 td,tr.d3 td{background:#ffe9e9}tr{page-break-inside:avoid}.tulip{color:#000}<\/style></head><body>" +
+        "<h1>Roadbook — " + escapeXml(route.name || "rota") + "</h1><p>" + boxes.length + " casas · " + fmtKm(boxes[boxes.length - 1].km) + " km" +
+        (meta ? " · " + escapeXml(meta) : "") + " · gerado pelo Fora de Estrada</p><table>" + rows + "</table>" +
+        "<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>"
+    );
+    w.document.close();
+  }
+
+  if (rx.btnRoadbookPrint) {
+    rx.btnRoadbookPrint.addEventListener("click", function () {
+      var r = currentPlanningRoute();
+      r.roadbookNotes = currentRoadbookNotes();
+      printRoadbook(r);
+    });
+  }
+
+  // ================= #026–#028 Modo Rally na navegação =================
+  var rallyEnabled = lsGet(RALLY_MODE_KEY, "0") === "1";
+  var rallyOdo = parseFloat(lsGet(RALLY_ODO_KEY, "0")) || 0;
+  var rally = null; // {points, cum, boxes, along, idx, announced: {}}
+
+  function rallySaveOdo() {
+    lsSet(RALLY_ODO_KEY, String(Math.round(rallyOdo)));
+  }
+
+  function rallyActive() {
+    return rallyEnabled && navMode === "route" && rally && rally.boxes.length > 0;
+  }
+
+  function refreshRallyUi() {
+    var on = rallyActive();
+    rx.btnNavRally.classList.toggle("off", !rallyEnabled);
+    rx.btnNavRally.title = rallyEnabled ? "Modo Rally: ligado" : "Modo Rally: desligado";
+    rx.btnNavRally.classList.toggle("hidden", navMode !== "route");
+    rx.rallyPanel.classList.toggle("hidden", !on);
+    el.navHudBottom.classList.toggle("rally-hidden", on);
+    document.getElementById("nav-active-view").classList.toggle("rally-on", on);
+    if (on) renderRallyPanel();
+  }
+
+  rx.btnNavRally.addEventListener("click", function () {
+    rallyEnabled = !rallyEnabled;
+    lsSet(RALLY_MODE_KEY, rallyEnabled ? "1" : "0");
+    refreshRallyUi();
+    showToast(rallyEnabled ? "🏁 Modo Rally ligado: roadbook, CAP e hodômetro na tela" : "Modo Rally desligado");
+    if (rallyEnabled) speak("Modo rally ligado.");
+  });
+
+  function rallyOnStart() {
+    if (navMode !== "route" || !navCurrentRoute) {
+      rally = null;
+      refreshRallyUi();
+      return;
+    }
+    var pts = navCurrentRoute.points;
+    rally = {
+      points: pts,
+      cum: cumulativeDistances(pts),
+      boxes: buildRoadbook(pts, navCurrentRoute.waypoints, navCurrentRoute.roadbookNotes),
+      along: null,
+      idx: 0,
+      announced: {},
+      heading: null
+    };
+    refreshRallyUi();
+  }
+
+  function rallyCurrentIndex(along) {
+    var idx = 0;
+    for (var i = 0; i < rally.boxes.length; i++) {
+      if (rally.boxes[i].km <= along + 8) idx = i;
+      else break;
+    }
+    return idx;
+  }
+
+  function rallyOnPosition(pos, speedKmh, addedMeters) {
+    if (addedMeters > 0 && (pos.coords.accuracy == null || pos.coords.accuracy <= 50)) {
+      rallyOdo += addedMeters;
+      rallySaveOdo();
+    }
+    if (!rally) return;
+    var c = pos.coords;
+    if (c.heading != null && !isNaN(c.heading) && speedKmh != null && speedKmh > 3) rally.heading = c.heading;
+    var pr = projectOnRoute({ lat: c.latitude, lng: c.longitude }, rally.points, rally.cum, rally.along);
+    if (pr && pr.distance <= Math.max(deviationThreshold * 2, 80)) {
+      // só avança (ou volta pouco) — nunca salta pra trás por ruído
+      if (rally.along == null || pr.along > rally.along - 50) rally.along = pr.along;
+    }
+    if (rally.along == null) {
+      if (rallyActive()) renderRallyPanel();
+      return;
+    }
+    if (!rally.odoSynced) {
+      // primeira posição na rota: hodômetro começa no km em que você está
+      rally.odoSynced = true;
+      rallyOdo = rally.along;
+      rallySaveOdo();
+    }
+    rally.idx = rallyCurrentIndex(rally.along);
+    rallyVoice(speedKmh);
+    if (rallyActive()) renderRallyPanel();
+  }
+
+  // #028 avisos falados no ritmo: antecedência cresce com a velocidade
+  function rallyVoice(speedKmh) {
+    if (!rallyActive()) return;
+    var next = rally.boxes[rally.idx + 1];
+    if (!next) return;
+    var dist = next.km - rally.along;
+    var mps = Math.max(3, (speedKmh || 0) / 3.6);
+    var farAt = Math.min(600, Math.max(150, mps * 12));
+    var nearAt = Math.max(40, mps * 4);
+    var a = rally.announced[next.n] || (rally.announced[next.n] = {});
+    var what;
+    if (next.kind === "end") what = "chegada";
+    else if (next.kind === "wp") what = next.autoNote.replace(/^\S+\s/, "").split(" — ")[0].toLowerCase() + (turnInfo(next.turn).sev >= 2 ? ", " + turnInfo(next.turn).words : "");
+    else what = turnInfo(next.turn).words;
+    var danger = next.danger ? " " + DANGER_WORDS[next.danger] : "";
+    var note = next.note ? ", " + next.note : "";
+    if (!a.far && dist <= farAt && dist > nearAt) {
+      a.far = true;
+      speak("Em " + spokenDistance(dist) + ", " + what + note + "." + danger);
+      if (next.danger >= 2) buzz([200, 100, 200]);
+    } else if (!a.near && dist <= nearAt) {
+      a.near = true;
+      a.far = true;
+      speak((next.kind === "end" ? "Chegada" : what.charAt(0).toUpperCase() + what.slice(1)) + " agora." + danger);
+      buzz(next.danger >= 2 ? [300, 100, 300] : 120);
+    }
+  }
+
+  function renderRallyPanel() {
+    if (!rally) return;
+    rx.rallyOdo.textContent = fmtKm(rallyOdo);
+    var cur = rally.boxes[rally.idx] || rally.boxes[0];
+    var next = rally.boxes[rally.idx + 1] || null;
+
+    function boxHtml(box, big) {
+      var note = [box.autoNote, box.note].filter(Boolean).join(" — ");
+      return (
+        '<div class="rb-nav-n">' + box.n + "</div>" +
+        '<div class="rb-nav-km">' + fmtKm(box.km) + "</div>" +
+        '<div class="rb-nav-tulip">' + tulipSvg(box, big ? 70 : 54) + "</div>" +
+        '<div class="rb-nav-txt"><b>' + escapeXml(boxDescription(box)) + "</b>" +
+        (box.danger ? ' <span class="rb-dg">' + dangerMarks(box.danger) + "</span>" : "") +
+        (note ? "<br><span>" + escapeXml(note) + "</span>" : "") + "</div>"
+      );
+    }
+    rx.rallyCurrent.innerHTML = boxHtml(cur, false);
+    rx.rallyCurrent.className = "rb-nav-box rb-nav-current" + (cur.danger ? " rb-danger-" + cur.danger : "");
+    if (next) {
+      rx.rallyNext.innerHTML = boxHtml(next, true);
+      rx.rallyNext.className = "rb-nav-box rb-nav-next" + (next.danger ? " rb-danger-" + next.danger : "");
+      // como no roadbook de papel: compara o hodômetro com o km da próxima casa
+      var byOdo = next.km - rallyOdo;
+      var byGps = rally.along != null ? next.km - rally.along : null;
+      rx.rallyToNext.textContent =
+        "Próxima: casa " + next.n + " no km " + fmtKm(next.km) +
+        " · faltam " + fmtKm(Math.max(0, byOdo)) + " pelo hodômetro" +
+        (byGps != null && Math.abs(byGps - byOdo) > 30 ? " / " + fmtKm(Math.max(0, byGps)) + " pelo GPS" : "");
+    } else {
+      rx.rallyNext.innerHTML = '<div class="rb-nav-txt"><b>🏁 Fim do roadbook</b></div>';
+      rx.rallyNext.className = "rb-nav-box rb-nav-next";
+      rx.rallyToNext.textContent = "";
+    }
+
+    // #026 CAP: rumo a seguir depois da casa atual (ou até a próxima)
+    var cap = cur.cap != null ? cur.cap : next && next.cap;
+    rx.rallyCap.textContent = "CAP " + capText(cap);
+    if (rally.heading != null && cap != null) {
+      var diff = Math.round(angleDiff(rally.heading, cap));
+      rx.rallyHeading.textContent = "você " + capText(Math.round(rally.heading) % 360) + (Math.abs(diff) <= 10 ? " ✓" : diff > 0 ? " → " + diff + "°" : " ← " + -diff + "°");
+      rx.rallyCapArrow.style.transform = "rotate(" + diff + "deg)";
+      rx.rallyCapArrow.classList.toggle("ok", Math.abs(diff) <= 15);
+      rx.rallyCapArrow.classList.remove("hidden");
+    } else {
+      rx.rallyHeading.textContent = "rumo: em movimento";
+      rx.rallyCapArrow.classList.add("hidden");
+    }
+  }
+
+  // #027 hodômetro corrigível
+  rx.btnRallyMinus.addEventListener("click", function () {
+    rallyOdo = Math.max(0, rallyOdo - 10);
+    rallySaveOdo();
+    if (rally) renderRallyPanel();
+  });
+  rx.btnRallyPlus.addEventListener("click", function () {
+    rallyOdo += 10;
+    rallySaveOdo();
+    if (rally) renderRallyPanel();
+  });
+  rx.btnRallySetBox.addEventListener("click", function () {
+    if (!rally) return;
+    var cur = rally.boxes[rally.idx] || rally.boxes[0];
+    rallyOdo = cur.km;
+    rallySaveOdo();
+    renderRallyPanel();
+    buzz(80);
+    showToast("Hodômetro ajustado para a casa " + cur.n + ": " + fmtKm(cur.km) + " km");
+  });
+  rx.btnRallyZero.addEventListener("click", function () {
+    if (!window.confirm("Zerar o hodômetro do rally?")) return;
+    rallyOdo = 0;
+    rallySaveOdo();
+    if (rally) renderRallyPanel();
+  });
 
   // ---- init ----
   function safeInit(fn, label) {
