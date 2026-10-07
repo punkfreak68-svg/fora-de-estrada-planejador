@@ -10,7 +10,7 @@ $action = $_GET['action'] ?? '';
 switch ($action) {
     case 'me':
         $u = current_user();
-        json_out(['ok' => true, 'user' => $u ? user_private($u) : null]);
+        json_out(['ok' => true, 'user' => $u ? user_private($u) : null, 'signup_open' => signup_open()]);
 
     case 'register':
         require_post();

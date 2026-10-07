@@ -1880,6 +1880,22 @@ html, body {
 .com-danger summary { cursor: pointer; color: #ff8a80; font-weight: 600; padding: 6px 0; }
 .com-danger[open] summary { margin-bottom: 8px; }
 .dashboard-tile .com-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4cd964; margin-left: 6px; vertical-align: middle; }
+
+/* ==== v5.1 Boas-vindas e sincronização pela conta ==== */
+#screen-welcome { height: 100%; overflow-y: auto; }
+.welcome-body { max-width: 440px; margin: 0 auto; padding: 32px 18px 24px; display: flex; flex-direction: column; gap: 12px; text-align: center; }
+.welcome-logo { width: 88px; height: 88px; border-radius: 20px; align-self: center; }
+.welcome-body h1 { margin: 4px 0 0; color: #c9d9a8; font-size: 1.6rem; }
+.welcome-sub { margin: 0 0 6px; color: #8a9578; }
+.welcome-list { list-style: none; margin: 6px 0 10px; padding: 0; text-align: left; display: flex; flex-direction: column; gap: 10px; }
+.welcome-list li { display: flex; gap: 10px; align-items: flex-start; background: #22261b; border: 1px solid #3a4228; border-radius: 10px; padding: 10px 12px; color: #dfe7cc; font-size: 0.92rem; line-height: 1.35; }
+.welcome-list li span { font-size: 1.2rem; line-height: 1.1; }
+.welcome-body a { color: #f0b429; }
+.welcome-skip { align-self: center; margin-top: 4px; font-size: 0.95rem; color: #cdd8b4; }
+.acc-sync-box { margin-bottom: 10px; }
+.acc-login-btn { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a8a3d; background: #2e6b30; color: #fff; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+.acc-sync-on { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #22261b; border: 1px solid #3a4228; border-radius: 6px; padding: 9px 10px; font-size: 0.88rem; color: #dfe7cc; }
+.acc-sync-on.acc-sync-warn { border-color: #8a6a1a; color: #fbe6b0; }
 </style>
 </head>
 <body>
@@ -1919,8 +1935,16 @@ html, body {
 
   <section class="dashboard-section">
     <h2>Sincronização</h2>
-    <button id="btn-drive-connect" class="drive-connect-btn">☁️ Conectar com Google Drive</button>
-    <p id="drive-status-hint" class="hint">Conecta com a pasta do app no seu Google Drive, pra sincronizar as rotas salvas entre aparelhos.</p>
+    <div id="acc-sync-box" class="acc-sync-box">
+      <button id="btn-acc-login" class="acc-login-btn">👤 Entrar para sincronizar suas rotas</button>
+      <div id="acc-sync-on" class="acc-sync-on hidden">
+        <span id="acc-sync-text">✅ Rotas sincronizadas com a sua conta</span>
+        <button id="btn-acc-sync-now" class="link-btn">Sincronizar agora</button>
+      </div>
+      <p id="acc-sync-hint" class="hint">Com uma conta, suas rotas salvas aparecem em todos os seus aparelhos — sem precisar do Google Drive.</p>
+    </div>
+    <button id="btn-drive-connect" class="drive-connect-btn">☁️ Backup no Google Drive (opcional)</button>
+    <p id="drive-status-hint" class="hint">Opcional: guarda uma cópia das rotas e das fotos dos pontos numa pasta do seu Google Drive.</p>
   </section>
 
   <section class="dashboard-section">
@@ -2241,6 +2265,24 @@ html, body {
   </div>
 </div>
 
+<div id="screen-welcome" class="hidden">
+  <div class="welcome-body">
+    <img src="icons/icon-192.png" alt="" class="welcome-logo">
+    <h1>Fora de Estrada</h1>
+    <p class="welcome-sub">Navegador e planejador de trilhas</p>
+    <ul class="welcome-list">
+      <li><span>🗺️</span> Suas rotas salvas em todos os seus aparelhos, sem precisar do Google Drive</li>
+      <li><span>👥</span> Comunidade: trilhas, ranking de tempos e comboio ao vivo (chegando aos poucos)</li>
+      <li><span>📴</span> Navegação e Tomada de Tempo funcionam sem internet, com ou sem conta</li>
+    </ul>
+    <div id="welcome-google-btn" class="com-google-btn"></div>
+    <button id="btn-welcome-login" class="com-btn com-btn-primary">Entrar com usuário e senha</button>
+    <button id="btn-welcome-register" class="com-btn">Criar conta</button>
+    <p class="hint com-center">Ao continuar com o Google você confirma ter 18 anos ou mais e concorda com os <a href="termos.html" target="_blank" rel="noopener">Termos</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.</p>
+    <button id="btn-welcome-skip" class="link-btn welcome-skip">Continuar sem conta</button>
+  </div>
+</div>
+
 <div id="screen-community" class="hidden">
   <header class="nav-header">
     <button id="btn-com-back" class="icon-btn" aria-label="Voltar ao início">←</button>
@@ -2555,8 +2597,18 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.0";
+  var APP_VERSION = "5.1";
   var CHANGELOG = [
+    {
+      version: "5.1",
+      date: "07/10/2026",
+      changes: [
+        "Rotas salvas sincronizadas pela sua conta: entre uma vez e elas aparecem em todos os seus aparelhos, sem precisar do Google Drive",
+        "O Google Drive virou backup opcional (continua guardando também as fotos dos pontos)",
+        "Tela de boas-vindas ao abrir o app sem estar logado: entrar com Google, com usuário e senha, criar conta ou continuar sem conta. Sem internet o app abre direto no painel, como sempre",
+        "\"Baixar meus dados\" agora inclui as rotas salvas na conta"
+      ]
+    },
     {
       version: "5.0",
       date: "07/10/2026",
@@ -4126,6 +4178,7 @@ html, body {
   function persistSavedRoutes(routes) {
     persistSavedRoutesLocalOnly(routes);
     scheduleDrivePush();
+    scheduleAccountSync();
   }
 
   function groupRoutesByFolder(routes) {
@@ -5284,7 +5337,8 @@ html, body {
       navigation: el.screenNavigation,
       "saved-routes": el.screenSavedRoutes,
       timing: document.getElementById("screen-timing"),
-      community: document.getElementById("screen-community")
+      community: document.getElementById("screen-community"),
+      welcome: document.getElementById("screen-welcome")
     };
     Object.keys(screens).forEach(function (key) {
       screens[key].classList.toggle("hidden", key !== name);
@@ -6387,10 +6441,10 @@ html, body {
   function setDriveConnected(connected) {
     driveConnected = connected;
     el.btnDriveConnect.classList.toggle("drive-connected", connected);
-    el.btnDriveConnect.textContent = connected ? "✅ Google Drive conectado" : "☁️ Conectar com Google Drive";
+    el.btnDriveConnect.textContent = connected ? "✅ Backup no Google Drive ligado" : "☁️ Backup no Google Drive (opcional)";
     el.driveStatusHint.textContent = connected
       ? "Suas rotas salvas sincronizam com a pasta \"" + DRIVE_FOLDER_NAME + "\" no seu Google Drive."
-      : "Conecta com a pasta do app no seu Google Drive, pra sincronizar as rotas salvas entre aparelhos.";
+      : "Opcional: guarda uma cópia das rotas e das fotos dos pontos numa pasta do seu Google Drive.";
   }
 
   function initGoogleTokenClient() {
@@ -6729,6 +6783,7 @@ html, body {
             var merged = mergeRouteSets(loadSavedRoutes(), remoteRoutes || []);
             persistSavedRoutesLocalOnly(merged);
             refreshSavedRoutesUI();
+            scheduleAccountSync();
             syncPhotosToDrive();
             showToast("Rotas sincronizadas do Google Drive.");
           });
@@ -6780,6 +6835,7 @@ html, body {
         var merged = mergeRouteSets(loadSavedRoutes(), remoteRoutes || []);
         persistSavedRoutesLocalOnly(merged);
         refreshSavedRoutesUI();
+        scheduleAccountSync();
       })
       .catch(function () {
         /* ignore, offline */
@@ -10529,7 +10585,8 @@ html, body {
     deleteLabel: document.getElementById("com-delete-label"),
     msg: document.getElementById("com-msg")
   };
-  var com = { user: null, loaded: false, resetToken: null, googleReady: false, msgTimer: null };
+  var com = { user: null, loaded: false, resetToken: null, googleReady: false, msgTimer: null, signupOpen: true, fromWelcome: false };
+  var comInitialHash = window.location.hash || "";
 
   function comApi(path, body) {
     var opts = { method: "GET", credentials: "same-origin", cache: "no-store", headers: { "X-FDE": "1" } };
@@ -10622,10 +10679,32 @@ html, body {
   }
 
   function comSetUser(user) {
+    var was = com.user;
     com.user = user || null;
     com.loaded = true;
     cx.dashLabel.textContent = com.user ? "@" + com.user.username : "Comunidade";
     comRender();
+    if (!was && com.user) onAccountLogin(com.user);
+    if (was && !com.user) {
+      acc.blocked = false;
+      acc.lastOk = 0;
+    }
+    if (was && com.user && was.id !== com.user.id) onAccountLogin(com.user);
+    renderAccountSync();
+  }
+
+  // depois de entrar vindo das boas-vindas, vai direto para o painel (ou para escolher o nome de usuário)
+  function comAfterLogin(user, text) {
+    if (com.fromWelcome && !user.needs_username) {
+      leaveWelcome();
+      showToast(text);
+    } else {
+      if (com.fromWelcome) {
+        com.fromWelcome = false;
+        showScreen("community");
+      }
+      comMsg(text, "ok");
+    }
   }
 
   function comShowPane(name) {
@@ -10694,6 +10773,7 @@ html, body {
     cx.loading.classList.remove("hidden");
     return comApi("auth.php?action=me")
       .then(function (data) {
+        com.signupOpen = data.signup_open !== false;
         comSetUser(data.user);
       })
       .catch(function (err) {
@@ -10718,7 +10798,7 @@ html, body {
     comApi("auth.php?action=google", { credential: resp.credential, accept_terms: true })
       .then(function (data) {
         comSetUser(data.user);
-        comMsg(data.user.needs_username ? "Conta criada! Escolha seu nome de usuário." : "Bem-vindo(a), " + (data.user.display_name || data.user.username) + "!", "ok");
+        comAfterLogin(data.user, data.user.needs_username ? "Conta criada! Escolha seu nome de usuário." : "Bem-vindo(a), " + (data.user.display_name || data.user.username) + "!");
       })
       .catch(function (err) {
         comMsg(err.message, "error");
@@ -10726,13 +10806,16 @@ html, body {
   }
 
   function comRenderGoogleButton(attempt) {
-    if (com.googleReady) return;
     attempt = attempt || 0;
+    var targets = [cx.googleBtn, document.getElementById("welcome-google-btn")].filter(function (t) {
+      return t && !t.getAttribute("data-rendered") && t.offsetParent !== null;
+    });
+    if (com.googleReady && !targets.length) return;
     var gis = window.google && google.accounts && google.accounts.id;
     if (!gis) {
       if (attempt < 20) {
         setTimeout(function () {
-          if (!cx.auth.classList.contains("hidden")) comRenderGoogleButton(attempt + 1);
+          comRenderGoogleButton(attempt + 1);
         }, 500);
       } else {
         cx.googleUnavailable.classList.remove("hidden");
@@ -10741,7 +10824,7 @@ html, body {
     }
     var redirect = isStandaloneDisplayMode();
     try {
-      gis.initialize({
+      if (!com.googleReady) gis.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: comOnGoogleCredential,
         ux_mode: redirect ? "redirect" : "popup",
@@ -10749,14 +10832,17 @@ html, body {
         auto_select: false,
         itp_support: true
       });
-      gis.renderButton(cx.googleBtn, {
-        type: "standard",
-        theme: "filled_black",
-        size: "large",
-        text: "continue_with",
-        shape: "pill",
-        locale: "pt-BR",
-        width: Math.min(320, Math.max(200, cx.googleBtn.clientWidth || 300))
+      targets.forEach(function (t) {
+        t.setAttribute("data-rendered", "1");
+        gis.renderButton(t, {
+          type: "standard",
+          theme: "filled_black",
+          size: "large",
+          text: "continue_with",
+          shape: "pill",
+          locale: "pt-BR",
+          width: Math.min(320, Math.max(200, t.clientWidth || 300))
+        });
       });
       com.googleReady = true;
       cx.googleUnavailable.classList.add("hidden");
@@ -10789,7 +10875,8 @@ html, body {
   // ---- eventos ----
   cx.btnDash.addEventListener("click", openCommunityScreen);
   cx.btnBack.addEventListener("click", function () {
-    showScreen("dashboard");
+    if (com.fromWelcome && !com.user) showScreen("welcome");
+    else leaveWelcome();
   });
   cx.btnRetry.addEventListener("click", comLoad);
   cx.tabs.forEach(function (t) {
@@ -10815,7 +10902,7 @@ html, body {
     return comApi("auth.php?action=login", { login: d.login, password: d.password }).then(function (data) {
       cx.loginForm.reset();
       comSetUser(data.user);
-      comMsg("Bem-vindo(a) de volta, " + (data.user.display_name || data.user.username) + "!", "ok");
+      comAfterLogin(data.user, "Bem-vindo(a) de volta, " + (data.user.display_name || data.user.username) + "!");
     });
   });
 
@@ -10828,7 +10915,7 @@ html, body {
     return comApi("auth.php?action=register", d).then(function (data) {
       cx.registerForm.reset();
       comSetUser(data.user);
-      comMsg("Conta criada! Mandamos um link de confirmação para " + data.user.email + ".", "ok");
+      comAfterLogin(data.user, "Conta criada! Mandamos um link de confirmação para " + data.user.email + ".");
     });
   });
 
@@ -10946,15 +11033,232 @@ html, body {
     handleCommunityHash();
     window.addEventListener("hashchange", handleCommunityHash);
     // mostra no painel se já está logado (sem travar a abertura do app)
+    renderAccountSync();
     if (navigator.onLine !== false && !com.loaded) {
       comApi("auth.php?action=me")
         .then(function (data) {
+          com.signupOpen = data.signup_open !== false;
           if (!com.loaded) comSetUser(data.user);
+          maybeShowWelcome();
         })
         .catch(function () {
-          /* sem servidor: o painel continua mostrando "Comunidade" */
+          /* sem servidor/sem internet: abre direto no painel, como sempre */
         });
     }
+  }
+
+  // ==== v5.1 Rotas sincronizadas pela conta + tela de boas-vindas ====
+  var ACC_OWNER_KEY = "fde_sync_owner_v1";
+  var WELCOME_SKIP_KEY = "fde_welcome_skip_v1";
+  var acc = { timer: null, busy: null, again: false, blocked: false, lastOk: 0, failed: false };
+  var ax = {
+    loginBtn: document.getElementById("btn-acc-login"),
+    on: document.getElementById("acc-sync-on"),
+    text: document.getElementById("acc-sync-text"),
+    now: document.getElementById("btn-acc-sync-now"),
+    hint: document.getElementById("acc-sync-hint"),
+    welcome: document.getElementById("screen-welcome"),
+    wGoogle: document.getElementById("welcome-google-btn"),
+    wLogin: document.getElementById("btn-welcome-login"),
+    wRegister: document.getElementById("btn-welcome-register"),
+    wSkip: document.getElementById("btn-welcome-skip")
+  };
+
+  function accountSyncReady() {
+    return !!(com && com.user && !acc.blocked);
+  }
+
+  function renderAccountSync() {
+    var u = com && com.user;
+    ax.loginBtn.classList.toggle("hidden", !!u);
+    ax.on.classList.toggle("hidden", !u);
+    ax.hint.classList.toggle("hidden", !!u);
+    if (!u) return;
+    var warn = acc.blocked || acc.failed;
+    ax.on.classList.toggle("acc-sync-warn", warn);
+    if (acc.blocked) {
+      ax.text.textContent = "⏸️ Sincronização pausada neste aparelho (rotas de outra conta)";
+      ax.now.textContent = "Juntar e sincronizar";
+    } else if (acc.failed && !acc.lastOk) {
+      ax.text.textContent = "⚠️ Sem conexão — as rotas sincronizam com @" + u.username + " quando a internet voltar";
+      ax.now.textContent = "Tentar agora";
+    } else {
+      var when = acc.lastOk ? new Date(acc.lastOk).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "";
+      ax.text.textContent = "✅ Rotas sincronizadas com @" + u.username + (when ? " (" + when + ")" : "");
+      ax.now.textContent = "Sincronizar agora";
+    }
+  }
+
+  function accountSync() {
+    if (!accountSyncReady()) return Promise.resolve();
+    if (acc.busy) {
+      acc.again = true;
+      return acc.busy;
+    }
+    var before = JSON.stringify(loadSavedRoutes());
+    acc.busy = comApi("routes.php?action=sync", { routes: JSON.parse(before) })
+      .then(function (data) {
+        var local = loadSavedRoutes();
+        var merged = mergeRouteSets(local, data.routes || []);
+        if (JSON.stringify(merged) !== JSON.stringify(local)) {
+          persistSavedRoutesLocalOnly(merged);
+          refreshSavedRoutesUI();
+          scheduleDrivePush(); // o backup no Drive também recebe o que veio da conta
+        }
+        acc.lastOk = Date.now();
+        acc.failed = false;
+        if (data.rejected) showToast(data.rejected + " rota(s) não puderam ser sincronizadas (grandes demais ou inválidas).");
+      })
+      .catch(function (err) {
+        acc.failed = true;
+        if (err && err.status === 401) comSetUser(null); // sessão vencida
+      })
+      .then(function () {
+        acc.busy = null;
+        renderAccountSync();
+        if (acc.again) {
+          acc.again = false;
+          accountSync();
+        }
+      });
+    return acc.busy;
+  }
+
+  function scheduleAccountSync() {
+    if (!accountSyncReady()) return;
+    clearTimeout(acc.timer);
+    acc.timer = setTimeout(function () {
+      acc.timer = null;
+      accountSync();
+    }, 1500);
+  }
+
+  // app indo para segundo plano/fechando com um envio pendente: manda já (keepalive aguenta ~64 KB)
+  function flushAccountSync() {
+    if (!acc.timer) return;
+    clearTimeout(acc.timer);
+    acc.timer = null;
+    if (!accountSyncReady()) return;
+    var body = JSON.stringify({ routes: loadSavedRoutes() });
+    if (body.length < 60000) {
+      try {
+        fetch("api/routes.php?action=sync", {
+          method: "POST",
+          credentials: "same-origin",
+          keepalive: true,
+          headers: { "X-FDE": "1", "Content-Type": "application/json" },
+          body: body
+        }).catch(function () {
+          /* tenta de novo na próxima abertura */
+        });
+        return;
+      } catch (e) {
+        /* cai no envio normal */
+      }
+    }
+    accountSync();
+  }
+
+  function onAccountLogin(user) {
+    var owner = null;
+    try {
+      owner = localStorage.getItem(ACC_OWNER_KEY);
+    } catch (e) {
+      /* ignore */
+    }
+    var hasLocal = loadSavedRoutes().some(function (r) {
+      return !r.deleted;
+    });
+    acc.blocked = false;
+    if (owner && owner !== String(user.id) && hasLocal) {
+      if (!window.confirm("As rotas salvas neste aparelho já foram sincronizadas com outra conta. Juntar essas rotas à conta @" + user.username + "?")) {
+        acc.blocked = true;
+        renderAccountSync();
+        return;
+      }
+    }
+    try {
+      localStorage.setItem(ACC_OWNER_KEY, String(user.id));
+    } catch (e) {
+      /* ignore */
+    }
+    accountSync();
+  }
+
+  ax.loginBtn.addEventListener("click", openCommunityScreen);
+  ax.now.addEventListener("click", function () {
+    if (acc.blocked) {
+      acc.blocked = false;
+      try {
+        localStorage.setItem(ACC_OWNER_KEY, String(com.user.id));
+      } catch (e) {
+        /* ignore */
+      }
+    }
+    ax.now.disabled = true;
+    accountSync().then(function () {
+      ax.now.disabled = false;
+      showToast(acc.failed ? "Sem conexão com o servidor agora." : "Rotas sincronizadas.");
+    });
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") {
+      if (accountSyncReady() && Date.now() - acc.lastOk > 20000) accountSync();
+    } else {
+      flushAccountSync();
+    }
+  });
+  window.addEventListener("pagehide", flushAccountSync);
+  window.addEventListener("online", function () {
+    if (accountSyncReady()) accountSync();
+  });
+
+  // ---- boas-vindas ----
+  function showWelcome() {
+    com.fromWelcome = true;
+    showScreen("welcome");
+    comRenderGoogleButton();
+  }
+
+  function leaveWelcome() {
+    com.fromWelcome = false;
+    showScreen("dashboard");
+  }
+
+  ax.wLogin.addEventListener("click", function () {
+    openCommunityScreen();
+    comShowPane("login");
+  });
+  ax.wRegister.addEventListener("click", function () {
+    openCommunityScreen();
+    comShowPane("register");
+  });
+  ax.wSkip.addEventListener("click", function () {
+    try {
+      sessionStorage.setItem(WELCOME_SKIP_KEY, "1");
+    } catch (e) {
+      /* ignore */
+    }
+    leaveWelcome();
+  });
+
+  // decide, depois do "quem sou eu", se mostra as boas-vindas ao abrir o app
+  function maybeShowWelcome() {
+    var forced = comInitialHash === "#boasvindas";
+    if (forced) history.replaceState(null, "", window.location.pathname + window.location.search);
+    if (com.user) return;
+    if (!forced) {
+      if (!com.signupOpen) return; // teste fechado: não empurra quem não pode criar conta
+      if (comInitialHash) return; // abriu por link (rota recebida, nova senha etc.)
+      try {
+        if (sessionStorage.getItem(WELCOME_SKIP_KEY)) return;
+      } catch (e) {
+        /* ignore */
+      }
+      if (!el.screenDashboard || el.screenDashboard.classList.contains("hidden")) return; // já foi para outra tela
+    }
+    showWelcome();
   }
 
   // ---- init ----

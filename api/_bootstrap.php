@@ -3,7 +3,7 @@
 // o .htaccess da pasta bloqueia arquivos que começam com "_".
 declare(strict_types=1);
 
-const FDE_SCHEMA_VERSION = 1;
+const FDE_SCHEMA_VERSION = 2;
 const FDE_SESSION_COOKIE = 'fde_sess';
 const FDE_SESSION_DAYS = 60;
 
@@ -95,6 +95,19 @@ function fde_migrate(PDO $pdo): void {
             CONSTRAINT fk_tok_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     }
+    if ($v < 2) {
+        // rotas salvas sincronizadas pela conta (cada rota é o mesmo JSON que o app guarda no aparelho)
+        $pdo->exec("CREATE TABLE IF NOT EXISTS routes (
+            user_id INT UNSIGNED NOT NULL,
+            route_id VARCHAR(64) NOT NULL,
+            rev BIGINT NOT NULL DEFAULT 0,
+            deleted TINYINT(1) NOT NULL DEFAULT 0,
+            data MEDIUMTEXT NOT NULL,
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (user_id, route_id),
+            CONSTRAINT fk_route_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
     $pdo->prepare("REPLACE INTO fde_meta (k, v) VALUES ('schema', ?)")->execute([(string)FDE_SCHEMA_VERSION]);
 }
 
@@ -138,6 +151,12 @@ function client_ip(): string {
 // ---- limite de tentativas ----
 function rate_hit(string $kind, string $key): void {
     db()->prepare('INSERT INTO attempts (kind, key_hash) VALUES (?, ?)')->execute([$kind, hash('sha256', $key)]);
+    if (random_int(1, 100) === 1) {
+        // faxina de vez em quando: tentativas velhas, sessões e links vencidos
+        db()->exec('DELETE FROM attempts WHERE at < (NOW() - INTERVAL 2 DAY)');
+        db()->exec('DELETE FROM sessions WHERE expires_at < NOW()');
+        db()->exec('DELETE FROM tokens WHERE expires_at < NOW()');
+    }
 }
 
 function rate_count(string $kind, string $key, int $minutes): int {
@@ -275,6 +294,9 @@ function signup_allowed(string $email): bool {
     if (empty($c['closed_beta'])) return true;
     $list = array_map('strtolower', array_merge($c['admin_emails'] ?? [], $c['beta_emails'] ?? []));
     return in_array(strtolower($email), $list, true);
+}
+function signup_open(): bool {
+    return empty(fde_config()['closed_beta']);
 }
 const FDE_CLOSED_MSG = 'A comunidade está em teste fechado. Em breve abre para todos!';
 
