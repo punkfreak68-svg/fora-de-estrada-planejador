@@ -8471,8 +8471,8 @@ html, body {
       var prob = daily.precipitation_probability_max ? daily.precipitation_probability_max[di] : null;
       var wind = daily.wind_speed_10m_max ? daily.wind_speed_10m_max[di] : null;
       var alerts = [];
-      if (rain >= 10 || (prob != null && prob >= 70 && rain >= 3)) alerts.push("⚠ Chuva forte: risco de atoleiro e rio cheio");
-      else if (rain >= 3 || (prob != null && prob >= 60)) alerts.push("Chuva provável: terra pode ficar lisa");
+      if (rain >= 15 || (prob != null && prob >= 70 && rain >= 8)) alerts.push("⚠ Chuva forte: risco de atoleiro e rio cheio");
+      else if (rain >= 2 || (prob != null && prob >= 60)) alerts.push("Chuva provável: terra pode ficar lisa");
       if (code >= 95) alerts.push("⚡ Risco de raios");
       if (wind != null && wind >= 50) alerts.push("💨 Vento forte");
 
