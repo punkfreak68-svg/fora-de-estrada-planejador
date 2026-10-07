@@ -1782,6 +1782,54 @@ html, body {
 .rb-nav-txt span { color: #333; }
 .rb-dg { color: #c00; font-weight: 800; }
 .rally-tonext { font-size: 0.8rem; color: #cdd8b4; text-align: center; }
+
+/* ==== v4.3 Tomada de Tempo (Specs #029–#031) ==== */
+#screen-timing { height: 100%; }
+.timing-subview { height: 100%; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+#timing-picker-view, #timing-history-view { overflow-y: auto; }
+.timing-intro { padding: 12px 14px 0; }
+.timing-header h1 { flex: 1 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 1rem; }
+.timing-voice { font-size: 1.2rem; }
+#timing-map { flex: 1 1 38%; min-height: 160px; width: 100%; }
+.timing-panel {
+  flex: 0 0 auto;
+  background: #14180f;
+  border-top: 2px solid #4a5a34;
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.timing-status { border-radius: 999px; padding: 8px 14px; text-align: center; font-weight: 700; font-size: 0.95rem; }
+.timing-status-wait { background: #2b3320; color: #cdd8b4; }
+.timing-status-armed { background: #2e6b30; color: #fff; animation: nav-pulse 1.2s infinite; }
+.timing-status-run { background: #1f3b52; color: #fff; }
+.timing-status-done { background: #3d4a2a; color: #fff; }
+.timing-status-record { background: #8a6a1a; color: #fff; }
+.timing-clock {
+  text-align: center;
+  font-size: clamp(3rem, 17vw, 5.5rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+.timing-delta { text-align: center; font-size: 1.6rem; font-weight: 800; min-height: 1.9rem; font-variant-numeric: tabular-nums; }
+.timing-delta-good { color: #4cd964; }
+.timing-delta-bad { color: #ff5a4f; }
+.timing-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.timing-cell { background: #1b1f16; border: 1px solid #3a4228; border-radius: 8px; text-align: center; padding: 6px 2px; }
+.timing-cell span { display: block; font-size: 0.68rem; color: #9db07d; text-transform: uppercase; letter-spacing: 0.04em; }
+.timing-cell b { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.timing-splits { min-height: 1.2em; text-align: center; font-size: 0.85rem; color: #cdd8b4; font-variant-numeric: tabular-nums; }
+.timing-buttons { display: flex; gap: 10px; }
+.timing-buttons .nav-action-btn { padding: 14px 10px; }
+.timing-reset-btn { background: #2a4a5a; }
+.timing-gate-tip { background: rgba(0,0,0,0.75); color: #fff; border: none; font-weight: 700; font-size: 11px; box-shadow: none; }
+.timing-gate-tip::before { display: none; }
+.timing-best-card { border-color: #8a6a1a; }
+.timing-history-splits { font-size: 0.78rem; color: #cdd8b4; margin-top: 4px; font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -1804,6 +1852,10 @@ html, body {
     <button id="btn-dash-saved" class="dashboard-tile">
       <span class="dashboard-tile-icon">📁</span>
       <span class="dashboard-tile-label">Rotas Salvas</span>
+    </button>
+    <button id="btn-dash-timing" class="dashboard-tile">
+      <span class="dashboard-tile-icon">⏱️</span>
+      <span class="dashboard-tile-label">Tomada de Tempo</span>
     </button>
   </div>
 
@@ -2090,6 +2142,78 @@ html, body {
   <p id="saved-routes-screen-empty" class="hint" style="padding: 16px;">Nenhuma rota salva ainda.</p>
 </div>
 
+<div id="screen-timing" class="hidden">
+  <div id="timing-picker-view" class="timing-subview">
+    <header class="nav-header">
+      <button id="btn-timing-back" class="icon-btn" aria-label="Voltar ao início">←</button>
+      <h1>⏱️ Tomada de Tempo</h1>
+    </header>
+    <div class="timing-intro hint">Escolha um trecho salvo. A largada é o 1º ponto e a chegada o último; se forem o mesmo lugar, vira circuito de voltas. O cronômetro dispara sozinho quando você cruza a linha.</div>
+    <div id="timing-route-list" class="nav-picker-list"></div>
+    <p id="timing-route-empty" class="hint" style="padding: 16px;">Nenhuma rota salva. Desenhe o trecho no Planejamento e salve.</p>
+  </div>
+
+  <div id="timing-history-view" class="timing-subview hidden">
+    <header class="nav-header">
+      <button id="btn-timing-history-back" class="icon-btn" aria-label="Voltar">←</button>
+      <h1 id="timing-history-title">Histórico</h1>
+    </header>
+    <div id="timing-history-list" class="nav-picker-list"></div>
+  </div>
+
+  <div id="timing-active-view" class="timing-subview hidden">
+    <header class="nav-header timing-header">
+      <button id="btn-timing-exit" class="icon-btn" aria-label="Sair da tomada de tempo">←</button>
+      <h1 id="timing-route-name">—</h1>
+      <button id="btn-timing-voice" class="icon-btn timing-voice" title="Voz">🔊</button>
+    </header>
+    <div id="timing-map"></div>
+    <div class="timing-panel">
+      <div id="timing-status" class="timing-status timing-status-wait">Aguardando GPS...</div>
+      <div id="timing-clock" class="timing-clock">0:00,0</div>
+      <div id="timing-delta" class="timing-delta"></div>
+      <div class="timing-row">
+        <div class="timing-cell"><span>Volta</span><b id="timing-lap">—</b></div>
+        <div class="timing-cell"><span>Setor</span><b id="timing-sector">—</b></div>
+        <div class="timing-cell"><span>km/h</span><b id="timing-speed">--</b></div>
+        <div class="timing-cell"><span>Melhor</span><b id="timing-best">—</b></div>
+      </div>
+      <div id="timing-splits" class="timing-splits"></div>
+      <div class="timing-buttons">
+        <button id="btn-timing-reset" class="nav-action-btn timing-reset-btn">↺ Nova tentativa</button>
+        <button id="btn-timing-stop" class="nav-action-btn nav-end-btn">■ Encerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="timing-config-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2 id="timing-config-title">Configurar tomada</h2>
+    <label class="field-label" for="timing-cfg-width">Largura das linhas (m)</label>
+    <input id="timing-cfg-width" type="number" min="8" max="100" step="1" class="folder-input" />
+    <p class="hint">Linha mais larga = GPS não "perde" a passagem; mais estreita = não conta quem passa do lado.</p>
+    <label class="field-label" for="timing-cfg-sectors">Parciais (setores) no meio do trecho</label>
+    <select id="timing-cfg-sectors" class="folder-input">
+      <option value="0">Sem parciais</option>
+      <option value="1">1 parcial (2 setores)</option>
+      <option value="2">2 parciais (3 setores)</option>
+      <option value="3">3 parciais (4 setores)</option>
+    </select>
+    <div id="timing-cfg-laps-row">
+      <label class="field-label" for="timing-cfg-laps">Voltas (circuito)</label>
+      <select id="timing-cfg-laps" class="folder-input">
+        <option value="0">Livre (até encerrar)</option>
+        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="5">5</option><option value="10">10</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button id="btn-timing-cfg-cancel" class="modal-btn-secondary">Cancelar</button>
+      <button id="btn-timing-cfg-start" class="modal-btn-primary">⏱️ Começar</button>
+    </div>
+  </div>
+</div>
+
 <div id="nav-confirm-modal" class="modal-overlay">
   <div class="modal-box modal-box-small">
     <h2 id="nav-confirm-title">Navegar?</h2>
@@ -2254,8 +2378,18 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "4.2";
+  var APP_VERSION = "4.3";
   var CHANGELOG = [
+    {
+      version: "4.3",
+      date: "07/10/2026",
+      changes: [
+        "Nova tela ⏱️ Tomada de Tempo (separada da navegação), com botão na tela inicial",
+        "Spec #029: escolha qualquer rota salva — largada no 1º ponto e chegada no último; se forem o mesmo lugar (até 40 m), vira circuito de voltas (livre ou 1/2/3/5/10 voltas). Configure a largura das linhas e até 3 parciais no meio",
+        "Spec #030: cronômetro dispara sozinho ao cruzar a largada no sentido certo e para na chegada; o instante exato é calculado entre duas leituras do GPS (bem mais preciso que 1 s). Mostra se está longe, \"armado\" ou valendo, tempo grande, parciais, voltas, velocidade e o delta ao vivo contra o recorde (verde = mais rápido)",
+        "Spec #031: voz fala \"Valendo!\", cada parcial e volta com a diferença pro recorde e o tempo final; histórico por trecho com o melhor marcado ⭐, setores, velocidades, envio pelo WhatsApp e exclusão; a tela fica acesa durante a tomada"
+      ]
+    },
     {
       version: "4.2",
       date: "07/10/2026",
@@ -4961,7 +5095,8 @@ html, body {
       dashboard: el.screenDashboard,
       planning: el.screenPlanning,
       navigation: el.screenNavigation,
-      "saved-routes": el.screenSavedRoutes
+      "saved-routes": el.screenSavedRoutes,
+      timing: document.getElementById("screen-timing")
     };
     Object.keys(screens).forEach(function (key) {
       screens[key].classList.toggle("hidden", key !== name);
@@ -9269,6 +9404,902 @@ html, body {
     rallyOdo = 0;
     rallySaveOdo();
     if (rally) renderRallyPanel();
+  });
+
+
+  // ================= v4.3 TOMADA DE TEMPO (Specs #029–#031) =================
+  //
+  // Tela própria. Largada = 1º ponto da rota, chegada = último. Se os dois
+  // estiverem a menos de 40 m, é circuito (voltas). As linhas são
+  // perpendiculares ao traçado; o instante de cruzamento é interpolado entre
+  // duas leituras do GPS (precisão bem melhor que 1 s).
+
+  var TIMING_RUNS_KEY = "jipeRotas_timingRuns_v1";
+  var TIMING_CFG_KEY = "jipeRotas_timingCfg_v1";
+
+  var tx = {
+    screen: document.getElementById("screen-timing"),
+    pickerView: document.getElementById("timing-picker-view"),
+    historyView: document.getElementById("timing-history-view"),
+    activeView: document.getElementById("timing-active-view"),
+    btnDash: document.getElementById("btn-dash-timing"),
+    btnBack: document.getElementById("btn-timing-back"),
+    routeList: document.getElementById("timing-route-list"),
+    routeEmpty: document.getElementById("timing-route-empty"),
+    historyTitle: document.getElementById("timing-history-title"),
+    historyList: document.getElementById("timing-history-list"),
+    btnHistoryBack: document.getElementById("btn-timing-history-back"),
+    btnExit: document.getElementById("btn-timing-exit"),
+    btnVoice: document.getElementById("btn-timing-voice"),
+    routeName: document.getElementById("timing-route-name"),
+    status: document.getElementById("timing-status"),
+    clock: document.getElementById("timing-clock"),
+    delta: document.getElementById("timing-delta"),
+    lap: document.getElementById("timing-lap"),
+    sector: document.getElementById("timing-sector"),
+    speed: document.getElementById("timing-speed"),
+    best: document.getElementById("timing-best"),
+    splits: document.getElementById("timing-splits"),
+    btnReset: document.getElementById("btn-timing-reset"),
+    btnStop: document.getElementById("btn-timing-stop"),
+    cfgModal: document.getElementById("timing-config-modal"),
+    cfgTitle: document.getElementById("timing-config-title"),
+    cfgWidth: document.getElementById("timing-cfg-width"),
+    cfgSectors: document.getElementById("timing-cfg-sectors"),
+    cfgLaps: document.getElementById("timing-cfg-laps"),
+    cfgLapsRow: document.getElementById("timing-cfg-laps-row"),
+    btnCfgCancel: document.getElementById("btn-timing-cfg-cancel"),
+    btnCfgStart: document.getElementById("btn-timing-cfg-start")
+  };
+
+  // ---- armazenamento ----
+  function loadJson(key, fallback) {
+    try {
+      var v = JSON.parse(lsGet(key, ""));
+      return v && typeof v === "object" ? v : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function timingRunsFor(routeId) {
+    var all = loadJson(TIMING_RUNS_KEY, {});
+    return Array.isArray(all[routeId]) ? all[routeId] : [];
+  }
+
+  function saveTimingRun(routeId, run) {
+    var all = loadJson(TIMING_RUNS_KEY, {});
+    all[routeId] = Array.isArray(all[routeId]) ? all[routeId] : [];
+    all[routeId].push(run);
+    if (all[routeId].length > 200) all[routeId] = all[routeId].slice(-200);
+    lsSet(TIMING_RUNS_KEY, JSON.stringify(all));
+  }
+
+  function deleteTimingRun(routeId, runId) {
+    var all = loadJson(TIMING_RUNS_KEY, {});
+    all[routeId] = (all[routeId] || []).filter(function (r) {
+      return r.id !== runId;
+    });
+    lsSet(TIMING_RUNS_KEY, JSON.stringify(all));
+  }
+
+  function timingCfgFor(routeId) {
+    var all = loadJson(TIMING_CFG_KEY, {});
+    var c = all[routeId] || {};
+    return {
+      width: c.width >= 8 && c.width <= 100 ? c.width : 25,
+      sectors: c.sectors >= 0 && c.sectors <= 3 ? c.sectors : 0,
+      laps: c.laps >= 0 ? c.laps : 0
+    };
+  }
+
+  function saveTimingCfg(routeId, cfg) {
+    var all = loadJson(TIMING_CFG_KEY, {});
+    all[routeId] = cfg;
+    lsSet(TIMING_CFG_KEY, JSON.stringify(all));
+  }
+
+  // melhor resultado: no A→B o tempo total; no circuito a melhor volta
+  function bestOf(runs) {
+    var best = null;
+    runs.forEach(function (r) {
+      var t = r.kind === "laps" ? r.bestLap : r.total;
+      if (t != null && (best == null || t < best.time)) best = { time: t, run: r };
+    });
+    return best;
+  }
+
+  // ---- formatação ----
+  function fmtTime(ms) {
+    if (ms == null || isNaN(ms)) return "—";
+    var neg = ms < 0;
+    ms = Math.abs(ms);
+    var tenths = Math.floor(ms / 100) % 10;
+    var s = Math.floor(ms / 1000);
+    var h = Math.floor(s / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    var sec = s % 60;
+    var out = (h ? h + ":" + (m < 10 ? "0" : "") : "") + m + ":" + (sec < 10 ? "0" : "") + sec + "," + tenths;
+    return (neg ? "-" : "") + out;
+  }
+
+  function fmtDelta(ms) {
+    var s = Math.abs(ms) / 1000;
+    return (ms < 0 ? "−" : "+") + (s < 60 ? s.toFixed(1).replace(".", ",") : fmtTime(Math.abs(ms)));
+  }
+
+  function spokenTime(ms) {
+    var s = ms / 1000;
+    var m = Math.floor(s / 60);
+    var rest = s - m * 60;
+    var secTxt = rest.toFixed(1).replace(".", " vírgula ").replace(" vírgula 0", "");
+    return (m ? m + (m === 1 ? " minuto e " : " minutos e ") : "") + secTxt + " segundos";
+  }
+
+  function spokenDelta(ms) {
+    var s = Math.abs(ms) / 1000;
+    var txt = s < 10 ? s.toFixed(1).replace(".", " vírgula ").replace(" vírgula 0", "") : String(Math.round(s));
+    return txt + (ms < 0 ? " mais rápido" : " mais lento");
+  }
+
+  // ---- geometria das linhas ----
+  // Coordenadas locais em metros, origem na largada
+  function makeLocalFrame(origin) {
+    var mLat = 111320,
+      mLng = 111320 * Math.cos((origin.lat * Math.PI) / 180);
+    return {
+      to: function (p) {
+        return { x: (p.lng - origin.lng) * mLng, y: (p.lat - origin.lat) * mLat };
+      },
+      from: function (q) {
+        return { lat: origin.lat + q.y / mLat, lng: origin.lng + q.x / mLng };
+      }
+    };
+  }
+
+  // Linha perpendicular ao traçado no ponto (distância d da rota)
+  function makeGate(points, cum, d, halfWidth, frame, label) {
+    var total = cum[cum.length - 1];
+    var span = Math.min(25, total / 4);
+    var a = pointAtDistance(points, cum, Math.max(0, d - span));
+    var b = pointAtDistance(points, cum, Math.min(total, d + span));
+    if (d <= 0) a = pointAtDistance(points, cum, 0);
+    if (d >= total) b = pointAtDistance(points, cum, total);
+    var c = pointAtDistance(points, cum, d);
+    var A = frame.to(a),
+      B = frame.to(b),
+      C = frame.to(c);
+    var dx = B.x - A.x,
+      dy = B.y - A.y;
+    var len = Math.sqrt(dx * dx + dy * dy) || 1;
+    var dir = { x: dx / len, y: dy / len }; // sentido de corrida
+    var nx = -dir.y,
+      ny = dir.x; // perpendicular
+    return {
+      label: label,
+      d: d,
+      halfWidth: halfWidth,
+      center: C,
+      dir: dir,
+      p1: { x: C.x + nx * halfWidth, y: C.y + ny * halfWidth },
+      p2: { x: C.x - nx * halfWidth, y: C.y - ny * halfWidth },
+      latlngs: [frame.from({ x: C.x + nx * halfWidth, y: C.y + ny * halfWidth }), frame.from({ x: C.x - nx * halfWidth, y: C.y - ny * halfWidth })]
+    };
+  }
+
+  // Segmento P0→P1 cruza a linha no sentido certo? Devolve a fração t (0..1) ou null.
+  // Usa a distância "com sinal" até a linha (antes < 0, depois >= 0) e confere
+  // se o ponto de cruzamento cai dentro da largura (com 5 m de folga, porque o
+  // GPS só lê ~1 vez por segundo e pode "cortar" a ponta da linha numa curva).
+  function gateCrossing(gate, P0, P1) {
+    var s0 = (P0.x - gate.center.x) * gate.dir.x + (P0.y - gate.center.y) * gate.dir.y;
+    var s1 = (P1.x - gate.center.x) * gate.dir.x + (P1.y - gate.center.y) * gate.dir.y;
+    if (!(s0 <= 0 && s1 > 0)) return null;
+    var t = s0 === s1 ? 0 : -s0 / (s1 - s0);
+    var cx = P0.x + (P1.x - P0.x) * t - gate.center.x,
+      cy = P0.y + (P1.y - P0.y) * t - gate.center.y;
+    var lateral = Math.abs(cx * -gate.dir.y + cy * gate.dir.x);
+    if (lateral > gate.halfWidth + 5) return null;
+    return t;
+  }
+
+  // ---- telas ----
+  function showTimingSubview(name) {
+    tx.pickerView.classList.toggle("hidden", name !== "picker");
+    tx.historyView.classList.toggle("hidden", name !== "history");
+    tx.activeView.classList.toggle("hidden", name !== "active");
+  }
+
+  function openTimingScreen() {
+    showScreen("timing");
+    showTimingSubview("picker");
+    renderTimingPicker();
+  }
+
+  tx.btnDash.addEventListener("click", openTimingScreen);
+  tx.btnBack.addEventListener("click", function () {
+    showScreen("dashboard");
+  });
+  tx.btnHistoryBack.addEventListener("click", function () {
+    showTimingSubview("picker");
+    renderTimingPicker();
+  });
+
+  function isCircuit(points) {
+    if (!points || points.length < 3) return false;
+    var a = points[0],
+      b = points[points.length - 1];
+    return haversineMeters(a.lat, a.lng, b.lat, b.lng) < 40 && polylineLengthMeters(points) > 200;
+  }
+
+  function renderTimingPicker() {
+    var routes = loadSavedRoutes().filter(function (r) {
+      return !r.deleted && r.points && r.points.length >= 2;
+    });
+    tx.routeList.innerHTML = "";
+    tx.routeEmpty.style.display = routes.length ? "none" : "block";
+    var grouped = groupRoutesByFolder(
+      routes.slice().sort(function (a, b) {
+        return b.savedAt - a.savedAt;
+      })
+    );
+    grouped.order.forEach(function (folder) {
+      var heading = document.createElement("div");
+      heading.className = "nav-folder-heading";
+      heading.textContent = folder;
+      tx.routeList.appendChild(heading);
+      grouped.groups[folder].forEach(function (route) {
+        var runs = timingRunsFor(route.id);
+        var best = bestOf(runs);
+        var circuit = isCircuit(route.points);
+        var card = document.createElement("div");
+        card.className = "saved-screen-card";
+        var name = document.createElement("div");
+        name.className = "nav-route-card-name";
+        name.textContent = (circuit ? "🔁 " : "➡️ ") + (route.name || "(sem nome)");
+        card.appendChild(name);
+        var meta = document.createElement("div");
+        meta.className = "nav-route-card-meta";
+        meta.textContent =
+          (circuit ? "Circuito" : "Trecho A→B") + " · " + formatDistance(polylineLengthMeters(route.points)) +
+          " · " + runs.length + (runs.length === 1 ? " tomada" : " tomadas") +
+          (best ? " · melhor " + (circuit ? "volta " : "") + fmtTime(best.time) : "");
+        card.appendChild(meta);
+        var buttons = document.createElement("div");
+        buttons.className = "saved-screen-card-buttons";
+        var go = document.createElement("button");
+        go.className = "nav-btn";
+        go.textContent = "⏱️ Tomar tempo";
+        go.addEventListener("click", function () {
+          openTimingConfig(route);
+        });
+        buttons.appendChild(go);
+        var hist = document.createElement("button");
+        hist.className = "load-btn";
+        hist.textContent = "Histórico";
+        hist.disabled = !runs.length;
+        hist.addEventListener("click", function () {
+          renderTimingHistory(route);
+        });
+        buttons.appendChild(hist);
+        card.appendChild(buttons);
+        tx.routeList.appendChild(card);
+      });
+    });
+  }
+
+  function renderTimingHistory(route) {
+    showTimingSubview("history");
+    tx.historyTitle.textContent = "Histórico — " + (route.name || "rota");
+    tx.historyList.innerHTML = "";
+    var runs = timingRunsFor(route.id)
+      .slice()
+      .sort(function (a, b) {
+        return b.at - a.at;
+      });
+    var best = bestOf(runs);
+    if (!runs.length) {
+      tx.historyList.innerHTML = '<p class="hint">Nenhuma tomada ainda.</p>';
+      return;
+    }
+    runs.forEach(function (run) {
+      var isBest = best && best.run.id === run.id;
+      var card = document.createElement("div");
+      card.className = "saved-screen-card" + (isBest ? " timing-best-card" : "");
+      var title = document.createElement("div");
+      title.className = "nav-route-card-name";
+      title.textContent =
+        (isBest ? "⭐ " : "") +
+        (run.kind === "laps" ? "Melhor volta " + fmtTime(run.bestLap) + " · total " + fmtTime(run.total) : fmtTime(run.total));
+      card.appendChild(title);
+      var meta = document.createElement("div");
+      meta.className = "nav-route-card-meta";
+      meta.textContent =
+        new Date(run.at).toLocaleString("pt-BR") +
+        (run.kind === "laps" ? " · " + run.laps.length + (run.laps.length === 1 ? " volta" : " voltas") : "") +
+        (run.maxSpeed ? " · máx " + Math.round(run.maxSpeed) + " km/h" : "") +
+        (run.avgSpeed ? " · média " + Math.round(run.avgSpeed) + " km/h" : "") +
+        (run.complete === false ? " · incompleta" : "");
+      card.appendChild(meta);
+      var det = document.createElement("div");
+      det.className = "timing-history-splits";
+      det.textContent = timingRunDetailText(run);
+      card.appendChild(det);
+      var buttons = document.createElement("div");
+      buttons.className = "saved-screen-card-buttons";
+      var share = document.createElement("button");
+      share.className = "load-btn";
+      share.textContent = "Enviar no WhatsApp";
+      share.addEventListener("click", function () {
+        window.open("https://wa.me/?text=" + encodeURIComponent(timingShareText(route, run)), "_blank");
+      });
+      buttons.appendChild(share);
+      var del = document.createElement("button");
+      del.className = "delete-btn";
+      del.textContent = "Excluir";
+      del.addEventListener("click", function () {
+        if (!window.confirm("Excluir esta tomada de tempo?")) return;
+        deleteTimingRun(route.id, run.id);
+        renderTimingHistory(route);
+      });
+      buttons.appendChild(del);
+      card.appendChild(buttons);
+      tx.historyList.appendChild(card);
+    });
+  }
+
+  function timingRunDetailText(run) {
+    if (run.kind === "laps") {
+      return run.laps
+        .map(function (l, i) {
+          return "V" + (i + 1) + " " + fmtTime(l.time) + (l.splits && l.splits.length ? " (" + l.splits.map(fmtTime).join(" / ") + ")" : "");
+        })
+        .join(" · ");
+    }
+    return run.splits && run.splits.length ? "Setores: " + run.splits.map(fmtTime).join(" / ") : "";
+  }
+
+  function timingShareText(route, run) {
+    var lines = ["⏱️ " + (route.name || "Tomada de tempo") + " — Fora de Estrada"];
+    if (run.kind === "laps") {
+      lines.push("Melhor volta: " + fmtTime(run.bestLap) + " · Total: " + fmtTime(run.total) + " (" + run.laps.length + " voltas)");
+    } else {
+      lines.push("Tempo: " + fmtTime(run.total));
+    }
+    var det = timingRunDetailText(run);
+    if (det) lines.push(det);
+    if (run.maxSpeed) lines.push("Vel. máx: " + Math.round(run.maxSpeed) + " km/h · média: " + Math.round(run.avgSpeed || 0) + " km/h");
+    lines.push(new Date(run.at).toLocaleString("pt-BR"));
+    return lines.join("\n");
+  }
+
+  // ---- configuração antes de começar ----
+  var timingPendingRoute = null;
+
+  function openTimingConfig(route) {
+    timingPendingRoute = route;
+    var cfg = timingCfgFor(route.id);
+    var circuit = isCircuit(route.points);
+    tx.cfgTitle.textContent = (circuit ? "🔁 Circuito: " : "➡️ Trecho: ") + (route.name || "rota");
+    tx.cfgWidth.value = String(cfg.width);
+    tx.cfgSectors.value = String(cfg.sectors);
+    tx.cfgLaps.value = String(cfg.laps);
+    tx.cfgLapsRow.classList.toggle("hidden", !circuit);
+    openModal(tx.cfgModal);
+  }
+
+  tx.btnCfgCancel.addEventListener("click", function () {
+    closeModal(tx.cfgModal);
+  });
+  tx.btnCfgStart.addEventListener("click", function () {
+    var route = timingPendingRoute;
+    if (!route) return;
+    var cfg = {
+      width: Math.max(8, Math.min(100, parseInt(tx.cfgWidth.value, 10) || 25)),
+      sectors: parseInt(tx.cfgSectors.value, 10) || 0,
+      laps: parseInt(tx.cfgLaps.value, 10) || 0
+    };
+    saveTimingCfg(route.id, cfg);
+    closeModal(tx.cfgModal);
+    primeSpeech();
+    startTiming(route, cfg);
+  });
+
+  // ---- sessão ao vivo ----
+  var timingMap = null;
+  var timingRouteLine = null;
+  var timingTrackLine = null;
+  var timingGateLines = [];
+  var timingYouMarker = null;
+  var timingWatchId = null;
+  var timingTicker = null;
+  var timingWakeLock = null;
+  var T = null; // estado da tomada atual
+
+  function initTimingMapIfNeeded() {
+    if (timingMap) return;
+    timingMap = L.map("timing-map", { zoomControl: false, maxZoom: 19, rotateControl: false });
+    timingMap.setView([-14.235, -51.9253], 5);
+    setupBaseMap(timingMap, false);
+    timingRouteLine = L.polyline([], { color: "#e08a2c", weight: 4 }).addTo(timingMap);
+    timingTrackLine = L.polyline([], { color: "#3ba6ff", weight: 3, dashArray: "2,7" }).addTo(timingMap);
+  }
+
+  function requestWakeLock() {
+    try {
+      if (navigator.wakeLock && navigator.wakeLock.request) {
+        navigator.wakeLock
+          .request("screen")
+          .then(function (lock) {
+            timingWakeLock = lock;
+          })
+          .catch(function () {});
+      }
+    } catch (e) {
+      /* sem suporte: a tela pode apagar */
+    }
+  }
+
+  function releaseWakeLock() {
+    try {
+      if (timingWakeLock) timingWakeLock.release();
+    } catch (e) {
+      /* ignore */
+    }
+    timingWakeLock = null;
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && T && !T.finished) requestWakeLock();
+  });
+
+  function newTimingState(route, cfg) {
+    var pts = route.points.map(function (p) {
+      return { lat: p.lat, lng: p.lng };
+    });
+    var circuit = isCircuit(pts);
+    if (circuit) pts[pts.length - 1] = { lat: pts[0].lat, lng: pts[0].lng }; // fecha o circuito
+    var cum = cumulativeDistances(pts);
+    var total = cum[cum.length - 1];
+    var frame = makeLocalFrame(pts[0]);
+    var half = cfg.width / 2;
+    var start = makeGate(pts, cum, 0, half, frame, "Largada");
+    var finish = circuit ? start : makeGate(pts, cum, total, half, frame, "Chegada");
+    var sectors = [];
+    for (var i = 1; i <= cfg.sectors; i++) sectors.push(makeGate(pts, cum, (total * i) / (cfg.sectors + 1), half, frame, "P" + i));
+    var runs = timingRunsFor(route.id);
+    var best = bestOf(runs);
+    return {
+      route: route,
+      cfg: cfg,
+      circuit: circuit,
+      points: pts,
+      cum: cum,
+      total: total,
+      frame: frame,
+      start: start,
+      finish: finish,
+      sectors: sectors,
+      best: best, // {time, run}
+      bestProfile: best && best.run.profile ? best.run.profile : null,
+      bestSplits: best ? (best.run.kind === "laps" ? best.run.bestLapSplits : best.run.splits) : null,
+      prev: null, // última posição {P, ts}
+      armed: false,
+      running: false,
+      finished: false,
+      startTs: null,
+      lapStartTs: null,
+      lapIndex: 0,
+      nextSector: 0,
+      lapSplits: [],
+      laps: [],
+      along: null,
+      lapDistance: 0,
+      profile: [], // [[d, t]] da volta/trecho atual (para delta das próximas)
+      bestLapProfile: null,
+      maxSpeed: 0,
+      distance: 0,
+      track: []
+    };
+  }
+
+  function startTiming(route, cfg) {
+    initTimingMapIfNeeded();
+    stopTimingGps();
+    T = newTimingState(route, cfg);
+    showScreen("timing");
+    showTimingSubview("active");
+    tx.routeName.textContent = (T.circuit ? "🔁 " : "➡️ ") + (route.name || "rota");
+    tx.btnVoice.textContent = voiceEnabled ? "🔊" : "🔇";
+    timingRouteLine.setLatLngs(
+      T.points.map(function (p) {
+        return [p.lat, p.lng];
+      })
+    );
+    timingTrackLine.setLatLngs([]);
+    timingGateLines.forEach(function (g) {
+      timingMap.removeLayer(g);
+    });
+    timingGateLines = [];
+    [T.start].concat(T.sectors, T.circuit ? [] : [T.finish]).forEach(function (g) {
+      var color = g === T.start ? "#2ecc71" : g === T.finish ? "#ff4040" : "#f0b429";
+      var line = L.polyline(
+        g.latlngs.map(function (p) {
+          return [p.lat, p.lng];
+        }),
+        { color: color, weight: 6, opacity: 0.95 }
+      )
+        .bindTooltip(g === T.start && T.circuit ? "Largada/Chegada" : g.label, { permanent: true, direction: "top", className: "timing-gate-tip" })
+        .addTo(timingMap);
+      timingGateLines.push(line);
+    });
+    if (timingYouMarker) {
+      timingMap.removeLayer(timingYouMarker);
+      timingYouMarker = null;
+    }
+    renderTimingPanel();
+    setTimeout(function () {
+      timingMap.invalidateSize();
+      timingMap.fitBounds(timingRouteLine.getBounds().pad(0.15));
+    }, 60);
+    requestWakeLock();
+    startTimingGps();
+    clearInterval(timingTicker);
+    timingTicker = setInterval(renderTimingClock, 100);
+  }
+
+  function startTimingGps() {
+    if (!navigator.geolocation) {
+      tx.status.textContent = "GPS não disponível neste aparelho.";
+      return;
+    }
+    timingWatchId = navigator.geolocation.watchPosition(onTimingPosition, function (err) {
+      tx.status.textContent = "GPS: " + (err && err.message ? err.message : "sem sinal");
+    }, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 });
+  }
+
+  function stopTimingGps() {
+    if (timingWatchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(timingWatchId);
+    timingWatchId = null;
+  }
+
+  function timeAtDistance(profile, d) {
+    if (!profile || profile.length < 2) return null;
+    if (d <= profile[0][0]) return profile[0][1];
+    for (var i = 1; i < profile.length; i++) {
+      if (profile[i][0] >= d) {
+        var a = profile[i - 1],
+          b = profile[i];
+        var f = (d - a[0]) / (b[0] - a[0] || 1);
+        return a[1] + (b[1] - a[1]) * f;
+      }
+    }
+    return null;
+  }
+
+  function onTimingPosition(pos) {
+    if (!T || T.finished) return;
+    var c = pos.coords;
+    var ts = pos.timestamp || Date.now();
+    var ll = { lat: c.latitude, lng: c.longitude };
+    var P = T.frame.to(ll);
+    var spd = c.speed != null && !isNaN(c.speed) ? c.speed * 3.6 : null;
+    if (spd == null && T.prev) {
+      var dtp = (ts - T.prev.ts) / 1000;
+      if (dtp > 0) spd = (Math.sqrt(Math.pow(P.x - T.prev.P.x, 2) + Math.pow(P.y - T.prev.P.y, 2)) / dtp) * 3.6;
+    }
+    T.speedKmh = spd;
+
+    if (!timingYouMarker) {
+      timingYouMarker = L.marker([ll.lat, ll.lng], { icon: youAreHereIcon(false) }).addTo(timingMap);
+    } else {
+      timingYouMarker.setLatLng([ll.lat, ll.lng]);
+    }
+
+    var prev = T.prev;
+    T.prev = { P: P, ts: ts };
+    T.lastFixTs = ts;
+    T.lastFixWall = Date.now();
+    if (!prev) {
+      renderTimingPanel();
+      return;
+    }
+    // ignora saltos absurdos (GPS "pulou")
+    var seg = Math.sqrt(Math.pow(P.x - prev.P.x, 2) + Math.pow(P.y - prev.P.y, 2));
+    if (seg > 400 || ts <= prev.ts) {
+      renderTimingPanel();
+      return;
+    }
+
+    var distToStart = Math.sqrt(P.x * P.x + P.y * P.y);
+    if (!T.running) {
+      // armado quando está perto da largada, antes da linha
+      T.armed = distToStart < 400;
+      var t0 = gateCrossing(T.start, prev.P, P);
+      if (t0 != null) {
+        var crossTs = prev.ts + t0 * (ts - prev.ts);
+        T.running = true;
+        T.startTs = crossTs;
+        T.lapStartTs = crossTs;
+        T.lapIndex = 0;
+        T.nextSector = 0;
+        T.lapSplits = [];
+        T.profile = [[0, 0]];
+        T.along = 0;
+        T.lapDistance = seg * (1 - t0);
+        T.track = [[ll.lat, ll.lng]];
+        buzz([150, 80, 150]);
+        speak("Valendo!");
+      }
+      renderTimingPanel();
+      return;
+    }
+
+    // ---- correndo ----
+    T.distance += seg;
+    T.lapDistance += seg;
+    if (spd != null && spd < 300 && (c.accuracy == null || c.accuracy <= 30) && spd > T.maxSpeed) T.maxSpeed = spd;
+    T.track.push([ll.lat, ll.lng]);
+    timingTrackLine.setLatLngs(T.track);
+
+    var pr = projectOnRoute(ll, T.points, T.cum, T.along);
+    if (pr && pr.distance < Math.max(60, T.cfg.width * 2)) {
+      if (pr.along >= (T.along || 0) - 30) T.along = pr.along;
+      var lapElapsed = ts - T.lapStartTs;
+      var lastProf = T.profile[T.profile.length - 1];
+      if (T.along - lastProf[0] >= 25) T.profile.push([Math.round(T.along), Math.round(lapElapsed)]);
+    }
+
+    // parciais (na ordem)
+    if (T.nextSector < T.sectors.length) {
+      var gs = T.sectors[T.nextSector];
+      var ts_ = gateCrossing(gs, prev.P, P);
+      if (ts_ != null) {
+        var at = prev.ts + ts_ * (ts - prev.ts);
+        var split = at - T.lapStartTs;
+        T.lapSplits.push(split);
+        T.nextSector++;
+        var ref = T.bestSplits && T.bestSplits[T.nextSector - 1];
+        var msg = "Parcial " + T.nextSector + ": " + spokenTime(split) + (ref != null ? ", " + spokenDelta(split - ref) : "") + ".";
+        speak(msg);
+        buzz(120);
+        T.lastEvent = { text: "P" + T.nextSector + " " + fmtTime(split) + (ref != null ? " (" + fmtDelta(split - ref) + ")" : ""), good: ref != null && split < ref };
+      }
+    }
+
+    // chegada / fim de volta (exige ter andado ao menos metade do trecho)
+    var tf = T.lapDistance > T.total * 0.5 ? gateCrossing(T.finish, prev.P, P) : null;
+    if (tf != null) {
+      var endTs = prev.ts + tf * (ts - prev.ts);
+      var lapTime = endTs - T.lapStartTs;
+      if (T.circuit) {
+        finishLap(lapTime, endTs, seg * (1 - tf));
+      } else {
+        T.laps.push({ time: lapTime, splits: T.lapSplits.slice() });
+        finishTiming(endTs, true);
+      }
+    }
+    renderTimingPanel();
+  }
+
+  function finishLap(lapTime, endTs, carry) {
+    var bestLap = bestLapSoFar();
+    T.laps.push({ time: lapTime, splits: T.lapSplits.slice(), profile: T.profile.slice() });
+    var refBest = T.best ? T.best.time : null;
+    var isRecord = (refBest == null || lapTime < refBest) && (bestLap == null || lapTime < bestLap);
+    var cmp = bestLap != null ? lapTime - bestLap : refBest != null ? lapTime - refBest : null;
+    speak("Volta " + T.laps.length + ": " + spokenTime(lapTime) + (isRecord ? ". Melhor volta!" : cmp != null ? ", " + spokenDelta(cmp) + "." : "."));
+    buzz(isRecord ? [200, 80, 200, 80, 200] : [200]);
+    T.lastEvent = { text: "Volta " + T.laps.length + ": " + fmtTime(lapTime) + (isRecord ? " ⭐" : cmp != null ? " (" + fmtDelta(cmp) + ")" : ""), good: isRecord };
+    // a melhor volta desta sessão vira referência do delta
+    if (isRecord || bestLap == null || lapTime < bestLap) {
+      T.bestLapProfile = T.profile.slice();
+      T.bestSessionSplits = T.lapSplits.slice();
+    }
+    if (T.cfg.laps && T.laps.length >= T.cfg.laps) {
+      finishTiming(endTs, true);
+      return;
+    }
+    T.lapStartTs = endTs;
+    T.lapIndex++;
+    T.nextSector = 0;
+    T.lapSplits = [];
+    T.profile = [[0, 0]];
+    T.along = 0;
+    T.lapDistance = carry;
+  }
+
+  function bestLapSoFar() {
+    var b = null;
+    T.laps.forEach(function (l) {
+      if (b == null || l.time < b) b = l.time;
+    });
+    return b;
+  }
+
+  function finishTiming(endTs, complete) {
+    if (!T || T.finished) return;
+    T.finished = true;
+    T.endTs = endTs || Date.now();
+    stopTimingGps();
+    releaseWakeLock();
+    clearInterval(timingTicker);
+    timingTicker = null;
+    if (!T.running) {
+      renderTimingPanel();
+      return;
+    }
+    var total = T.endTs - T.startTs;
+    var run = {
+      id: newId("tt"),
+      at: Date.now(),
+      kind: T.circuit ? "laps" : "ab",
+      complete: complete,
+      total: Math.round(total),
+      maxSpeed: T.maxSpeed ? Math.round(T.maxSpeed) : null,
+      avgSpeed: total > 0 ? Math.round((T.distance / 1000 / (total / 3600000)) * 10) / 10 : null,
+      width: T.cfg.width
+    };
+    if (T.circuit) {
+      if (!T.laps.length) {
+        T.lastEvent = { text: "Nenhuma volta completa — não salvo.", good: false };
+        renderTimingPanel();
+        return;
+      }
+      var bl = null;
+      T.laps.forEach(function (l) {
+        if (!bl || l.time < bl.time) bl = l;
+      });
+      run.laps = T.laps.map(function (l) {
+        return { time: Math.round(l.time), splits: l.splits.map(Math.round) };
+      });
+      run.bestLap = Math.round(bl.time);
+      run.bestLapSplits = bl.splits.map(Math.round);
+      run.profile = bl.profile;
+    } else {
+      if (!complete) {
+        T.lastEvent = { text: "Encerrado antes da chegada — não salvo.", good: false };
+        renderTimingPanel();
+        return;
+      }
+      run.splits = T.laps[0].splits.map(Math.round);
+      run.profile = T.profile;
+    }
+    saveTimingRun(T.route.id, run);
+    var prevBest = T.best ? T.best.time : null;
+    var mine = run.kind === "laps" ? run.bestLap : run.total;
+    var record = prevBest == null || mine < prevBest;
+    T.savedRun = run;
+    T.record = record;
+    if (!T.circuit) {
+      speak("Chegada! Tempo: " + spokenTime(run.total) + (record ? ". Novo recorde!" : prevBest != null ? ", " + spokenDelta(run.total - prevBest) + "." : "."));
+      buzz(record ? [300, 100, 300, 100, 300] : [300]);
+    } else {
+      speak("Fim. Melhor volta: " + spokenTime(run.bestLap) + (record ? ". Novo recorde!" : "."));
+    }
+    T.lastEvent = { text: (record ? "⭐ NOVO RECORDE! " : "") + (T.circuit ? "Melhor volta " + fmtTime(run.bestLap) : "Tempo " + fmtTime(run.total)), good: record };
+    renderTimingPanel();
+  }
+
+  // "agora" no relógio do GPS: última leitura + tempo de parede desde ela
+  // (o relógio do GPS e o do celular podem diferir um pouco)
+  function gpsNow() {
+    if (!T || T.lastFixTs == null) return Date.now();
+    return T.lastFixTs + Math.min(5000, Date.now() - T.lastFixWall);
+  }
+
+  function currentElapsed() {
+    if (!T || !T.running) return 0;
+    var end = T.finished ? T.endTs : gpsNow();
+    return end - (T.circuit && !T.finished ? T.lapStartTs : T.startTs);
+  }
+
+  function renderTimingClock() {
+    if (!T) return;
+    tx.clock.textContent = fmtTime(T.finished && T.circuit && T.savedRun ? T.savedRun.bestLap : currentElapsed());
+    // delta ao vivo contra a referência (melhor volta da sessão > recorde salvo)
+    if (T.running && !T.finished && T.along != null) {
+      var ref = T.circuit && T.bestLapProfile ? T.bestLapProfile : T.bestProfile;
+      var tRef = timeAtDistance(ref, T.along);
+      if (tRef != null && T.along > 30) {
+        var lapElapsed = gpsNow() - T.lapStartTs;
+        var d = lapElapsed - tRef;
+        tx.delta.textContent = fmtDelta(d) + " s";
+        tx.delta.className = "timing-delta " + (d <= 0 ? "timing-delta-good" : "timing-delta-bad");
+        return;
+      }
+    }
+    if (!T.finished) {
+      tx.delta.textContent = "";
+      tx.delta.className = "timing-delta";
+    }
+  }
+
+  function renderTimingPanel() {
+    if (!T) return;
+    var st = tx.status;
+    if (T.finished) {
+      st.className = "timing-status " + (T.record ? "timing-status-record" : "timing-status-done");
+      st.textContent = T.lastEvent ? T.lastEvent.text : "Encerrado";
+    } else if (T.running) {
+      st.className = "timing-status timing-status-run";
+      st.textContent = T.lastEvent ? "⏱️ " + T.lastEvent.text : "⏱️ Valendo!";
+    } else if (!T.prev) {
+      st.className = "timing-status timing-status-wait";
+      st.textContent = "Aguardando GPS...";
+    } else {
+      var dStart = Math.sqrt(T.prev.P.x * T.prev.P.x + T.prev.P.y * T.prev.P.y);
+      if (T.armed) {
+        st.className = "timing-status timing-status-armed";
+        st.textContent = "✅ Armado — cruze a largada (" + Math.round(dStart) + " m)";
+      } else {
+        st.className = "timing-status timing-status-wait";
+        st.textContent = "Vá até a largada: " + formatDistance(dStart);
+      }
+    }
+    var lapsCfg = T.cfg.laps;
+    tx.lap.textContent = T.circuit ? (T.running ? String(Math.min(T.laps.length + (T.finished ? 0 : 1), lapsCfg || 999)) + (lapsCfg ? "/" + lapsCfg : "") : "—") : "A→B";
+    tx.sector.textContent = T.sectors.length ? (T.running && !T.finished ? String(T.nextSector + 1) + "/" + (T.sectors.length + 1) : "—") : "—";
+    tx.speed.textContent = T.speedKmh == null ? "--" : String(Math.round(T.speedKmh));
+    var bestRef = T.best ? T.best.time : null;
+    var bl = T.circuit ? bestLapSoFar() : null;
+    var show = bl != null && (bestRef == null || bl < bestRef) ? bl : bestRef;
+    tx.best.textContent = show == null ? "—" : fmtTime(show);
+    // lista de parciais / voltas
+    var items = [];
+    if (T.circuit) {
+      T.laps.forEach(function (l, i) {
+        items.push("V" + (i + 1) + " " + fmtTime(l.time));
+      });
+    }
+    T.lapSplits.forEach(function (s, i) {
+      items.push("P" + (i + 1) + " " + fmtTime(s));
+    });
+    tx.splits.textContent = items.slice(-6).join("  ·  ");
+    tx.btnStop.textContent = T.finished ? "Sair" : "■ Encerrar";
+    renderTimingClock();
+  }
+
+  tx.btnStop.addEventListener("click", function () {
+    if (!T) return;
+    if (T.finished) {
+      exitTiming();
+      return;
+    }
+    if (T.running && !window.confirm(T.circuit ? "Encerrar e salvar as voltas completas?" : "Encerrar antes da chegada? Esta tomada não será salva.")) return;
+    finishTiming(gpsNow(), false);
+  });
+
+  tx.btnReset.addEventListener("click", function () {
+    if (!T) return;
+    if (T.running && !T.finished && !window.confirm("Descartar a tomada atual e começar de novo?")) return;
+    var route = T.route,
+      cfg = T.cfg;
+    T.finished = true;
+    startTiming(route, cfg);
+    speak("Nova tentativa. Vá até a largada.");
+  });
+
+  function exitTiming() {
+    stopTimingGps();
+    releaseWakeLock();
+    clearInterval(timingTicker);
+    timingTicker = null;
+    T = null;
+    showTimingSubview("picker");
+    renderTimingPicker();
+  }
+
+  tx.btnExit.addEventListener("click", function () {
+    if (T && T.running && !T.finished && !window.confirm("Sair? A tomada em andamento será descartada.")) return;
+    exitTiming();
+  });
+
+  tx.btnVoice.addEventListener("click", function () {
+    voiceEnabled = !voiceEnabled;
+    lsSet(VOICE_KEY, voiceEnabled ? "1" : "0");
+    tx.btnVoice.textContent = voiceEnabled ? "🔊" : "🔇";
+    if (voiceEnabled) speak("Voz ligada.");
   });
 
   // ---- init ----

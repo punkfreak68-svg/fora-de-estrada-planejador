@@ -5,7 +5,7 @@
 // deliberately left untouched here — those already have their own offline
 // handling in app code (IndexedDB tile cache, graceful catch on sync failures).
 
-var CACHE_NAME = "fora-de-estrada-shell-v5";
+var CACHE_NAME = "fora-de-estrada-shell-v6";
 
 var SHELL_RELATIVE_PATHS = [
   "./",
