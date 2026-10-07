@@ -5,7 +5,7 @@
 // deliberately left untouched here — those already have their own offline
 // handling in app code (IndexedDB tile cache, graceful catch on sync failures).
 
-var CACHE_NAME = "fora-de-estrada-shell-v3";
+var CACHE_NAME = "fora-de-estrada-shell-v4";
 
 var SHELL_RELATIVE_PATHS = [
   "./",
@@ -22,7 +22,9 @@ var SHELL_RELATIVE_PATHS = [
 var EXTERNAL_SHELL_URLS = [
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
-  "https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"
+  "https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js",
+  // gerador de QR code (v4.1) — guardado pra funcionar também sem internet
+  "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"
 ];
 
 // Resolve relative paths against the service worker's own location so this

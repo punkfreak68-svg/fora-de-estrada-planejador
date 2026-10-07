@@ -1484,6 +1484,223 @@ html, body {
   background: #5a2a2a;
   border-color: #6e3434;
 }
+
+/* ==== v4.1 extras (Specs #017–#024) ==== */
+.sendpos-dash-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #8a5a1a;
+  background: #5a3a12;
+  color: #ffe2b8;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sendpos-dash-btn:hover { background: #6b4616; }
+
+.panel-details > summary {
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #c9d9a8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  list-style: none;
+  padding: 2px 0;
+}
+.panel-details > summary::-webkit-details-marker { display: none; }
+.panel-details > summary::before { content: "▸ "; color: #8a9578; }
+.panel-details[open] > summary::before { content: "▾ "; }
+.details-hint {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-size: 0.78rem;
+  color: #9db07d;
+  margin-left: 4px;
+}
+.field-label {
+  display: block;
+  font-size: 0.78rem;
+  color: #9db07d;
+  margin: 10px 0 4px;
+}
+.route-notes { resize: vertical; font-family: inherit; min-height: 60px; }
+.difficulty-stars { display: flex; gap: 4px; }
+.difficulty-stars button {
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  padding: 2px;
+  cursor: pointer;
+  color: #4a5a34;
+}
+.difficulty-stars button.on { color: #f0b429; }
+
+.waypoint-list { list-style: none; margin: 8px 0 0; padding: 0; }
+.waypoint-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  border-bottom: 1px solid #2f3624;
+  font-size: 0.85rem;
+}
+.waypoint-list .wp-emoji { font-size: 1.2rem; }
+.waypoint-list .wp-text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.waypoint-list .wp-thumb { width: 34px; height: 34px; object-fit: cover; border-radius: 4px; }
+.waypoint-list button { background: transparent; border: none; color: #cdd8b4; cursor: pointer; font-size: 0.95rem; }
+.new-manual-block-btn.active { background: #3d4a2a; border-style: solid; color: #fff; }
+
+.wp-marker {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1f3b52;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.6);
+}
+.wp-popup { min-width: 160px; max-width: 220px; }
+.wp-popup-title { font-weight: 700; margin-bottom: 4px; }
+.wp-popup-note { white-space: pre-wrap; margin-bottom: 6px; }
+.wp-popup img { width: 100%; border-radius: 6px; cursor: zoom-in; display: block; margin-bottom: 6px; }
+.wp-popup-actions { display: flex; gap: 8px; }
+.wp-popup-actions button { flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #4a5a34; background: #3d4a2a; color: #fff; cursor: pointer; font-size: 0.8rem; }
+
+.waypoint-type-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.waypoint-type-chips button {
+  border: 1px solid #4a5a34;
+  background: #1b1f16;
+  color: #cdd8b4;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.waypoint-type-chips button.on { background: #3d4a2a; color: #fff; border-color: #9db07d; }
+.waypoint-photo-row { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+.waypoint-photo-btn { display: inline-flex; align-items: center; gap: 6px; }
+.waypoint-photo-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-top: 8px; }
+.photo-modal-box { max-width: 720px; text-align: center; }
+.photo-modal-box img { max-width: 100%; max-height: 70vh; border-radius: 8px; }
+.modal-btn-danger { color: #ff8a80; border-color: #6b2a2a; margin-right: auto; }
+
+.sendpos-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #1b1f16;
+  border: 1px solid #3a4228;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.82rem;
+  color: #e6edd6;
+  font-family: inherit;
+  margin: 0 0 10px;
+  user-select: text;
+}
+.sendpos-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sendpos-btn {
+  padding: 11px 10px;
+  border-radius: 8px;
+  border: 1px solid #4a5a34;
+  background: #3d4a2a;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+.sendpos-btn:hover { background: #4a5a34; }
+.sendpos-btn:disabled { opacity: 0.45; cursor: default; }
+.sendpos-whatsapp { background: #1f6b43; border-color: #2a8a57; }
+.share-actions { grid-template-columns: 1fr; }
+.share-qr-box { margin-top: 12px; text-align: center; background: #fff; border-radius: 8px; padding: 12px; }
+.share-qr-box img, .share-qr-box canvas { width: 100%; max-width: 260px; image-rendering: pixelated; }
+.share-qr-box .hint { color: #555; }
+
+.nav-side-tools {
+  position: absolute;
+  top: 130px;
+  right: 12px;
+  z-index: 895;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.nav-tool-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(20,24,15,0.88);
+  border: 2px solid #4a5a34;
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.nav-tool-btn.off { opacity: 0.55; }
+.nav-stat-value { font-size: clamp(1.35rem, 6.2vw, 2.1rem); }
+.nav-trip-tile { font: inherit; color: inherit; cursor: pointer; }
+.nav-unit { font-size: 0.5em; font-weight: 700; color: #cdd8b4; }
+.stats-grid-compact .stat { padding: 6px 8px; }
+.nav-trip-tile.confirm-reset { border-color: #f0b429; }
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stats-grid .stat {
+  background: #1b1f16;
+  border: 1px solid #3a4228;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.stats-grid .stat b { display: block; font-size: 1.15rem; color: #fff; font-variant-numeric: tabular-nums; }
+.stats-grid .stat span { font-size: 0.72rem; color: #9db07d; text-transform: uppercase; letter-spacing: 0.03em; }
+.stats-grid-compact { margin-top: 10px; grid-template-columns: 1fr 1fr 1fr; }
+.stats-grid-compact .stat b { font-size: 0.95rem; }
+.trip-reset-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; font-size: 0.9rem; color: #cdd8b4; }
+
+.elevation-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; font-size: 0.8rem; color: #cdd8b4; }
+.elevation-stats b { color: #fff; }
+.elevation-chart { margin-top: 8px; position: relative; }
+.elevation-chart svg { width: 100%; height: 130px; display: block; touch-action: none; }
+.elevation-tip { position: absolute; top: 2px; right: 4px; font-size: 0.75rem; color: #fff; background: rgba(0,0,0,0.55); padding: 2px 6px; border-radius: 4px; pointer-events: none; }
+.elevation-cursor-marker { width: 14px; height: 14px; border-radius: 50%; background: #f0b429; border: 2px solid #fff; box-shadow: 0 0 6px rgba(0,0,0,0.7); }
+
+.weather-days { display: flex; gap: 4px; overflow-x: auto; margin-top: 8px; padding-bottom: 2px; }
+.weather-days button {
+  flex: 0 0 auto;
+  border: 1px solid #4a5a34;
+  background: #1b1f16;
+  color: #cdd8b4;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.weather-days button.on { background: #3d4a2a; color: #fff; }
+.weather-table { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.weather-row {
+  display: grid;
+  grid-template-columns: 62px 28px 1fr;
+  align-items: center;
+  gap: 6px;
+  background: #1b1f16;
+  border: 1px solid #3a4228;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  color: #cdd8b4;
+}
+.weather-row .w-place { font-weight: 700; color: #fff; font-size: 0.78rem; }
+.weather-row .w-icon { font-size: 1.3rem; text-align: center; }
+.weather-row .w-temp b { color: #fff; }
+.weather-row.risk { border-color: #8a5a1a; background: #2c2112; }
+.weather-alert { color: #ffd9a0; font-size: 0.78rem; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -1508,6 +1725,10 @@ html, body {
       <span class="dashboard-tile-label">Rotas Salvas</span>
     </button>
   </div>
+
+  <section class="dashboard-section">
+    <button id="btn-dash-sendpos" class="sendpos-dash-btn">📍 Enviar minha posição (WhatsApp/SMS)</button>
+  </section>
 
   <section class="dashboard-section">
     <h2>Sincronização</h2>
@@ -1539,6 +1760,7 @@ html, body {
     <button id="btn-save" title="Salvar rota">💾 <span class="btn-label">Salvar</span></button>
     <button id="btn-import" title="Importar rota (.gpx ou .kml)">📥 <span class="btn-label">Importar</span></button>
     <button id="btn-export" title="Exportar GPX">⬇ <span class="btn-label">GPX</span></button>
+    <button id="btn-share-route" title="Compartilhar rota (GPX, link ou QR code)">📤 <span class="btn-label">Compartilhar</span></button>
     <button id="btn-clear-points" title="Limpar pontos da rota atual">🧹 <span class="btn-label">Limpar</span></button>
     <button id="btn-new" title="Nova rota">＋ <span class="btn-label">Nova</span></button>
     <button id="btn-nav-mode" title="Modo Navegação">🧭 <span class="btn-label">Navegar</span></button>
@@ -1585,6 +1807,59 @@ html, body {
       <ul id="point-list" class="point-list"></ul>
       <p id="point-list-empty" class="hint">Nenhum ponto ainda. Clique no mapa para começar.</p>
     </section>
+
+    <details class="panel-section panel-details" id="route-info-section">
+      <summary>Sobre a rota <span id="route-info-summary" class="details-hint"></span></summary>
+      <div class="route-info-form">
+        <label class="field-label">Dificuldade</label>
+        <div id="difficulty-stars" class="difficulty-stars" role="radiogroup" aria-label="Dificuldade de 1 a 5"></div>
+        <div id="difficulty-label" class="hint"></div>
+        <label class="field-label" for="route-vehicle">Veículo</label>
+        <select id="route-vehicle" class="folder-input">
+          <option value="">—</option>
+          <option>4x4</option>
+          <option>4x4 com bloqueio</option>
+          <option>4x2 / carro comum</option>
+          <option>Moto trilha</option>
+          <option>Quadriciclo / UTV</option>
+          <option>Bike</option>
+          <option>A pé</option>
+        </select>
+        <label class="field-label" for="route-season">Melhor época</label>
+        <select id="route-season" class="folder-input">
+          <option value="">—</option>
+          <option>Ano todo</option>
+          <option>Seca (abr–set)</option>
+          <option>Chuva (out–mar)</option>
+          <option>Evitar com chuva</option>
+        </select>
+        <label class="field-label" for="route-notes">Observações</label>
+        <textarea id="route-notes" class="folder-input route-notes" rows="3" placeholder="Ex: trecho de pedra solta depois da porteira, travessia de rio raso..."></textarea>
+      </div>
+    </details>
+
+    <details class="panel-section panel-details" id="waypoints-section">
+      <summary>Marcações (<span id="waypoint-count">0</span>)</summary>
+      <button id="btn-waypoint-mode" class="new-manual-block-btn">📌 Marcar local no mapa</button>
+      <ul id="waypoint-list" class="waypoint-list"></ul>
+      <p class="hint">Atoleiro, porteira, água, perigo... com foto e anotação. Não entram no traçado da rota.</p>
+    </details>
+
+    <details class="panel-section panel-details" id="elevation-section">
+      <summary>Altimetria <span id="elevation-summary" class="details-hint"></span></summary>
+      <button id="btn-elevation" class="new-manual-block-btn">⛰️ Calcular perfil de altitude</button>
+      <div id="elevation-stats" class="elevation-stats"></div>
+      <div id="elevation-chart" class="elevation-chart"></div>
+      <p class="hint">Dados de relevo: Open-Meteo (precisa de internet para calcular; depois fica salvo com a rota).</p>
+    </details>
+
+    <details class="panel-section panel-details" id="weather-section">
+      <summary>Previsão do tempo</summary>
+      <button id="btn-weather" class="new-manual-block-btn">🌦️ Ver previsão na rota</button>
+      <div id="weather-days" class="weather-days"></div>
+      <div id="weather-table" class="weather-table"></div>
+      <p class="hint">Previsão de 7 dias no início, meio e fim da rota (Open-Meteo).</p>
+    </details>
 
     <section class="panel-section">
       <div class="folder-indicator-row">
@@ -1635,6 +1910,13 @@ html, body {
 
     <button id="btn-nav-recenter" class="nav-recenter-btn hidden">🎯 Centralizar</button>
 
+    <div id="nav-side-tools" class="nav-side-tools">
+      <button id="btn-nav-voice" class="nav-tool-btn" title="Alerta de desvio por voz e vibração" aria-label="Alerta por voz">🔊</button>
+      <button id="btn-nav-waypoint" class="nav-tool-btn" title="Marcar este local (foto e anotação)" aria-label="Marcar local">📌</button>
+      <button id="btn-nav-sendpos" class="nav-tool-btn" title="Enviar minha posição" aria-label="Enviar posição">📤</button>
+      <button id="btn-nav-stats" class="nav-tool-btn" title="Estatísticas do trajeto" aria-label="Estatísticas">📊</button>
+    </div>
+
     <div id="nav-hud-top">
       <div id="nav-deviation-pill" class="nav-deviation-pill nav-deviation-ok">Aguardando GPS...</div>
       <button id="btn-nav-pip" class="nav-threshold-btn hidden" title="Mini janela flutuante (experimental)">📺 PiP</button>
@@ -1653,6 +1935,10 @@ html, body {
         <div class="nav-stat-value" id="nav-speed">--</div>
         <div class="nav-stat-label">km/h</div>
       </div>
+      <button id="nav-trip-tile" class="nav-stat-tile nav-trip-tile" title="Hodômetro parcial — toque duas vezes para zerar">
+        <div class="nav-stat-value"><span id="nav-trip">0,00</span><small class="nav-unit"> km</small></div>
+        <div class="nav-stat-label">parcial ↺</div>
+      </button>
     </div>
 
     <div id="nav-bottom-buttons" class="nav-bottom-buttons">
@@ -1665,6 +1951,7 @@ html, body {
       <div class="nav-summary-title">Navegação encerrada</div>
       <div class="nav-summary-row"><span class="dot dot-orange"></span> Planejado</div>
       <div class="nav-summary-row"><span class="dot dot-blue"></span> Percorrido: <b id="nav-summary-distance">--</b></div>
+      <div id="nav-summary-stats" class="stats-grid stats-grid-compact"></div>
     </div>
   </div>
 </div>
@@ -1767,6 +2054,82 @@ html, body {
   </div>
 </div>
 
+<div id="sendpos-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2>📍 Enviar minha posição</h2>
+    <pre id="sendpos-text" class="sendpos-text">Obtendo posição do GPS...</pre>
+    <div class="sendpos-actions">
+      <button id="btn-sendpos-whatsapp" class="sendpos-btn sendpos-whatsapp" disabled>WhatsApp</button>
+      <button id="btn-sendpos-sms" class="sendpos-btn" disabled>SMS</button>
+      <button id="btn-sendpos-share" class="sendpos-btn hidden" disabled>Compartilhar…</button>
+      <button id="btn-sendpos-copy" class="sendpos-btn" disabled>Copiar</button>
+    </div>
+    <p class="hint">Sem internet? O SMS funciona só com sinal de celular. O Plus Code pode ser colado no Google Maps.</p>
+    <div class="modal-actions">
+      <button id="btn-sendpos-close" class="modal-btn-secondary">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div id="waypoint-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2 id="waypoint-modal-title">📌 Marcar local</h2>
+    <div id="waypoint-type-chips" class="waypoint-type-chips"></div>
+    <textarea id="waypoint-note" class="folder-input route-notes" rows="3" placeholder="Anotação (opcional)"></textarea>
+    <div class="waypoint-photo-row">
+      <label class="sendpos-btn waypoint-photo-btn">📷 Foto
+        <input type="file" id="waypoint-photo-input" accept="image/*" capture="environment" class="hidden" />
+      </label>
+      <button id="btn-waypoint-photo-remove" class="link-btn hidden">Remover foto</button>
+    </div>
+    <img id="waypoint-photo-preview" class="waypoint-photo-preview hidden" alt="Foto da marcação" />
+    <p id="waypoint-coords" class="hint"></p>
+    <div class="modal-actions">
+      <button id="btn-waypoint-delete" class="modal-btn-secondary modal-btn-danger hidden">Excluir</button>
+      <button id="btn-waypoint-cancel" class="modal-btn-secondary">Cancelar</button>
+      <button id="btn-waypoint-save" class="modal-btn-primary">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="photo-modal" class="modal-overlay">
+  <div class="modal-box photo-modal-box">
+    <button id="btn-photo-close" class="icon-btn modal-close" aria-label="Fechar foto">✕</button>
+    <img id="photo-modal-img" alt="Foto" />
+    <p id="photo-modal-caption" class="hint"></p>
+  </div>
+</div>
+
+<div id="stats-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2>📊 Estatísticas do trajeto</h2>
+    <div id="stats-modal-grid" class="stats-grid"></div>
+    <div class="trip-reset-row">
+      <span>Hodômetro parcial: <b id="stats-trip-value">0,00 km</b></span>
+      <button id="btn-trip-reset" class="sendpos-btn">↺ Zerar</button>
+    </div>
+    <div class="modal-actions">
+      <button id="btn-stats-close" class="modal-btn-secondary">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div id="share-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2 id="share-modal-title">📤 Compartilhar rota</h2>
+    <div class="sendpos-actions share-actions">
+      <button id="btn-share-gpx" class="sendpos-btn">📄 Arquivo GPX</button>
+      <button id="btn-share-link" class="sendpos-btn">🔗 Link da rota</button>
+      <button id="btn-share-qr" class="sendpos-btn">▦ QR code</button>
+    </div>
+    <div id="share-qr-box" class="share-qr-box hidden"></div>
+    <p id="share-hint" class="hint">O link e o QR code abrem a rota direto no Fora de Estrada de quem receber.</p>
+    <div class="modal-actions">
+      <button id="btn-share-close" class="modal-btn-secondary">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1778,8 +2141,22 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "4.0";
+  var APP_VERSION = "4.1";
   var CHANGELOG = [
+    {
+      version: "4.1",
+      date: "07/10/2026",
+      changes: [
+        "Spec #017: alerta de desvio por voz e vibração na navegação (\"Atenção. Fora da rota, 150 metros\"), repetido a cada 30 s enquanto estiver fora, aviso de \"De volta à rota\" e de \"Chegando ao destino\"; não alerta com GPS impreciso; botão 🔊/🔇 pra ligar/desligar",
+        "Spec #018: hodômetro parcial na navegação (toque duas vezes para zerar; fica salvo no aparelho) e estatísticas do trajeto: tempo total, em movimento e parado, velocidade média e máxima, altitude máx./mín., subida e descida — botão 📊 e resumo ao encerrar; o trajeto do Modo Livre salva as estatísticas junto",
+        "Spec #019: \"Enviar minha posição\" na tela inicial e na navegação — WhatsApp, SMS (funciona sem internet), compartilhar ou copiar, com coordenadas, precisão, Plus Code e link do Google Maps",
+        "Spec #020: seção \"Sobre a rota\" no planejamento — dificuldade de 1 a 5 estrelas, veículo, melhor época e observações; aparece nos cartões das rotas salvas e vai junto no GPX",
+        "Spec #021: compartilhar rota (botão 📤 e nos cartões): arquivo GPX, link que abre a rota direto no app de quem receber, ou QR code (rotas longas são simplificadas pra caber)",
+        "Spec #022: marcações com foto e anotação (atoleiro, porteira, água, perigo, mirante, camping, apoio): no planejamento tocando no mapa, ou na navegação no ponto onde você está (botão 📌); fotos reduzidas e sincronizadas com o Google Drive; GPX exporta/importa as marcações",
+        "Spec #023: perfil de altimetria da rota (Open-Meteo): subida/descida total, mín./máx. e rampa mais forte; passar o dedo no gráfico mostra o ponto no mapa; fica salvo com a rota",
+        "Spec #024: previsão do tempo de 7 dias no início, meio e fim da rota (Open-Meteo), com aviso de chuva forte (risco de atoleiro), raios e vento forte"
+      ]
+    },
     {
       version: "4.0",
       date: "07/10/2026",
@@ -2200,7 +2577,10 @@ html, body {
     folder: "",
     points: [], // [{lat, lng, role?, blockId?}]
     blocks: [], // [{id, label, isManual?}] - persists with the saved route (Spec #013)
-    activeBlockId: null // which block new unmarked points join (Spec #015 v2); not persisted to the saved route
+    activeBlockId: null, // which block new unmarked points join (Spec #015 v2); not persisted to the saved route
+    meta: { difficulty: 0, vehicle: "", season: "", notes: "" }, // Spec #020
+    waypoints: [], // Spec #022: [{id, lat, lng, type, note, photoId, createdAt}]
+    elevation: null // Spec #023: {sig, samples, stats, at}
   };
 
   var markers = []; // Leaflet markers, parallel to state.points
@@ -2703,6 +3083,10 @@ html, body {
     polyline = L.polyline([], { color: "#e08a2c", weight: 4 }).addTo(map);
 
     map.on("click", function (e) {
+      if (waypointPlacementMode) {
+        handlePlanningMapClickForWaypoint(e.latlng);
+        return;
+      }
       addPoint(e.latlng.lat, e.latlng.lng);
     });
 
@@ -2913,11 +3297,16 @@ html, body {
     state.id = null;
     state.name = "";
     state.folder = "";
+    state.meta = emptyMeta();
+    state.waypoints = [];
+    state.elevation = null;
+    weatherState = null;
     el.routeName.value = "";
     updateFolderLabel();
     refreshPolyline();
     renderPointList();
     renderBlockList();
+    renderRouteExtras();
   }
 
   function clearPointsOnly() {
@@ -3023,6 +3412,11 @@ html, body {
 
       el.pointList.appendChild(li);
     });
+
+    if (typeof renderElevation === "function" && x) {
+      renderElevation();
+      renderWeather();
+    }
   }
 
   // ---- manual coordinate entry ----
@@ -3231,6 +3625,9 @@ html, body {
     state.folder = draft.folder || "";
     state.blocks = Array.isArray(draft.blocks) ? draft.blocks : [];
     state.activeBlockId = draft.activeBlockId || null;
+    state.meta = normalizeMeta(draft.meta);
+    state.waypoints = normalizeWaypoints(draft.waypoints);
+    state.elevation = draft.elevation || null;
     el.routeName.value = state.name;
     updateFolderLabel();
     draft.points.forEach(function (p) {
@@ -3307,6 +3704,9 @@ html, body {
     state.name = route.name;
     state.folder = route.folder || "";
     state.blocks = Array.isArray(route.blocks) ? route.blocks.slice() : [];
+    state.meta = normalizeMeta(route.meta);
+    state.waypoints = normalizeWaypoints(route.waypoints);
+    state.elevation = route.elevation || null;
     el.routeName.value = route.name;
     updateFolderLabel();
     route.points.forEach(function (p) {
@@ -3320,6 +3720,7 @@ html, body {
     refreshPolyline();
     renderPointList();
     renderBlockList();
+    renderRouteExtras();
     saveDraft();
 
     if (state.points.length > 0) {
@@ -3355,6 +3756,9 @@ html, body {
       // already permanently reorders the affected points in state.points, so
       // whatever order they're saved in already reflects it.
       blocks: state.blocks.slice(),
+      meta: normalizeMeta(state.meta),
+      waypoints: normalizeWaypoints(state.waypoints),
+      elevation: state.elevation && state.elevation.sig === routeSignature(state.points) ? state.elevation : null,
       savedAt: Date.now()
     };
 
@@ -3620,24 +4024,7 @@ html, body {
   }
 
   function buildGpx() {
-    var name = el.routeName.value.trim() || "Rota sem nome";
-    var lines = [];
-    lines.push('<?xml version="1.0" encoding="UTF-8"?>');
-    lines.push(
-      '<gpx version="1.1" creator="Jipe Rotas" xmlns="http://www.topografix.com/GPX/1/1" ' +
-        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
-        'xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">'
-    );
-    lines.push("  <trk>");
-    lines.push("    <name>" + escapeXml(name) + "</name>");
-    lines.push("    <trkseg>");
-    state.points.forEach(function (p) {
-      lines.push('      <trkpt lat="' + p.lat + '" lon="' + p.lng + '"></trkpt>');
-    });
-    lines.push("    </trkseg>");
-    lines.push("  </trk>");
-    lines.push("</gpx>");
-    return lines.join("\n");
+    return buildGpxForRoute(currentPlanningRoute());
   }
 
   function sanitizeFileName(name) {
@@ -4096,9 +4483,13 @@ html, body {
         }
 
         var points, suggestedName;
+        var importedWaypoints = [];
+        var importedMeta = null;
         if (isGpx) {
           points = parseGpxPoints(doc);
           suggestedName = parseGpxName(doc);
+          importedWaypoints = parseGpxWaypoints(doc);
+          importedMeta = parseGpxMeta(doc);
         } else {
           points = parseKmlPoints(doc);
           suggestedName = parseKmlName(doc);
@@ -4112,8 +4503,21 @@ html, body {
         if (mode === "block") {
           var label = suggestedName || file.name.replace(/\.(gpx|kml)$/i, "") || "Bloco " + (state.blocks.length + 1);
           addImportedBlock(points, label);
+          if (importedWaypoints.length) {
+            ensureStateExtras();
+            state.waypoints = state.waypoints.concat(importedWaypoints);
+            renderPlanningWaypoints();
+            saveDraft();
+          }
         } else {
+          var before = state.points.length;
           applyImportedRoute(points, suggestedName);
+          if (state.points.length === points.length && (before === 0 || state.points[0].lat === points[0].lat)) {
+            state.waypoints = importedWaypoints;
+            if (importedMeta) state.meta = importedMeta;
+            renderRouteExtras();
+            saveDraft();
+          }
         }
       } catch (e) {
         showToast("Erro ao importar o arquivo. Verifique se é um .gpx ou .kml válido.");
@@ -4520,6 +4924,13 @@ html, body {
         var date = new Date(route.savedAt);
         meta.textContent = route.points.length + " pontos · " + date.toLocaleString("pt-BR");
         card.appendChild(meta);
+        var extraText = routeCardExtraText(route);
+        if (extraText) {
+          var extra = document.createElement("div");
+          extra.className = "nav-route-card-meta";
+          extra.textContent = extraText;
+          card.appendChild(extra);
+        }
 
         var buttons = document.createElement("div");
         buttons.className = "saved-screen-card-buttons";
@@ -4543,6 +4954,14 @@ html, body {
           });
         });
         buttons.appendChild(openBtn);
+
+        var shareBtn = document.createElement("button");
+        shareBtn.className = "load-btn";
+        shareBtn.textContent = "Compartilhar";
+        shareBtn.addEventListener("click", function () {
+          openShareModal({ id: route.id, name: route.name, points: route.points, meta: route.meta, waypoints: route.waypoints });
+        });
+        buttons.appendChild(shareBtn);
 
         var deleteBtn = document.createElement("button");
         deleteBtn.className = "delete-btn";
@@ -4600,7 +5019,8 @@ html, body {
         info.appendChild(name);
         var meta = document.createElement("div");
         meta.className = "nav-route-card-meta";
-        meta.textContent = route.points.length + " pontos";
+        var pickerExtra = routeCardExtraText(route);
+        meta.textContent = route.points.length + " pontos" + (pickerExtra ? " · " + pickerExtra : "");
         info.appendChild(meta);
         card.appendChild(info);
 
@@ -5061,6 +5481,7 @@ html, body {
     el.navDeviationPill.textContent = "Aguardando GPS...";
     el.navDistanceRemaining.textContent = "--";
     el.navSpeed.textContent = "--";
+    navExtrasOnStart();
 
     setTimeout(function () {
       navMap.invalidateSize();
@@ -5086,6 +5507,7 @@ html, body {
 
     el.navDistanceRemaining.textContent = "0 m";
     el.navSpeed.textContent = "--";
+    navExtrasOnStart();
 
     setTimeout(function () {
       navMap.invalidateSize();
@@ -5276,9 +5698,11 @@ html, body {
     el.navCompassNeedle.style.transform = "rotate(" + navMap.getBearing() + "deg)";
 
     var shouldRecord = true;
+    var addedMeters = 0;
     if (navLastRecordedPoint) {
       var d = haversineMeters(navLastRecordedPoint.lat, navLastRecordedPoint.lng, lat, lng);
       if (d < 5) shouldRecord = false;
+      else addedMeters = d;
     }
     if (shouldRecord) {
       navRecordedTrack.push(current);
@@ -5295,6 +5719,8 @@ html, body {
       var remaining = remainingDistanceMeters(navCurrentRoute.points, nearest);
       el.navDistanceRemaining.textContent = formatDistance(remaining);
 
+      navAlertsOnDeviation(nearest.distance, pos.coords.accuracy);
+      navAlertsOnRemaining(remaining, polylineLengthMeters(navCurrentRoute.points));
       if (nearest.distance > deviationThreshold) {
         el.navDeviationPill.className = "nav-deviation-pill nav-deviation-alert";
         el.navDeviationPill.textContent = "⚠ Fora da rota (" + Math.round(nearest.distance) + "m)";
@@ -5318,6 +5744,7 @@ html, body {
     }
     navLastSpeedPoint = { lat: lat, lng: lng, timestamp: pos.timestamp };
     el.navSpeed.textContent = speedKmh == null ? "--" : String(Math.round(speedKmh));
+    navExtrasOnPosition(pos, speedKmh, addedMeters);
 
     updateNavPipStats(
       el.navDistanceRemaining.textContent,
@@ -5363,6 +5790,8 @@ html, body {
       points: navRecordedTrack.map(function (p) {
         return { lat: p.lat, lng: p.lng };
       }),
+      waypoints: normalizeWaypoints(navSessionWaypoints),
+      stats: statsSnapshot(navStats),
       savedAt: Date.now()
     };
     var routes = loadSavedRoutes();
@@ -5386,6 +5815,12 @@ html, body {
     target.points = navRecordedTrack.map(function (p) {
       return { lat: p.lat, lng: p.lng };
     });
+    var mergedWps = normalizeWaypoints(target.waypoints);
+    navSessionWaypoints.forEach(function (w) {
+      if (!mergedWps.some(function (m) { return m.id === w.id; })) mergedWps.push(w);
+    });
+    target.waypoints = mergedWps;
+    target.stats = statsSnapshot(navStats);
     target.savedAt = Date.now();
     persistSavedRoutes(routes);
     refreshSavedRoutesUI();
@@ -5412,6 +5847,7 @@ html, body {
     var recordedMeters = polylineLengthMeters(navRecordedTrack);
     el.navSummaryDistance.textContent = formatDistance(recordedMeters);
     setEndedSummaryMode(true);
+    navExtrasOnFinish();
   }
 
   el.btnBackToPlanning.addEventListener("click", function () {
@@ -5839,6 +6275,7 @@ html, body {
             var merged = mergeRouteSets(loadSavedRoutes(), remoteRoutes || []);
             persistSavedRoutesLocalOnly(merged);
             refreshSavedRoutesUI();
+            syncPhotosToDrive();
             showToast("Rotas sincronizadas do Google Drive.");
           });
         }
@@ -5875,6 +6312,7 @@ html, body {
     return uploadRoutesFile(driveFolderId, driveFileId, routes)
       .then(function (data) {
         if (data && data.id) driveFileId = data.id;
+        syncPhotosToDrive();
       })
       .catch(function () {
         /* offline or error: silently skip, localStorage remains source of truth */
@@ -5904,6 +6342,2190 @@ html, body {
 
   window.addEventListener("pagehide", flushPendingDrivePush);
 
+  // ================= v4.1 EXTRAS (Specs #017–#024) =================
+  //
+  // Tudo aqui roda só no navegador (sem servidor): voz/vibração, hodômetro,
+  // estatísticas, enviar posição, dificuldade/observações, marcações com
+  // foto, compartilhar (GPX/link/QR), altimetria e previsão do tempo
+  // (Open-Meteo, gratuito e sem chave).
+
+  var VOICE_KEY = "jipeRotas_voiceAlerts_v1";
+  var TRIP_KEY = "jipeRotas_tripMeter_v1";
+  var PHOTO_UPLOADED_KEY = "jipeRotas_photosUploaded_v1";
+
+  var x = {
+    dashSendpos: document.getElementById("btn-dash-sendpos"),
+    btnShareRoute: document.getElementById("btn-share-route"),
+
+    routeInfoSummary: document.getElementById("route-info-summary"),
+    difficultyStars: document.getElementById("difficulty-stars"),
+    difficultyLabel: document.getElementById("difficulty-label"),
+    routeVehicle: document.getElementById("route-vehicle"),
+    routeSeason: document.getElementById("route-season"),
+    routeNotes: document.getElementById("route-notes"),
+
+    waypointCount: document.getElementById("waypoint-count"),
+    btnWaypointMode: document.getElementById("btn-waypoint-mode"),
+    waypointList: document.getElementById("waypoint-list"),
+    waypointsSection: document.getElementById("waypoints-section"),
+
+    elevationSummary: document.getElementById("elevation-summary"),
+    btnElevation: document.getElementById("btn-elevation"),
+    elevationStats: document.getElementById("elevation-stats"),
+    elevationChart: document.getElementById("elevation-chart"),
+
+    btnWeather: document.getElementById("btn-weather"),
+    weatherDays: document.getElementById("weather-days"),
+    weatherTable: document.getElementById("weather-table"),
+
+    btnNavVoice: document.getElementById("btn-nav-voice"),
+    btnNavWaypoint: document.getElementById("btn-nav-waypoint"),
+    btnNavSendpos: document.getElementById("btn-nav-sendpos"),
+    btnNavStats: document.getElementById("btn-nav-stats"),
+    navSideTools: document.getElementById("nav-side-tools"),
+    navTripTile: document.getElementById("nav-trip-tile"),
+    navTrip: document.getElementById("nav-trip"),
+    navSummaryStats: document.getElementById("nav-summary-stats"),
+
+    sendposModal: document.getElementById("sendpos-modal"),
+    sendposText: document.getElementById("sendpos-text"),
+    btnSendposWhatsapp: document.getElementById("btn-sendpos-whatsapp"),
+    btnSendposSms: document.getElementById("btn-sendpos-sms"),
+    btnSendposShare: document.getElementById("btn-sendpos-share"),
+    btnSendposCopy: document.getElementById("btn-sendpos-copy"),
+    btnSendposClose: document.getElementById("btn-sendpos-close"),
+
+    waypointModal: document.getElementById("waypoint-modal"),
+    waypointModalTitle: document.getElementById("waypoint-modal-title"),
+    waypointTypeChips: document.getElementById("waypoint-type-chips"),
+    waypointNote: document.getElementById("waypoint-note"),
+    waypointPhotoInput: document.getElementById("waypoint-photo-input"),
+    btnWaypointPhotoRemove: document.getElementById("btn-waypoint-photo-remove"),
+    waypointPhotoPreview: document.getElementById("waypoint-photo-preview"),
+    waypointCoords: document.getElementById("waypoint-coords"),
+    btnWaypointDelete: document.getElementById("btn-waypoint-delete"),
+    btnWaypointCancel: document.getElementById("btn-waypoint-cancel"),
+    btnWaypointSave: document.getElementById("btn-waypoint-save"),
+
+    photoModal: document.getElementById("photo-modal"),
+    photoModalImg: document.getElementById("photo-modal-img"),
+    photoModalCaption: document.getElementById("photo-modal-caption"),
+    btnPhotoClose: document.getElementById("btn-photo-close"),
+
+    statsModal: document.getElementById("stats-modal"),
+    statsModalGrid: document.getElementById("stats-modal-grid"),
+    statsTripValue: document.getElementById("stats-trip-value"),
+    btnTripReset: document.getElementById("btn-trip-reset"),
+    btnStatsClose: document.getElementById("btn-stats-close"),
+
+    shareModal: document.getElementById("share-modal"),
+    shareModalTitle: document.getElementById("share-modal-title"),
+    btnShareGpx: document.getElementById("btn-share-gpx"),
+    btnShareLink: document.getElementById("btn-share-link"),
+    btnShareQr: document.getElementById("btn-share-qr"),
+    shareQrBox: document.getElementById("share-qr-box"),
+    shareHint: document.getElementById("share-hint"),
+    btnShareClose: document.getElementById("btn-share-close")
+  };
+
+  // ---- small helpers ----
+  function newId(prefix) {
+    return prefix + "_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+  }
+
+  function lsGet(key, fallback) {
+    try {
+      var v = localStorage.getItem(key);
+      return v == null ? fallback : v;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function lsSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function fmtKm(meters, decimals) {
+    return (meters / 1000).toFixed(decimals == null ? 2 : decimals).replace(".", ",");
+  }
+
+  function fmtNum(n, decimals) {
+    return Number(n).toFixed(decimals || 0).replace(".", ",");
+  }
+
+  function fmtDuration(ms) {
+    var totalMin = Math.max(0, Math.round(ms / 60000));
+    var h = Math.floor(totalMin / 60);
+    var m = totalMin % 60;
+    if (h === 0) return m + " min";
+    return h + "h" + (m < 10 ? "0" : "") + m;
+  }
+
+  function openModal(m) {
+    m.classList.add("open");
+  }
+
+  function closeModal(m) {
+    m.classList.remove("open");
+  }
+
+  function emptyMeta() {
+    return { difficulty: 0, vehicle: "", season: "", notes: "" };
+  }
+
+  function normalizeMeta(meta) {
+    var m = emptyMeta();
+    if (meta && typeof meta === "object") {
+      var d = parseInt(meta.difficulty, 10);
+      m.difficulty = d >= 1 && d <= 5 ? d : 0;
+      m.vehicle = typeof meta.vehicle === "string" ? meta.vehicle : "";
+      m.season = typeof meta.season === "string" ? meta.season : "";
+      m.notes = typeof meta.notes === "string" ? meta.notes : "";
+    }
+    return m;
+  }
+
+  function normalizeWaypoints(list) {
+    if (!Array.isArray(list)) return [];
+    return list
+      .filter(function (w) {
+        return w && typeof w.lat === "number" && typeof w.lng === "number";
+      })
+      .map(function (w) {
+        return {
+          id: w.id || newId("wp"),
+          lat: w.lat,
+          lng: w.lng,
+          type: w.type || "outro",
+          note: w.note || "",
+          photoId: w.photoId || null,
+          createdAt: w.createdAt || Date.now()
+        };
+      });
+  }
+
+  function starsText(n) {
+    if (!n) return "";
+    var s = "";
+    for (var i = 1; i <= 5; i++) s += i <= n ? "★" : "☆";
+    return s;
+  }
+
+  function routeMetaSummary(meta) {
+    meta = normalizeMeta(meta);
+    var parts = [];
+    if (meta.difficulty) parts.push(starsText(meta.difficulty));
+    if (meta.vehicle) parts.push(meta.vehicle);
+    if (meta.season) parts.push(meta.season);
+    return parts.join(" · ");
+  }
+
+  // Shape of a route as other features see it (planning state or a saved record).
+  function currentPlanningRoute() {
+    return {
+      id: state.id,
+      name: el.routeName.value.trim() || state.name || "",
+      points: state.points.slice(),
+      meta: normalizeMeta(state.meta),
+      waypoints: normalizeWaypoints(state.waypoints)
+    };
+  }
+
+  // ================= #017 Alerta de desvio por voz e vibração =================
+  var voiceEnabled = lsGet(VOICE_KEY, "1") !== "0";
+  var navOffRoute = false;
+  var navLastAlertAt = 0;
+  var navLastAlertDistance = 0;
+  var navArrivalAnnounced = false;
+  var NAV_ALERT_REPEAT_MS = 30000;
+
+  function pickPortugueseVoice() {
+    try {
+      var voices = window.speechSynthesis.getVoices() || [];
+      for (var i = 0; i < voices.length; i++) {
+        if (/pt[-_]BR/i.test(voices[i].lang)) return voices[i];
+      }
+      for (var j = 0; j < voices.length; j++) {
+        if (/^pt/i.test(voices[j].lang)) return voices[j];
+      }
+    } catch (e) {
+      /* ignore */
+    }
+    return null;
+  }
+
+  function speak(text) {
+    if (!voiceEnabled || !("speechSynthesis" in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = "pt-BR";
+      u.rate = 1;
+      var v = pickPortugueseVoice();
+      if (v) u.voice = v;
+      window.speechSynthesis.speak(u);
+    } catch (e) {
+      /* speech not available: vibration still works */
+    }
+  }
+
+  function buzz(pattern) {
+    if (!voiceEnabled) return;
+    try {
+      if (navigator.vibrate) navigator.vibrate(pattern);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  // Mobile browsers (iOS especially) only allow speech after a user tap —
+  // call this synchronously inside the click that starts navigation.
+  function primeSpeech() {
+    if (!voiceEnabled || !("speechSynthesis" in window)) return;
+    try {
+      var u = new SpeechSynthesisUtterance(" ");
+      u.volume = 0;
+      window.speechSynthesis.speak(u);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function spokenDistance(meters) {
+    if (meters < 1000) return Math.max(10, Math.round(meters / 10) * 10) + " metros";
+    return fmtNum(meters / 1000, 1) + " quilômetros";
+  }
+
+  function refreshVoiceButton() {
+    x.btnNavVoice.textContent = voiceEnabled ? "🔊" : "🔇";
+    x.btnNavVoice.classList.toggle("off", !voiceEnabled);
+    x.btnNavVoice.title = voiceEnabled ? "Alertas por voz e vibração: ligados" : "Alertas por voz e vibração: desligados";
+  }
+
+  x.btnNavVoice.addEventListener("click", function () {
+    voiceEnabled = !voiceEnabled;
+    lsSet(VOICE_KEY, voiceEnabled ? "1" : "0");
+    refreshVoiceButton();
+    if (voiceEnabled) {
+      speak("Alertas por voz ligados.");
+      buzz(120);
+    } else if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    showToast(voiceEnabled ? "🔊 Alertas por voz e vibração ligados" : "🔇 Alertas por voz e vibração desligados");
+  });
+
+  // Called on every GPS fix while navigating a planned route.
+  function navAlertsOnDeviation(distance, accuracy) {
+    var now = Date.now();
+    var enter = distance > deviationThreshold;
+    // small hysteresis so it doesn't flip-flop right at the limit
+    var exit = distance < deviationThreshold * 0.8;
+    var unreliable = accuracy != null && accuracy > Math.max(deviationThreshold, 30) * 1.5;
+
+    if (!navOffRoute) {
+      if (enter && !unreliable) {
+        navOffRoute = true;
+        navLastAlertAt = now;
+        navLastAlertDistance = distance;
+        buzz([400, 150, 400]);
+        speak("Atenção. Fora da rota, " + spokenDistance(distance) + ".");
+      }
+      return;
+    }
+    if (exit) {
+      navOffRoute = false;
+      buzz(150);
+      speak("De volta à rota.");
+      return;
+    }
+    if (now - navLastAlertAt > NAV_ALERT_REPEAT_MS) {
+      var trend = distance > navLastAlertDistance + 15 ? ", se afastando" : "";
+      navLastAlertAt = now;
+      navLastAlertDistance = distance;
+      buzz(300);
+      speak("Ainda fora da rota, " + spokenDistance(distance) + trend + ".");
+    }
+  }
+
+  function navAlertsOnRemaining(remaining, routeLength) {
+    if (navArrivalAnnounced || routeLength < 500) return;
+    if (remaining < 150) {
+      navArrivalAnnounced = true;
+      buzz([200, 100, 200]);
+      speak("Chegando ao destino.");
+    }
+  }
+
+  // ================= #018 Hodômetro parcial + estatísticas =================
+  var tripMeters = parseFloat(lsGet(TRIP_KEY, "0")) || 0;
+  var navStats = null;
+  var navLastFix = null; // {lat, lng, acc, ts} — also used by "enviar posição" and marcações
+  var tripResetArmedUntil = 0;
+
+  function newNavStats() {
+    return {
+      startedAt: Date.now(),
+      endedAt: null,
+      lastTs: null,
+      movingMs: 0,
+      stoppedMs: 0,
+      maxSpeed: 0,
+      maxAlt: null,
+      minAlt: null,
+      altRef: null,
+      gain: 0,
+      loss: 0,
+      distance: 0
+    };
+  }
+
+  function refreshTripDisplay() {
+    x.navTrip.textContent = fmtKm(tripMeters, tripMeters >= 100000 ? 1 : 2);
+    x.statsTripValue.textContent = fmtKm(tripMeters) + " km";
+  }
+
+  function resetTripMeter() {
+    tripMeters = 0;
+    lsSet(TRIP_KEY, "0");
+    refreshTripDisplay();
+    x.navTripTile.classList.remove("confirm-reset");
+    tripResetArmedUntil = 0;
+    showToast("Hodômetro parcial zerado.");
+  }
+
+  x.navTripTile.addEventListener("click", function () {
+    if (Date.now() < tripResetArmedUntil) {
+      resetTripMeter();
+      return;
+    }
+    tripResetArmedUntil = Date.now() + 3000;
+    x.navTripTile.classList.add("confirm-reset");
+    showToast("Toque de novo no parcial para zerar.");
+    setTimeout(function () {
+      if (Date.now() >= tripResetArmedUntil) x.navTripTile.classList.remove("confirm-reset");
+    }, 3100);
+  });
+
+  x.btnTripReset.addEventListener("click", resetTripMeter);
+
+  // pos: GeolocationPosition; speedKmh: current speed (or null);
+  // addedMeters: distance added to the recorded track by this fix.
+  function navExtrasOnPosition(pos, speedKmh, addedMeters) {
+    var c = pos.coords;
+    navLastFix = { lat: c.latitude, lng: c.longitude, acc: c.accuracy, ts: pos.timestamp || Date.now() };
+
+    var accOk = c.accuracy == null || c.accuracy <= 50;
+    if (addedMeters > 0 && accOk) {
+      tripMeters += addedMeters;
+      lsSet(TRIP_KEY, String(Math.round(tripMeters * 10) / 10));
+      refreshTripDisplay();
+    }
+
+    var s = navStats;
+    if (!s) return;
+    var ts = pos.timestamp || Date.now();
+    if (s.lastTs != null) {
+      var dt = Math.max(0, Math.min(ts - s.lastTs, 60000)); // GPS pausado não conta como hora parada inteira
+      if (speedKmh != null && speedKmh >= 2) s.movingMs += dt;
+      else s.stoppedMs += dt;
+    }
+    s.lastTs = ts;
+    if (speedKmh != null && speedKmh < 250 && (c.accuracy == null || c.accuracy <= 30) && speedKmh > s.maxSpeed) {
+      s.maxSpeed = speedKmh;
+    }
+    var alt = c.altitude;
+    if (alt != null && !isNaN(alt) && (c.altitudeAccuracy == null || c.altitudeAccuracy <= 25)) {
+      if (s.maxAlt == null || alt > s.maxAlt) s.maxAlt = alt;
+      if (s.minAlt == null || alt < s.minAlt) s.minAlt = alt;
+      if (s.altRef == null) {
+        s.altRef = alt;
+      } else if (alt - s.altRef >= 5) {
+        s.gain += alt - s.altRef;
+        s.altRef = alt;
+      } else if (s.altRef - alt >= 5) {
+        s.loss += s.altRef - alt;
+        s.altRef = alt;
+      }
+    }
+    if (accOk) s.distance += addedMeters;
+  }
+
+  function statsSnapshot(s) {
+    if (!s) return null;
+    var end = s.endedAt || Date.now();
+    var movingH = s.movingMs / 3600000;
+    return {
+      startedAt: s.startedAt,
+      endedAt: s.endedAt,
+      totalMs: end - s.startedAt,
+      movingMs: s.movingMs,
+      stoppedMs: s.stoppedMs,
+      distance: Math.round(s.distance),
+      avgMovingKmh: movingH > 0.005 ? s.distance / 1000 / movingH : null,
+      maxSpeed: s.maxSpeed || null,
+      maxAlt: s.maxAlt,
+      minAlt: s.minAlt,
+      gain: Math.round(s.gain),
+      loss: Math.round(s.loss)
+    };
+  }
+
+  function renderStatsGrid(container, snap, compact) {
+    container.innerHTML = "";
+    if (!snap) return;
+    var items = [
+      ["Tempo total", fmtDuration(snap.totalMs)],
+      ["Em movimento", fmtDuration(snap.movingMs)],
+      ["Parado", fmtDuration(snap.stoppedMs)],
+      ["Distância", fmtKm(snap.distance) + " km"],
+      ["Vel. média", snap.avgMovingKmh == null ? "--" : fmtNum(snap.avgMovingKmh, 1) + " km/h"],
+      ["Vel. máxima", snap.maxSpeed == null ? "--" : Math.round(snap.maxSpeed) + " km/h"],
+      ["Altitude máx.", snap.maxAlt == null ? "--" : Math.round(snap.maxAlt) + " m"],
+      ["Altitude mín.", snap.minAlt == null ? "--" : Math.round(snap.minAlt) + " m"],
+      ["Subida / descida", snap.maxAlt == null ? "--" : "↑" + snap.gain + " ↓" + snap.loss + " m"]
+    ];
+    if (compact) {
+      items = [items[0], items[1], items[2], items[4], items[5], items[6]];
+    }
+    items.forEach(function (it) {
+      var d = document.createElement("div");
+      d.className = "stat";
+      var b = document.createElement("b");
+      b.textContent = it[1];
+      var sp = document.createElement("span");
+      sp.textContent = it[0];
+      d.appendChild(b);
+      d.appendChild(sp);
+      container.appendChild(d);
+    });
+  }
+
+  x.btnNavStats.addEventListener("click", function () {
+    renderStatsGrid(x.statsModalGrid, statsSnapshot(navStats), false);
+    refreshTripDisplay();
+    openModal(x.statsModal);
+  });
+  x.btnStatsClose.addEventListener("click", function () {
+    closeModal(x.statsModal);
+  });
+
+  // ---- hooks called from the existing navigation code ----
+  function navExtrasOnStart() {
+    navOffRoute = false;
+    navLastAlertAt = 0;
+    navLastAlertDistance = 0;
+    navArrivalAnnounced = false;
+    navStats = newNavStats();
+    navSessionWaypoints = [];
+    x.navSideTools.classList.remove("hidden");
+    x.navSummaryStats.innerHTML = "";
+    refreshVoiceButton();
+    refreshTripDisplay();
+    renderNavWaypointMarkers();
+    if (navMode === "route") speak("Navegação iniciada.");
+  }
+
+  function navExtrasOnFinish() {
+    if (navStats) navStats.endedAt = Date.now();
+    renderStatsGrid(x.navSummaryStats, statsSnapshot(navStats), true);
+    x.navSideTools.classList.add("hidden");
+    if ("speechSynthesis" in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch (e) {
+        /* ignore */
+      }
+    }
+  }
+
+  el.btnNavConfirmOk.addEventListener("click", primeSpeech);
+  el.btnNavFreeMode.addEventListener("click", primeSpeech);
+
+  // ================= #019 Enviar minha posição =================
+  var sendposMessage = "";
+
+  function setSendposEnabled(enabled) {
+    [x.btnSendposWhatsapp, x.btnSendposSms, x.btnSendposShare, x.btnSendposCopy].forEach(function (b) {
+      b.disabled = !enabled;
+    });
+  }
+
+  function buildSendposMessage(fix) {
+    var lat = fix.lat.toFixed(6);
+    var lng = fix.lng.toFixed(6);
+    var when = new Date(fix.ts).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    var lines = [
+      "📍 Minha posição (Fora de Estrada)",
+      lat + ", " + lng + (fix.acc ? " (±" + Math.round(fix.acc) + " m)" : ""),
+      "Plus Code: " + pointPlusCode({ lat: fix.lat, lng: fix.lng }),
+      "Horário: " + when,
+      "https://maps.google.com/?q=" + lat + "," + lng
+    ];
+    return lines.join("\n");
+  }
+
+  function fillSendpos(fix) {
+    sendposMessage = buildSendposMessage(fix);
+    x.sendposText.textContent = sendposMessage;
+    setSendposEnabled(true);
+  }
+
+  function openSendPosition() {
+    sendposMessage = "";
+    setSendposEnabled(false);
+    x.btnSendposShare.classList.toggle("hidden", !navigator.share);
+    x.sendposText.textContent = "Obtendo posição do GPS...";
+    openModal(x.sendposModal);
+
+    var recent = navLastFix && Date.now() - navLastFix.ts < 30000 ? navLastFix : null;
+    if (recent) fillSendpos(recent);
+    if (!navigator.geolocation) {
+      if (!recent) x.sendposText.textContent = "GPS não disponível neste aparelho/navegador.";
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        fillSendpos({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy, ts: pos.timestamp || Date.now() });
+      },
+      function (err) {
+        if (!recent) {
+          x.sendposText.textContent =
+            "Não foi possível obter a posição (" + (err && err.message ? err.message : "sem sinal") + "). Verifique se o GPS/localização está ligado.";
+        }
+      },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 }
+    );
+  }
+
+  x.dashSendpos.addEventListener("click", openSendPosition);
+  x.btnNavSendpos.addEventListener("click", openSendPosition);
+  x.btnSendposClose.addEventListener("click", function () {
+    closeModal(x.sendposModal);
+  });
+  x.btnSendposWhatsapp.addEventListener("click", function () {
+    if (!sendposMessage) return;
+    window.open("https://wa.me/?text=" + encodeURIComponent(sendposMessage), "_blank");
+  });
+  x.btnSendposSms.addEventListener("click", function () {
+    if (!sendposMessage) return;
+    window.location.href = "sms:?&body=" + encodeURIComponent(sendposMessage);
+  });
+  x.btnSendposShare.addEventListener("click", function () {
+    if (!sendposMessage || !navigator.share) return;
+    navigator.share({ title: "Minha posição", text: sendposMessage }).catch(function () {});
+  });
+  x.btnSendposCopy.addEventListener("click", function () {
+    if (!sendposMessage) return;
+    copyText(sendposMessage, "Posição copiada.");
+  });
+
+  function copyText(text, okMsg) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          showToast(okMsg);
+        },
+        function () {
+          legacyCopy(text, okMsg);
+        }
+      );
+    } else {
+      legacyCopy(text, okMsg);
+    }
+  }
+
+  function legacyCopy(text, okMsg) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+      showToast(okMsg);
+    } catch (e) {
+      showToast("Não foi possível copiar.");
+    }
+    document.body.removeChild(ta);
+  }
+
+  // ================= #020 Dificuldade e observações por rota =================
+  var DIFFICULTY_LABELS = [
+    "Sem avaliação",
+    "1 – Tranquila (estrada de terra boa)",
+    "2 – Fácil (buracos, cascalho)",
+    "3 – Moderada (pede 4x4)",
+    "4 – Difícil (bloqueio, pneu de lama)",
+    "5 – Extrema (guincho, equipe de apoio)"
+  ];
+
+  function ensureStateExtras() {
+    state.meta = normalizeMeta(state.meta);
+    state.waypoints = normalizeWaypoints(state.waypoints);
+    if (state.elevation === undefined) state.elevation = null;
+  }
+
+  function renderRouteInfo() {
+    ensureStateExtras();
+    var meta = state.meta;
+    x.difficultyStars.innerHTML = "";
+    for (var i = 1; i <= 5; i++) {
+      (function (n) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = "★";
+        b.className = n <= meta.difficulty ? "on" : "";
+        b.setAttribute("role", "radio");
+        b.setAttribute("aria-checked", n === meta.difficulty ? "true" : "false");
+        b.title = DIFFICULTY_LABELS[n];
+        b.addEventListener("click", function () {
+          state.meta.difficulty = state.meta.difficulty === n ? 0 : n; // tocar de novo na mesma estrela limpa
+          renderRouteInfo();
+          saveDraft();
+        });
+        x.difficultyStars.appendChild(b);
+      })(i);
+    }
+    x.difficultyLabel.textContent = DIFFICULTY_LABELS[meta.difficulty];
+    x.routeVehicle.value = meta.vehicle;
+    x.routeSeason.value = meta.season;
+    if (document.activeElement !== x.routeNotes) x.routeNotes.value = meta.notes;
+    x.routeInfoSummary.textContent = routeMetaSummary(meta);
+  }
+
+  x.routeVehicle.addEventListener("change", function () {
+    ensureStateExtras();
+    state.meta.vehicle = x.routeVehicle.value;
+    renderRouteInfo();
+    saveDraft();
+  });
+  x.routeSeason.addEventListener("change", function () {
+    ensureStateExtras();
+    state.meta.season = x.routeSeason.value;
+    renderRouteInfo();
+    saveDraft();
+  });
+  x.routeNotes.addEventListener("input", function () {
+    ensureStateExtras();
+    state.meta.notes = x.routeNotes.value;
+    saveDraft();
+  });
+
+  // Line shown on route cards (Rotas Salvas / escolher rota pra navegar)
+  function routeCardExtraText(route) {
+    var parts = [];
+    var meta = routeMetaSummary(route.meta);
+    if (meta) parts.push(meta);
+    var wps = Array.isArray(route.waypoints) ? route.waypoints.length : 0;
+    if (wps) parts.push("📌 " + wps);
+    if (route.points && route.points.length >= 2) parts.push(formatDistance(polylineLengthMeters(route.points)));
+    return parts.join(" · ");
+  }
+
+  // ================= Fotos (IndexedDB + Google Drive) =================
+  var PHOTO_DB_NAME = "jipeRotas_photos_v1";
+  var photoDbPromise = null;
+
+  function openPhotoDb() {
+    if (photoDbPromise) return photoDbPromise;
+    photoDbPromise = new Promise(function (resolve, reject) {
+      if (!window.indexedDB) {
+        reject(new Error("IndexedDB indisponível"));
+        return;
+      }
+      var req = indexedDB.open(PHOTO_DB_NAME, 1);
+      req.onupgradeneeded = function () {
+        req.result.createObjectStore("photos");
+      };
+      req.onsuccess = function () {
+        resolve(req.result);
+      };
+      req.onerror = function () {
+        reject(req.error);
+      };
+    });
+    return photoDbPromise;
+  }
+
+  function putPhoto(id, blob) {
+    return openPhotoDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction("photos", "readwrite");
+        tx.objectStore("photos").put(blob, id);
+        tx.oncomplete = function () {
+          resolve();
+        };
+        tx.onerror = function () {
+          reject(tx.error);
+        };
+      });
+    });
+  }
+
+  function getLocalPhoto(id) {
+    return openPhotoDb()
+      .then(function (db) {
+        return new Promise(function (resolve) {
+          var tx = db.transaction("photos", "readonly");
+          var r = tx.objectStore("photos").get(id);
+          r.onsuccess = function () {
+            resolve(r.result || null);
+          };
+          r.onerror = function () {
+            resolve(null);
+          };
+        });
+      })
+      .catch(function () {
+        return null;
+      });
+  }
+
+  function photoDriveName(id) {
+    return id + ".jpg"; // ids já começam com "foto_"
+  }
+
+  function fetchPhotoFromDrive(id) {
+    if (!driveConnected || !driveFolderId) return Promise.resolve(null);
+    var q = encodeURIComponent("name='" + photoDriveName(id) + "' and '" + driveFolderId + "' in parents and trashed=false");
+    return driveFetch(DRIVE_API + "/files?q=" + q + "&spaces=drive&fields=files(id)")
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data.files || !data.files.length) return null;
+        return driveFetch(DRIVE_API + "/files/" + data.files[0].id + "?alt=media").then(function (r) {
+          return r.ok ? r.blob() : null;
+        });
+      })
+      .then(function (blob) {
+        if (!blob) return null;
+        return putPhoto(id, blob).then(function () {
+          return blob;
+        });
+      })
+      .catch(function () {
+        return null;
+      });
+  }
+
+  function getPhoto(id) {
+    if (!id) return Promise.resolve(null);
+    return getLocalPhoto(id).then(function (blob) {
+      return blob || fetchPhotoFromDrive(id);
+    });
+  }
+
+  function collectPhotoIds(routes) {
+    var ids = [];
+    routes.forEach(function (r) {
+      if (r.deleted || !Array.isArray(r.waypoints)) return;
+      r.waypoints.forEach(function (w) {
+        if (w.photoId && ids.indexOf(w.photoId) === -1) ids.push(w.photoId);
+      });
+    });
+    return ids;
+  }
+
+  var photoSyncRunning = false;
+
+  function uploadPhotoToDrive(id, blob) {
+    var boundary = "foraDeEstradaFoto" + Date.now();
+    var meta = { name: photoDriveName(id), mimeType: "image/jpeg", parents: [driveFolderId] };
+    var body = new Blob(
+      [
+        "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify(meta) + "\r\n",
+        "--" + boundary + "\r\nContent-Type: image/jpeg\r\n\r\n",
+        blob,
+        "\r\n--" + boundary + "--"
+      ],
+      { type: "multipart/related; boundary=" + boundary }
+    );
+    return driveFetch(DRIVE_UPLOAD_API + "/files?uploadType=multipart&fields=id", {
+      method: "POST",
+      headers: { "Content-Type": "multipart/related; boundary=" + boundary },
+      body: body
+    }).then(function (r) {
+      return r.ok ? r.json() : null;
+    });
+  }
+
+  // Sobe pro Drive as fotos de marcações que ainda não foram enviadas.
+  function syncPhotosToDrive() {
+    if (photoSyncRunning || !driveConnected || !driveFolderId) return Promise.resolve();
+    var uploaded = {};
+    try {
+      uploaded = JSON.parse(lsGet(PHOTO_UPLOADED_KEY, "{}")) || {};
+    } catch (e) {
+      uploaded = {};
+    }
+    var pending = collectPhotoIds(loadSavedRoutes()).filter(function (id) {
+      return !uploaded[id];
+    });
+    if (!pending.length) return Promise.resolve();
+    photoSyncRunning = true;
+    var chain = Promise.resolve();
+    pending.forEach(function (id) {
+      chain = chain.then(function () {
+        return getLocalPhoto(id).then(function (blob) {
+          if (!blob || !driveConnected) return;
+          return uploadPhotoToDrive(id, blob).then(function (data) {
+            if (data && data.id) {
+              uploaded[id] = data.id;
+              lsSet(PHOTO_UPLOADED_KEY, JSON.stringify(uploaded));
+            }
+          });
+        });
+      });
+    });
+    return chain
+      .catch(function () {
+        /* offline: tenta de novo no próximo sync */
+      })
+      .then(function () {
+        photoSyncRunning = false;
+      });
+  }
+
+  // Reduz a foto (máx. 1280 px, JPEG 70%) — ~150-300 KB em vez de vários MB.
+  function compressImage(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var max = 1280;
+        var w = img.naturalWidth,
+          h = img.naturalHeight;
+        var scale = Math.min(1, max / Math.max(w, h));
+        var canvas = document.createElement("canvas");
+        canvas.width = Math.round(w * scale);
+        canvas.height = Math.round(h * scale);
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(
+          function (blob) {
+            if (blob) resolve(blob);
+            else reject(new Error("falha ao comprimir"));
+          },
+          "image/jpeg",
+          0.7
+        );
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("imagem inválida"));
+      };
+      img.src = url;
+    });
+  }
+
+  var photoModalUrl = null;
+  function showPhotoFullscreen(photoId, caption) {
+    getPhoto(photoId).then(function (blob) {
+      if (!blob) {
+        showToast("Foto não disponível neste aparelho (conecte o Google Drive para baixar).");
+        return;
+      }
+      if (photoModalUrl) URL.revokeObjectURL(photoModalUrl);
+      photoModalUrl = URL.createObjectURL(blob);
+      x.photoModalImg.src = photoModalUrl;
+      x.photoModalCaption.textContent = caption || "";
+      openModal(x.photoModal);
+    });
+  }
+  x.btnPhotoClose.addEventListener("click", function () {
+    closeModal(x.photoModal);
+  });
+  x.photoModal.addEventListener("click", function (e) {
+    if (e.target === x.photoModal) closeModal(x.photoModal);
+  });
+
+  // ================= #022 Marcações (waypoints) com foto e anotação =================
+  var WAYPOINT_TYPES = [
+    { id: "atoleiro", label: "Atoleiro", emoji: "🟤" },
+    { id: "porteira", label: "Porteira", emoji: "🚧" },
+    { id: "agua", label: "Água / travessia", emoji: "💧" },
+    { id: "perigo", label: "Perigo", emoji: "⚠️" },
+    { id: "mirante", label: "Mirante", emoji: "🏞️" },
+    { id: "camping", label: "Camping", emoji: "⛺" },
+    { id: "apoio", label: "Apoio / borracharia", emoji: "🔧" },
+    { id: "outro", label: "Outro", emoji: "📍" }
+  ];
+
+  function waypointType(id) {
+    for (var i = 0; i < WAYPOINT_TYPES.length; i++) if (WAYPOINT_TYPES[i].id === id) return WAYPOINT_TYPES[i];
+    return WAYPOINT_TYPES[WAYPOINT_TYPES.length - 1];
+  }
+
+  function waypointIcon(wp) {
+    return L.divIcon({
+      className: "wp-marker-wrapper",
+      html: '<div class="wp-marker">' + waypointType(wp.type).emoji + "</div>",
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -14]
+    });
+  }
+
+  // Popup de uma marcação. actions: {onEdit, onDelete} (opcionais)
+  function buildWaypointPopup(wp, actions) {
+    var t = waypointType(wp.type);
+    var div = document.createElement("div");
+    div.className = "wp-popup";
+    var title = document.createElement("div");
+    title.className = "wp-popup-title";
+    title.textContent = t.emoji + " " + t.label;
+    div.appendChild(title);
+    if (wp.note) {
+      var note = document.createElement("div");
+      note.className = "wp-popup-note";
+      note.textContent = wp.note;
+      div.appendChild(note);
+    }
+    if (wp.photoId) {
+      var img = document.createElement("img");
+      img.alt = "Foto: " + t.label;
+      img.addEventListener("click", function () {
+        showPhotoFullscreen(wp.photoId, t.label + (wp.note ? " — " + wp.note : ""));
+      });
+      div.appendChild(img);
+      getPhoto(wp.photoId).then(function (blob) {
+        if (blob) img.src = URL.createObjectURL(blob);
+        else img.replaceWith(document.createTextNode("📷 foto ainda não baixada"));
+      });
+    }
+    var coords = document.createElement("div");
+    coords.className = "hint";
+    coords.textContent = wp.lat.toFixed(5) + ", " + wp.lng.toFixed(5);
+    div.appendChild(coords);
+    if (actions && (actions.onEdit || actions.onDelete)) {
+      var row = document.createElement("div");
+      row.className = "wp-popup-actions";
+      if (actions.onEdit) {
+        var eb = document.createElement("button");
+        eb.textContent = "Editar";
+        eb.addEventListener("click", actions.onEdit);
+        row.appendChild(eb);
+      }
+      if (actions.onDelete) {
+        var db = document.createElement("button");
+        db.textContent = "Excluir";
+        db.addEventListener("click", actions.onDelete);
+        row.appendChild(db);
+      }
+      div.appendChild(row);
+    }
+    return div;
+  }
+
+  // ---- editor (modal) compartilhado entre planejamento e navegação ----
+  var wpEditor = null; // {lat, lng, type, note, photoId, newBlob, removedPhoto, onSave, onDelete}
+  var wpPreviewUrl = null;
+
+  function renderWaypointTypeChips() {
+    x.waypointTypeChips.innerHTML = "";
+    WAYPOINT_TYPES.forEach(function (t) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = t.emoji + " " + t.label;
+      b.className = wpEditor && wpEditor.type === t.id ? "on" : "";
+      b.addEventListener("click", function () {
+        wpEditor.type = t.id;
+        renderWaypointTypeChips();
+      });
+      x.waypointTypeChips.appendChild(b);
+    });
+  }
+
+  function setWaypointPreview(blob) {
+    if (wpPreviewUrl) {
+      URL.revokeObjectURL(wpPreviewUrl);
+      wpPreviewUrl = null;
+    }
+    if (blob) {
+      wpPreviewUrl = URL.createObjectURL(blob);
+      x.waypointPhotoPreview.src = wpPreviewUrl;
+      x.waypointPhotoPreview.classList.remove("hidden");
+      x.btnWaypointPhotoRemove.classList.remove("hidden");
+    } else {
+      x.waypointPhotoPreview.removeAttribute("src");
+      x.waypointPhotoPreview.classList.add("hidden");
+      x.btnWaypointPhotoRemove.classList.add("hidden");
+    }
+  }
+
+  function openWaypointEditor(opts) {
+    var existing = opts.existing || null;
+    wpEditor = {
+      lat: existing ? existing.lat : opts.lat,
+      lng: existing ? existing.lng : opts.lng,
+      type: existing ? existing.type : "outro",
+      note: existing ? existing.note : "",
+      photoId: existing ? existing.photoId : null,
+      newBlob: null,
+      removedPhoto: false,
+      existing: existing,
+      onSave: opts.onSave,
+      onDelete: opts.onDelete || null
+    };
+    x.waypointModalTitle.textContent = existing ? "📌 Editar marcação" : "📌 Marcar local";
+    x.waypointNote.value = wpEditor.note;
+    x.waypointCoords.textContent = wpEditor.lat.toFixed(6) + ", " + wpEditor.lng.toFixed(6);
+    x.btnWaypointDelete.classList.toggle("hidden", !existing || !opts.onDelete);
+    renderWaypointTypeChips();
+    setWaypointPreview(null);
+    if (wpEditor.photoId) {
+      var editing = wpEditor;
+      getPhoto(wpEditor.photoId).then(function (blob) {
+        if (wpEditor === editing && blob && !editing.newBlob && !editing.removedPhoto) setWaypointPreview(blob);
+      });
+    }
+    openModal(x.waypointModal);
+  }
+
+  x.waypointPhotoInput.addEventListener("change", function () {
+    var file = x.waypointPhotoInput.files[0];
+    x.waypointPhotoInput.value = "";
+    if (!file || !wpEditor) return;
+    var editing = wpEditor;
+    showToast("Processando foto...");
+    compressImage(file)
+      .then(function (blob) {
+        if (wpEditor !== editing) return;
+        editing.newBlob = blob;
+        editing.removedPhoto = false;
+        setWaypointPreview(blob);
+      })
+      .catch(function () {
+        showToast("Não foi possível ler essa foto.");
+      });
+  });
+
+  x.btnWaypointPhotoRemove.addEventListener("click", function () {
+    if (!wpEditor) return;
+    wpEditor.newBlob = null;
+    wpEditor.removedPhoto = true;
+    setWaypointPreview(null);
+  });
+
+  x.btnWaypointCancel.addEventListener("click", function () {
+    closeModal(x.waypointModal);
+    setWaypointPreview(null);
+    wpEditor = null;
+  });
+
+  x.btnWaypointDelete.addEventListener("click", function () {
+    if (!wpEditor || !wpEditor.onDelete) return;
+    if (!window.confirm("Excluir esta marcação?")) return;
+    var cb = wpEditor.onDelete;
+    closeModal(x.waypointModal);
+    setWaypointPreview(null);
+    wpEditor = null;
+    cb();
+  });
+
+  x.btnWaypointSave.addEventListener("click", function () {
+    if (!wpEditor) return;
+    var ed = wpEditor;
+    var wp = {
+      id: ed.existing ? ed.existing.id : newId("wp"),
+      lat: ed.lat,
+      lng: ed.lng,
+      type: ed.type,
+      note: x.waypointNote.value.trim(),
+      photoId: ed.removedPhoto ? null : ed.photoId,
+      createdAt: ed.existing ? ed.existing.createdAt : Date.now()
+    };
+    var savePhoto = Promise.resolve();
+    if (ed.newBlob) {
+      wp.photoId = newId("foto");
+      savePhoto = putPhoto(wp.photoId, ed.newBlob).catch(function () {
+        wp.photoId = null;
+        showToast("Não foi possível guardar a foto neste aparelho.");
+      });
+    }
+    x.btnWaypointSave.disabled = true;
+    savePhoto.then(function () {
+      x.btnWaypointSave.disabled = false;
+      closeModal(x.waypointModal);
+      setWaypointPreview(null);
+      wpEditor = null;
+      ed.onSave(wp);
+    });
+  });
+
+  // ---- planejamento ----
+  var planningWpMarkers = [];
+  var waypointPlacementMode = false;
+
+  function setWaypointPlacementMode(on) {
+    waypointPlacementMode = on;
+    x.btnWaypointMode.classList.toggle("active", on);
+    x.btnWaypointMode.textContent = on ? "✋ Toque no mapa onde marcar (cancelar)" : "📌 Marcar local no mapa";
+    if (map) map.getContainer().style.cursor = on ? "crosshair" : "";
+  }
+
+  x.btnWaypointMode.addEventListener("click", function () {
+    setWaypointPlacementMode(!waypointPlacementMode);
+    if (waypointPlacementMode) {
+      closeSidePanelOnMobile();
+      showToast("Toque no mapa no local da marcação.");
+    }
+  });
+
+  function upsertPlanningWaypoint(wp) {
+    ensureStateExtras();
+    var idx = state.waypoints.findIndex(function (w) {
+      return w.id === wp.id;
+    });
+    if (idx >= 0) state.waypoints[idx] = wp;
+    else state.waypoints.push(wp);
+    saveDraft();
+    renderPlanningWaypoints();
+  }
+
+  function deletePlanningWaypoint(id) {
+    ensureStateExtras();
+    state.waypoints = state.waypoints.filter(function (w) {
+      return w.id !== id;
+    });
+    saveDraft();
+    renderPlanningWaypoints();
+  }
+
+  function editPlanningWaypoint(wp) {
+    if (map) map.closePopup();
+    openWaypointEditor({
+      existing: wp,
+      onSave: upsertPlanningWaypoint,
+      onDelete: function () {
+        deletePlanningWaypoint(wp.id);
+      }
+    });
+  }
+
+  // chamado pelo clique no mapa de planejamento quando o modo está ligado
+  function handlePlanningMapClickForWaypoint(latlng) {
+    setWaypointPlacementMode(false);
+    openWaypointEditor({ lat: latlng.lat, lng: latlng.lng, onSave: upsertPlanningWaypoint });
+  }
+
+  function renderPlanningWaypoints() {
+    ensureStateExtras();
+    planningWpMarkers.forEach(function (m) {
+      if (map) map.removeLayer(m);
+    });
+    planningWpMarkers = [];
+    x.waypointList.innerHTML = "";
+    x.waypointCount.textContent = String(state.waypoints.length);
+
+    state.waypoints.forEach(function (wp) {
+      if (map) {
+        var m = L.marker([wp.lat, wp.lng], { icon: waypointIcon(wp), draggable: true, zIndexOffset: 500 }).addTo(map);
+        m.bindPopup(function () {
+          return buildWaypointPopup(wp, {
+            onEdit: function () {
+              editPlanningWaypoint(wp);
+            },
+            onDelete: function () {
+              if (window.confirm("Excluir esta marcação?")) {
+                map.closePopup();
+                deletePlanningWaypoint(wp.id);
+              }
+            }
+          });
+        });
+        m.on("dragend", function () {
+          var ll = m.getLatLng();
+          wp.lat = ll.lat;
+          wp.lng = ll.lng;
+          saveDraft();
+        });
+        planningWpMarkers.push(m);
+      }
+
+      var t = waypointType(wp.type);
+      var li = document.createElement("li");
+      var emoji = document.createElement("span");
+      emoji.className = "wp-emoji";
+      emoji.textContent = t.emoji;
+      li.appendChild(emoji);
+      var text = document.createElement("span");
+      text.className = "wp-text";
+      text.textContent = t.label + (wp.note ? " — " + wp.note : "") + (wp.photoId ? " 📷" : "");
+      text.title = "Mostrar no mapa";
+      text.addEventListener("click", function () {
+        if (!map) return;
+        closeSidePanelOnMobile();
+        map.setView([wp.lat, wp.lng], Math.max(map.getZoom(), 16));
+        var i = state.waypoints.indexOf(wp);
+        if (planningWpMarkers[i]) planningWpMarkers[i].openPopup();
+      });
+      li.appendChild(text);
+      var eb = document.createElement("button");
+      eb.textContent = "✎";
+      eb.title = "Editar";
+      eb.addEventListener("click", function () {
+        editPlanningWaypoint(wp);
+      });
+      li.appendChild(eb);
+      var rb = document.createElement("button");
+      rb.textContent = "✕";
+      rb.title = "Excluir";
+      rb.addEventListener("click", function () {
+        if (window.confirm("Excluir esta marcação?")) deletePlanningWaypoint(wp.id);
+      });
+      li.appendChild(rb);
+      x.waypointList.appendChild(li);
+    });
+  }
+
+  // ---- navegação ----
+  var navSessionWaypoints = []; // marcações feitas no Modo Livre (vão junto ao salvar o trajeto)
+  var navWpMarkers = [];
+
+  function navAllWaypoints() {
+    var base = navMode === "route" && navCurrentRoute ? normalizeWaypoints(navCurrentRoute.waypoints) : [];
+    return base.concat(navSessionWaypoints);
+  }
+
+  function renderNavWaypointMarkers() {
+    if (!navMap) return;
+    navWpMarkers.forEach(function (m) {
+      navMap.removeLayer(m);
+    });
+    navWpMarkers = [];
+    navAllWaypoints().forEach(function (wp) {
+      var m = L.marker([wp.lat, wp.lng], { icon: waypointIcon(wp), zIndexOffset: 500 }).addTo(navMap);
+      m.bindPopup(function () {
+        return buildWaypointPopup(wp, null);
+      });
+      navWpMarkers.push(m);
+    });
+  }
+
+  // Grava marcação feita durante a navegação direto na rota salva.
+  function appendWaypointToSavedRoute(routeId, wp) {
+    var routes = loadSavedRoutes();
+    var target = routes.find(function (r) {
+      return r.id === routeId;
+    });
+    if (!target) return false;
+    target.waypoints = normalizeWaypoints(target.waypoints);
+    target.waypoints.push(wp);
+    target.savedAt = Date.now();
+    persistSavedRoutes(routes);
+    refreshSavedRoutesUI();
+    // se essa mesma rota está aberta no planejamento, mantém os dois iguais
+    if (state.id === routeId) {
+      ensureStateExtras();
+      state.waypoints.push(wp);
+      saveDraft();
+      renderPlanningWaypoints();
+    }
+    return true;
+  }
+
+  x.btnNavWaypoint.addEventListener("click", function () {
+    if (!navLastFix) {
+      showToast("Aguardando sinal do GPS para marcar o local.");
+      return;
+    }
+    openWaypointEditor({
+      lat: navLastFix.lat,
+      lng: navLastFix.lng,
+      onSave: function (wp) {
+        if (navMode === "route" && navCurrentRoute && navCurrentRoute.id) {
+          navCurrentRoute.waypoints = normalizeWaypoints(navCurrentRoute.waypoints);
+          navCurrentRoute.waypoints.push(wp);
+          appendWaypointToSavedRoute(navCurrentRoute.id, wp);
+          showToast("Marcação salva na rota.");
+        } else {
+          navSessionWaypoints.push(wp);
+          if (navFreeModeSavedRouteId && appendWaypointToSavedRoute(navFreeModeSavedRouteId, wp)) {
+            showToast("Marcação salva no trajeto.");
+          } else {
+            showToast("Marcação guardada — vai junto quando você salvar o trajeto.");
+          }
+        }
+        renderNavWaypointMarkers();
+        buzz(80);
+      }
+    });
+  });
+
+  // ================= #021 Compartilhar rota (GPX, link, QR code) =================
+
+  function buildGpxForRoute(route) {
+    var name = route.name || "Rota sem nome";
+    var meta = normalizeMeta(route.meta);
+    var descParts = [];
+    var summary = routeMetaSummary(meta);
+    if (meta.difficulty) descParts.push("Dificuldade: " + meta.difficulty + "/5");
+    if (meta.vehicle) descParts.push("Veículo: " + meta.vehicle);
+    if (meta.season) descParts.push("Época: " + meta.season);
+    if (meta.notes) descParts.push(meta.notes);
+    var lines = [];
+    lines.push('<?xml version="1.0" encoding="UTF-8"?>');
+    lines.push(
+      '<gpx version="1.1" creator="Fora de Estrada" xmlns="http://www.topografix.com/GPX/1/1" ' +
+        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
+        'xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">'
+    );
+    lines.push("  <metadata>");
+    lines.push("    <name>" + escapeXml(name) + "</name>");
+    if (descParts.length) lines.push("    <desc>" + escapeXml(descParts.join(" | ")) + "</desc>");
+    lines.push("  </metadata>");
+    normalizeWaypoints(route.waypoints).forEach(function (w) {
+      var t = waypointType(w.type);
+      lines.push('  <wpt lat="' + w.lat + '" lon="' + w.lng + '">');
+      lines.push("    <name>" + escapeXml(t.label) + "</name>");
+      if (w.note) lines.push("    <desc>" + escapeXml(w.note) + "</desc>");
+      lines.push("    <type>" + escapeXml(t.id) + "</type>");
+      lines.push("  </wpt>");
+    });
+    lines.push("  <trk>");
+    lines.push("    <name>" + escapeXml(name) + "</name>");
+    if (summary) lines.push("    <desc>" + escapeXml(summary) + "</desc>");
+    lines.push("    <trkseg>");
+    route.points.forEach(function (p) {
+      lines.push('      <trkpt lat="' + p.lat + '" lon="' + p.lng + '"></trkpt>');
+    });
+    lines.push("    </trkseg>");
+    lines.push("  </trk>");
+    lines.push("</gpx>");
+    return lines.join("\n");
+  }
+
+  // Marcações (<wpt>) de um GPX importado — só quando o arquivo também tem trilha/rota
+  // (um GPX só de <wpt> continua sendo lido como a própria rota, como antes).
+  function parseGpxWaypoints(doc) {
+    if (doc.getElementsByTagName("trkpt").length === 0 && doc.getElementsByTagName("rtept").length === 0) return [];
+    var els = doc.getElementsByTagName("wpt");
+    var out = [];
+    for (var i = 0; i < els.length; i++) {
+      var lat = parseFloat(els[i].getAttribute("lat"));
+      var lng = parseFloat(els[i].getAttribute("lon"));
+      if (isNaN(lat) || isNaN(lng)) continue;
+      var typeId = getElementsText(els[i], "type");
+      var name = getElementsText(els[i], "name");
+      var desc = getElementsText(els[i], "desc");
+      var known = WAYPOINT_TYPES.some(function (t) {
+        return t.id === typeId;
+      });
+      out.push({
+        id: newId("wp"),
+        lat: lat,
+        lng: lng,
+        type: known ? typeId : "outro",
+        note: known ? desc : [name, desc].filter(Boolean).join(" — "),
+        photoId: null,
+        createdAt: Date.now()
+      });
+    }
+    return out;
+  }
+
+  function parseGpxMeta(doc) {
+    var meta = emptyMeta();
+    var md = doc.getElementsByTagName("metadata")[0];
+    var desc = md ? getElementsText(md, "desc") : "";
+    if (!desc) return meta;
+    desc.split(" | ").forEach(function (part) {
+      var m;
+      if ((m = /^Dificuldade:\s*(\d)\/5$/.exec(part))) meta.difficulty = parseInt(m[1], 10);
+      else if ((m = /^Veículo:\s*(.+)$/.exec(part))) meta.vehicle = m[1];
+      else if ((m = /^Época:\s*(.+)$/.exec(part))) meta.season = m[1];
+      else meta.notes = meta.notes ? meta.notes + "\n" + part : part;
+    });
+    return normalizeMeta(meta);
+  }
+
+  function downloadTextFile(content, fileName, mime) {
+    var blob = new Blob([content], { type: mime });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 1000);
+  }
+
+  // ---- Google encoded polyline (precisão 5 ≈ 1 m) ----
+  function encodePolyline(points) {
+    var out = "";
+    var prevLat = 0,
+      prevLng = 0;
+    function enc(v) {
+      v = v < 0 ? ~(v << 1) : v << 1;
+      var s = "";
+      while (v >= 0x20) {
+        s += String.fromCharCode((0x20 | (v & 0x1f)) + 63);
+        v >>= 5;
+      }
+      return s + String.fromCharCode(v + 63);
+    }
+    points.forEach(function (p) {
+      var lat = Math.round(p.lat * 1e5),
+        lng = Math.round(p.lng * 1e5);
+      out += enc(lat - prevLat) + enc(lng - prevLng);
+      prevLat = lat;
+      prevLng = lng;
+    });
+    return out;
+  }
+
+  function decodePolyline(str) {
+    var points = [];
+    var index = 0,
+      lat = 0,
+      lng = 0;
+    while (index < str.length) {
+      var shift = 0,
+        result = 0,
+        b;
+      do {
+        b = str.charCodeAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20 && index < str.length);
+      lat += result & 1 ? ~(result >> 1) : result >> 1;
+      shift = 0;
+      result = 0;
+      do {
+        b = str.charCodeAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20 && index < str.length);
+      lng += result & 1 ? ~(result >> 1) : result >> 1;
+      points.push({ lat: lat / 1e5, lng: lng / 1e5 });
+    }
+    return points;
+  }
+
+  // Douglas–Peucker em metros (pra caber rotas longas no QR code)
+  function simplifyRoute(points, toleranceMeters) {
+    if (points.length <= 2 || toleranceMeters <= 0) return points.slice();
+    var keep = new Array(points.length);
+    keep[0] = keep[points.length - 1] = true;
+    var stack = [[0, points.length - 1]];
+    while (stack.length) {
+      var seg = stack.pop();
+      var a = seg[0],
+        b = seg[1];
+      var maxD = 0,
+        idx = -1;
+      for (var i = a + 1; i < b; i++) {
+        var d = distanceToSegmentMeters(points[i], points[a], points[b]).distance;
+        if (d > maxD) {
+          maxD = d;
+          idx = i;
+        }
+      }
+      if (idx !== -1 && maxD > toleranceMeters) {
+        keep[idx] = true;
+        stack.push([a, idx], [idx, b]);
+      }
+    }
+    return points.filter(function (p, i) {
+      return keep[i];
+    });
+  }
+
+  function bytesToBase64Url(bytes) {
+    var bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  function base64UrlToBytes(str) {
+    str = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (str.length % 4) str += "=";
+    var bin = atob(str);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+
+  function streamBytes(bytes, transform) {
+    var stream = new Blob([bytes]).stream().pipeThrough(transform);
+    return new Response(stream).arrayBuffer().then(function (buf) {
+      return new Uint8Array(buf);
+    });
+  }
+
+  function packRoute(route, points) {
+    var meta = normalizeMeta(route.meta);
+    var obj = { v: 1, n: route.name || "", p: encodePolyline(points) };
+    if (meta.difficulty || meta.vehicle || meta.season || meta.notes) {
+      obj.m = [meta.difficulty, meta.vehicle, meta.season, meta.notes.slice(0, 300)];
+    }
+    var wps = normalizeWaypoints(route.waypoints);
+    if (wps.length) {
+      obj.w = wps.slice(0, 60).map(function (w) {
+        return [Math.round(w.lat * 1e5) / 1e5, Math.round(w.lng * 1e5) / 1e5, w.type, (w.note || "").slice(0, 120)];
+      });
+    }
+    var json = new TextEncoder().encode(JSON.stringify(obj));
+    if (typeof CompressionStream === "function") {
+      return streamBytes(json, new CompressionStream("deflate-raw")).then(function (z) {
+        return "1" + bytesToBase64Url(z);
+      });
+    }
+    return Promise.resolve("0" + bytesToBase64Url(json));
+  }
+
+  function unpackRoute(payload) {
+    var kind = payload.charAt(0);
+    var bytes = base64UrlToBytes(payload.slice(1));
+    var p =
+      kind === "1"
+        ? typeof DecompressionStream === "function"
+          ? streamBytes(bytes, new DecompressionStream("deflate-raw"))
+          : Promise.reject(new Error("navegador sem suporte a descompressão"))
+        : Promise.resolve(bytes);
+    return p.then(function (raw) {
+      var obj = JSON.parse(new TextDecoder().decode(raw));
+      var meta = emptyMeta();
+      if (Array.isArray(obj.m)) {
+        meta = normalizeMeta({ difficulty: obj.m[0], vehicle: obj.m[1], season: obj.m[2], notes: obj.m[3] });
+      }
+      return {
+        name: obj.n || "",
+        points: decodePolyline(obj.p || ""),
+        meta: meta,
+        waypoints: (obj.w || []).map(function (w) {
+          return { id: newId("wp"), lat: w[0], lng: w[1], type: w[2] || "outro", note: w[3] || "", photoId: null, createdAt: Date.now() };
+        })
+      };
+    });
+  }
+
+  function appBaseUrl() {
+    return window.location.origin + window.location.pathname;
+  }
+
+  // Gera o link, simplificando o traçado até caber em maxChars.
+  // Resolve {url, usedPoints, totalPoints}
+  function buildRouteLink(route, maxChars) {
+    var tolerances = [0, 2, 5, 10, 20, 35, 60, 100, 160, 250, 400, 650, 1000];
+    var base = appBaseUrl() + "#rota=";
+    function attempt(i) {
+      var pts = simplifyRoute(route.points, tolerances[i]);
+      return packRoute(route, pts).then(function (payload) {
+        var url = base + payload;
+        if (url.length <= maxChars || i === tolerances.length - 1) {
+          return { url: url, usedPoints: pts.length, totalPoints: route.points.length, fits: url.length <= maxChars };
+        }
+        return attempt(i + 1);
+      });
+    }
+    return attempt(0);
+  }
+
+  // ---- QR code (biblioteca carregada só quando precisa) ----
+  var qrLibPromise = null;
+  function loadQrLib() {
+    if (window.qrcode) return Promise.resolve(window.qrcode);
+    if (qrLibPromise) return qrLibPromise;
+    var sources = [
+      "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js",
+      "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+    ];
+    qrLibPromise = new Promise(function (resolve, reject) {
+      function tryAt(i) {
+        if (i >= sources.length) {
+          qrLibPromise = null;
+          reject(new Error("não foi possível carregar o gerador de QR code"));
+          return;
+        }
+        var s = document.createElement("script");
+        s.src = sources[i];
+        s.async = true;
+        s.onload = function () {
+          if (window.qrcode) resolve(window.qrcode);
+          else tryAt(i + 1);
+        };
+        s.onerror = function () {
+          s.remove();
+          tryAt(i + 1);
+        };
+        document.head.appendChild(s);
+      }
+      tryAt(0);
+    });
+    return qrLibPromise;
+  }
+
+  var shareRoute = null;
+
+  function openShareModal(route) {
+    if (!route || !route.points || route.points.length < 2) {
+      showToast("A rota precisa de pelo menos 2 pontos para compartilhar.");
+      return;
+    }
+    shareRoute = route;
+    x.shareModalTitle.textContent = '📤 Compartilhar "' + (route.name || "rota sem nome") + '"';
+    x.shareQrBox.classList.add("hidden");
+    x.shareQrBox.innerHTML = "";
+    x.shareHint.textContent = "O link e o QR code abrem a rota direto no Fora de Estrada de quem receber. Fotos das marcações não vão junto.";
+    openModal(x.shareModal);
+  }
+
+  x.btnShareRoute.addEventListener("click", function () {
+    openShareModal(currentPlanningRoute());
+  });
+  x.btnShareClose.addEventListener("click", function () {
+    closeModal(x.shareModal);
+  });
+
+  x.btnShareGpx.addEventListener("click", function () {
+    if (!shareRoute) return;
+    var gpx = buildGpxForRoute(shareRoute);
+    var fileName = sanitizeFileName(shareRoute.name || "rota") + ".gpx";
+    var file = null;
+    try {
+      file = new File([gpx], fileName, { type: "application/gpx+xml" });
+    } catch (e) {
+      file = null;
+    }
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: shareRoute.name || "Rota" }).catch(function () {});
+      return;
+    }
+    downloadTextFile(gpx, fileName, "application/gpx+xml");
+    showToast("GPX baixado: " + fileName + " — envie pelo WhatsApp/e-mail como arquivo.");
+  });
+
+  x.btnShareLink.addEventListener("click", function () {
+    if (!shareRoute) return;
+    var route = shareRoute;
+    buildRouteLink(route, 7000)
+      .then(function (res) {
+        var note = res.usedPoints < res.totalPoints ? " (traçado simplificado: " + res.usedPoints + " de " + res.totalPoints + " pontos)" : "";
+        var text = "🧭 Rota \"" + (route.name || "sem nome") + "\" no Fora de Estrada" + note;
+        if (navigator.share) {
+          navigator.share({ title: route.name || "Rota", text: text, url: res.url }).catch(function () {});
+        } else {
+          copyText(res.url, "Link da rota copiado" + note + ".");
+        }
+        x.shareHint.textContent = "Link gerado" + note + ". Quem abrir vê a rota no planejamento e pode salvar.";
+      })
+      .catch(function () {
+        showToast("Não foi possível gerar o link da rota.");
+      });
+  });
+
+  x.btnShareQr.addEventListener("click", function () {
+    if (!shareRoute) return;
+    var route = shareRoute;
+    x.shareQrBox.classList.remove("hidden");
+    x.shareQrBox.innerHTML = '<p class="hint">Gerando QR code...</p>';
+    Promise.all([loadQrLib(), buildRouteLink(route, 1400)])
+      .then(function (res) {
+        var qrcode = res[0],
+          link = res[1];
+        var qr = qrcode(0, "L");
+        qr.addData(link.url);
+        qr.make();
+        x.shareQrBox.innerHTML = qr.createImgTag(6, 12);
+        var img = x.shareQrBox.querySelector("img");
+        if (img) img.alt = "QR code da rota " + (route.name || "");
+        var p = document.createElement("p");
+        p.className = "hint";
+        p.textContent =
+          "Aponte a câmera do outro celular." +
+          (link.usedPoints < link.totalPoints ? " Traçado simplificado para caber no QR: " + link.usedPoints + " de " + link.totalPoints + " pontos." : "");
+        x.shareQrBox.appendChild(p);
+      })
+      .catch(function (e) {
+        x.shareQrBox.innerHTML = '<p class="hint">Não foi possível gerar o QR code (' + escapeXml(e.message || "erro") + "). Precisa de internet na primeira vez.</p>";
+      });
+  });
+
+  // ---- abrir rota recebida por link (#rota=...) ----
+  function handleSharedRouteHash() {
+    var hash = window.location.hash || "";
+    if (hash.indexOf("#rota=") !== 0) return;
+    var payload = hash.slice(6);
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+    unpackRoute(payload)
+      .then(function (route) {
+        if (!route.points.length) throw new Error("vazia");
+        goToPlanningScreen(function () {
+          if (state.points.length > 0 && !window.confirm('Abrir a rota recebida "' + (route.name || "sem nome") + '"? Ela substitui a rota aberta no planejamento (rotas salvas não são afetadas).')) {
+            return;
+          }
+          state.points = []; // evita a segunda confirmação do importador
+          applyImportedRoute(route.points, route.name);
+          state.meta = route.meta;
+          state.waypoints = route.waypoints;
+          renderRouteExtras();
+          saveDraft();
+          showToast('Rota recebida: "' + (route.name || "sem nome") + '". Toque em Salvar para guardar.');
+        });
+      })
+      .catch(function () {
+        showToast("Link de rota inválido ou incompleto.");
+      });
+  }
+
+  // ================= #023 Perfil de altimetria (Open-Meteo) =================
+  var OPEN_METEO_ELEVATION = "https://api.open-meteo.com/v1/elevation";
+  var OPEN_METEO_FORECAST = "https://api.open-meteo.com/v1/forecast";
+  var elevationCursorMarker = null;
+
+  function routeSignature(points) {
+    if (!points || points.length < 2) return "";
+    var a = points[0],
+      b = points[points.length - 1];
+    return [points.length, a.lat.toFixed(5), a.lng.toFixed(5), b.lat.toFixed(5), b.lng.toFixed(5), Math.round(polylineLengthMeters(points))].join("|");
+  }
+
+  // n amostras igualmente espaçadas (por distância) ao longo da rota
+  function sampleAlongRoute(points, n) {
+    var cum = [0];
+    for (var i = 1; i < points.length; i++) {
+      cum.push(cum[i - 1] + haversineMeters(points[i - 1].lat, points[i - 1].lng, points[i].lat, points[i].lng));
+    }
+    var total = cum[cum.length - 1];
+    var out = [];
+    var seg = 0;
+    for (var k = 0; k < n; k++) {
+      var target = n === 1 ? total / 2 : (total * k) / (n - 1);
+      while (seg < points.length - 2 && cum[seg + 1] < target) seg++;
+      var segLen = cum[seg + 1] - cum[seg];
+      var t = segLen > 0 ? (target - cum[seg]) / segLen : 0;
+      t = Math.max(0, Math.min(1, t));
+      out.push({
+        d: target,
+        lat: points[seg].lat + (points[seg + 1].lat - points[seg].lat) * t,
+        lng: points[seg].lng + (points[seg + 1].lng - points[seg].lng) * t
+      });
+    }
+    return { samples: out, total: total };
+  }
+
+  function fetchElevations(samples) {
+    var chunks = [];
+    for (var i = 0; i < samples.length; i += 100) chunks.push(samples.slice(i, i + 100));
+    return Promise.all(
+      chunks.map(function (chunk) {
+        var lats = chunk.map(function (s) {
+          return s.lat.toFixed(5);
+        });
+        var lngs = chunk.map(function (s) {
+          return s.lng.toFixed(5);
+        });
+        return fetch(OPEN_METEO_ELEVATION + "?latitude=" + lats.join(",") + "&longitude=" + lngs.join(",")).then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        });
+      })
+    ).then(function (results) {
+      var all = [];
+      results.forEach(function (res) {
+        all = all.concat(res.elevation || []);
+      });
+      return all;
+    });
+  }
+
+  function computeElevationStats(samples) {
+    var gain = 0,
+      loss = 0,
+      min = Infinity,
+      max = -Infinity,
+      maxGrade = 0;
+    var ref = samples[0].e;
+    samples.forEach(function (s) {
+      if (s.e < min) min = s.e;
+      if (s.e > max) max = s.e;
+      // histerese de 3 m pra não somar "ruído" do modelo de relevo
+      if (s.e - ref >= 3) {
+        gain += s.e - ref;
+        ref = s.e;
+      } else if (ref - s.e >= 3) {
+        loss += ref - s.e;
+        ref = s.e;
+      }
+    });
+    // rampa mais forte numa janela de pelo menos 150 m
+    for (var i = 0; i < samples.length; i++) {
+      for (var j = i + 1; j < samples.length; j++) {
+        var dd = samples[j].d - samples[i].d;
+        if (dd >= 150) {
+          var g = Math.abs(samples[j].e - samples[i].e) / dd;
+          if (g > maxGrade) maxGrade = g;
+          break;
+        }
+      }
+    }
+    return { gain: Math.round(gain), loss: Math.round(loss), min: Math.round(min), max: Math.round(max), maxGradePct: Math.round(maxGrade * 100) };
+  }
+
+  x.btnElevation.addEventListener("click", function () {
+    if (state.points.length < 2) {
+      showToast("A rota precisa de pelo menos 2 pontos.");
+      return;
+    }
+    var pts = state.points.slice();
+    var sig = routeSignature(pts);
+    var sampled = sampleAlongRoute(pts, Math.max(30, Math.min(300, Math.ceil(polylineLengthMeters(pts) / 100) + 1)));
+    x.btnElevation.disabled = true;
+    x.btnElevation.textContent = "⏳ Calculando...";
+    fetchElevations(sampled.samples)
+      .then(function (elev) {
+        var samples = sampled.samples
+          .map(function (s, i) {
+            return { d: Math.round(s.d), e: elev[i], lat: Math.round(s.lat * 1e5) / 1e5, lng: Math.round(s.lng * 1e5) / 1e5 };
+          })
+          .filter(function (s) {
+            return typeof s.e === "number" && !isNaN(s.e);
+          });
+        if (samples.length < 2) throw new Error("sem dados");
+        state.elevation = { sig: sig, samples: samples, stats: computeElevationStats(samples), at: Date.now() };
+        saveDraft();
+        renderElevation();
+        if (state.id) showToast("Perfil calculado. Salve a rota para guardar junto.");
+      })
+      .catch(function () {
+        showToast("Não foi possível buscar a altimetria (sem internet?).");
+      })
+      .then(function () {
+        x.btnElevation.disabled = false;
+        renderElevation();
+      });
+  });
+
+  function renderElevation() {
+    var ev = state.elevation;
+    x.elevationStats.innerHTML = "";
+    x.elevationChart.innerHTML = "";
+    x.elevationSummary.textContent = "";
+    var stale = ev && ev.sig !== routeSignature(state.points);
+    x.btnElevation.textContent = !ev ? "⛰️ Calcular perfil de altitude" : stale ? "⛰️ Rota mudou — recalcular perfil" : "⛰️ Recalcular perfil";
+    if (!ev || !ev.samples || ev.samples.length < 2) return;
+    var st = ev.stats || computeElevationStats(ev.samples);
+    x.elevationSummary.textContent = "↑" + st.gain + " m ↓" + st.loss + " m" + (stale ? " (desatualizado)" : "");
+    [
+      ["Subida total", "↑ " + st.gain + " m"],
+      ["Descida total", "↓ " + st.loss + " m"],
+      ["Mín. / máx.", st.min + " / " + st.max + " m"],
+      ["Rampa mais forte", "~" + st.maxGradePct + "%"]
+    ].forEach(function (it) {
+      var d = document.createElement("div");
+      d.innerHTML = "";
+      d.appendChild(document.createTextNode(it[0] + ": "));
+      var b = document.createElement("b");
+      b.textContent = it[1];
+      d.appendChild(b);
+      x.elevationStats.appendChild(d);
+    });
+    drawElevationChart(x.elevationChart, ev.samples, function (s) {
+      showElevationCursor(s);
+    });
+  }
+
+  // SVG simples: área + linha, eixo com mín/máx e km. onHover(sample|null)
+  function drawElevationChart(container, samples, onHover) {
+    var W = 300,
+      H = 130,
+      padL = 34,
+      padR = 6,
+      padT = 8,
+      padB = 18;
+    var total = samples[samples.length - 1].d || 1;
+    var min = Infinity,
+      max = -Infinity;
+    samples.forEach(function (s) {
+      if (s.e < min) min = s.e;
+      if (s.e > max) max = s.e;
+    });
+    if (max - min < 20) {
+      var mid = (max + min) / 2;
+      min = mid - 10;
+      max = mid + 10;
+    }
+    function px(d) {
+      return padL + ((W - padL - padR) * d) / total;
+    }
+    function py(e) {
+      return padT + (H - padT - padB) * (1 - (e - min) / (max - min));
+    }
+    var line = samples
+      .map(function (s, i) {
+        return (i ? "L" : "M") + px(s.d).toFixed(1) + "," + py(s.e).toFixed(1);
+      })
+      .join("");
+    var area = line + "L" + px(total).toFixed(1) + "," + (H - padB) + "L" + px(0).toFixed(1) + "," + (H - padB) + "Z";
+    var ns = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.setAttribute("preserveAspectRatio", "none");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "Perfil de altitude: de " + Math.round(min) + " a " + Math.round(max) + " metros em " + fmtKm(total, 1) + " km");
+    svg.innerHTML =
+      '<line x1="' + padL + '" y1="' + py(max) + '" x2="' + (W - padR) + '" y2="' + py(max) + '" stroke="#3a4228" stroke-width="1"/>' +
+      '<line x1="' + padL + '" y1="' + py(min) + '" x2="' + (W - padR) + '" y2="' + py(min) + '" stroke="#3a4228" stroke-width="1"/>' +
+      '<path d="' + area + '" fill="rgba(224,138,44,0.28)"/>' +
+      '<path d="' + line + '" fill="none" stroke="#e08a2c" stroke-width="1.6" vector-effect="non-scaling-stroke"/>' +
+      '<text x="' + (padL - 4) + '" y="' + (py(max) + 4) + '" fill="#9db07d" font-size="10" text-anchor="end">' + Math.round(max) + "</text>" +
+      '<text x="' + (padL - 4) + '" y="' + (py(min) + 4) + '" fill="#9db07d" font-size="10" text-anchor="end">' + Math.round(min) + "</text>" +
+      '<text x="' + padL + '" y="' + (H - 4) + '" fill="#9db07d" font-size="10">0 km</text>' +
+      '<text x="' + (W - padR) + '" y="' + (H - 4) + '" fill="#9db07d" font-size="10" text-anchor="end">' + fmtKm(total, 1) + " km</text>" +
+      '<line class="elev-cursor" x1="0" y1="' + padT + '" x2="0" y2="' + (H - padB) + '" stroke="#f0b429" stroke-width="1" visibility="hidden" vector-effect="non-scaling-stroke"/>';
+    container.appendChild(svg);
+    var tip = document.createElement("div");
+    tip.className = "elevation-tip hidden";
+    container.appendChild(tip);
+    var cursor = svg.querySelector(".elev-cursor");
+
+    function onMove(ev) {
+      var rect = svg.getBoundingClientRect();
+      var rx = ((ev.clientX - rect.left) / rect.width) * W;
+      var d = ((rx - padL) / (W - padL - padR)) * total;
+      d = Math.max(0, Math.min(total, d));
+      var best = samples[0];
+      for (var i = 1; i < samples.length; i++) if (Math.abs(samples[i].d - d) < Math.abs(best.d - d)) best = samples[i];
+      cursor.setAttribute("x1", px(best.d));
+      cursor.setAttribute("x2", px(best.d));
+      cursor.setAttribute("visibility", "visible");
+      tip.textContent = "km " + fmtKm(best.d, 1) + " · " + Math.round(best.e) + " m";
+      tip.classList.remove("hidden");
+      if (onHover) onHover(best);
+    }
+    function onLeave() {
+      cursor.setAttribute("visibility", "hidden");
+      tip.classList.add("hidden");
+      if (onHover) onHover(null);
+    }
+    svg.addEventListener("pointermove", onMove);
+    svg.addEventListener("pointerdown", onMove);
+    svg.addEventListener("pointerleave", onLeave);
+  }
+
+  function showElevationCursor(sample) {
+    if (!map) return;
+    if (!sample) {
+      if (elevationCursorMarker) {
+        map.removeLayer(elevationCursorMarker);
+        elevationCursorMarker = null;
+      }
+      return;
+    }
+    if (!elevationCursorMarker) {
+      elevationCursorMarker = L.marker([sample.lat, sample.lng], {
+        icon: L.divIcon({ className: "", html: '<div class="elevation-cursor-marker"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }),
+        interactive: false,
+        zIndexOffset: 1000
+      }).addTo(map);
+    } else {
+      elevationCursorMarker.setLatLng([sample.lat, sample.lng]);
+    }
+  }
+
+  // ================= #024 Previsão do tempo na rota (Open-Meteo) =================
+  var weatherState = null; // {sig, places, days: [...], dayIndex}
+
+  var WMO = {
+    0: ["☀️", "Céu limpo"],
+    1: ["🌤️", "Poucas nuvens"],
+    2: ["⛅", "Parcialmente nublado"],
+    3: ["☁️", "Nublado"],
+    45: ["🌫️", "Neblina"],
+    48: ["🌫️", "Neblina com geada"],
+    51: ["🌦️", "Garoa fraca"],
+    53: ["🌦️", "Garoa"],
+    55: ["🌧️", "Garoa forte"],
+    56: ["🌧️", "Garoa congelante"],
+    57: ["🌧️", "Garoa congelante"],
+    61: ["🌦️", "Chuva fraca"],
+    63: ["🌧️", "Chuva"],
+    65: ["🌧️", "Chuva forte"],
+    66: ["🌧️", "Chuva congelante"],
+    67: ["🌧️", "Chuva congelante"],
+    71: ["🌨️", "Neve fraca"],
+    73: ["🌨️", "Neve"],
+    75: ["❄️", "Neve forte"],
+    77: ["🌨️", "Grãos de neve"],
+    80: ["🌦️", "Pancadas fracas"],
+    81: ["🌧️", "Pancadas de chuva"],
+    82: ["⛈️", "Pancadas fortes"],
+    85: ["🌨️", "Pancadas de neve"],
+    86: ["🌨️", "Pancadas de neve"],
+    95: ["⛈️", "Trovoadas"],
+    96: ["⛈️", "Trovoadas com granizo"],
+    99: ["⛈️", "Trovoadas com granizo"]
+  };
+
+  function weatherPlaces(points) {
+    var total = polylineLengthMeters(points);
+    if (total < 3000) {
+      var c = sampleAlongRoute(points, 1).samples[0];
+      return [{ label: "Rota", lat: c.lat, lng: c.lng }];
+    }
+    var n = total > 150000 ? 5 : 3;
+    var s = sampleAlongRoute(points, n).samples;
+    return s.map(function (p, i) {
+      var label = i === 0 ? "Início" : i === n - 1 ? "Fim" : n === 3 ? "Meio" : "Km " + Math.round(p.d / 1000);
+      return { label: label, lat: p.lat, lng: p.lng };
+    });
+  }
+
+  x.btnWeather.addEventListener("click", function () {
+    if (state.points.length < 2) {
+      showToast("A rota precisa de pelo menos 2 pontos.");
+      return;
+    }
+    var places = weatherPlaces(state.points);
+    var url =
+      OPEN_METEO_FORECAST +
+      "?latitude=" +
+      places
+        .map(function (p) {
+          return p.lat.toFixed(4);
+        })
+        .join(",") +
+      "&longitude=" +
+      places
+        .map(function (p) {
+          return p.lng.toFixed(4);
+        })
+        .join(",") +
+      "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max" +
+      "&timezone=auto&forecast_days=7";
+    x.btnWeather.disabled = true;
+    x.btnWeather.textContent = "⏳ Buscando previsão...";
+    fetch(url)
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        var list = Array.isArray(data) ? data : [data];
+        weatherState = {
+          sig: routeSignature(state.points),
+          places: places,
+          results: list.map(function (d) {
+            return d.daily;
+          }),
+          dayIndex: 0,
+          at: Date.now()
+        };
+        renderWeather();
+      })
+      .catch(function () {
+        showToast("Não foi possível buscar a previsão (sem internet?).");
+      })
+      .then(function () {
+        x.btnWeather.disabled = false;
+        x.btnWeather.textContent = weatherState ? "🌦️ Atualizar previsão" : "🌦️ Ver previsão na rota";
+      });
+  });
+
+  function dayLabel(isoDate, i) {
+    if (i === 0) return "Hoje";
+    if (i === 1) return "Amanhã";
+    var d = new Date(isoDate + "T12:00:00");
+    var wd = d.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "");
+    return wd.charAt(0).toUpperCase() + wd.slice(1) + " " + d.getDate();
+  }
+
+  function renderWeather() {
+    x.weatherDays.innerHTML = "";
+    x.weatherTable.innerHTML = "";
+    if (!weatherState || !weatherState.results.length || !weatherState.results[0]) return;
+    var days = weatherState.results[0].time || [];
+    days.forEach(function (iso, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = dayLabel(iso, i);
+      b.className = i === weatherState.dayIndex ? "on" : "";
+      b.addEventListener("click", function () {
+        weatherState.dayIndex = i;
+        renderWeather();
+      });
+      x.weatherDays.appendChild(b);
+    });
+    var di = weatherState.dayIndex;
+    weatherState.places.forEach(function (place, pi) {
+      var daily = weatherState.results[pi];
+      if (!daily) return;
+      var code = daily.weather_code ? daily.weather_code[di] : null;
+      var w = WMO[code] || ["❔", "—"];
+      var tmax = daily.temperature_2m_max[di],
+        tmin = daily.temperature_2m_min[di];
+      var rain = daily.precipitation_sum[di] || 0;
+      var prob = daily.precipitation_probability_max ? daily.precipitation_probability_max[di] : null;
+      var wind = daily.wind_speed_10m_max ? daily.wind_speed_10m_max[di] : null;
+      var alerts = [];
+      if (rain >= 10 || (prob != null && prob >= 70 && rain >= 3)) alerts.push("⚠ Chuva forte: risco de atoleiro e rio cheio");
+      else if (rain >= 3 || (prob != null && prob >= 60)) alerts.push("Chuva provável: terra pode ficar lisa");
+      if (code >= 95) alerts.push("⚡ Risco de raios");
+      if (wind != null && wind >= 50) alerts.push("💨 Vento forte");
+
+      var row = document.createElement("div");
+      row.className = "weather-row" + (alerts.length && alerts[0].charAt(0) === "⚠" ? " risk" : "");
+      row.title = w[1];
+      var c1 = document.createElement("div");
+      c1.className = "w-place";
+      c1.textContent = place.label;
+      var c2 = document.createElement("div");
+      c2.className = "w-icon";
+      c2.textContent = w[0];
+      var c3 = document.createElement("div");
+      c3.className = "w-temp";
+      var line1 = document.createElement("div");
+      var b1 = document.createElement("b");
+      b1.textContent = Math.round(tmax) + "°";
+      line1.appendChild(b1);
+      line1.appendChild(document.createTextNode(" / " + Math.round(tmin) + "° · " + w[1]));
+      var line2 = document.createElement("div");
+      line2.textContent =
+        "🌧 " + fmtNum(rain, rain < 10 ? 1 : 0) + " mm" + (prob != null ? " (" + prob + "%)" : "") + (wind != null ? " · 💨 " + Math.round(wind) + " km/h" : "");
+      c3.appendChild(line1);
+      c3.appendChild(line2);
+      alerts.forEach(function (a) {
+        var al = document.createElement("div");
+        al.className = "weather-alert";
+        al.textContent = a;
+        c3.appendChild(al);
+      });
+      row.appendChild(c1);
+      row.appendChild(c2);
+      row.appendChild(c3);
+      x.weatherTable.appendChild(row);
+    });
+    if (weatherState.sig !== routeSignature(state.points)) {
+      var stale = document.createElement("p");
+      stale.className = "hint";
+      stale.textContent = "A rota mudou depois desta previsão — toque em Atualizar.";
+      x.weatherTable.appendChild(stale);
+    }
+  }
+
+  // ---- render geral dos extras do planejamento ----
+  function renderRouteExtras() {
+    ensureStateExtras();
+    renderRouteInfo();
+    renderPlanningWaypoints();
+    renderElevation();
+    if (weatherState && weatherState.sig !== routeSignature(state.points) && state.points.length < 2) weatherState = null;
+    renderWeather();
+  }
+
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -5921,6 +8543,10 @@ html, body {
     safeInit(restoreDraft, "rascunho da rota");
     safeInit(updateFolderLabel, "rótulo da pasta atual");
     safeInit(renderPointList, "lista de pontos");
+    safeInit(renderRouteExtras, "extras da rota (v4.1)");
+    safeInit(refreshTripDisplay, "hodômetro parcial");
+    safeInit(handleSharedRouteHash, "rota recebida por link");
+    window.addEventListener("hashchange", handleSharedRouteHash);
     safeInit(refreshSavedRoutesUI, "rotas salvas");
     safeInit(renderChangelog, "changelog");
     safeInit(loadThreshold, "limite de desvio");
