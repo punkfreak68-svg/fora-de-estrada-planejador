@@ -1974,6 +1974,53 @@ html, body {
 .exp-table td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .exp-pos { color: #4cd964; }
 .exp-neg { color: #ff8a80; }
+
+/* ==== v5.4 Comunidade: feed de trilhas ==== */
+#com-main-tabs { margin-bottom: 12px; }
+.fd-seg { display: flex; gap: 6px; margin-bottom: 10px; }
+.fd-seg button { flex: 1; padding: 8px; border-radius: 999px; border: 1px solid #3a4228; background: #1b1f16; color: #cdd8b4; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+.fd-seg button.active { background: #2e6b30; border-color: #3a8a3d; color: #fff; }
+.fd-card { background: #22261b; border: 1px solid #3a4228; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+.fd-card.fd-hidden { border-color: #8a6a1a; }
+.fd-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.fd-av { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; background: #3d4a2a; flex: 0 0 auto; cursor: pointer; }
+.fd-who { min-width: 0; flex: 1; cursor: pointer; }
+.fd-who b { display: block; color: #fff; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fd-who span { color: #9db07d; font-size: 0.78rem; }
+.fd-title { margin: 0 0 4px; font-size: 1.05rem; color: #f0e9cf; cursor: pointer; }
+.fd-body { margin: 0 0 8px; color: #dfe7cc; font-size: 0.9rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.fd-map { display: block; width: 100%; height: auto; background: #1b1f16; border: 1px solid #333b25; border-radius: 8px; cursor: pointer; }
+.fd-stats { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.82rem; color: #cdd8b4; margin: 8px 0; }
+.fd-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; margin-bottom: 8px; }
+.fd-photos img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; cursor: pointer; background: #1b1f16; }
+.fd-photos.fd-big { grid-template-columns: 1fr 1fr; }
+.fd-actions { display: flex; gap: 6px; border-top: 1px solid #333b25; padding-top: 8px; }
+.fd-actions button { flex: 1; background: none; border: 1px solid transparent; border-radius: 8px; color: #cdd8b4; padding: 7px 4px; font-size: 0.86rem; cursor: pointer; }
+.fd-actions button:hover { border-color: #3a4228; }
+.fd-actions .fd-liked { color: #ff6b6b; font-weight: 700; }
+.fd-badge { display: inline-block; background: #8a6a1a; color: #fff; border-radius: 999px; padding: 1px 8px; font-size: 0.7rem; font-weight: 700; margin-left: 4px; }
+.fd-more { display: block; width: 100%; margin: 4px 0 16px; }
+.fd-back { margin-bottom: 10px; }
+.fd-comment { display: grid; grid-template-columns: 30px 1fr auto; gap: 8px; padding: 8px 0; border-top: 1px solid #2b3320; font-size: 0.88rem; }
+.fd-comment img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; background: #3d4a2a; }
+.fd-comment b { color: #fff; }
+.fd-comment p { margin: 2px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; color: #dfe7cc; }
+.fd-comment .fd-cbtns { display: flex; flex-direction: column; gap: 2px; }
+.fd-comment .fd-cbtns button { background: none; border: none; color: #8a9578; cursor: pointer; font-size: 0.8rem; }
+.fd-prof { display: flex; gap: 14px; align-items: center; }
+.fd-prof img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; background: #3d4a2a; border: 2px solid #6b8040; }
+.fd-counts { display: flex; gap: 16px; margin: 10px 0; font-size: 0.85rem; color: #cdd8b4; }
+.fd-counts b { color: #fff; font-size: 1rem; }
+.fd-empty { text-align: center; color: #8a9578; padding: 24px 8px; }
+.fd-photo-view { position: fixed; inset: 0; z-index: 3000; background: rgba(0,0,0,0.92); display: flex; align-items: center; justify-content: center; }
+.fd-photo-view img { max-width: 100%; max-height: 100%; }
+.pub-photos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 6px 0; }
+.pub-photo { position: relative; aspect-ratio: 1; border-radius: 6px; overflow: hidden; border: 2px solid transparent; cursor: pointer; background: #1b1f16; }
+.pub-photo img { width: 100%; height: 100%; object-fit: cover; opacity: 0.45; }
+.pub-photo.on { border-color: #4cd964; }
+.pub-photo.on img { opacity: 1; }
+.pub-photo span { position: absolute; top: 2px; right: 4px; font-size: 0.9rem; }
+.pub-add { display: inline-block; text-align: center; }
 </style>
 </head>
 <body>
@@ -2477,6 +2524,12 @@ html, body {
       </div>
     </div>
 
+    <div id="com-main-tabs" class="com-tabs hidden" role="tablist">
+      <button type="button" class="com-tab active" data-main="feed">📰 Feed</button>
+      <button type="button" class="com-tab" data-main="profile">👤 Meu perfil</button>
+      <button type="button" class="com-tab hidden" data-main="mod" id="com-tab-mod">🛡️ Moderação</button>
+    </div>
+    <div id="com-feed" class="hidden"></div>
     <div id="com-profile" class="hidden">
       <div id="com-banner-username" class="com-banner hidden">Escolha seu nome de usuário (é como a galera vai te encontrar) e toque em <b>Salvar perfil</b>.</div>
       <div id="com-banner-verify" class="com-banner hidden">
@@ -2644,6 +2697,28 @@ html, body {
   </div>
 </div>
 
+<div id="publish-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h2>📤 Publicar na Comunidade</h2>
+    <form id="publish-form" class="com-form" novalidate>
+      <label>Título<input name="title" maxlength="100" required></label>
+      <label>Conte como é a trilha<textarea name="body" rows="4" maxlength="1500" placeholder="Ex.: muita lama depois da ponte, dá para fazer em 3 horas, leve guincho…"></textarea></label>
+      <p id="publish-meta" class="hint"></p>
+      <label class="com-check"><input type="checkbox" name="trim" checked> <span>Esconder os primeiros e os últimos 300 m (protege o endereço de casa)</span></label>
+      <div>
+        <div class="hint">Fotos (até 4):</div>
+        <div id="publish-photos" class="pub-photos"></div>
+        <label class="exp-btn pub-add">📷 Adicionar foto da galeria<input id="publish-file" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden></label>
+      </div>
+      <p id="publish-msg" class="hint"></p>
+      <div class="modal-actions">
+        <button type="button" id="btn-publish-cancel" class="modal-btn-secondary">Cancelar</button>
+        <button type="submit" id="btn-publish-send" class="modal-btn-primary">Publicar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div id="sendpos-modal" class="modal-overlay">
   <div class="modal-box modal-box-small">
     <h2>📍 Enviar minha posição</h2>
@@ -2731,8 +2806,19 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.3.1";
+  var APP_VERSION = "5.4";
   var CHANGELOG = [
+    {
+      version: "5.4",
+      date: "08/10/2026",
+      changes: [
+        "Comunidade etapa 2: 📰 Feed de trilhas (só para quem tem conta)",
+        "📤 Publicar uma rota salva com texto e até 4 fotos; por padrão esconde 300 m do começo e do fim para proteger o endereço de casa; fotos vão reduzidas e sem localização escondida",
+        "Curtir, comentar, seguir, ver o perfil de cada um e a aba \"Quem eu sigo\"",
+        "⬇️ Baixar a trilha de outra pessoa direto para Rotas Salvas › Comunidade (navegar, Rally, Tomada de Tempo, Expedição)",
+        "🚩 Denunciar: com 3 denúncias o post sai do ar até a moderação decidir; 🛡️ tela de moderação para o administrador"
+      ]
+    },
     {
       version: "5.3.1",
       date: "08/10/2026",
@@ -5675,6 +5761,14 @@ html, body {
           openShareModal({ id: route.id, name: route.name, points: route.points, meta: route.meta, waypoints: route.waypoints });
         });
         buttons.appendChild(shareBtn);
+
+        var pubBtn = document.createElement("button");
+        pubBtn.className = "load-btn";
+        pubBtn.textContent = "📤 Publicar";
+        pubBtn.addEventListener("click", function () {
+          openPublishModal(route);
+        });
+        buttons.appendChild(pubBtn);
 
         var deleteBtn = document.createElement("button");
         deleteBtn.className = "delete-btn";
@@ -11149,6 +11243,9 @@ html, body {
     if (was && !com.user) {
       acc.blocked = false;
       acc.lastOk = 0;
+      fd.loadedOnce = false;
+      fd.posts = [];
+      fd.tab = "feed";
     }
     if (was && com.user && was.id !== com.user.id) onAccountLogin(com.user);
     renderAccountSync();
@@ -11204,8 +11301,10 @@ html, body {
     if (!u) {
       comShowPane(com.resetToken ? "reset" : (cx.forgotForm.classList.contains("hidden") ? (cx.registerForm.classList.contains("hidden") ? "login" : "register") : "forgot"));
       comRenderGoogleButton();
+      fdOnRender();
       return;
     }
+    setTimeout(fdOnRender, 0);
     cx.avatar.src = u.avatar_url || comInitialAvatar(u.username);
     cx.meName.textContent = u.display_name || u.username;
     cx.meUser.textContent = "@" + u.username;
@@ -12667,6 +12766,537 @@ html, body {
       renderExpeditionList();
     }
   }
+
+  // ==== v5.4 Comunidade etapa 2: feed de trilhas ====
+  var fd = { tab: "feed", scope: "all", posts: [], more: false, view: "list", cur: null, user: null, loading: false };
+  var fx = {
+    tabs: document.getElementById("com-main-tabs"),
+    tabMod: document.getElementById("com-tab-mod"),
+    feed: document.getElementById("com-feed"),
+    profile: document.getElementById("com-profile")
+  };
+
+  function fdEsc(s) {
+    return s == null ? "" : escapeXml(String(s));
+  }
+
+  function fdAvatar(a) {
+    return fdEsc(a && a.avatar_url ? a.avatar_url : comInitialAvatar(a ? a.username : "?"));
+  }
+
+  function fdAgo(ts) {
+    var d = new Date(String(ts).replace(" ", "T"));
+    if (isNaN(d)) return "";
+    var s = (Date.now() - d.getTime()) / 1000;
+    if (s < 60) return "agora";
+    if (s < 3600) return Math.floor(s / 60) + " min";
+    if (s < 86400) return Math.floor(s / 3600) + " h";
+    if (s < 86400 * 7) return Math.floor(s / 86400) + " d";
+    return String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0") + "/" + d.getFullYear();
+  }
+
+  // mapinha da trilha em SVG (sem baixar mapa: leve e funciona com pouca internet)
+  function fdMapSvg(pts, w, h) {
+    if (!pts || pts.length < 2) return "";
+    var lat0 = pts[0][0];
+    var k = Math.cos((lat0 * Math.PI) / 180);
+    var xs = pts.map(function (p) { return p[1] * k; });
+    var ys = pts.map(function (p) { return -p[0]; });
+    var minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs), minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
+    var pad = 14;
+    var sc = Math.min((w - 2 * pad) / Math.max(maxX - minX, 1e-9), (h - 2 * pad) / Math.max(maxY - minY, 1e-9));
+    var ox = (w - (maxX - minX) * sc) / 2, oy = (h - (maxY - minY) * sc) / 2;
+    var P = xs.map(function (x, i) { return [(ox + (x - minX) * sc).toFixed(1), (oy + (ys[i] - minY) * sc).toFixed(1)]; });
+    var line = P.map(function (p) { return p.join(","); }).join(" ");
+    var a = P[0], b = P[P.length - 1];
+    return '<svg class="fd-map" viewBox="0 0 ' + w + " " + h + '" role="img" aria-label="Traçado da trilha">' +
+      '<polyline points="' + line + '" fill="none" stroke="#e08a2c" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="' + a[0] + '" cy="' + a[1] + '" r="5" fill="#2ecc71" stroke="#111" stroke-width="1.5"/>' +
+      '<circle cx="' + b[0] + '" cy="' + b[1] + '" r="5" fill="#ff4040" stroke="#111" stroke-width="1.5"/></svg>';
+  }
+
+  function fdStats(p) {
+    var s = ["📏 " + fmtNum(p.km, p.km < 10 ? 1 : 0) + " km"];
+    if (p.difficulty) s.push("⚠️ " + DIFFICULTY_LABELS[p.difficulty].split(" (")[0]);
+    if (p.vehicle) s.push("🚙 " + fdEsc(p.vehicle));
+    if (p.downloads) s.push("⬇️ " + p.downloads);
+    return '<div class="fd-stats">' + s.map(function (x) { return "<span>" + x + "</span>"; }).join("") + "</div>";
+  }
+
+  function fdCard(p, full) {
+    var body = full || p.body.length <= 220 ? p.body : p.body.slice(0, 200) + "…";
+    var photos = p.photos.length
+      ? '<div class="fd-photos' + (full ? " fd-big" : "") + '">' + p.photos.map(function (u) { return '<img src="' + fdEsc(u) + '" alt="Foto da trilha" loading="lazy" data-photo="' + fdEsc(u) + '">'; }).join("") + "</div>"
+      : "";
+    return '<article class="fd-card' + (p.hidden ? " fd-hidden" : "") + '" data-post="' + p.id + '">' +
+      '<div class="fd-head"><img class="fd-av" src="' + fdAvatar(p.author) + '" alt="" data-user="' + fdEsc(p.author.username) + '">' +
+      '<div class="fd-who" data-user="' + fdEsc(p.author.username) + '"><b>' + fdEsc(p.author.display_name) + (p.author.role === "admin" ? '<span class="com-badge">admin</span>' : "") +
+      "</b><span>@" + fdEsc(p.author.username) + " · " + fdAgo(p.created_at) + "</span></div>" +
+      (p.hidden ? '<span class="fd-badge">oculto por denúncias</span>' : "") + "</div>" +
+      '<h3 class="fd-title" data-open="' + p.id + '">' + fdEsc(p.title) + "</h3>" +
+      (body ? '<p class="fd-body">' + fdEsc(body) + "</p>" : "") +
+      '<div data-open="' + p.id + '">' + fdMapSvg(p.preview, 320, full ? 200 : 140) + "</div>" +
+      fdStats(p) + photos +
+      '<div class="fd-actions">' +
+      '<button data-act="like" data-id="' + p.id + '" class="' + (p.liked ? "fd-liked" : "") + '">' + (p.liked ? "❤️" : "🤍") + " " + p.likes + "</button>" +
+      '<button data-open="' + p.id + '">💬 ' + p.comments + "</button>" +
+      '<button data-act="download" data-id="' + p.id + '">⬇️ Baixar</button>' +
+      (full ? "" : '<button data-open="' + p.id + '">Ver mais</button>') +
+      "</div></article>";
+  }
+
+  function fdSetTab(t) {
+    fd.tab = t;
+    Array.prototype.forEach.call(fx.tabs.querySelectorAll("[data-main]"), function (b) {
+      b.classList.toggle("active", b.getAttribute("data-main") === t);
+    });
+    fx.feed.classList.toggle("hidden", t === "profile");
+    fx.profile.classList.toggle("hidden", t !== "profile");
+    if (t === "feed") fdShowList(true);
+    if (t === "mod") fdShowMod();
+  }
+
+  // chamado pelo comRender quando a pessoa está logada
+  function fdOnRender() {
+    var u = com.user;
+    fx.tabs.classList.toggle("hidden", !u);
+    if (!u) {
+      fx.feed.classList.add("hidden");
+      return;
+    }
+    fx.tabMod.classList.toggle("hidden", u.role !== "admin");
+    if (fd.tab !== "profile") {
+      fx.profile.classList.add("hidden");
+      fx.feed.classList.remove("hidden");
+      if (!fd.loadedOnce) fdSetTab(fd.tab);
+    }
+  }
+
+  fx.tabs.addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-main]");
+    if (b) fdSetTab(b.getAttribute("data-main"));
+  });
+
+  function fdShowList(reload) {
+    fd.view = "list";
+    fd.loadedOnce = true;
+    if (reload) {
+      fd.posts = [];
+      fd.more = false;
+    }
+    fdRenderList();
+    if (reload) fdLoadMore();
+  }
+
+  function fdRenderList() {
+    var h = '<div class="fd-seg"><button data-scope="all" class="' + (fd.scope === "all" ? "active" : "") + '">Todos</button>' +
+      '<button data-scope="following" class="' + (fd.scope === "following" ? "active" : "") + '">Quem eu sigo</button></div>';
+    if (!fd.posts.length && !fd.loading) {
+      h += '<div class="fd-empty">' + (fd.scope === "following" ? "Ninguém que você segue publicou ainda. Toque no nome de alguém para seguir." : "Nenhuma trilha publicada ainda. Seja o primeiro: em <b>📁 Rotas Salvas</b>, toque em <b>📤 Publicar</b>.") + "</div>";
+    }
+    h += fd.posts.map(function (p) { return fdCard(p, false); }).join("");
+    if (fd.loading) h += '<p class="hint com-center">Carregando…</p>';
+    else if (fd.more) h += '<button class="com-btn fd-more" data-act="more">Carregar mais</button>';
+    fx.feed.innerHTML = h;
+  }
+
+  function fdLoadMore() {
+    if (fd.loading) return;
+    fd.loading = true;
+    fdRenderList();
+    var before = fd.posts.length ? fd.posts[fd.posts.length - 1].id : 0;
+    comApi("feed.php?action=list&scope=" + fd.scope + (before ? "&before=" + before : ""))
+      .then(function (d) {
+        fd.posts = fd.posts.concat(d.posts);
+        fd.more = d.more;
+      })
+      .catch(function (err) {
+        comMsg(err.message, "error");
+      })
+      .then(function () {
+        fd.loading = false;
+        if (fd.view === "list") fdRenderList();
+      });
+  }
+
+  function fdOpenPost(id) {
+    fd.view = "post";
+    fx.feed.innerHTML = '<p class="hint com-center">Carregando…</p>';
+    comApi("feed.php?action=get&id=" + id)
+      .then(function (d) {
+        fd.cur = d.post;
+        fdRenderPost();
+        fx.feed.scrollIntoView({ block: "start" });
+      })
+      .catch(function (err) {
+        comMsg(err.message, "error");
+        fdShowList(false);
+      });
+  }
+
+  function fdRenderPost() {
+    var p = fd.cur;
+    var comments = p.comment_list
+      .map(function (c) {
+        return '<div class="fd-comment"><img src="' + fdAvatar(c.author) + '" alt="" data-user="' + fdEsc(c.author.username) + '"><div><b data-user="' + fdEsc(c.author.username) + '">' +
+          fdEsc(c.author.display_name) + "</b> <span class=\"hint\">" + fdAgo(c.created_at) + (c.hidden ? " · oculto" : "") + "</span><p>" + fdEsc(c.body) + "</p></div>" +
+          '<div class="fd-cbtns">' + (c.can_delete ? '<button data-act="cdel" data-id="' + c.id + '" title="Apagar">🗑️</button>' : "") +
+          (!c.mine ? '<button data-act="creport" data-id="' + c.id + '" title="Denunciar">🚩</button>' : "") + "</div></div>";
+      })
+      .join("");
+    var follow = p.mine ? "" : '<button class="exp-btn exp-btn-small" data-act="follow" data-user="' + fdEsc(p.author.username) + '">' + (p.following_author ? "✓ Seguindo" : "+ Seguir @" + fdEsc(p.author.username)) + "</button>";
+    fx.feed.innerHTML =
+      '<button class="exp-btn fd-back" data-act="back">← Voltar ao feed</button>' +
+      fdCard(p, true) +
+      '<div class="exp-btn-row" style="margin:-4px 0 12px">' + follow +
+      (p.can_delete ? '<button class="exp-btn exp-btn-small" data-act="delete" data-id="' + p.id + '">🗑️ Apagar publicação</button>' : "") +
+      (!p.mine ? '<button class="exp-btn exp-btn-small" data-act="report" data-id="' + p.id + '">🚩 Denunciar</button>' : "") + "</div>" +
+      '<div class="com-card"><h2>Comentários (' + p.comments + ")</h2>" + (comments || '<p class="hint">Ninguém comentou ainda.</p>') +
+      '<form id="fd-cform" class="exp-inline"><input name="body" maxlength="500" placeholder="Escreva um comentário…" autocomplete="off"><button class="exp-btn exp-btn-primary" type="submit">Enviar</button></form></div>';
+  }
+
+  function fdOpenUser(username) {
+    fd.view = "user";
+    fx.feed.innerHTML = '<p class="hint com-center">Carregando…</p>';
+    Promise.all([comApi("feed.php?action=profile&u=" + encodeURIComponent(username)), comApi("feed.php?action=list&u=" + encodeURIComponent(username))])
+      .then(function (r) {
+        fd.user = r[0].profile;
+        fd.userPosts = r[1].posts;
+        fdRenderUser();
+      })
+      .catch(function (err) {
+        comMsg(err.message, "error");
+        fdShowList(false);
+      });
+  }
+
+  function fdRenderUser() {
+    var u = fd.user;
+    var meta = [u.vehicle ? "🚙 " + fdEsc(u.vehicle) : "", u.city ? "📍 " + fdEsc(u.city) : ""].filter(Boolean).join(" · ");
+    fx.feed.innerHTML =
+      '<button class="exp-btn fd-back" data-act="back">← Voltar ao feed</button>' +
+      '<div class="com-card"><div class="fd-prof"><img src="' + fdAvatar(u) + '" alt=""><div><div class="com-me-name">' + fdEsc(u.display_name) + "</div>" +
+      '<div class="com-me-user">@' + fdEsc(u.username) + "</div>" + (meta ? '<div class="hint">' + meta + "</div>" : "") + "</div></div>" +
+      (u.bio ? '<p class="fd-body" style="margin-top:10px">' + fdEsc(u.bio) + "</p>" : "") +
+      '<div class="fd-counts"><span><b>' + u.posts + "</b> trilhas</span><span><b>" + u.followers + "</b> seguidores</span><span><b>" + u.following + "</b> seguindo</span></div>" +
+      (u.is_me ? "" : '<button class="com-btn ' + (u.is_following ? "" : "com-btn-primary") + '" data-act="follow" data-user="' + fdEsc(u.username) + '">' + (u.is_following ? "✓ Seguindo (toque para deixar de seguir)" : "+ Seguir") + "</button>") +
+      "</div>" + (fd.userPosts.length ? fd.userPosts.map(function (p) { return fdCard(p, false); }).join("") : '<div class="fd-empty">Nenhuma trilha publicada.</div>');
+  }
+
+  function fdShowMod() {
+    fd.view = "mod";
+    fx.feed.innerHTML = '<p class="hint com-center">Carregando…</p>';
+    comApi("feed.php?action=mod_list")
+      .then(function (d) {
+        var h = '<div class="com-card"><h2>🛡️ Moderação</h2><p class="hint">Publicações e comentários com denúncia. Com 3 denúncias eles saem do ar sozinhos até você decidir.</p></div>';
+        if (!d.posts.length && !d.comments.length) h += '<div class="fd-empty">Nada para revisar. 👍</div>';
+        d.posts.forEach(function (p) {
+          h += fdCard(p, false) + '<div class="exp-alert">🚩 ' + p.reports + " denúncia(s)" + (p.reasons.length ? ": " + fdEsc(p.reasons.join(" · ")) : "") +
+            '<div class="exp-btn-row"><button class="exp-btn exp-btn-primary" data-act="mod" data-kind="post" data-do="approve" data-id="' + p.id + '">✓ Manter no ar</button>' +
+            '<button class="exp-btn com-btn-danger" data-act="mod" data-kind="post" data-do="delete" data-id="' + p.id + '">🗑️ Apagar</button></div></div>';
+        });
+        d.comments.forEach(function (c) {
+          h += '<div class="com-card"><b>@' + fdEsc(c.author.username) + "</b> comentou:<p class=\"fd-body\">" + fdEsc(c.body) + '</p><div class="exp-alert">🚩 ' + c.reports + " denúncia(s)" +
+            (c.reasons.length ? ": " + fdEsc(c.reasons.join(" · ")) : "") + '<div class="exp-btn-row"><button class="exp-btn exp-btn-primary" data-act="mod" data-kind="comment" data-do="approve" data-id="' + c.id + '">✓ Manter</button>' +
+            '<button class="exp-btn com-btn-danger" data-act="mod" data-kind="comment" data-do="delete" data-id="' + c.id + '">🗑️ Apagar</button></div></div></div>';
+        });
+        fx.feed.innerHTML = h;
+      })
+      .catch(function (err) {
+        comMsg(err.message, "error");
+      });
+  }
+
+  function fdFind(id) {
+    if (fd.cur && fd.cur.id === id) return fd.cur;
+    return fd.posts.concat(fd.userPosts || []).find(function (p) { return p.id === id; });
+  }
+
+  function fdRerender() {
+    if (fd.view === "list") fdRenderList();
+    else if (fd.view === "post") fdRenderPost();
+    else if (fd.view === "user") fdRenderUser();
+  }
+
+  function fdDownload(id) {
+    comApi("feed.php?action=download", { id: id })
+      .then(function (d) {
+        var r = d.route;
+        var rec = {
+          id: newId("route"),
+          name: (d.title || r.name || "Trilha") + " (@" + d.author + ")",
+          folder: "Comunidade",
+          points: r.points.map(function (p) { return { lat: p.lat, lng: p.lng }; }),
+          waypoints: normalizeWaypoints(r.waypoints || []),
+          meta: normalizeMeta(r.meta),
+          blocks: [],
+          savedAt: Date.now()
+        };
+        var all = loadSavedRoutes();
+        all.push(rec);
+        persistSavedRoutes(all);
+        refreshSavedRoutesUI();
+        var p = fdFind(id);
+        if (p && !p.mine) p.downloads++;
+        fdRerender();
+        comMsg("⬇️ Trilha salva em Rotas Salvas › Comunidade. Já dá para navegar, usar no Rally ou numa expedição.", "ok");
+      })
+      .catch(function (err) {
+        comMsg(err.message, "error");
+      });
+  }
+
+  fx.feed.addEventListener("click", function (ev) {
+    var t = ev.target;
+    var ph = t.closest("[data-photo]");
+    if (ph) {
+      var v = document.createElement("div");
+      v.className = "fd-photo-view";
+      v.innerHTML = '<img src="' + fdEsc(ph.getAttribute("data-photo")) + '" alt="">';
+      v.addEventListener("click", function () { v.remove(); });
+      document.body.appendChild(v);
+      return;
+    }
+    var scope = t.closest("[data-scope]");
+    if (scope) {
+      fd.scope = scope.getAttribute("data-scope");
+      return fdShowList(true);
+    }
+    var user = t.closest("[data-user]");
+    var act = t.closest("[data-act]");
+    if (user && !act) return fdOpenUser(user.getAttribute("data-user"));
+    var open = t.closest("[data-open]");
+    if (open && !act) return fdOpenPost(+open.getAttribute("data-open"));
+    if (!act) return;
+    var a = act.getAttribute("data-act");
+    var id = +act.getAttribute("data-id");
+    if (a === "more") return fdLoadMore();
+    if (a === "back") return fdShowList(fd.posts.length === 0);
+    if (a === "download") return fdDownload(id);
+    if (a === "like") {
+      var p = fdFind(id);
+      if (!p) return;
+      comApi("feed.php?action=" + (p.liked ? "unlike" : "like"), { id: id })
+        .then(function (d) {
+          p.liked = d.liked;
+          p.likes = d.likes;
+          fdRerender();
+        })
+        .catch(function (err) { comMsg(err.message, "error"); });
+      return;
+    }
+    if (a === "follow") {
+      var un = act.getAttribute("data-user");
+      var isF = fd.view === "user" ? fd.user.is_following : fd.cur && fd.cur.following_author;
+      comApi("feed.php?action=" + (isF ? "unfollow" : "follow"), { username: un })
+        .then(function (d) {
+          if (fd.view === "user") {
+            fd.user = d.profile;
+            fdRenderUser();
+          } else if (fd.cur) {
+            fd.cur.following_author = d.following;
+            fdRenderPost();
+          }
+          comMsg(d.following ? "Agora você segue @" + un + "." : "Você deixou de seguir @" + un + ".", "ok");
+        })
+        .catch(function (err) { comMsg(err.message, "error"); });
+      return;
+    }
+    if (a === "delete") {
+      if (!window.confirm("Apagar esta publicação? As fotos e os comentários também somem.")) return;
+      comApi("feed.php?action=delete", { id: id })
+        .then(function () {
+          fd.posts = fd.posts.filter(function (p) { return p.id !== id; });
+          comMsg("Publicação apagada.", "ok");
+          fdShowList(false);
+        })
+        .catch(function (err) { comMsg(err.message, "error"); });
+      return;
+    }
+    if (a === "report" || a === "creport") {
+      var reason = window.prompt("Por que você está denunciando? (ex.: ofensivo, propaganda, perigoso)");
+      if (reason == null) return;
+      comApi("feed.php?action=report", { kind: a === "report" ? "post" : "comment", id: id, reason: reason.slice(0, 200) })
+        .then(function () { comMsg("Obrigado! A denúncia foi registrada e vai ser revisada.", "ok"); })
+        .catch(function (err) { comMsg(err.message, "error"); });
+      return;
+    }
+    if (a === "cdel") {
+      if (!window.confirm("Apagar este comentário?")) return;
+      comApi("feed.php?action=comment_delete", { id: id })
+        .then(function () { fdOpenPost(fd.cur.id); })
+        .catch(function (err) { comMsg(err.message, "error"); });
+      return;
+    }
+    if (a === "mod") {
+      var what = act.getAttribute("data-do");
+      if (what === "delete" && !window.confirm("Apagar definitivamente?")) return;
+      comApi("feed.php?action=mod", { kind: act.getAttribute("data-kind"), id: id, do: what })
+        .then(function () { fdShowMod(); })
+        .catch(function (err) { comMsg(err.message, "error"); });
+    }
+  });
+
+  fx.feed.addEventListener("submit", function (ev) {
+    if (ev.target.id !== "fd-cform") return;
+    ev.preventDefault();
+    var input = ev.target.elements.body;
+    var body = input.value.trim();
+    if (!body || !fd.cur) return;
+    input.disabled = true;
+    comApi("feed.php?action=comment", { id: fd.cur.id, body: body })
+      .then(function () { fdOpenPost(fd.cur.id); })
+      .catch(function (err) {
+        comMsg(err.message, "error");
+        input.disabled = false;
+      });
+  });
+
+  // ---- publicar uma rota salva ----
+  var pub = { route: null, photos: [] }; // photos: [{key, blob, url, on}]
+  var px = {
+    modal: document.getElementById("publish-modal"),
+    form: document.getElementById("publish-form"),
+    meta: document.getElementById("publish-meta"),
+    photos: document.getElementById("publish-photos"),
+    file: document.getElementById("publish-file"),
+    msg: document.getElementById("publish-msg"),
+    send: document.getElementById("btn-publish-send")
+  };
+
+  // corta ~300 m do começo e do fim (pela distância ao longo do traçado), para não revelar onde a pessoa mora
+  function trimRouteEnds(points, meters) {
+    var cum = cumulativeDistances(points);
+    var total = cum[cum.length - 1];
+    if (total < meters * 2 + 500) return null; // curta demais para cortar
+    var out = [];
+    out.push(pointAtDistance(points, cum, meters));
+    for (var i = 0; i < points.length; i++) if (cum[i] > meters && cum[i] < total - meters) out.push({ lat: points[i].lat, lng: points[i].lng });
+    out.push(pointAtDistance(points, cum, total - meters));
+    return out;
+  }
+
+  function downscaleImage(blob, max) {
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(blob);
+      var img = new Image();
+      img.onload = function () {
+        var sc = Math.min(1, max / Math.max(img.width, img.height));
+        var c = document.createElement("canvas");
+        c.width = Math.round(img.width * sc);
+        c.height = Math.round(img.height * sc);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob(function (b) { resolve(b || blob); }, "image/jpeg", 0.85);
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        resolve(null);
+      };
+      img.src = url;
+    });
+  }
+
+  function renderPublishPhotos() {
+    var on = pub.photos.filter(function (p) { return p.on; }).length;
+    px.photos.innerHTML = pub.photos.length
+      ? pub.photos.map(function (p, i) { return '<div class="pub-photo' + (p.on ? " on" : "") + '" data-i="' + i + '"><img src="' + p.url + '" alt=""><span>' + (p.on ? "✅" : "") + "</span></div>"; }).join("")
+      : '<span class="hint">Esta rota não tem fotos nos pontos.</span>';
+    px.msg.textContent = on ? on + " de 4 fotos escolhidas" : "";
+  }
+
+  function openPublishModal(route) {
+    if (!com.user) {
+      showToast("Entre na sua conta da Comunidade para publicar.");
+      openCommunityScreen();
+      return;
+    }
+    if (!route.points || route.points.length < 2) return showToast("A rota precisa de pelo menos 2 pontos.");
+    pub.photos.forEach(function (p) { URL.revokeObjectURL(p.url); });
+    pub = { route: route, photos: [] };
+    px.form.reset();
+    px.form.elements.title.value = route.name || "";
+    var m = normalizeMeta(route.meta);
+    var km = polylineLengthMeters(route.points) / 1000;
+    px.meta.textContent = "📏 " + fmtNum(km, 1) + " km · " + DIFFICULTY_LABELS[m.difficulty] + (m.vehicle ? " · 🚙 " + m.vehicle : "") + " (ajuste dificuldade e veículo no Planejamento)";
+    px.send.disabled = false;
+    renderPublishPhotos();
+    openModal(px.modal);
+    (route.waypoints || []).forEach(function (w) {
+      if (!w.photoId) return;
+      getPhoto(w.photoId).then(function (blob) {
+        if (!blob || pub.route !== route) return;
+        pub.photos.push({ key: w.photoId, blob: blob, url: URL.createObjectURL(blob), on: pub.photos.filter(function (p) { return p.on; }).length < 4 });
+        renderPublishPhotos();
+      });
+    });
+  }
+
+  px.photos.addEventListener("click", function (ev) {
+    var el2 = ev.target.closest("[data-i]");
+    if (!el2) return;
+    var p = pub.photos[+el2.getAttribute("data-i")];
+    if (!p.on && pub.photos.filter(function (x) { return x.on; }).length >= 4) return showToast("No máximo 4 fotos.");
+    p.on = !p.on;
+    renderPublishPhotos();
+  });
+
+  px.file.addEventListener("change", function () {
+    Array.prototype.forEach.call(px.file.files || [], function (f) {
+      var on = pub.photos.filter(function (x) { return x.on; }).length < 4;
+      pub.photos.push({ key: "f" + Math.random(), blob: f, url: URL.createObjectURL(f), on: on });
+    });
+    px.file.value = "";
+    renderPublishPhotos();
+  });
+
+  document.getElementById("btn-publish-cancel").addEventListener("click", function () {
+    closeModal(px.modal);
+  });
+
+  px.form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var r = pub.route;
+    var title = px.form.elements.title.value.trim();
+    if (title.length < 3) return showToast("Dê um título para a trilha.");
+    var pts = r.points.map(function (p) { return { lat: p.lat, lng: wrapLng(p.lng) }; });
+    var wps = normalizeWaypoints(r.waypoints).map(function (w) { return { lat: w.lat, lng: wrapLng(w.lng), type: w.type, note: w.note }; });
+    if (px.form.elements.trim.checked) {
+      var start = pts[0], end = pts[pts.length - 1];
+      var cut = trimRouteEnds(pts, 300);
+      if (!cut) {
+        if (!window.confirm("A trilha é curta demais para esconder 300 m de cada ponta. Publicar o traçado inteiro?")) return;
+      } else {
+        pts = cut;
+        wps = wps.filter(function (w) {
+          return haversineMeters(w.lat, w.lng, start.lat, start.lng) > 300 && haversineMeters(w.lat, w.lng, end.lat, end.lng) > 300;
+        });
+      }
+    }
+    px.send.disabled = true;
+    px.msg.textContent = "Preparando as fotos…";
+    var chosen = pub.photos.filter(function (p) { return p.on; }).slice(0, 4);
+    Promise.all(chosen.map(function (p) { return downscaleImage(p.blob, 1600); }))
+      .then(function (blobs) {
+        var fdata = new FormData();
+        fdata.append("data", JSON.stringify({ title: title, body: px.form.elements.body.value.trim(), route: { name: r.name, points: pts, waypoints: wps, meta: normalizeMeta(r.meta) } }));
+        blobs.forEach(function (b, i) { if (b) fdata.append("photos[]", b, "foto" + i + ".jpg"); });
+        px.msg.textContent = "Enviando…";
+        return comApi("feed.php?action=create", fdata);
+      })
+      .then(function () {
+        closeModal(px.modal);
+        showToast("📤 Trilha publicada na Comunidade!");
+        fd.tab = "feed";
+        fd.loadedOnce = false;
+        openCommunityScreen();
+        fdSetTab("feed");
+      })
+      .catch(function (err) {
+        px.msg.textContent = err.message || "Não foi possível publicar.";
+        px.send.disabled = false;
+      });
+  });
 
   // ---- init ----
   function safeInit(fn, label) {

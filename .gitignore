@@ -28,3 +28,4 @@ build/
 
 # Comunidade: fotos enviadas pelos usuários (ficam só no servidor)
 uploads/avatars/
+uploads/posts/

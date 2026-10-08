@@ -3,7 +3,7 @@
 // o .htaccess da pasta bloqueia arquivos que começam com "_".
 declare(strict_types=1);
 
-const FDE_SCHEMA_VERSION = 4;
+const FDE_SCHEMA_VERSION = 5;
 const FDE_SESSION_COOKIE = 'fde_sess';
 const FDE_SESSION_DAYS = 60;
 
@@ -129,6 +129,63 @@ function fde_migrate(PDO $pdo): void {
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             CONSTRAINT fk_drive_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    }
+    if ($v < 5) {
+        // etapa 2: feed de trilhas
+        $pdo->exec("CREATE TABLE IF NOT EXISTS posts (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            user_id INT UNSIGNED NOT NULL,
+            title VARCHAR(100) NOT NULL,
+            body VARCHAR(1500) NOT NULL DEFAULT '',
+            km DECIMAL(8,2) NOT NULL DEFAULT 0,
+            difficulty TINYINT NOT NULL DEFAULT 0,
+            vehicle VARCHAR(40) NOT NULL DEFAULT '',
+            route_json MEDIUMTEXT NOT NULL,
+            preview_json TEXT NOT NULL,
+            photos VARCHAR(600) NOT NULL DEFAULT '[]',
+            likes INT NOT NULL DEFAULT 0,
+            comments INT NOT NULL DEFAULT 0,
+            downloads INT NOT NULL DEFAULT 0,
+            reports INT NOT NULL DEFAULT 0,
+            hidden TINYINT(1) NOT NULL DEFAULT 0,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            INDEX (user_id), INDEX (hidden, id),
+            CONSTRAINT fk_post_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS post_likes (
+            post_id INT UNSIGNED NOT NULL, user_id INT UNSIGNED NOT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (post_id, user_id), INDEX (user_id),
+            CONSTRAINT fk_like_post FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+            CONSTRAINT fk_like_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS comments (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            post_id INT UNSIGNED NOT NULL, user_id INT UNSIGNED NOT NULL,
+            body VARCHAR(500) NOT NULL,
+            reports INT NOT NULL DEFAULT 0,
+            hidden TINYINT(1) NOT NULL DEFAULT 0,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            INDEX (post_id, id), INDEX (user_id),
+            CONSTRAINT fk_com_post FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+            CONSTRAINT fk_com_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS follows (
+            follower_id INT UNSIGNED NOT NULL, followee_id INT UNSIGNED NOT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (follower_id, followee_id), INDEX (followee_id),
+            CONSTRAINT fk_fol_a FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
+            CONSTRAINT fk_fol_b FOREIGN KEY (followee_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS reports (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            kind VARCHAR(10) NOT NULL, target_id INT UNSIGNED NOT NULL,
+            user_id INT UNSIGNED NOT NULL,
+            reason VARCHAR(200) NOT NULL DEFAULT '',
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY one_per_user (kind, target_id, user_id),
+            CONSTRAINT fk_rep_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     }
     $pdo->prepare("REPLACE INTO fde_meta (k, v) VALUES ('schema', ?)")->execute([(string)FDE_SCHEMA_VERSION]);
 }
