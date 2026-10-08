@@ -2597,8 +2597,16 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.1";
+  var APP_VERSION = "5.1.1";
   var CHANGELOG = [
+    {
+      version: "5.1.1",
+      date: "07/10/2026",
+      changes: [
+        "Correção: a Tomada de Tempo não disparava em rotas desenhadas com o mapa numa \"cópia do mundo\" ao lado (longitude deslocada em 360°) e mostrava \"Vá até a largada: 36953 km\". As rotas antigas são corrigidas sozinhas ao abrir",
+        "Os mapas agora sempre voltam para o mundo principal ao arrastar, evitando o problema em rotas novas"
+      ]
+    },
     {
       version: "5.1",
       date: "07/10/2026",
@@ -3547,7 +3555,8 @@ html, body {
   function initMap() {
     map = L.map("map", {
       zoomControl: true,
-      maxZoom: 19
+      maxZoom: 19,
+      worldCopyJump: true
     });
 
     setupBaseMap(map, true);
@@ -3626,6 +3635,7 @@ html, body {
   }
 
   function addPoint(lat, lng, role) {
+    lng = wrapLng(lng);
     var point = { lat: lat, lng: lng };
 
     if (role === "start" || role === "end") {
@@ -3708,8 +3718,10 @@ html, body {
       var idx = markers.indexOf(marker);
       if (idx === -1) return;
       var latlng = marker.getLatLng();
+      var wl = wrapLng(latlng.lng);
+      if (wl !== latlng.lng) marker.setLatLng([latlng.lat, wl]);
       state.points[idx].lat = latlng.lat;
-      state.points[idx].lng = latlng.lng;
+      state.points[idx].lng = wl;
       refreshPolyline();
       renderPointList();
       marker.setPopupContent(buildPopupContent(idx));
@@ -4131,8 +4143,9 @@ html, body {
     state.roadbookNotes = draft.roadbookNotes && typeof draft.roadbookNotes === "object" ? draft.roadbookNotes : {};
     el.routeName.value = state.name;
     updateFolderLabel();
+    wrapPointList(state.waypoints);
     draft.points.forEach(function (p) {
-      var restored = { lat: p.lat, lng: p.lng };
+      var restored = { lat: p.lat, lng: wrapLng(p.lng) };
       if (p.role === "start" || p.role === "end") restored.role = p.role;
       if (p.blockId) restored.blockId = p.blockId;
       state.points.push(restored);
@@ -4150,6 +4163,22 @@ html, body {
 
   el.routeName.addEventListener("input", saveDraft);
 
+  // Longitude sempre entre -180 e 180. O Leaflet não "dobra" o mundo sozinho: se o mapa
+  // estiver numa cópia do mundo ao lado, o clique vem com longitude +-360 (ex.: 312,6 em vez de -47,4).
+  // Navegação aguentava, mas a Tomada de Tempo calculava 36 mil km até a largada.
+  function wrapLng(lng) {
+    if (typeof lng !== "number" || !isFinite(lng) || (lng >= -180 && lng <= 180)) return lng;
+    return ((((lng + 180) % 360) + 360) % 360) - 180;
+  }
+
+  function wrapPointList(list) {
+    if (!Array.isArray(list)) return list;
+    list.forEach(function (p) {
+      if (p && typeof p.lng === "number") p.lng = wrapLng(p.lng);
+    });
+    return list;
+  }
+
   // ---- saved routes (localStorage) ----
   function loadSavedRoutes() {
     var raw = null;
@@ -4161,7 +4190,13 @@ html, body {
     if (!raw) return [];
     try {
       var parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
+      if (!Array.isArray(parsed)) return [];
+      parsed.forEach(function (r) {
+        if (!r) return;
+        wrapPointList(r.points);
+        wrapPointList(r.waypoints);
+      });
+      return parsed;
     } catch (e) {
       return [];
     }
@@ -5888,6 +5923,7 @@ html, body {
     navMap = L.map("nav-map", {
       zoomControl: false,
       maxZoom: 19,
+      worldCopyJump: true,
       rotate: true,
       rotateControl: false,
       touchRotate: false,
@@ -8030,7 +8066,7 @@ html, body {
   // chamado pelo clique no mapa de planejamento quando o modo está ligado
   function handlePlanningMapClickForWaypoint(latlng) {
     setWaypointPlacementMode(false);
-    openWaypointEditor({ lat: latlng.lat, lng: latlng.lng, onSave: upsertPlanningWaypoint });
+    openWaypointEditor({ lat: latlng.lat, lng: wrapLng(latlng.lng), onSave: upsertPlanningWaypoint });
   }
 
   function renderPlanningWaypoints() {
@@ -8061,7 +8097,8 @@ html, body {
         m.on("dragend", function () {
           var ll = m.getLatLng();
           wp.lat = ll.lat;
-          wp.lng = ll.lng;
+          wp.lng = wrapLng(ll.lng);
+          if (wp.lng !== ll.lng) m.setLatLng([ll.lat, wp.lng]);
           saveDraft();
         });
         planningWpMarkers.push(m);
@@ -9793,7 +9830,9 @@ html, body {
       mLng = 111320 * Math.cos((origin.lat * Math.PI) / 180);
     return {
       to: function (p) {
-        return { x: (p.lng - origin.lng) * mLng, y: (p.lat - origin.lat) * mLat };
+        var dl = p.lng - origin.lng;
+        dl -= 360 * Math.round(dl / 360);
+        return { x: dl * mLng, y: (p.lat - origin.lat) * mLat };
       },
       from: function (q) {
         return { lat: origin.lat + q.y / mLat, lng: origin.lng + q.x / mLng };
@@ -10062,7 +10101,7 @@ html, body {
 
   function initTimingMapIfNeeded() {
     if (timingMap) return;
-    timingMap = L.map("timing-map", { zoomControl: false, maxZoom: 19, rotateControl: false });
+    timingMap = L.map("timing-map", { zoomControl: false, maxZoom: 19, rotateControl: false, worldCopyJump: true });
     timingMap.setView([-14.235, -51.9253], 5);
     setupBaseMap(timingMap, false);
     timingRouteLine = L.polyline([], { color: "#e08a2c", weight: 4 }).addTo(timingMap);
@@ -10099,7 +10138,7 @@ html, body {
 
   function newTimingState(route, cfg) {
     var pts = route.points.map(function (p) {
-      return { lat: p.lat, lng: p.lng };
+      return { lat: Number(p.lat), lng: wrapLng(Number(p.lng)) };
     });
     var circuit = isCircuit(pts);
     if (circuit) pts[pts.length - 1] = { lat: pts[0].lat, lng: pts[0].lng }; // fecha o circuito
