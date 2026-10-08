@@ -3,7 +3,7 @@
 // o .htaccess da pasta bloqueia arquivos que começam com "_".
 declare(strict_types=1);
 
-const FDE_SCHEMA_VERSION = 3;
+const FDE_SCHEMA_VERSION = 4;
 const FDE_SESSION_COOKIE = 'fde_sess';
 const FDE_SESSION_DAYS = 60;
 
@@ -120,6 +120,15 @@ function fde_migrate(PDO $pdo): void {
             PRIMARY KEY (user_id, route_id),
             CONSTRAINT fk_exp_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+    if ($v < 4) {
+        // autorização permanente do Google Drive (refresh token cifrado), para o backup não desconectar
+        $pdo->exec("CREATE TABLE IF NOT EXISTS drive_links (
+            user_id INT UNSIGNED NOT NULL PRIMARY KEY,
+            refresh_enc TEXT NOT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_drive_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     }
     $pdo->prepare("REPLACE INTO fde_meta (k, v) VALUES ('schema', ?)")->execute([(string)FDE_SCHEMA_VERSION]);
 }
@@ -269,7 +278,21 @@ function user_private(array $u): array {
         'has_password' => $u['password_hash'] !== null,
         'has_google' => $u['google_sub'] !== null,
         'needs_username' => (bool)$u['needs_username'],
+        'drive_linked' => drive_linked((int)$u['id']),
     ];
+}
+
+// segredo do cliente Google preenchido de verdade (não o texto "COLE_..." do modelo)
+function drive_server_ready(): bool {
+    $s = (string)(fde_config()['google_client_secret'] ?? '');
+    return $s !== '' && !str_starts_with($s, 'COLE_');
+}
+
+function drive_linked(int $uid): bool {
+    if (!drive_server_ready()) return false;
+    $st = db()->prepare('SELECT 1 FROM drive_links WHERE user_id = ?');
+    $st->execute([$uid]);
+    return (bool)$st->fetchColumn();
 }
 
 function find_user_by(string $col, string $val): ?array {

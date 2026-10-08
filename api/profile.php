@@ -103,6 +103,12 @@ switch ($action) {
             fail('Digite EXCLUIR para confirmar.');
         }
         if ($u['avatar']) @unlink(avatars_dir() . '/' . basename($u['avatar']));
+        if (drive_server_ready()) {
+            // devolve ao Google a permissão do Drive guardada (se houver)
+            require __DIR__ . '/_drive.php';
+            $refresh = drive_get_refresh((int)$u['id']);
+            if ($refresh) drive_post(drive_cfg()['revoke_url'], ['token' => $refresh]);
+        }
         // ON DELETE CASCADE apaga sessões e tokens (e, nas próximas etapas, posts/curtidas/etc.)
         db()->prepare('DELETE FROM users WHERE id = ?')->execute([$u['id']]);
         set_session_cookie('', time() - 3600);

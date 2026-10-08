@@ -1829,6 +1829,12 @@ html, body {
 .timing-gate-tip { background: rgba(0,0,0,0.75); color: #fff; border: none; font-weight: 700; font-size: 11px; box-shadow: none; }
 .timing-gate-tip::before { display: none; }
 .timing-best-card { border-color: #8a6a1a; }
+.timing-map-wrap { flex: 1 1 38%; min-height: 160px; position: relative; }
+.timing-map-wrap #timing-map { position: absolute; inset: 0; height: 100%; min-height: 0; }
+.timing-follow-btn { position: absolute; right: 8px; bottom: 26px; z-index: 900; border: none; border-radius: 999px; padding: 8px 12px; background: rgba(20,24,15,0.88); color: #fff; font-weight: 700; font-size: 0.85rem; box-shadow: 0 2px 8px rgba(0,0,0,0.5); cursor: pointer; }
+.timing-follow-btn.on { background: #2e6b30; }
+.timing-rally .rb-nav-box { min-height: 74px; }
+#btn-timing-rally.off { opacity: 0.4; }
 .timing-history-splits { font-size: 0.78rem; color: #cdd8b4; margin-top: 4px; font-variant-numeric: tabular-nums; }
 
 /* ==== v5.0 Comunidade (etapa 1: contas e perfil) ==== */
@@ -2319,11 +2325,20 @@ html, body {
     <header class="nav-header timing-header">
       <button id="btn-timing-exit" class="icon-btn" aria-label="Sair da tomada de tempo">←</button>
       <h1 id="timing-route-name">—</h1>
+      <button id="btn-timing-rally" class="icon-btn timing-voice" title="Roadbook de rally">🏁</button>
       <button id="btn-timing-voice" class="icon-btn timing-voice" title="Voz">🔊</button>
     </header>
-    <div id="timing-map"></div>
+    <div class="timing-map-wrap">
+      <div id="timing-map"></div>
+      <button id="btn-timing-follow" class="timing-follow-btn">🗺️ Visão geral</button>
+    </div>
     <div class="timing-panel">
       <div id="timing-status" class="timing-status timing-status-wait">Aguardando GPS...</div>
+      <div id="timing-rally" class="rally-boxes timing-rally hidden">
+        <div id="timing-rb-cur" class="rb-nav-box rb-nav-current"></div>
+        <div id="timing-rb-next" class="rb-nav-box rb-nav-next"></div>
+      </div>
+      <div id="timing-rb-tonext" class="rally-tonext hidden"></div>
       <div id="timing-clock" class="timing-clock">0:00,0</div>
       <div id="timing-delta" class="timing-delta"></div>
       <div class="timing-row">
@@ -2716,8 +2731,24 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.2";
+  var APP_VERSION = "5.3";
   var CHANGELOG = [
+    {
+      version: "5.3",
+      date: "08/10/2026",
+      changes: [
+        "Tomada de Tempo com cara de navegador de rally: perto da largada e valendo, o mapa segue o carro de perto com o rumo pra cima (botão 🧭 Seguindo / 🗺️ Visão geral)",
+        "Roadbook na Tomada de Tempo: casa atual e próxima com tulipa, distância e CAP, e avisos falados das curvas no ritmo da velocidade (botão 🏁 liga/desliga)"
+      ]
+    },
+    {
+      version: "5.2.1",
+      date: "08/10/2026",
+      changes: [
+        "Backup no Google Drive ligado à sua conta: o servidor guarda a permissão (cifrada) e renova sozinho — acabou o \"Drive desconectado\" a cada hora, inclusive no app instalado",
+        "Login com Google liberado para todo mundo (o app do Google saiu do modo de teste)"
+      ]
+    },
     {
       version: "5.2",
       date: "08/10/2026",
@@ -6611,11 +6642,13 @@ html, body {
 
   function setDriveConnected(connected) {
     driveConnected = connected;
+    var viaServer = connected && driveServerActive();
     el.btnDriveConnect.classList.toggle("drive-connected", connected);
     el.btnDriveConnect.textContent = connected ? "✅ Backup no Google Drive ligado" : "☁️ Backup no Google Drive (opcional)";
     el.driveStatusHint.textContent = connected
-      ? "Suas rotas salvas sincronizam com a pasta \"" + DRIVE_FOLDER_NAME + "\" no seu Google Drive."
-      : "Opcional: guarda uma cópia das rotas e das fotos dos pontos numa pasta do seu Google Drive.";
+      ? "Rotas e fotos dos pontos com cópia na pasta \"" + DRIVE_FOLDER_NAME + "\" do seu Google Drive." + (viaServer ? " Ligado à sua conta: não desconecta." : "")
+      : "Opcional: guarda uma cópia das rotas e das fotos dos pontos numa pasta do seu Google Drive." +
+        (typeof com !== "undefined" && com && com.driveServer && !com.user ? " Entre na sua conta para o backup não desconectar a cada hora." : "");
   }
 
   function initGoogleTokenClient() {
@@ -6771,6 +6804,13 @@ html, body {
   el.btnDriveConnect.addEventListener("click", function () {
     if (driveConnected) {
       if (!window.confirm("Desconectar do Google Drive? Suas rotas continuam salvas neste aparelho.")) return;
+      if (driveServerActive()) {
+        comApi("drive.php?action=unlink", {}).catch(function () {
+          /* sem rede: o servidor esquece na próxima */
+        });
+        com.user.drive_linked = false;
+        clearTimeout(driveServerTimer);
+      }
       driveAccessToken = null;
       driveFolderId = null;
       driveFileId = null;
@@ -6784,12 +6824,66 @@ html, body {
       showToast("Desconectado do Google Drive.");
       return;
     }
+    if (com && com.user && com.driveServer) {
+      // ligado à conta: o servidor guarda a permissão e renova sozinho (funciona no app instalado também)
+      window.location.href = "api/drive.php?action=start";
+      return;
+    }
     if (isStandaloneDisplayMode()) {
       startRedirectOAuthFlow();
       return;
     }
     requestDriveToken(false);
   });
+
+  // ---- Drive renovado pelo servidor (conta logada) ----
+  var driveServerTimer = null;
+  var driveServerBusy = null;
+
+  function driveServerActive() {
+    return !!(typeof com !== "undefined" && com && com.user && com.user.drive_linked && com.driveServer);
+  }
+
+  function driveTokenFromServer(silent) {
+    if (driveServerBusy) return driveServerBusy;
+    driveServerBusy = comApi("drive.php?action=token", {})
+      .then(function (d) {
+        if (!d.linked) {
+          if (com.user) com.user.drive_linked = false;
+          clearTimeout(driveServerTimer);
+          driveAccessToken = null;
+          clearTokenStorage();
+          setDriveConnected(false);
+          if (d.revoked) showToast("A permissão do Google Drive foi retirada. Toque em \"Backup no Google Drive\" para ligar de novo.");
+          return null;
+        }
+        var first = !driveConnected || !driveFolderId;
+        driveAccessToken = d.access_token;
+        saveTokenToStorage(d.access_token, d.expires_in);
+        try {
+          localStorage.setItem(DRIVE_CONNECTED_KEY, "1");
+        } catch (e) {
+          /* ignore */
+        }
+        setDriveConnected(true);
+        clearTimeout(driveServerTimer);
+        // renova uns minutos antes de vencer (a chave do Google dura ~1 h)
+        driveServerTimer = setTimeout(function () {
+          driveTokenFromServer(true);
+        }, Math.max(60, (d.expires_in || 3600) - 300) * 1000);
+        if (first) onDriveConnected();
+        return d.access_token;
+      })
+      .catch(function (err) {
+        if (!silent) showToast(err && err.message ? err.message : "Não foi possível falar com o Google Drive agora.");
+        return null;
+      })
+      .then(function (t) {
+        driveServerBusy = null;
+        return t;
+      });
+    return driveServerBusy;
+  }
 
   function tryAutoReconnect() {
     if (oauthRedirectHandledThisLoad) return;
@@ -6811,6 +6905,9 @@ html, body {
       onDriveConnected();
       return;
     }
+
+    // Ligado à conta: quem renova é o servidor, assim que o "quem sou eu" responder
+    if (lsGet("fde_drive_server_v1", "") === "1") return;
 
     // Token expired (or never cached) — fall back to a silent re-consent
     // request, which succeeds quietly as long as the browser still has an
@@ -6835,6 +6932,13 @@ html, body {
     headers["Authorization"] = "Bearer " + driveAccessToken;
     options.headers = headers;
     return fetch(url, options).then(function (resp) {
+      if (resp.status === 401 && driveServerActive() && !options.__retried) {
+        return driveTokenFromServer(true).then(function (t) {
+          if (!t) return resp;
+          options.__retried = true;
+          return driveFetch(url, options);
+        });
+      }
       if (resp.status === 401) {
         // Google invalidated/revoked this token behind our back (e.g. access
         // removed from myaccount.google.com/permissions) — drop the stale
@@ -10236,7 +10340,11 @@ html, body {
 
   function initTimingMapIfNeeded() {
     if (timingMap) return;
-    timingMap = L.map("timing-map", { zoomControl: false, maxZoom: 19, rotateControl: false, worldCopyJump: true });
+    timingMap = L.map("timing-map", { zoomControl: false, maxZoom: 19, rotate: true, rotateControl: false, bearing: 0, worldCopyJump: true });
+    // mexer no mapa com o dedo desliga o "seguir" (volta pelo botão)
+    timingMap.on("dragstart", function () {
+      if (T && !T.finished) setTimingFollow(false);
+    });
     timingMap.setView([-14.235, -51.9253], 5);
     setupBaseMap(timingMap, false);
     timingRouteLine = L.polyline([], { color: "#e08a2c", weight: 4 }).addTo(timingMap);
@@ -10270,6 +10378,144 @@ html, body {
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible" && T && !T.finished) requestWakeLock();
   });
+
+  // ---- v5.3 Tomada de Tempo como navegador de rally: mapa segue o carro (rumo pra cima) + roadbook ----
+  var timingFollow = "auto"; // "auto": segue quando está perto da largada ou valendo; true/false: escolha da pessoa
+  var timingFollowBtn = document.getElementById("btn-timing-follow");
+  var timingRallyBtn = document.getElementById("btn-timing-rally");
+  var tr = {
+    wrap: document.getElementById("timing-rally"),
+    cur: document.getElementById("timing-rb-cur"),
+    next: document.getElementById("timing-rb-next"),
+    tonext: document.getElementById("timing-rb-tonext")
+  };
+
+  function timingFollowing() {
+    if (!T || T.finished) return false;
+    if (timingFollow === "auto") return !!(T.running || T.armed);
+    return timingFollow;
+  }
+
+  function renderTimingFollowBtn() {
+    var on = timingFollowing();
+    timingFollowBtn.classList.toggle("on", on);
+    timingFollowBtn.textContent = on ? "🧭 Seguindo" : "🗺️ Visão geral";
+  }
+
+  function timingOverview() {
+    if (!timingMap) return;
+    timingMap.setBearing(0);
+    timingMap.fitBounds(timingRouteLine.getBounds().pad(0.15));
+  }
+
+  function setTimingFollow(v) {
+    timingFollow = v;
+    if (!timingFollowing()) timingOverview();
+    else if (T && T.lastLL) timingFollowUpdate(T.lastLL, null);
+    renderTimingFollowBtn();
+  }
+
+  timingFollowBtn.addEventListener("click", function () {
+    setTimingFollow(!timingFollowing());
+  });
+
+  // rumo: o do GPS quando andando; senão calcula pelo deslocamento
+  function timingFollowUpdate(ll, heading) {
+    if (heading != null) T.heading = heading;
+    renderTimingFollowBtn();
+    if (!timingFollowing()) return;
+    var z = timingMap.getZoom();
+    if (!T.followZoomed || z == null || isNaN(z)) {
+      z = 17;
+      T.followZoomed = true;
+    }
+    timingMap.setView([ll.lat, ll.lng], z, { animate: false });
+    if (T.heading != null) timingMap.setBearing(-T.heading);
+  }
+
+  // ---- roadbook na tomada de tempo (as mesmas casas/tulipas do Modo Rally) ----
+  var timingRbEnabled = lsGet("fde_timing_roadbook_v1", "1") === "1";
+
+  function timingRallyOn() {
+    return timingRbEnabled && T && T.rb && T.rb.length > 1;
+  }
+
+  timingRallyBtn.addEventListener("click", function () {
+    timingRbEnabled = !timingRbEnabled;
+    lsSet("fde_timing_roadbook_v1", timingRbEnabled ? "1" : "0");
+    renderTimingPanel();
+    showToast(timingRbEnabled ? "🏁 Roadbook ligado" : "Roadbook desligado");
+  });
+
+  function timingRbBoxHtml(box, big) {
+    var note = [box.autoNote, box.note].filter(Boolean).join(" — ");
+    return (
+      '<div class="rb-nav-n">' + box.n + "</div>" +
+      '<div class="rb-nav-km">' + fmtKm(box.km) + "</div>" +
+      '<div class="rb-nav-tulip">' + tulipSvg(box, big ? 62 : 48) + "</div>" +
+      '<div class="rb-nav-txt"><b>' + escapeXml(boxDescription(box)) + "</b>" +
+      (box.danger ? ' <span class="rb-dg">' + dangerMarks(box.danger) + "</span>" : "") +
+      (note ? "<br><span>" + escapeXml(note) + "</span>" : "") + "</div>"
+    );
+  }
+
+  function timingRbIndex(along) {
+    var idx = 0;
+    for (var i = 0; i < T.rb.length; i++) {
+      if (T.rb[i].km <= along + 8) idx = i;
+      else break;
+    }
+    return idx;
+  }
+
+  function renderTimingRally() {
+    var on = timingRallyOn();
+    timingRallyBtn.classList.toggle("off", !timingRbEnabled);
+    tr.wrap.classList.toggle("hidden", !on);
+    tr.tonext.classList.toggle("hidden", !on);
+    if (!on) return;
+    var along = T.running && T.along != null ? T.along : 0;
+    var idx = timingRbIndex(along);
+    var cur = T.rb[idx];
+    var next = T.rb[idx + 1] || null;
+    tr.cur.innerHTML = timingRbBoxHtml(cur, false);
+    tr.cur.className = "rb-nav-box rb-nav-current" + (cur.danger ? " rb-danger-" + cur.danger : "");
+    if (next) {
+      tr.next.innerHTML = timingRbBoxHtml(next, true);
+      tr.next.className = "rb-nav-box rb-nav-next" + (next.danger ? " rb-danger-" + next.danger : "");
+      tr.tonext.textContent = "Próxima: casa " + next.n + " · faltam " + formatDistance(Math.max(0, next.km - along)) + (next.cap != null ? " · CAP " + capText(next.cap) : "");
+    } else {
+      tr.next.innerHTML = '<div class="rb-nav-txt"><b>🏁 Chegada</b></div>';
+      tr.next.className = "rb-nav-box rb-nav-next";
+      tr.tonext.textContent = "";
+    }
+  }
+
+  // avisos falados das casas, no ritmo da velocidade (como no Modo Rally)
+  function timingRallyVoice(speedKmh) {
+    if (!timingRallyOn() || !T.running || T.along == null) return;
+    var idx = timingRbIndex(T.along);
+    var next = T.rb[idx + 1];
+    if (!next || next.kind === "end") return; // a chegada já tem o aviso da tomada de tempo
+    var dist = next.km - T.along;
+    var mps = Math.max(3, (speedKmh || 0) / 3.6);
+    var farAt = Math.min(600, Math.max(150, mps * 12));
+    var nearAt = Math.max(40, mps * 4);
+    var key = T.lapIndex + ":" + next.n;
+    var a = T.rbAnnounced[key] || (T.rbAnnounced[key] = {});
+    var what = next.kind === "wp" ? next.autoNote.replace(/^\S+\s/, "").split(" — ")[0].toLowerCase() : turnInfo(next.turn).words;
+    var danger = next.danger ? " " + DANGER_WORDS[next.danger] : "";
+    var note = next.note ? ", " + next.note : "";
+    if (!a.far && dist <= farAt && dist > nearAt) {
+      a.far = true;
+      speak("Em " + spokenDistance(dist) + ", " + what + note + "." + danger);
+      if (next.danger >= 2) buzz([200, 100, 200]);
+    } else if (!a.near && dist <= nearAt) {
+      a.near = a.far = true;
+      speak(what.charAt(0).toUpperCase() + what.slice(1) + " agora." + danger);
+      buzz(next.danger >= 2 ? [300, 100, 300] : 120);
+    }
+  }
 
   function newTimingState(route, cfg) {
     var pts = route.points.map(function (p) {
@@ -10317,7 +10563,12 @@ html, body {
       bestLapProfile: null,
       maxSpeed: 0,
       distance: 0,
-      track: []
+      track: [],
+      rb: buildRoadbook(pts, normalizeWaypoints(route.waypoints), route.roadbookNotes),
+      rbAnnounced: {},
+      heading: null,
+      followZoomed: false,
+      lastLL: null
     };
   }
 
@@ -10355,10 +10606,12 @@ html, body {
       timingMap.removeLayer(timingYouMarker);
       timingYouMarker = null;
     }
+    timingFollow = "auto";
     renderTimingPanel();
+    renderTimingFollowBtn();
     setTimeout(function () {
       timingMap.invalidateSize();
-      timingMap.fitBounds(timingRouteLine.getBounds().pad(0.15));
+      timingOverview();
     }, 60);
     requestWakeLock();
     startTimingGps();
@@ -10396,6 +10649,14 @@ html, body {
   }
 
   function onTimingPosition(pos) {
+    timingOnPositionCore(pos);
+    if (T && !T.finished && T.lastLL) {
+      timingFollowUpdate(T.lastLL, T.pendingHeading);
+      T.pendingHeading = null;
+    }
+  }
+
+  function timingOnPositionCore(pos) {
     if (!T || T.finished) return;
     var c = pos.coords;
     var ts = pos.timestamp || Date.now();
@@ -10413,6 +10674,15 @@ html, body {
     } else {
       timingYouMarker.setLatLng([ll.lat, ll.lng]);
     }
+    var hdg = null;
+    if (c.heading != null && !isNaN(c.heading) && spd != null && spd > 3) hdg = c.heading;
+    else if (T.prev) {
+      var mdx = P.x - T.prev.P.x,
+        mdy = P.y - T.prev.P.y;
+      if (Math.sqrt(mdx * mdx + mdy * mdy) > 4) hdg = ((Math.atan2(mdx, mdy) * 180) / Math.PI + 360) % 360;
+    }
+    T.lastLL = ll;
+    T.pendingHeading = hdg;
 
     var prev = T.prev;
     T.prev = { P: P, ts: ts };
@@ -10467,6 +10737,7 @@ html, body {
       var lastProf = T.profile[T.profile.length - 1];
       if (T.along - lastProf[0] >= 25) T.profile.push([Math.round(T.along), Math.round(lapElapsed)]);
     }
+    timingRallyVoice(spd);
 
     // parciais (na ordem)
     if (T.nextSector < T.sectors.length) {
@@ -10538,6 +10809,10 @@ html, body {
   function finishTiming(endTs, complete) {
     if (!T || T.finished) return;
     T.finished = true;
+    setTimeout(function () {
+      timingOverview();
+      renderTimingFollowBtn();
+    }, 300);
     T.endTs = endTs || Date.now();
     stopTimingGps();
     releaseWakeLock();
@@ -10635,6 +10910,7 @@ html, body {
 
   function renderTimingPanel() {
     if (!T) return;
+    renderTimingRally();
     var st = tx.status;
     if (T.finished) {
       st.className = "timing-status " + (T.record ? "timing-status-record" : "timing-status-done");
@@ -10865,6 +11141,20 @@ html, body {
     }
     if (was && com.user && was.id !== com.user.id) onAccountLogin(com.user);
     renderAccountSync();
+    syncDriveWithAccount();
+  }
+
+  // Drive ligado à conta: pega a chave no servidor (sem popup do Google, não desconecta)
+  function syncDriveWithAccount() {
+    var linked = !!(com.user && com.user.drive_linked && com.driveServer);
+    try {
+      if (linked) localStorage.setItem("fde_drive_server_v1", "1");
+      else localStorage.removeItem("fde_drive_server_v1");
+    } catch (e) {
+      /* ignore */
+    }
+    if (linked && (!driveConnected || !loadValidTokenFromStorage())) driveTokenFromServer(true);
+    else setDriveConnected(driveConnected); // atualiza o texto de ajuda
   }
 
   // depois de entrar vindo das boas-vindas, vai direto para o painel (ou para escolher o nome de usuário)
@@ -10948,6 +11238,7 @@ html, body {
     return comApi("auth.php?action=me")
       .then(function (data) {
         com.signupOpen = data.signup_open !== false;
+        com.driveServer = !!data.drive_server;
         comSetUser(data.user);
       })
       .catch(function (err) {
@@ -11026,6 +11317,23 @@ html, body {
   }
 
   // ---- links que voltam para o app: #senha=<token> (redefinir senha) e #comunidade=ok|erro|fechado (Google redirect) ----
+  function handleDriveHash() {
+    var m = (window.location.hash || "").match(/^#drive=(ok|erro|cancelado|login|sem_permissao)$/);
+    if (!m) return;
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+    var msg = {
+      ok: "✅ Google Drive ligado à sua conta. O backup não vai mais desconectar.",
+      erro: "Não foi possível ligar o Google Drive agora. Tente de novo.",
+      cancelado: "Ligação com o Google Drive cancelada.",
+      login: "Entre na sua conta da Comunidade para ligar o Google Drive.",
+      sem_permissao: "Para o backup funcionar, deixe marcada a permissão de acesso ao Google Drive na tela do Google."
+    }[m[1]];
+    setTimeout(function () {
+      showToast(msg);
+    }, 600);
+    if (m[1] === "login") openCommunityScreen();
+  }
+
   function handleCommunityHash() {
     var hash = window.location.hash || "";
     var m = hash.match(/^#senha=([a-f0-9]{48})$/);
@@ -11204,6 +11512,7 @@ html, body {
   });
 
   function initCommunity() {
+    handleDriveHash();
     handleCommunityHash();
     window.addEventListener("hashchange", handleCommunityHash);
     // mostra no painel se já está logado (sem travar a abertura do app)
@@ -11212,7 +11521,9 @@ html, body {
       comApi("auth.php?action=me")
         .then(function (data) {
           com.signupOpen = data.signup_open !== false;
+          com.driveServer = !!data.drive_server;
           if (!com.loaded) comSetUser(data.user);
+          else syncDriveWithAccount();
           maybeShowWelcome();
         })
         .catch(function () {
@@ -11391,6 +11702,7 @@ html, body {
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible") {
       if (accountSyncReady() && Date.now() - acc.lastOk > 20000) accountSync();
+      if (driveServerActive() && !loadValidTokenFromStorage()) driveTokenFromServer(true);
     } else {
       flushAccountSync();
     }
