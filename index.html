@@ -2731,8 +2731,13 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.3";
+  var APP_VERSION = "5.3.1";
   var CHANGELOG = [
+    {
+      version: "5.3.1",
+      date: "08/10/2026",
+      changes: ["Quem já usava o Drive do jeito antigo vê o botão \"🔗 Ligar o backup do Drive à sua conta\" para passar a renovar pelo servidor"]
+    },
     {
       version: "5.3",
       date: "08/10/2026",
@@ -6644,9 +6649,10 @@ html, body {
     driveConnected = connected;
     var viaServer = connected && driveServerActive();
     el.btnDriveConnect.classList.toggle("drive-connected", connected);
-    el.btnDriveConnect.textContent = connected ? "✅ Backup no Google Drive ligado" : "☁️ Backup no Google Drive (opcional)";
+    var canUpgrade = connected && !viaServer && typeof com !== "undefined" && com && com.user && com.driveServer;
+    el.btnDriveConnect.textContent = canUpgrade ? "🔗 Ligar o backup do Drive à sua conta" : connected ? "✅ Backup no Google Drive ligado" : "☁️ Backup no Google Drive (opcional)";
     el.driveStatusHint.textContent = connected
-      ? "Rotas e fotos dos pontos com cópia na pasta \"" + DRIVE_FOLDER_NAME + "\" do seu Google Drive." + (viaServer ? " Ligado à sua conta: não desconecta." : "")
+      ? "Rotas e fotos dos pontos com cópia na pasta \"" + DRIVE_FOLDER_NAME + "\" do seu Google Drive." + (viaServer ? " Ligado à sua conta: não desconecta." : canUpgrade ? " Toque acima e autorize uma vez para ele não desconectar mais." : "")
       : "Opcional: guarda uma cópia das rotas e das fotos dos pontos numa pasta do seu Google Drive." +
         (typeof com !== "undefined" && com && com.driveServer && !com.user ? " Entre na sua conta para o backup não desconectar a cada hora." : "");
   }
@@ -6802,6 +6808,11 @@ html, body {
   }
 
   el.btnDriveConnect.addEventListener("click", function () {
+    if (driveConnected && !driveServerActive() && com && com.user && com.driveServer) {
+      // ligado do jeito antigo (cai a cada hora): passa a ligar pela conta
+      window.location.href = "api/drive.php?action=start";
+      return;
+    }
     if (driveConnected) {
       if (!window.confirm("Desconectar do Google Drive? Suas rotas continuam salvas neste aparelho.")) return;
       if (driveServerActive()) {
