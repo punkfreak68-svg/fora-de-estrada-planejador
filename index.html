@@ -2021,6 +2021,8 @@ html, body {
 .pub-photo.on img { opacity: 1; }
 .pub-photo span { position: absolute; top: 2px; right: 4px; font-size: 0.9rem; }
 .pub-add { display: inline-block; text-align: center; }
+.dash-tile-sub { display: block; font-size: 0.78rem; font-weight: 600; color: #9db07d; margin-top: 2px; }
+.dash-tile-sub:empty { display: none; }
 </style>
 </head>
 <body>
@@ -2054,7 +2056,7 @@ html, body {
     </button>
     <button id="btn-dash-community" class="dashboard-tile">
       <span class="dashboard-tile-icon">👥</span>
-      <span id="dash-community-label" class="dashboard-tile-label">Comunidade</span>
+      <span class="dashboard-tile-label">Comunidade <small id="dash-community-label" class="dash-tile-sub"></small></span>
     </button>
   </div>
 
@@ -2806,8 +2808,13 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.4";
+  var APP_VERSION = "5.4.1";
   var CHANGELOG = [
+    {
+      version: "5.4.1",
+      date: "08/10/2026",
+      changes: ["O botão 👥 Comunidade no painel continua com esse nome depois de entrar (o @usuário aparece embaixo)"]
+    },
     {
       version: "5.4",
       date: "08/10/2026",
@@ -11237,7 +11244,7 @@ html, body {
     var was = com.user;
     com.user = user || null;
     com.loaded = true;
-    cx.dashLabel.textContent = com.user ? "@" + com.user.username : "Comunidade";
+    cx.dashLabel.textContent = com.user ? "@" + com.user.username : "";
     comRender();
     if (!was && com.user) onAccountLogin(com.user);
     if (was && !com.user) {
