@@ -1896,6 +1896,78 @@ html, body {
 .acc-login-btn { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a8a3d; background: #2e6b30; color: #fff; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
 .acc-sync-on { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #22261b; border: 1px solid #3a4228; border-radius: 6px; padding: 9px 10px; font-size: 0.88rem; color: #dfe7cc; }
 .acc-sync-on.acc-sync-warn { border-color: #8a6a1a; color: #fbe6b0; }
+
+/* ==== v5.2 Expedições ==== */
+#screen-expeditions { height: 100%; }
+.exp-view { height: 100%; display: flex; flex-direction: column; }
+.exp-body { flex: 1 1 auto; overflow-y: auto; padding: 14px; max-width: 720px; width: 100%; margin: 0 auto; }
+.exp-intro { margin: 0 0 12px; }
+.exp-pad { padding: 8px 0; }
+.exp-list { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.exp-card { background: #22261b; border: 1px solid #3a4228; border-radius: 10px; padding: 12px 14px; cursor: pointer; text-align: left; color: #eee; width: 100%; font: inherit; }
+.exp-card b { display: block; font-size: 1.05rem; color: #fff; margin-bottom: 4px; }
+.exp-card span { font-size: 0.82rem; color: #9db07d; }
+.exp-card .exp-bar { margin-top: 8px; }
+.exp-name-input { flex: 1 1 auto; min-width: 0; background: #1b1f16; border: 1px solid #4a5a34; border-radius: 6px; color: #fff; font-size: 1rem; font-weight: 700; padding: 8px 10px; }
+.exp-tabs { flex: 0 0 auto; display: flex; gap: 6px; overflow-x: auto; padding: 8px 10px; background: #1f2418; border-bottom: 1px solid #3a4228; scrollbar-width: none; }
+.exp-tabs::-webkit-scrollbar { display: none; }
+.exp-tabs button { flex: 0 0 auto; padding: 8px 12px; border-radius: 999px; border: 1px solid #3a4228; background: #1b1f16; color: #cdd8b4; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.exp-tabs button.active { background: #3d4a2a; border-color: #6b8040; color: #fff; }
+.exp-sec { background: #22261b; border: 1px solid #3a4228; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+.exp-sec h2 { margin: 0 0 8px; font-size: 0.98rem; color: #c9d9a8; display: flex; align-items: center; gap: 8px; }
+.exp-sec h2 .exp-sp { flex: 1; }
+.exp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.exp-f { display: flex; flex-direction: column; gap: 3px; font-size: 0.78rem; color: #9db07d; min-width: 0; }
+.exp-f input, .exp-f select, .exp-f textarea, .exp-inline input, .exp-inline select {
+  width: 100%; padding: 9px 8px; border-radius: 7px; border: 1px solid #4a5a34; background: #1b1f16; color: #eee; font-size: 0.95rem; font-family: inherit; min-width: 0;
+}
+.exp-f textarea { resize: vertical; }
+.exp-f-wide { grid-column: 1 / -1; }
+.exp-check { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: #dfe7cc; padding: 6px 0; }
+.exp-check input { width: 20px; height: 20px; flex: 0 0 auto; }
+.exp-btn { padding: 9px 12px; border-radius: 8px; border: 1px solid #4a5a34; background: #3d4a2a; color: #eee; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
+.exp-btn-primary { background: #2e6b30; border-color: #3a8a3d; }
+.exp-btn-wa { background: #1f7a43; border-color: #25a457; }
+.exp-btn-small { padding: 5px 9px; font-size: 0.78rem; }
+.exp-btn-x { background: transparent; border: none; color: #ff8a80; font-size: 1.1rem; cursor: pointer; padding: 2px 6px; }
+.exp-btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.exp-day-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.exp-day-head b { color: #f0b429; white-space: nowrap; }
+.exp-day-head .exp-sp { flex: 1; }
+.exp-day-title { width: 100%; padding: 9px 8px; border-radius: 7px; border: 1px solid #4a5a34; background: #1b1f16; color: #fff; font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+.exp-grid > select { width: 100%; padding: 9px 8px; border-radius: 7px; border: 1px solid #6b8040; background: #2b3320; color: #eee; font-size: 0.92rem; }
+.exp-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.exp-chip { display: inline-flex; align-items: center; gap: 4px; background: #2b3320; border: 1px solid #4a5a34; border-radius: 999px; padding: 4px 4px 4px 10px; font-size: 0.82rem; color: #eee; }
+.exp-chip .exp-chip-km { color: #9db07d; }
+.exp-chip button { background: none; border: none; color: #cdd8b4; cursor: pointer; font-size: 0.85rem; padding: 2px 5px; }
+.exp-chip-missing { border-color: #8a6a1a; color: #fbe6b0; }
+.exp-day-sum { font-size: 0.82rem; color: #cdd8b4; margin-top: 6px; }
+.exp-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.exp-total { background: #1b1f16; border: 1px solid #3a4228; border-radius: 8px; text-align: center; padding: 8px 4px; }
+.exp-total span { display: block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: #9db07d; }
+.exp-total b { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.exp-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: start; padding: 10px 0; border-top: 1px solid #333b25; }
+.exp-row:first-of-type { border-top: none; padding-top: 0; }
+.exp-stint { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border-radius: 8px; margin-top: 6px; font-size: 0.86rem; background: #1b1f16; border: 1px solid #3a4228; }
+.exp-ok { border-color: #2e6b30; }
+.exp-warn { border-color: #8a6a1a; background: #2a2412; }
+.exp-bad { border-color: #a02020; background: #2a1414; }
+.exp-bar { height: 8px; border-radius: 999px; background: #1b1f16; border: 1px solid #3a4228; overflow: hidden; }
+.exp-bar i { display: block; height: 100%; background: #4cd964; }
+.exp-cl-item { display: grid; grid-template-columns: auto 1fr auto auto; gap: 8px; align-items: center; padding: 5px 0; border-top: 1px solid #2b3320; font-size: 0.9rem; }
+.exp-cl-item:first-of-type { border-top: none; }
+.exp-cl-item input[type=checkbox] { width: 20px; height: 20px; }
+.exp-cl-item.done span { color: #8a9578; text-decoration: line-through; }
+.exp-cl-item select { max-width: 110px; padding: 5px; border-radius: 6px; border: 1px solid #3a4228; background: #1b1f16; color: #cdd8b4; font-size: 0.78rem; }
+.exp-inline { display: flex; gap: 6px; margin-top: 6px; }
+.exp-inline input { flex: 1; }
+.exp-pre { white-space: pre-wrap; background: #1b1f16; border: 1px solid #3a4228; border-radius: 8px; padding: 12px; font-size: 0.86rem; line-height: 1.45; color: #e8eedb; font-family: inherit; margin: 0; }
+.exp-alert { background: #4a3b10; border: 1px solid #8a6a1a; color: #fbe6b0; border-radius: 8px; padding: 8px 10px; font-size: 0.85rem; margin-bottom: 10px; }
+.exp-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.exp-table td { padding: 5px 4px; border-top: 1px solid #2b3320; }
+.exp-table td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.exp-pos { color: #4cd964; }
+.exp-neg { color: #ff8a80; }
 </style>
 </head>
 <body>
@@ -1922,6 +1994,10 @@ html, body {
     <button id="btn-dash-timing" class="dashboard-tile">
       <span class="dashboard-tile-icon">⏱️</span>
       <span class="dashboard-tile-label">Tomada de Tempo</span>
+    </button>
+    <button id="btn-dash-expeditions" class="dashboard-tile">
+      <span class="dashboard-tile-icon">🏕️</span>
+      <span class="dashboard-tile-label">Expedições</span>
     </button>
     <button id="btn-dash-community" class="dashboard-tile">
       <span class="dashboard-tile-icon">👥</span>
@@ -2265,6 +2341,49 @@ html, body {
   </div>
 </div>
 
+<div id="screen-expeditions" class="hidden">
+  <div id="exp-list-view" class="exp-view">
+    <header class="nav-header">
+      <button id="btn-exp-back" class="icon-btn" aria-label="Voltar ao início">←</button>
+      <h1>🏕️ Expedições</h1>
+    </header>
+    <div class="exp-body">
+      <p class="hint exp-intro">Organize a expedição inteira: dias e rotas, equipe, combustível, água e comida, checklist, segurança e gastos — e mande o briefing para o grupo.</p>
+      <button id="btn-exp-new" class="com-btn com-btn-primary">+ Nova expedição</button>
+      <div id="exp-list" class="exp-list"></div>
+      <p id="exp-empty" class="hint exp-pad">Nenhuma expedição ainda.</p>
+    </div>
+  </div>
+  <div id="exp-edit-view" class="exp-view hidden">
+    <header class="nav-header">
+      <button id="btn-exp-edit-back" class="icon-btn" aria-label="Voltar para a lista">←</button>
+      <input id="exp-name" class="exp-name-input" maxlength="80" aria-label="Nome da expedição">
+      <button id="btn-exp-delete" class="icon-btn" aria-label="Excluir expedição" title="Excluir expedição">🗑️</button>
+    </header>
+    <nav id="exp-tabs" class="exp-tabs">
+      <button data-tab="roteiro" class="active">🗺️ Roteiro</button>
+      <button data-tab="equipe">👥 Equipe</button>
+      <button data-tab="combustivel">⛽ Combustível</button>
+      <button data-tab="suprimentos">💧 Suprimentos</button>
+      <button data-tab="checklist">✅ Checklist</button>
+      <button data-tab="seguranca">🛟 Segurança</button>
+      <button data-tab="gastos">💰 Gastos</button>
+      <button data-tab="briefing">📋 Briefing</button>
+    </nav>
+    <div id="exp-panel" class="exp-body"></div>
+    <datalist id="exp-roles-list">
+      <option value="Líder"></option>
+      <option value="Navegador"></option>
+      <option value="Mecânico"></option>
+      <option value="Rádio / comunicação"></option>
+      <option value="Primeiros socorros"></option>
+      <option value="Cozinha"></option>
+      <option value="Fotos / registro"></option>
+      <option value="Fecha-comboio"></option>
+    </datalist>
+  </div>
+</div>
+
 <div id="screen-welcome" class="hidden">
   <div class="welcome-body">
     <img src="icons/icon-192.png" alt="" class="welcome-logo">
@@ -2597,8 +2716,23 @@ html, body {
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.1.1";
+  var APP_VERSION = "5.2";
   var CHANGELOG = [
+    {
+      version: "5.2",
+      date: "08/10/2026",
+      changes: [
+        "Nova tela 🏕️ Expedições: organize a viagem inteira em abas",
+        "Roteiro em dias com as rotas salvas, km e horas ao volante, pernoite, saída de emergência e onde abastecer",
+        "Equipe com funções e veículos (avisa se ninguém ficou de líder, navegador, mecânico ou primeiros socorros)",
+        "Combustível: autonomia de cada veículo trecho a trecho (✅ / ⚠️ reserva / ⛔ não chega), litros e custo",
+        "Suprimentos: água e refeições por pessoa e por dia, com margem e dias de reserva",
+        "Checklist pronto (resgate, peças, comunicação, primeiros socorros, acampamento, documentos) com quem leva cada item",
+        "Segurança: contato na base, horários de check-in, check-in pelo WhatsApp com a sua posição, emergência e quando desistir",
+        "Gastos divididos com o acerto de quem paga quem; briefing para o grupo no WhatsApp ou impresso/PDF",
+        "Expedições sincronizam pela conta, como as rotas"
+      ]
+    },
     {
       version: "5.1.1",
       date: "07/10/2026",
@@ -5373,7 +5507,8 @@ html, body {
       "saved-routes": el.screenSavedRoutes,
       timing: document.getElementById("screen-timing"),
       community: document.getElementById("screen-community"),
-      welcome: document.getElementById("screen-welcome")
+      welcome: document.getElementById("screen-welcome"),
+      expeditions: document.getElementById("screen-expeditions")
     };
     Object.keys(screens).forEach(function (key) {
       screens[key].classList.toggle("hidden", key !== name);
@@ -11123,7 +11258,7 @@ html, body {
       ax.now.textContent = "Tentar agora";
     } else {
       var when = acc.lastOk ? new Date(acc.lastOk).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "";
-      ax.text.textContent = "✅ Rotas sincronizadas com @" + u.username + (when ? " (" + when + ")" : "");
+      ax.text.textContent = "✅ Rotas e expedições sincronizadas com @" + u.username + (when ? " (" + when + ")" : "");
       ax.now.textContent = "Sincronizar agora";
     }
   }
@@ -11144,9 +11279,18 @@ html, body {
           refreshSavedRoutesUI();
           scheduleDrivePush(); // o backup no Drive também recebe o que veio da conta
         }
+        if (data.rejected) showToast(data.rejected + " rota(s) não puderam ser sincronizadas (grandes demais ou inválidas).");
+        return comApi("expeditions.php?action=sync", { expeditions: loadExpeditions() });
+      })
+      .then(function (data) {
+        var local = loadExpeditions();
+        var merged = mergeRouteSets(local, data.expeditions || []);
+        if (JSON.stringify(merged) !== JSON.stringify(local)) {
+          persistExpeditionsLocalOnly(merged);
+          onExpeditionsSynced();
+        }
         acc.lastOk = Date.now();
         acc.failed = false;
-        if (data.rejected) showToast(data.rejected + " rota(s) não puderam ser sincronizadas (grandes demais ou inválidas).");
       })
       .catch(function (err) {
         acc.failed = true;
@@ -11179,16 +11323,19 @@ html, body {
     acc.timer = null;
     if (!accountSyncReady()) return;
     var body = JSON.stringify({ routes: loadSavedRoutes() });
-    if (body.length < 60000) {
+    var body2 = JSON.stringify({ expeditions: loadExpeditions() });
+    if (body.length + body2.length < 60000) {
       try {
-        fetch("api/routes.php?action=sync", {
-          method: "POST",
-          credentials: "same-origin",
-          keepalive: true,
-          headers: { "X-FDE": "1", "Content-Type": "application/json" },
-          body: body
-        }).catch(function () {
-          /* tenta de novo na próxima abertura */
+        [["routes.php", body], ["expeditions.php", body2]].forEach(function (b) {
+          fetch("api/" + b[0] + "?action=sync", {
+            method: "POST",
+            credentials: "same-origin",
+            keepalive: true,
+            headers: { "X-FDE": "1", "Content-Type": "application/json" },
+            body: b[1]
+          }).catch(function () {
+            /* tenta de novo na próxima abertura */
+          });
         });
         return;
       } catch (e) {
@@ -11298,6 +11445,904 @@ html, body {
       if (!el.screenDashboard || el.screenDashboard.classList.contains("hidden")) return; // já foi para outra tela
     }
     showWelcome();
+  }
+
+  // ==== v5.2 Expedições ====
+  var EXP_KEY = "fde_expeditions_v1";
+  var EXP_FUELS = { diesel: "Diesel", gasolina: "Gasolina", etanol: "Etanol", flex: "Flex" };
+  var EXP_CL_CATS = [
+    ["veiculo", "🚙 Veículo e resgate", ["Cinta de reboque (arrasto)", "Manilhas", "Guincho, cabo e controle", "Macaco hi-lift + base", "Pá", "Pranchas de desatolar", "Compressor de ar e calibrador", "Kit reparo de pneu (macarrão)", "Estepe calibrado"]],
+    ["ferramentas", "🔧 Ferramentas e peças", ["Jogo de chaves e alicates", "Fusíveis e relés", "Correia reserva", "Mangueiras e abraçadeiras", "Óleo de motor e fluido de freio", "Silver tape e enforca-gato", "Lanterna de cabeça"]],
+    ["comunicacao", "📡 Navegação e comunicação", ["Rotas e mapas baixados para offline no app", "Rádio (PX/VHF) com canal combinado", "Celular carregado + power bank", "Carregador veicular", "Roadbook impresso"]],
+    ["seguranca", "🩹 Segurança e primeiros socorros", ["Kit de primeiros socorros", "Extintor dentro do prazo", "Triângulo", "Remédios pessoais", "Protetor solar e repelente"]],
+    ["acampamento", "⛺ Água, comida e acampamento", ["Água (ver Suprimentos)", "Comida + reserva de emergência", "Fogareiro e gás", "Barraca / redes", "Saco de dormir", "Sacos para trazer o lixo de volta"]],
+    ["documentos", "📄 Documentos e dinheiro", ["CNH e documento do veículo", "Seguro / assistência 24 h", "Autorização para passar em áreas particulares", "Dinheiro em espécie"]]
+  ];
+  var exp = { list: [], cur: null, tab: "roteiro", saveTimer: null };
+  var ex = {
+    screen: document.getElementById("screen-expeditions"),
+    btnDash: document.getElementById("btn-dash-expeditions"),
+    listView: document.getElementById("exp-list-view"),
+    editView: document.getElementById("exp-edit-view"),
+    btnBack: document.getElementById("btn-exp-back"),
+    btnNew: document.getElementById("btn-exp-new"),
+    list: document.getElementById("exp-list"),
+    empty: document.getElementById("exp-empty"),
+    btnEditBack: document.getElementById("btn-exp-edit-back"),
+    name: document.getElementById("exp-name"),
+    btnDelete: document.getElementById("btn-exp-delete"),
+    tabs: document.getElementById("exp-tabs"),
+    panel: document.getElementById("exp-panel")
+  };
+
+  function esc(s) {
+    return s == null ? "" : escapeXml(String(s));
+  }
+
+  function num(v, def) {
+    var n = parseFloat(String(v == null ? "" : v).replace(",", "."));
+    return isFinite(n) ? n : def == null ? 0 : def;
+  }
+
+  function fmtL(n) {
+    return fmtNum(Math.ceil(n), 0) + " L";
+  }
+
+  function fmtMoney(n) {
+    return "R$ " + Number(n || 0).toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  // ---- armazenamento ----
+  function loadExpeditions() {
+    try {
+      var v = JSON.parse(localStorage.getItem(EXP_KEY) || "[]");
+      return Array.isArray(v) ? v : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function persistExpeditionsLocalOnly(list) {
+    try {
+      localStorage.setItem(EXP_KEY, JSON.stringify(list));
+    } catch (e) {
+      showToast("Erro ao salvar: armazenamento local cheio ou indisponível.");
+    }
+  }
+
+  function persistExpeditions(list) {
+    persistExpeditionsLocalOnly(list);
+    scheduleAccountSync();
+  }
+
+  function liveExpeditions() {
+    return loadExpeditions()
+      .filter(function (e) {
+        return e && !e.deleted;
+      })
+      .map(expNormalize);
+  }
+
+  // garante todos os campos (expedições vindas de versões antigas/outro aparelho)
+  function expNormalize(e) {
+    var d = createExpedition();
+    ["days", "people", "vehicles", "checklist", "expenses"].forEach(function (k) {
+      if (!Array.isArray(e[k])) e[k] = k === "days" ? d.days : [];
+    });
+    if (!e.days.length) e.days.push(newExpeditionDay());
+    ["supplies", "safety", "fuelPrices"].forEach(function (k) {
+      if (!e[k] || typeof e[k] !== "object") e[k] = d[k];
+      Object.keys(d[k]).forEach(function (f) {
+        if (e[k][f] === undefined) e[k][f] = d[k][f];
+      });
+    });
+    if (!Array.isArray(e.safety.checkins)) e.safety.checkins = [];
+    e.days.forEach(function (day) {
+      if (!Array.isArray(day.routeIds)) day.routeIds = [];
+    });
+    if (e.avgSpeedKmh == null) e.avgSpeedKmh = 20;
+    if (e.fuelReservePct == null) e.fuelReservePct = 25;
+    return e;
+  }
+
+  function saveCurExpedition(now) {
+    if (!exp.cur) return;
+    clearTimeout(exp.saveTimer);
+    var doSave = function () {
+      exp.saveTimer = null;
+      exp.cur.savedAt = Date.now();
+      var list = loadExpeditions();
+      var i = list.findIndex(function (e) {
+        return e.id === exp.cur.id;
+      });
+      if (i === -1) list.push(exp.cur);
+      else list[i] = exp.cur;
+      persistExpeditions(list);
+    };
+    if (now) doSave();
+    else exp.saveTimer = setTimeout(doSave, 400);
+  }
+
+  function defaultChecklist() {
+    var items = [];
+    EXP_CL_CATS.forEach(function (c) {
+      c[2].forEach(function (t) {
+        items.push({ id: newId("ck"), cat: c[0], text: t, who: "", done: false });
+      });
+    });
+    return items;
+  }
+
+  function newExpeditionDay() {
+    return { id: newId("dia"), title: "", routeIds: [], extraKm: 0, overnight: "", bailout: "", refuel: false, notes: "" };
+  }
+
+  function createExpedition() {
+    var t = new Date(Date.now() + 86400000);
+    var me = com && com.user ? com.user.display_name || com.user.username : "Eu";
+    var e = {
+      id: newId("exp"),
+      name: "Nova expedição",
+      savedAt: Date.now(),
+      startDate: t.toISOString().slice(0, 10),
+      avgSpeedKmh: 20,
+      notes: "",
+      days: [newExpeditionDay()],
+      people: [{ id: newId("p"), name: me, roles: "Líder", phone: "", vehicleId: "" }],
+      vehicles: [],
+      fuelReservePct: 25,
+      fuelPrices: { diesel: "", gasolina: "", etanol: "" },
+      supplies: { waterL: 4, meals: 3, marginPct: 20, extraDays: 1 },
+      checklist: defaultChecklist(),
+      safety: {
+        baseName: "",
+        basePhone: "",
+        checkins: ["12:00", "19:00"],
+        graceHours: 2,
+        emergency: "SAMU 192 · Bombeiros 193 · Polícia 190 · PRF 191",
+        abort: "Chuva forte ou rio subindo · escurecer antes de chegar ao pernoite · veículo sem condição segura · alguém ferido ou passando mal · combustível abaixo da reserva"
+      },
+      expenses: []
+    };
+    return e;
+  }
+
+  // ---- cálculos ----
+  function expRoutesById() {
+    var map = {};
+    loadSavedRoutes().forEach(function (r) {
+      if (r && !r.deleted && Array.isArray(r.points)) map[r.id] = r;
+    });
+    return map;
+  }
+
+  function expDayKm(day, routes) {
+    var km = num(day.extraKm, 0);
+    (day.routeIds || []).forEach(function (id) {
+      var r = routes[id];
+      if (r) km += polylineLengthMeters(r.points) / 1000;
+    });
+    return km;
+  }
+
+  function expDayDate(e, i) {
+    if (!e.startDate) return null;
+    var d = new Date(e.startDate + "T12:00:00");
+    if (isNaN(d)) return null;
+    d.setDate(d.getDate() + i);
+    return d;
+  }
+
+  function expDayLabel(e, i) {
+    var d = expDayDate(e, i);
+    if (!d) return "Dia " + (i + 1);
+    var wd = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"][d.getDay()];
+    return "Dia " + (i + 1) + " · " + wd + " " + String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0");
+  }
+
+  function expTotals(e) {
+    var routes = expRoutesById();
+    var kms = e.days.map(function (d) {
+      return expDayKm(d, routes);
+    });
+    var total = kms.reduce(function (a, b) {
+      return a + b;
+    }, 0);
+    return { routes: routes, kms: kms, km: total, hours: total / Math.max(1, num(e.avgSpeedKmh, 20)) };
+  }
+
+  // trechos entre abastecimentos (sai de tanque cheio; abastece no fim dos dias marcados)
+  function expStints(e, kms) {
+    var stints = [];
+    var cur = null;
+    e.days.forEach(function (d, i) {
+      if (!cur) cur = { from: i, to: i, km: 0 };
+      cur.to = i;
+      cur.km += kms[i];
+      if (d.refuel || i === e.days.length - 1) {
+        stints.push(cur);
+        cur = null;
+      }
+    });
+    return stints;
+  }
+
+  function expVehicleFuel(v, stints, reservePct) {
+    var cons = num(v.consKmL, 0);
+    var cap = num(v.tankL, 0) + num(v.cansL, 0);
+    var safe = cap * (1 - num(reservePct, 25) / 100);
+    return stints.map(function (s) {
+      var need = cons > 0 ? s.km / cons : null;
+      var level = need == null || cap <= 0 ? "unk" : need <= safe ? "ok" : need <= cap ? "warn" : "bad";
+      return { stint: s, need: need, cap: cap, safe: safe, level: level };
+    });
+  }
+
+  function expSupplies(e) {
+    var s = e.supplies || {};
+    var p = Math.max(1, e.people.length);
+    var d = e.days.length + Math.max(0, num(s.extraDays, 0));
+    var m = 1 + Math.max(0, num(s.marginPct, 0)) / 100;
+    var water = p * d * num(s.waterL, 4) * m;
+    return { people: p, days: d, water: water, jugs: Math.ceil(water / 20), meals: Math.ceil(p * d * num(s.meals, 3) * m) };
+  }
+
+  function expBalances(e) {
+    var total = 0;
+    var paid = {};
+    e.people.forEach(function (p) {
+      paid[p.id] = 0;
+    });
+    e.expenses.forEach(function (x) {
+      var a = num(x.amount, 0);
+      total += a;
+      if (paid[x.paidBy] != null) paid[x.paidBy] += a;
+    });
+    var n = Math.max(1, e.people.length);
+    var share = total / n;
+    var bal = e.people.map(function (p) {
+      return { person: p, paid: paid[p.id], bal: paid[p.id] - share };
+    });
+    // acerto: quem deve paga quem tem a receber (menor número de transferências, guloso)
+    var debt = bal.filter(function (b) { return b.bal < -0.005; }).map(function (b) { return { p: b.person, v: -b.bal }; });
+    var cred = bal.filter(function (b) { return b.bal > 0.005; }).map(function (b) { return { p: b.person, v: b.bal }; });
+    var moves = [];
+    var i = 0, j = 0;
+    while (i < debt.length && j < cred.length) {
+      var v = Math.min(debt[i].v, cred[j].v);
+      moves.push({ from: debt[i].p, to: cred[j].p, v: v });
+      debt[i].v -= v;
+      cred[j].v -= v;
+      if (debt[i].v < 0.005) i++;
+      if (cred[j].v < 0.005) j++;
+    }
+    return { total: total, share: share, bal: bal, moves: moves };
+  }
+
+  function personName(e, id) {
+    var p = e.people.find(function (x) {
+      return x.id === id;
+    });
+    return p ? p.name || "(sem nome)" : "";
+  }
+
+  function vehicleName(e, id) {
+    var v = e.vehicles.find(function (x) {
+      return x.id === id;
+    });
+    return v ? v.name || "(veículo)" : "";
+  }
+
+  // ---- lista ----
+  function openExpeditionsScreen() {
+    showScreen("expeditions");
+    exp.cur = null;
+    ex.editView.classList.add("hidden");
+    ex.listView.classList.remove("hidden");
+    renderExpeditionList();
+  }
+
+  function renderExpeditionList() {
+    var list = liveExpeditions().sort(function (a, b) {
+      return String(a.startDate || "").localeCompare(String(b.startDate || "")) || (b.savedAt || 0) - (a.savedAt || 0);
+    });
+    ex.empty.classList.toggle("hidden", list.length > 0);
+    ex.list.innerHTML = "";
+    list.forEach(function (e) {
+      var t = expTotals(e);
+      var done = e.checklist.filter(function (c) { return c.done; }).length;
+      var pct = e.checklist.length ? Math.round((done / e.checklist.length) * 100) : 0;
+      var b = document.createElement("button");
+      b.className = "exp-card";
+      b.setAttribute("data-id", e.id);
+      b.innerHTML =
+        "<b>" + esc(e.name || "Expedição") + "</b><span>" +
+        esc(expDayLabel(e, 0).replace(/^Dia 1 · /, "")) + " · " + e.days.length + (e.days.length === 1 ? " dia" : " dias") + " · " + fmtNum(t.km, 0) + " km · " +
+        e.people.length + (e.people.length === 1 ? " pessoa" : " pessoas") + " · checklist " + pct + "%</span>" +
+        '<div class="exp-bar"><i style="width:' + pct + '%"></i></div>';
+      b.addEventListener("click", function () {
+        openExpedition(e.id);
+      });
+      ex.list.appendChild(b);
+    });
+  }
+
+  function openExpedition(id) {
+    var e = loadExpeditions().find(function (x) {
+      return x.id === id && !x.deleted;
+    });
+    if (!e) return;
+    exp.cur = expNormalize(e);
+    exp.tab = "roteiro";
+    ex.name.value = e.name || "";
+    ex.listView.classList.add("hidden");
+    ex.editView.classList.remove("hidden");
+    renderExpeditionPanel(true);
+  }
+
+  // ---- painel ----
+  function fld(label, path, value, opts) {
+    opts = opts || {};
+    var type = opts.type || "text";
+    var attrs = ' data-f="' + path + '"' + (opts.placeholder ? ' placeholder="' + esc(opts.placeholder) + '"' : "") + (opts.list ? ' list="' + opts.list + '"' : "") +
+      (type === "number" ? ' inputmode="decimal" data-num="1" autocomplete="off"' : "") + (opts.max ? ' maxlength="' + opts.max + '"' : "");
+    if (type === "number") {
+      type = "text"; // aceita vírgula (6,50) em qualquer teclado/idioma
+      value = value === "" || value == null ? "" : String(value).replace(".", ",");
+    }
+    var input = opts.textarea
+      ? "<textarea rows=\"" + (opts.rows || 2) + "\"" + attrs + ">" + esc(value) + "</textarea>"
+      : '<input type="' + type + '"' + attrs + ' value="' + esc(value) + '">';
+    return '<label class="exp-f' + (opts.wide ? " exp-f-wide" : "") + '">' + esc(label) + input + "</label>";
+  }
+
+  function sel(label, path, value, options, wide) {
+    var o = options
+      .map(function (op) {
+        return '<option value="' + esc(op[0]) + '"' + (String(op[0]) === String(value || "") ? " selected" : "") + ">" + esc(op[1]) + "</option>";
+      })
+      .join("");
+    var s = '<select data-f="' + path + '">' + o + "</select>";
+    return label == null ? s : '<label class="exp-f' + (wide ? " exp-f-wide" : "") + '">' + esc(label) + s + "</label>";
+  }
+
+  function totalsBox(items) {
+    return (
+      '<div class="exp-totals">' +
+      items
+        .map(function (it) {
+          return '<div class="exp-total"><span>' + esc(it[0]) + "</span><b>" + esc(it[1]) + "</b></div>";
+        })
+        .join("") +
+      "</div>"
+    );
+  }
+
+  function renderExpeditionPanel(resetScroll) {
+    var e = exp.cur;
+    if (!e) return;
+    Array.prototype.forEach.call(ex.tabs.querySelectorAll("button"), function (b) {
+      b.classList.toggle("active", b.getAttribute("data-tab") === exp.tab);
+    });
+    var top = resetScroll ? 0 : ex.panel.scrollTop;
+    var fn = { roteiro: panelRoteiro, equipe: panelEquipe, combustivel: panelCombustivel, suprimentos: panelSuprimentos, checklist: panelChecklist, seguranca: panelSeguranca, gastos: panelGastos, briefing: panelBriefing }[exp.tab];
+    ex.panel.innerHTML = fn(e);
+    ex.panel.scrollTop = top;
+  }
+
+  function panelRoteiro(e) {
+    var t = expTotals(e);
+    var routes = loadSavedRoutes().filter(function (r) {
+      return r && !r.deleted && Array.isArray(r.points) && r.points.length > 1;
+    });
+    var routeOpts = [["", "+ Adicionar rota salva…"]].concat(
+      routes.map(function (r) {
+        return [r.id, (r.folder ? r.folder + " / " : "") + (r.name || "rota") + " (" + fmtNum(polylineLengthMeters(r.points) / 1000, 0) + " km)"];
+      })
+    );
+    var h = totalsBox([["Dias", String(e.days.length)], ["Distância", fmtNum(t.km, 0) + " km"], ["Ao volante", "≈ " + fmtNum(t.hours, 1) + " h"]]);
+    h += '<div class="exp-sec"><div class="exp-grid">' + fld("Data de saída", "startDate", e.startDate, { type: "date" }) +
+      fld("Média na trilha (km/h)", "avgSpeedKmh", e.avgSpeedKmh, { type: "number" }) +
+      fld("Observações gerais", "notes", e.notes, { textarea: true, wide: true, placeholder: "Ponto de encontro, horário de saída, regras do comboio…" }) + "</div></div>";
+    e.days.forEach(function (d, i) {
+      var chips = (d.routeIds || [])
+        .map(function (id, j) {
+          var r = t.routes[id];
+          return r
+            ? '<span class="exp-chip">' + esc(r.name || "rota") + ' <span class="exp-chip-km">' + fmtNum(polylineLengthMeters(r.points) / 1000, 1) + ' km</span><button data-act="nav-route" data-id="' + esc(id) + '" title="Navegar">🧭</button><button data-act="rm-route" data-i="' + i + '" data-j="' + j + '" title="Tirar do dia">✕</button></span>'
+            : '<span class="exp-chip exp-chip-missing">rota não encontrada <button data-act="rm-route" data-i="' + i + '" data-j="' + j + '">✕</button></span>';
+        })
+        .join("");
+      h += '<div class="exp-sec"><div class="exp-day-head"><b>' + esc(expDayLabel(e, i)) + '</b><span class="exp-sp"></span>' +
+        '<button class="exp-btn exp-btn-small" data-act="up-day" data-i="' + i + '" title="Subir"' + (i === 0 ? " disabled" : "") + ">↑</button>" +
+        '<button class="exp-btn exp-btn-small" data-act="down-day" data-i="' + i + '" title="Descer"' + (i === e.days.length - 1 ? " disabled" : "") + ">↓</button>" +
+        '<button class="exp-btn-x" data-act="del-day" data-i="' + i + '" title="Excluir dia">🗑️</button></div>' +
+        '<input class="exp-day-title" data-f="days.' + i + '.title" value="' + esc(d.title) + '" placeholder="Título do dia — ex.: Serra do Japi → Cachoeira" maxlength="80">' +
+        '<div class="exp-chips">' + (chips || '<span class="hint">Nenhuma rota neste dia.</span>') + "</div>" +
+        '<div class="exp-grid">' + sel(null, "addroute." + i, "", routeOpts) + "</div>" +
+        '<div class="exp-grid" style="margin-top:8px">' +
+        fld("Km fora das rotas (asfalto/deslocamento)", "days." + i + ".extraKm", d.extraKm || "", { type: "number" }) +
+        fld("Pernoite", "days." + i + ".overnight", d.overnight, { placeholder: "Camping, pousada, cidade…" }) +
+        fld("Saída de emergência", "days." + i + ".bailout", d.bailout, { placeholder: "Estrada/cidade mais próxima para abortar", wide: true }) +
+        fld("Anotações do dia", "days." + i + ".notes", d.notes, { textarea: true, wide: true }) + "</div>" +
+        '<label class="exp-check"><input type="checkbox" data-f="days.' + i + '.refuel"' + (d.refuel ? " checked" : "") + "> ⛽ Abastece no fim deste dia</label>" +
+        '<div class="exp-day-sum">' + fmtNum(t.kms[i], 1) + " km · ≈ " + fmtNum(t.kms[i] / Math.max(1, num(e.avgSpeedKmh, 20)), 1) + " h ao volante</div></div>";
+    });
+    h += '<button class="exp-btn exp-btn-primary" data-act="add-day">+ Adicionar dia</button>';
+    if (!routes.length) h += '<p class="hint">Desenhe e salve as rotas no Planejamento para poder colocá-las nos dias.</p>';
+    return h;
+  }
+
+  function panelEquipe(e) {
+    var vOpts = [["", "— sem veículo —"]].concat(
+      e.vehicles.map(function (v) {
+        return [v.id, v.name || "(veículo)"];
+      })
+    );
+    var h = '<div class="exp-sec"><h2>Participantes <span class="exp-sp"></span>' + e.people.length + "</h2>";
+    e.people.forEach(function (p, i) {
+      h += '<div class="exp-row"><div class="exp-grid">' +
+        fld("Nome", "people." + i + ".name", p.name, { max: 60 }) +
+        fld("Funções", "people." + i + ".roles", p.roles, { list: "exp-roles-list", placeholder: "Navegador, Mecânico…" }) +
+        fld("Telefone (WhatsApp)", "people." + i + ".phone", p.phone, { type: "tel", placeholder: "(19) 99999-9999" }) +
+        sel("Veículo", "people." + i + ".vehicleId", p.vehicleId, vOpts) +
+        '</div><button class="exp-btn-x" data-act="del-person" data-i="' + i + '" title="Remover">🗑️</button></div>';
+    });
+    h += '<div class="exp-btn-row"><button class="exp-btn exp-btn-primary" data-act="add-person">+ Adicionar pessoa</button></div></div>';
+    var roles = {};
+    e.people.forEach(function (p) {
+      String(p.roles || "").split(/[,;]/).forEach(function (r) {
+        r = r.trim();
+        if (r) roles[r.toLowerCase()] = true;
+      });
+    });
+    var missing = ["Líder", "Navegador", "Mecânico", "Primeiros socorros"].filter(function (r) {
+      return !roles[r.toLowerCase()];
+    });
+    if (missing.length) h += '<div class="exp-alert">Ninguém ficou responsável por: <b>' + esc(missing.join(", ")) + "</b>. Vale combinar antes de sair.</div>";
+    return h;
+  }
+
+  function panelCombustivel(e) {
+    var t = expTotals(e);
+    var stints = expStints(e, t.kms);
+    var h = '<div class="exp-sec"><h2>Veículos</h2>';
+    e.vehicles.forEach(function (v, i) {
+      h += '<div class="exp-row"><div class="exp-grid">' +
+        fld("Veículo", "vehicles." + i + ".name", v.name, { placeholder: "Ex.: Willys do Luiz", max: 60 }) +
+        sel("Combustível", "vehicles." + i + ".fuel", v.fuel, Object.keys(EXP_FUELS).map(function (k) { return [k, EXP_FUELS[k]]; })) +
+        fld("Tanque (L)", "vehicles." + i + ".tankL", v.tankL, { type: "number" }) +
+        fld("Galões extras (L)", "vehicles." + i + ".cansL", v.cansL, { type: "number" }) +
+        fld("Consumo na trilha (km/L)", "vehicles." + i + ".consKmL", v.consKmL, { type: "number" }) +
+        '</div><button class="exp-btn-x" data-act="del-vehicle" data-i="' + i + '" title="Remover">🗑️</button></div>';
+    });
+    h += '<div class="exp-btn-row"><button class="exp-btn exp-btn-primary" data-act="add-vehicle">+ Adicionar veículo</button></div></div>';
+    h += '<div class="exp-sec"><div class="exp-grid">' + fld("Reserva de segurança (%)", "fuelReservePct", e.fuelReservePct, { type: "number" }) +
+      fld("Diesel R$/L", "fuelPrices.diesel", e.fuelPrices.diesel, { type: "number" }) +
+      fld("Gasolina R$/L", "fuelPrices.gasolina", e.fuelPrices.gasolina, { type: "number" }) +
+      fld("Etanol R$/L", "fuelPrices.etanol", e.fuelPrices.etanol, { type: "number" }) + "</div>" +
+      '<p class="hint">Sai de tanque cheio e abastece no fim dos dias marcados com ⛽ no Roteiro. Na trilha o consumo costuma ser bem pior que no asfalto: use um valor conservador.</p></div>';
+    if (!e.vehicles.length) return h + '<p class="hint">Cadastre os veículos para o app calcular a autonomia de cada trecho.</p>';
+    e.vehicles.forEach(function (v) {
+      var res = expVehicleFuel(v, stints, e.fuelReservePct);
+      var cons = num(v.consKmL, 0);
+      var totalL = cons > 0 ? t.km / cons : 0;
+      var price = num(e.fuelPrices[v.fuel === "flex" ? "gasolina" : v.fuel], 0);
+      var autonomy = cons * num(v.tankL, 0) + cons * num(v.cansL, 0);
+      h += '<div class="exp-sec"><h2>🚙 ' + esc(v.name || "Veículo") + '<span class="exp-sp"></span><small>' + (cons > 0 ? "autonomia ≈ " + fmtNum(autonomy, 0) + " km" : "") + "</small></h2>";
+      res.forEach(function (r) {
+        var s = r.stint;
+        var label = s.from === s.to ? "Dia " + (s.from + 1) : "Dias " + (s.from + 1) + "–" + (s.to + 1);
+        var txt = r.level === "unk" ? "preencha tanque e consumo" : "precisa " + fmtL(r.need) + " de " + fmtL(r.cap) + (r.level === "ok" ? " ✅" : r.level === "warn" ? " ⚠️ come a reserva" : " ⛔ não chega");
+        h += '<div class="exp-stint exp-' + (r.level === "unk" ? "warn" : r.level) + '"><span>' + label + " · " + fmtNum(s.km, 0) + " km</span><b>" + txt + "</b></div>";
+      });
+      if (res.some(function (r) { return r.level === "bad"; })) h += '<div class="exp-alert" style="margin-top:8px">Esse veículo não completa algum trecho. Marque mais pontos de abastecimento no Roteiro ou leve galões.</div>';
+      if (cons > 0) h += '<div class="exp-day-sum">Total da expedição: ' + fmtL(totalL) + (price > 0 ? " · ≈ " + fmtMoney(totalL * price) : "") + "</div>";
+      h += "</div>";
+    });
+    return h;
+  }
+
+  function panelSuprimentos(e) {
+    var s = expSupplies(e);
+    var h = totalsBox([["Pessoas", String(s.people)], ["Dias (c/ reserva)", String(s.days)], ["Água", fmtL(s.water)], ["Refeições", String(s.meals)]]);
+    h += '<div class="exp-sec"><div class="exp-grid">' +
+      fld("Água por pessoa/dia (L)", "supplies.waterL", e.supplies.waterL, { type: "number" }) +
+      fld("Refeições por dia", "supplies.meals", e.supplies.meals, { type: "number" }) +
+      fld("Margem extra (%)", "supplies.marginPct", e.supplies.marginPct, { type: "number" }) +
+      fld("Dias de reserva", "supplies.extraDays", e.supplies.extraDays, { type: "number" }) + "</div>" +
+      '<p class="hint">Água: ≈ ' + s.jugs + " garrafão(ões) de 20 L. Em calor forte ou esforço (empurrar, desatolar) conte 5 a 6 L por pessoa/dia. A reserva cobre um imprevisto (atolou, quebrou, choveu e não deu para sair).</p></div>";
+    return h;
+  }
+
+  function panelChecklist(e) {
+    var done = e.checklist.filter(function (c) { return c.done; }).length;
+    var pct = e.checklist.length ? Math.round((done / e.checklist.length) * 100) : 0;
+    var who = [["", "quem leva?"]].concat(e.people.map(function (p) { return [p.id, p.name || "(sem nome)"]; }));
+    var h = '<div class="exp-sec"><h2>Pronto: ' + done + " de " + e.checklist.length + '<span class="exp-sp"></span>' + pct + '%</h2><div class="exp-bar"><i style="width:' + pct + '%"></i></div></div>';
+    EXP_CL_CATS.forEach(function (c) {
+      h += '<div class="exp-sec"><h2>' + esc(c[1]) + "</h2>";
+      e.checklist.forEach(function (it, i) {
+        if (it.cat !== c[0]) return;
+        h += '<div class="exp-cl-item' + (it.done ? " done" : "") + '"><input type="checkbox" data-f="checklist.' + i + '.done"' + (it.done ? " checked" : "") + "><span>" + esc(it.text) + "</span>" +
+          sel(null, "checklist." + i + ".who", it.who, who) + '<button class="exp-btn-x" data-act="del-item" data-i="' + i + '" title="Remover">✕</button></div>';
+      });
+      h += '<div class="exp-inline"><input data-newitem="' + c[0] + '" placeholder="Novo item…" maxlength="80"><button class="exp-btn exp-btn-small" data-act="add-item" data-cat="' + c[0] + '">Adicionar</button></div></div>';
+    });
+    return h;
+  }
+
+  function panelSeguranca(e) {
+    var sf = e.safety;
+    var h = '<div class="exp-sec"><h2>Contato que fica na base</h2><p class="hint" style="margin-top:0">Alguém que não vai na expedição, sabe o roteiro e recebe seus check-ins.</p><div class="exp-grid">' +
+      fld("Nome", "safety.baseName", sf.baseName, { max: 60 }) + fld("Telefone (WhatsApp)", "safety.basePhone", sf.basePhone, { type: "tel", placeholder: "(19) 99999-9999" }) + "</div>" +
+      '<div class="exp-btn-row"><button class="exp-btn exp-btn-wa" data-act="send-plan">📤 Enviar o plano para a base</button></div></div>';
+    h += '<div class="exp-sec"><h2>Check-ins combinados</h2><div class="exp-chips">' +
+      sf.checkins
+        .map(function (c, i) {
+          return '<span class="exp-chip">🕒 ' + esc(c) + '<button data-act="del-checkin" data-i="' + i + '">✕</button></span>';
+        })
+        .join("") +
+      '</div><div class="exp-inline"><input type="time" data-newcheckin="1" value="18:00"><button class="exp-btn exp-btn-small" data-act="add-checkin">Adicionar horário</button></div>' +
+      '<div class="exp-grid" style="margin-top:8px">' + fld("Sem notícia por quantas horas a base deve acionar ajuda?", "safety.graceHours", sf.graceHours, { type: "number", wide: true }) + "</div>" +
+      '<div class="exp-btn-row"><button class="exp-btn exp-btn-wa" data-act="checkin-now">📍 Enviar check-in agora (com posição)</button></div></div>';
+    h += '<div class="exp-sec"><h2>Emergência</h2><div class="exp-grid">' +
+      fld("Telefones de emergência da região", "safety.emergency", sf.emergency, { textarea: true, wide: true }) +
+      fld("Quando desistir / voltar (combinado antes)", "safety.abort", sf.abort, { textarea: true, rows: 4, wide: true }) + "</div></div>";
+    return h;
+  }
+
+  function panelGastos(e) {
+    var b = expBalances(e);
+    var pOpts = [["", "quem pagou?"]].concat(e.people.map(function (p) { return [p.id, p.name || "(sem nome)"]; }));
+    var h = totalsBox([["Total", fmtMoney(b.total)], ["Por pessoa", fmtMoney(b.share)]]);
+    h += '<div class="exp-sec"><h2>Gastos</h2>';
+    e.expenses.forEach(function (x, i) {
+      h += '<div class="exp-row"><div class="exp-grid">' + fld("Descrição", "expenses." + i + ".desc", x.desc, { max: 80 }) +
+        fld("Valor (R$)", "expenses." + i + ".amount", x.amount, { type: "number" }) + sel("Pago por", "expenses." + i + ".paidBy", x.paidBy, pOpts) +
+        '</div><button class="exp-btn-x" data-act="del-expense" data-i="' + i + '" title="Remover">🗑️</button></div>';
+    });
+    h += '<div class="exp-btn-row"><button class="exp-btn exp-btn-primary" data-act="add-expense">+ Adicionar gasto</button></div></div>';
+    if (b.total > 0) {
+      h += '<div class="exp-sec"><h2>Saldo de cada um</h2><table class="exp-table">' +
+        b.bal.map(function (x) {
+          return "<tr><td>" + esc(x.person.name || "(sem nome)") + '</td><td class="n">pagou ' + fmtMoney(x.paid) + '</td><td class="n ' + (x.bal >= 0 ? "exp-pos" : "exp-neg") + '">' + (x.bal >= 0 ? "+" : "−") + fmtMoney(Math.abs(x.bal)) + "</td></tr>";
+        }).join("") + "</table>";
+      if (b.moves.length) h += '<h2 style="margin-top:12px">Acerto</h2>' + b.moves.map(function (m) { return '<div class="exp-stint"><span>' + esc(m.from.name || "?") + " → " + esc(m.to.name || "?") + "</span><b>" + fmtMoney(m.v) + "</b></div>"; }).join("");
+      h += "</div>";
+    }
+    return h;
+  }
+
+  function expBriefingText(e) {
+    var t = expTotals(e);
+    var lines = [];
+    var last = expDayDate(e, e.days.length - 1);
+    var first = expDayDate(e, 0);
+    var dm = function (d) { return d ? String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0") : ""; };
+    lines.push("🏕️ EXPEDIÇÃO: " + (e.name || ""));
+    lines.push("📅 " + (first ? dm(first) + (e.days.length > 1 ? " a " + dm(last) : "") + " · " : "") + e.days.length + (e.days.length === 1 ? " dia" : " dias") + " · ≈ " + fmtNum(t.km, 0) + " km");
+    if (e.notes) lines.push("📝 " + e.notes);
+    lines.push("");
+    lines.push("👥 EQUIPE (" + e.people.length + ")");
+    e.people.forEach(function (p) {
+      lines.push("• " + (p.name || "?") + (p.roles ? " — " + p.roles : "") + (p.vehicleId ? " — " + vehicleName(e, p.vehicleId) : ""));
+    });
+    lines.push("");
+    lines.push("🗺️ ROTEIRO");
+    e.days.forEach(function (d, i) {
+      var names = (d.routeIds || []).map(function (id) { return t.routes[id] ? t.routes[id].name : null; }).filter(Boolean);
+      var parts = [expDayLabel(e, i) + (d.title ? ": " + d.title : ""), fmtNum(t.kms[i], 0) + " km (≈ " + fmtNum(t.kms[i] / Math.max(1, num(e.avgSpeedKmh, 20)), 1) + " h)"];
+      lines.push("▸ " + parts.join(" — "));
+      if (names.length) lines.push("   Rotas: " + names.join(", "));
+      if (d.overnight) lines.push("   Pernoite: " + d.overnight);
+      if (d.bailout) lines.push("   Saída de emergência: " + d.bailout);
+      if (d.refuel) lines.push("   ⛽ Abastecer no fim do dia");
+      if (d.notes) lines.push("   " + d.notes);
+    });
+    if (e.vehicles.length) {
+      lines.push("");
+      lines.push("⛽ COMBUSTÍVEL");
+      var stints = expStints(e, t.kms);
+      e.vehicles.forEach(function (v) {
+        var res = expVehicleFuel(v, stints, e.fuelReservePct);
+        var bad = res.filter(function (r) { return r.level === "bad" || r.level === "warn"; });
+        var cons = num(v.consKmL, 0);
+        lines.push("• " + (v.name || "Veículo") + ": " + (cons > 0 ? fmtL(t.km / cons) + " no total" : "consumo não informado") + (bad.length ? " — ⚠️ atenção em " + bad.length + " trecho(s)" : " — ok"));
+      });
+    }
+    var s = expSupplies(e);
+    lines.push("");
+    lines.push("💧 SUPRIMENTOS: água ≈ " + fmtL(s.water) + " (" + s.jugs + " garrafões de 20 L) · " + s.meals + " refeições (inclui reserva)");
+    lines.push("");
+    lines.push("🛟 SEGURANÇA");
+    if (e.safety.baseName || e.safety.basePhone) lines.push("Contato na base: " + [e.safety.baseName, e.safety.basePhone].filter(Boolean).join(" — "));
+    if (e.safety.checkins.length) lines.push("Check-ins: " + e.safety.checkins.join(", ") + " · sem notícia por " + fmtNum(num(e.safety.graceHours, 2), 0) + " h → acionar ajuda");
+    if (e.safety.emergency) lines.push("Emergência: " + e.safety.emergency);
+    if (e.safety.abort) lines.push("Voltamos se: " + e.safety.abort);
+    var done = e.checklist.filter(function (c) { return c.done; }).length;
+    lines.push("");
+    lines.push("✅ Checklist: " + done + " de " + e.checklist.length + " itens prontos");
+    var mine = {};
+    e.checklist.forEach(function (c) {
+      if (c.who && !c.done) (mine[c.who] = mine[c.who] || []).push(c.text);
+    });
+    Object.keys(mine).forEach(function (pid) {
+      var n = personName(e, pid);
+      if (n) lines.push("• " + n + " leva: " + mine[pid].join(", "));
+    });
+    var b = expBalances(e);
+    if (b.total > 0) {
+      lines.push("");
+      lines.push("💰 Gastos: " + fmtMoney(b.total) + " · " + fmtMoney(b.share) + " por pessoa");
+      b.moves.forEach(function (m) {
+        lines.push("• " + (m.from.name || "?") + " → " + (m.to.name || "?") + ": " + fmtMoney(m.v));
+      });
+    }
+    lines.push("");
+    lines.push("Planejado no app Fora de Estrada");
+    return lines.join("\n");
+  }
+
+  function panelBriefing(e) {
+    return '<div class="exp-sec"><h2>Resumo para o grupo</h2><div class="exp-btn-row" style="margin:0 0 10px">' +
+      '<button class="exp-btn exp-btn-wa" data-act="brief-wa">WhatsApp</button><button class="exp-btn" data-act="brief-copy">Copiar</button><button class="exp-btn" data-act="brief-print">🖨️ Imprimir / PDF</button></div>' +
+      '<pre class="exp-pre" id="exp-brief">' + esc(expBriefingText(e)) + "</pre></div>";
+  }
+
+  // ---- edição ----
+  function setExpPath(obj, path, value) {
+    var parts = path.split(".");
+    var o = obj;
+    for (var i = 0; i < parts.length - 1; i++) {
+      o = o[/^\d+$/.test(parts[i]) ? +parts[i] : parts[i]];
+      if (o == null) return;
+    }
+    o[parts[parts.length - 1]] = value;
+  }
+
+  function onExpFieldChange(ev) {
+    var t = ev.target;
+    var path = t.getAttribute && t.getAttribute("data-f");
+    if (!path || !exp.cur) return;
+    var e = exp.cur;
+    if (path.indexOf("addroute.") === 0) {
+      var di = +path.split(".")[1];
+      if (t.value) {
+        e.days[di].routeIds = e.days[di].routeIds || [];
+        e.days[di].routeIds.push(t.value);
+        saveCurExpedition();
+        renderExpeditionPanel();
+      }
+      return;
+    }
+    var isNum = t.hasAttribute("data-num");
+    var v = t.type === "checkbox" ? t.checked : isNum ? (t.value.trim() === "" ? "" : Math.max(0, num(t.value, 0))) : t.value;
+    setExpPath(e, path, v);
+    saveCurExpedition();
+    // campos que mudam cálculos/rótulos: redesenha; textos simples não (mantém o foco do teclado)
+    if (t.type === "checkbox" || t.tagName === "SELECT" || isNum || t.type === "date" || /\.name$|^people\.\d+\.roles$/.test(path)) renderExpeditionPanel();
+  }
+
+  function expAction(act, d) {
+    var e = exp.cur;
+    var i = d.i != null ? +d.i : -1;
+    switch (act) {
+      case "add-day":
+        e.days.push(newExpeditionDay());
+        break;
+      case "del-day":
+        if (e.days.length === 1) return showToast("A expedição precisa de pelo menos 1 dia.");
+        if (!window.confirm("Excluir o " + expDayLabel(e, i) + "?")) return;
+        e.days.splice(i, 1);
+        break;
+      case "up-day":
+      case "down-day":
+        var j = act === "up-day" ? i - 1 : i + 1;
+        if (j < 0 || j >= e.days.length) return;
+        var tmp = e.days[i];
+        e.days[i] = e.days[j];
+        e.days[j] = tmp;
+        break;
+      case "rm-route":
+        e.days[i].routeIds.splice(+d.j, 1);
+        break;
+      case "nav-route":
+        var r = expRoutesById()[d.id];
+        if (!r) return;
+        showScreen("navigation");
+        showNavSubview("picker");
+        openNavConfirm(r, "picker");
+        return;
+      case "add-person":
+        e.people.push({ id: newId("p"), name: "", roles: "", phone: "", vehicleId: "" });
+        break;
+      case "del-person":
+        var pid = e.people[i].id;
+        e.people.splice(i, 1);
+        e.checklist.forEach(function (c) { if (c.who === pid) c.who = ""; });
+        e.expenses.forEach(function (x) { if (x.paidBy === pid) x.paidBy = ""; });
+        break;
+      case "add-vehicle":
+        e.vehicles.push({ id: newId("v"), name: "", fuel: "diesel", tankL: "", cansL: "", consKmL: "" });
+        break;
+      case "del-vehicle":
+        var vid = e.vehicles[i].id;
+        e.vehicles.splice(i, 1);
+        e.people.forEach(function (p) { if (p.vehicleId === vid) p.vehicleId = ""; });
+        break;
+      case "add-item":
+        var inp = ex.panel.querySelector('[data-newitem="' + d.cat + '"]');
+        var text = inp ? inp.value.trim() : "";
+        if (!text) return;
+        e.checklist.push({ id: newId("ck"), cat: d.cat, text: text, who: "", done: false });
+        break;
+      case "del-item":
+        e.checklist.splice(i, 1);
+        break;
+      case "add-checkin":
+        var ci = ex.panel.querySelector("[data-newcheckin]");
+        if (!ci || !ci.value) return;
+        if (e.safety.checkins.indexOf(ci.value) === -1) e.safety.checkins.push(ci.value);
+        e.safety.checkins.sort();
+        break;
+      case "del-checkin":
+        e.safety.checkins.splice(i, 1);
+        break;
+      case "add-expense":
+        e.expenses.push({ id: newId("g"), desc: "", amount: "", paidBy: "" });
+        break;
+      case "del-expense":
+        e.expenses.splice(i, 1);
+        break;
+      case "checkin-now":
+        return expSendCheckin(e);
+      case "send-plan":
+        return expWhatsApp(e.safety.basePhone, expBriefingText(e));
+      case "brief-wa":
+        return expWhatsApp("", expBriefingText(e));
+      case "brief-copy":
+        return copyText(expBriefingText(e), "Briefing copiado.");
+      case "brief-print":
+        return expPrint(e);
+      default:
+        return;
+    }
+    saveCurExpedition();
+    renderExpeditionPanel();
+  }
+
+  function expPhoneDigits(phone) {
+    var d = String(phone || "").replace(/\D/g, "");
+    if (!d) return "";
+    if (d.length === 10 || d.length === 11) d = "55" + d; // número brasileiro sem DDI
+    return d;
+  }
+
+  function expWhatsApp(phone, text) {
+    var d = expPhoneDigits(phone);
+    window.open("https://wa.me/" + d + "?text=" + encodeURIComponent(text), "_blank");
+  }
+
+  function expTodayIndex(e) {
+    var first = expDayDate(e, 0);
+    if (!first) return null;
+    var today = new Date();
+    today.setHours(12, 0, 0, 0);
+    var idx = Math.round((today - first) / 86400000);
+    return idx >= 0 && idx < e.days.length ? idx : null;
+  }
+
+  function expSendCheckin(e) {
+    var send = function (pos) {
+      var idx = expTodayIndex(e);
+      var hh = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      var msg = "✅ Check-in " + hh + " — " + (e.name || "expedição") + (idx != null ? " (" + expDayLabel(e, idx) + ")" : "") + ": tudo certo por aqui." +
+        (pos ? "\n📍 https://maps.google.com/?q=" + pos.coords.latitude.toFixed(6) + "," + pos.coords.longitude.toFixed(6) + " (±" + Math.round(pos.coords.accuracy || 0) + " m)" : "\n(sem posição do GPS agora)") +
+        (e.safety.checkins.length ? "\nPróximos check-ins: " + e.safety.checkins.join(", ") : "");
+      expWhatsApp(e.safety.basePhone, msg);
+    };
+    if (!e.safety.basePhone) showToast("Dica: cadastre o telefone do contato da base para o WhatsApp já abrir na conversa certa.");
+    if (!navigator.geolocation) return send(null);
+    showToast("Pegando a posição do GPS…");
+    navigator.geolocation.getCurrentPosition(send, function () {
+      send(null);
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+  }
+
+  function expPrint(e) {
+    var w = window.open("", "_blank");
+    if (!w) return showToast("Permita pop-ups para imprimir.");
+    var cl = EXP_CL_CATS.map(function (c) {
+      var items = e.checklist.filter(function (it) { return it.cat === c[0]; });
+      if (!items.length) return "";
+      return "<h3>" + esc(c[1]) + "</h3><ul>" + items.map(function (it) {
+        return "<li>" + (it.done ? "☑" : "☐") + " " + esc(it.text) + (it.who ? " <small>(" + esc(personName(e, it.who)) + ")</small>" : "") + "</li>";
+      }).join("") + "</ul>";
+    }).join("");
+    w.document.write(
+      '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>' + esc(e.name) + "</title><style>" +
+      "body{font-family:Arial,sans-serif;margin:18px;color:#111}pre{white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.45}" +
+      "h2{border-bottom:2px solid #111;padding-bottom:4px}h3{margin:12px 0 4px;font-size:14px}ul{list-style:none;padding:0;margin:0;columns:2;font-size:12px}li{padding:2px 0}" +
+      "@media print{button{display:none}}<\/style></head><body><button onclick=\"print()\">Imprimir / salvar PDF</button>" +
+      "<pre>" + esc(expBriefingText(e)) + "</pre><h2>Checklist</h2>" + cl + "</body></html>"
+    );
+    w.document.close();
+  }
+
+  // ---- eventos ----
+  ex.btnDash.addEventListener("click", openExpeditionsScreen);
+  ex.btnBack.addEventListener("click", function () {
+    showScreen("dashboard");
+  });
+  ex.btnNew.addEventListener("click", function () {
+    var e = createExpedition();
+    var list = loadExpeditions();
+    list.push(e);
+    persistExpeditions(list);
+    openExpedition(e.id);
+    ex.name.select();
+  });
+  ex.btnEditBack.addEventListener("click", function () {
+    saveCurExpedition(true);
+    openExpeditionsScreen();
+  });
+  ex.name.addEventListener("input", function () {
+    if (!exp.cur) return;
+    exp.cur.name = ex.name.value;
+    saveCurExpedition();
+  });
+  ex.btnDelete.addEventListener("click", function () {
+    var e = exp.cur;
+    if (!e || !window.confirm('Excluir a expedição "' + (e.name || "") + '"? As rotas salvas não são apagadas.')) return;
+    clearTimeout(exp.saveTimer);
+    var list = loadExpeditions().map(function (x) {
+      return x.id === e.id ? { id: e.id, deleted: true, deletedAt: Date.now(), savedAt: e.savedAt || Date.now() } : x;
+    });
+    persistExpeditions(list);
+    showToast("Expedição excluída.");
+    openExpeditionsScreen();
+  });
+  ex.tabs.addEventListener("click", function (ev) {
+    var b = ev.target.closest("button[data-tab]");
+    if (!b) return;
+    exp.tab = b.getAttribute("data-tab");
+    b.scrollIntoView({ block: "nearest", inline: "center" });
+    renderExpeditionPanel(true);
+  });
+  ex.panel.addEventListener("change", onExpFieldChange);
+  ex.panel.addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-act]");
+    if (!b || !exp.cur) return;
+    expAction(b.getAttribute("data-act"), { i: b.getAttribute("data-i"), j: b.getAttribute("data-j"), id: b.getAttribute("data-id"), cat: b.getAttribute("data-cat") });
+  });
+  ex.panel.addEventListener("keydown", function (ev) {
+    if (ev.key !== "Enter") return;
+    var t = ev.target;
+    if (t.hasAttribute("data-newitem")) {
+      ev.preventDefault();
+      expAction("add-item", { cat: t.getAttribute("data-newitem") });
+    }
+  });
+  window.addEventListener("pagehide", function () {
+    if (exp.saveTimer) saveCurExpedition(true);
+  });
+
+  // chamado pela sincronização da conta quando chegam expedições de outro aparelho
+  function onExpeditionsSynced() {
+    if (ex.screen.classList.contains("hidden")) return;
+    if (exp.cur) {
+      if (exp.saveTimer) return; // usuário editando agora: não atropela
+      var fresh = loadExpeditions().find(function (x) { return x.id === exp.cur.id; });
+      if (!fresh || fresh.deleted) return openExpeditionsScreen();
+      if ((fresh.savedAt || 0) > (exp.cur.savedAt || 0)) {
+        exp.cur = expNormalize(fresh);
+        ex.name.value = fresh.name || "";
+        renderExpeditionPanel();
+      }
+    } else {
+      renderExpeditionList();
+    }
   }
 
   // ---- init ----

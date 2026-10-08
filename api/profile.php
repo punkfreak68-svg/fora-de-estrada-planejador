@@ -112,10 +112,9 @@ switch ($action) {
         // LGPD: a pessoa pode baixar os dados dela
         $u = require_user();
         header('Content-Disposition: attachment; filename="meus-dados-fora-de-estrada.json"');
-        $st = db()->prepare('SELECT data FROM routes WHERE user_id = ? AND deleted = 0 ORDER BY updated_at');
-        $st->execute([$u['id']]);
-        $routes = array_map(fn($r) => json_decode($r['data'], true), $st->fetchAll());
-        json_out(['ok' => true, 'exported_at' => date('c'), 'account' => user_private($u) + ['terms_accepted_at' => $u['terms_accepted_at'], 'last_login_at' => $u['last_login_at']], 'routes' => $routes]);
+        require __DIR__ . '/_sync.php';
+        json_out(['ok' => true, 'exported_at' => date('c'), 'account' => user_private($u) + ['terms_accepted_at' => $u['terms_accepted_at'], 'last_login_at' => $u['last_login_at']],
+            'routes' => sync_all('routes', (int)$u['id'], true), 'expeditions' => sync_all('expeditions', (int)$u['id'], true)]);
 
     default:
         fail('Ação desconhecida.', 404);
