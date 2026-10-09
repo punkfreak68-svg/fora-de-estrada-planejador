@@ -5,7 +5,7 @@
 // deliberately left untouched here — those already have their own offline
 // handling in app code (IndexedDB tile cache, graceful catch on sync failures).
 
-var CACHE_NAME = "fora-de-estrada-shell-v15";
+var CACHE_NAME = "fora-de-estrada-shell-v16";
 
 var SHELL_RELATIVE_PATHS = [
   "./",
@@ -63,7 +63,7 @@ self.addEventListener("activate", function (event) {
         return Promise.all(
           names
             .filter(function (n) {
-              return n !== CACHE_NAME;
+              return n !== CACHE_NAME && n.indexOf("-fonts") === -1;
             })
             .map(function (n) {
               return caches.delete(n);
@@ -82,6 +82,22 @@ self.addEventListener("fetch", function (event) {
 
   // a API da comunidade nunca passa pelo cache (sessão/dados sempre ao vivo)
   if (new URL(req.url).pathname.indexOf("/api/") !== -1) return;
+  // fontes do visual novo (v5.5): guarda na primeira vez para funcionar offline
+  var host = new URL(req.url).hostname;
+  if (host === "fonts.googleapis.com" || host === "fonts.gstatic.com") {
+    event.respondWith(
+      caches.open(CACHE_NAME + "-fonts").then(function (cache) {
+        return cache.match(req).then(function (hit) {
+          if (hit) return hit;
+          return fetch(req).then(function (resp) {
+            if (resp && (resp.ok || resp.type === "opaque")) cache.put(req, resp.clone());
+            return resp;
+          });
+        });
+      })
+    );
+    return;
+  }
   var isShellUrl = APP_SHELL_URLS.indexOf(req.url) !== -1 || req.mode === "navigate";
   if (!isShellUrl) return; // let map tiles, Drive API, Google auth, etc. go straight to network as usual
 
