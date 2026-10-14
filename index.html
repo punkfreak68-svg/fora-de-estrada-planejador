@@ -1968,7 +1968,7 @@ html, body {
 .com-body a { color: var(--acc); }
 .com-btn {
   display: block; width: 100%; text-align: center; text-decoration: none; padding: 12px; border-radius: 8px;
-  border: 1px solid var(--line2); background: var(--btn); color: #eee !important; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--line2); background: var(--btn); color: var(--ink) !important; font-size: 0.95rem; font-weight: 600; cursor: pointer;
 }
 .com-btn:disabled { opacity: 0.55; cursor: wait; }
 .com-btn-primary { background: #2e6b30; border-color: #3a8a3d; color: #fff;
@@ -2344,6 +2344,11 @@ button, input, select, textarea { font-family: inherit; }
 .st-bar i { display: block; width: 100%; background: var(--acc); border-radius: 3px 3px 0 0; }
 .st-row { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 0.9rem; }
 .st-row:first-of-type { border-top: none; }
+
+/* v5.7.1 — textos de botões da Comunidade legíveis no modo dia */
+.com-btn.com-btn-primary, .com-btn.com-btn-danger { color: #fff !important; }
+.fd-title { color: var(--ink); }
+.timing-delta-bad { color: var(--danger); }
 </style>
 </head>
 <body>
@@ -2919,11 +2924,6 @@ button, input, select, textarea { font-family: inherit; }
         <button type="submit" class="com-btn">Salvar senha</button>
       </form>
 
-      <div class="com-card">
-        <h2>Em breve</h2>
-        <p class="hint">📰 Feed de trilhas · 🏁 Ranking de tempos · 🚙 Comboio ao vivo · seguir amigos.</p>
-      </div>
-
       <div class="com-card com-form">
         <h2>Conta</h2>
         <a id="com-export" class="com-btn" href="api/profile.php?action=export" download="meus-dados-fora-de-estrada.json">⬇️ Baixar meus dados</a>
@@ -3157,8 +3157,13 @@ button, input, select, textarea { font-family: inherit; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.7";
+  var APP_VERSION = "5.7.1";
   var CHANGELOG = [
+    {
+      version: "5.7.1",
+      date: "14/10/2026",
+      changes: ["Modo dia: botões da Comunidade (Sair, Baixar meus dados, Salvar senha) voltam a mostrar o texto", "Perfil: tirado o quadro \"Em breve\" que já estava desatualizado"]
+    },
     {
       version: "5.7",
       date: "14/10/2026",
