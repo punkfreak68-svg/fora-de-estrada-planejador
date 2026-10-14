@@ -1,0 +1,64 @@
+name: APK Android
+
+# Gera o APK do app "Fora de Estrada" sempre que algo em android-app/ mudar
+# (ou manualmente pela aba Actions > APK Android > Run workflow).
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'android-app/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: android-app/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Sincronizar Capacitor
+        run: npx cap sync android
+
+      - name: Compilar APK
+        working-directory: android-app/android
+        env:
+          FDE_VERSION_CODE: ${{ github.run_number }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+          cp app/build/outputs/apk/release/app-release.apk ../fora-de-estrada.apk
+
+      - name: Guardar APK (aba Actions)
+        uses: actions/upload-artifact@v4
+        with:
+          name: fora-de-estrada-apk
+          path: android-app/fora-de-estrada.apk
+
+      - name: Publicar na página de Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-${{ github.run_number }}
+          name: Fora de Estrada Android (build ${{ github.run_number }})
+          body: APK de teste gerado automaticamente. Instale por cima da versão anterior.
+          files: android-app/fora-de-estrada.apk
+          make_latest: true
