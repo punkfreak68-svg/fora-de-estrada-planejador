@@ -2314,6 +2314,14 @@ button, input, select, textarea { font-family: inherit; }
 @media (min-width: 900px) {
   #nav-active-view .rally-panel { bottom: auto; }
 }
+
+/* v5.6 — botões do balão do ponto de interesse */
+.poi-popup-actions { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.leaflet-popup-content a.poi-popup-link {
+  display: block; text-align: center; padding: 8px 10px; border-radius: 10px; font-weight: 700;
+  font-size: 0.85rem; text-decoration: none; background: #1A73E8; color: #fff; border: 1px solid #1A73E8;
+}
+.leaflet-popup-content a.poi-popup-link.poi-directions { background: #fff; color: #1A73E8; }
 </style>
 </head>
 <body>
@@ -3126,8 +3134,13 @@ button, input, select, textarea { font-family: inherit; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.5";
+  var APP_VERSION = "5.6";
   var CHANGELOG = [
+    {
+      version: "5.6",
+      date: "14/10/2026",
+      changes: ["Pontos de interesse no mapa (restaurantes, lazer, postos): o balão agora tem \"Abrir no Google Maps\" e \"Como chegar\" — no celular abre direto no app do Maps"]
+    },
     {
       version: "5.5",
       date: "09/10/2026",
@@ -5786,7 +5799,7 @@ button, input, select, textarea { font-family: inherit; }
       },
       includedTypes: ALL_POI_TYPES,
       maxResultCount: 20,
-      fields: ["displayName", "location", "primaryTypeDisplayName", "rating", "types"]
+      fields: ["id", "displayName", "location", "primaryTypeDisplayName", "rating", "types"]
     }).then(function (result) {
       return (result && result.places) || [];
     });
@@ -5824,6 +5837,27 @@ button, input, select, textarea { font-family: inherit; }
       ratingEl.textContent = "⭐ " + place.rating;
       div.appendChild(ratingEl);
     }
+
+    // v5.6: abrir o lugar no Google Maps (no celular abre o app do Maps)
+    var name = poiFieldText(place.displayName) || "";
+    var lat = place.location ? place.location.lat() : null;
+    var lng = place.location ? place.location.lng() : null;
+    var pid = place.id || "";
+    var q = name ? name : lat + "," + lng;
+    var openUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q) + (pid ? "&query_place_id=" + encodeURIComponent(pid) : "");
+    var dirUrl = "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(lat + "," + lng) + (pid ? "&destination_place_id=" + encodeURIComponent(pid) : "");
+    var actions = document.createElement("div");
+    actions.className = "poi-popup-actions";
+    [["Abrir no Google Maps", openUrl, "poi-open-maps"], ["Como chegar", dirUrl, "poi-directions"]].forEach(function (a) {
+      var link = document.createElement("a");
+      link.href = a[1];
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.className = "poi-popup-link " + a[2];
+      link.textContent = a[0];
+      actions.appendChild(link);
+    });
+    div.appendChild(actions);
     return div;
   }
 
