@@ -3015,6 +3015,17 @@ button, input, select, textarea { font-family: inherit; }
   </div>
 </div>
 
+<div id="nav-resume-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2>Continuar a navegação?</h2>
+    <p class="hint" id="nav-resume-text"></p>
+    <div class="modal-actions">
+      <button id="btn-nav-resume-discard" class="modal-btn-secondary">Descartar</button>
+      <button id="btn-nav-resume-ok" class="modal-btn-primary">Continuar</button>
+    </div>
+  </div>
+</div>
+
 <div id="nav-end-confirm-modal" class="modal-overlay">
   <div class="modal-box modal-box-small">
     <h2>Encerrar navegação?</h2>
@@ -3166,8 +3177,16 @@ button, input, select, textarea { font-family: inherit; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.8.2";
+  var APP_VERSION = "5.9";
   var CHANGELOG = [
+    {
+      version: "5.9",
+      date: "14/10/2026",
+      changes: [
+        "Navegação à prova de app fechado: se o celular fechar o app em segundo plano, ao abrir de novo aparece \"Continuar a navegação?\" e ela volta de onde parou (rota, trajeto, marcações e estatísticas)",
+        "Quando o GPS volta depois de um tempo parado, o app avisa quanto tempo ficou sem sinal e liga o trecho em linha reta; o resumo final mostra esses trechos"
+      ]
+    },
     {
       version: "5.8.2",
       date: "14/10/2026",
@@ -6727,6 +6746,7 @@ button, input, select, textarea { font-family: inherit; }
     }, 50);
 
     startWatchingPosition();
+    if (!v59Resuming) v59SaveNow();
   }
 
   function startFreeNavigation() {
@@ -6750,6 +6770,7 @@ button, input, select, textarea { font-family: inherit; }
     }, 50);
 
     startWatchingPosition();
+    if (!v59Resuming) v59SaveNow();
   }
 
   el.btnNavFreeMode.addEventListener("click", function () {
@@ -6909,6 +6930,7 @@ button, input, select, textarea { font-family: inherit; }
     var lat = pos.coords.latitude,
       lng = pos.coords.longitude;
     if (window.FDETheme) window.FDETheme.setPos(lat, lng);
+    v59CheckGap(pos, lat, lng);
     var current = { lat: lat, lng: lng };
     var hasHeading = pos.coords.heading != null && !isNaN(pos.coords.heading);
 
@@ -6984,6 +7006,7 @@ button, input, select, textarea { font-family: inherit; }
     navExtrasOnPosition(pos, speedKmh, addedMeters);
     rallyOnPosition(pos, speedKmh, addedMeters);
 
+    v59SaveSoon();
     updateNavPipStats(
       el.navDistanceRemaining.textContent,
       el.navDistanceLabel.textContent,
@@ -7086,6 +7109,7 @@ button, input, select, textarea { font-family: inherit; }
     el.navSummaryDistance.textContent = formatDistance(recordedMeters);
     setEndedSummaryMode(true);
     navExtrasOnFinish();
+    v59AfterFinish();
   }
 
   el.btnBackToPlanning.addEventListener("click", function () {
@@ -8148,7 +8172,7 @@ button, input, select, textarea { font-family: inherit; }
     refreshTripDisplay();
     renderNavWaypointMarkers();
     rallyOnStart();
-    if (navMode === "route") speak("Navegação iniciada.");
+    if (navMode === "route" && !v59Resuming) speak("Navegação iniciada.");
   }
 
   function navExtrasOnFinish() {
@@ -14014,6 +14038,187 @@ button, input, select, textarea { font-family: inherit; }
     v55RenderDashboardIfVisible();
   }
 
+
+  // ===================== v5.9 — navegação sobrevive ao app fechado =====================
+  // O Android pode congelar ou fechar o app em segundo plano. A sessão de navegação é salva
+  // no aparelho a cada poucos segundos; ao reabrir, o app oferece continuar de onde parou.
+  var V59_KEY = "fde_nav_session_v1";
+  var V59_PREV_KEY = "fde_nav_session_prev_v1";
+  var V59_GAP_MS = 60000;
+  var v59Resuming = false;
+  var v59SaveTimer = null;
+  var v59LastSave = 0;
+
+  function v59Round(p) {
+    return { lat: Math.round(p.lat * 1e6) / 1e6, lng: Math.round(p.lng * 1e6) / 1e6 };
+  }
+
+  function v59Active() {
+    var view = document.getElementById("nav-active-view");
+    return !!(navWatchId !== null && view && !view.classList.contains("hidden") && el.navSummaryPanel.classList.contains("hidden"));
+  }
+
+  function v59SaveNow() {
+    if (!v59Active()) return;
+    var r = navCurrentRoute;
+    var sess = {
+      v: 1,
+      savedAt: Date.now(),
+      mode: navMode,
+      routeId: r && r.id ? r.id : null,
+      route: r ? { id: r.id || null, name: r.name || "", points: (r.points || []).map(v59Round), waypoints: r.waypoints || [], roadbookNotes: r.roadbookNotes || null, folder: r.folder || "" } : null,
+      track: navRecordedTrack.map(v59Round),
+      stats: navStats,
+      wps: navSessionWaypoints || [],
+      freeId: navFreeModeSavedRouteId || null,
+      lastFix: navLastFix ? { lat: navLastFix.lat, lng: navLastFix.lng, ts: navLastFix.ts } : null
+    };
+    try {
+      localStorage.setItem(V59_KEY, JSON.stringify(sess));
+      v59LastSave = Date.now();
+    } catch (e) {
+      /* armazenamento cheio: segue sem salvar */
+    }
+  }
+
+  function v59SaveSoon() {
+    if (Date.now() - v59LastSave > 8000) {
+      v59SaveNow();
+      return;
+    }
+    if (v59SaveTimer) return;
+    v59SaveTimer = setTimeout(function () {
+      v59SaveTimer = null;
+      v59SaveNow();
+    }, 8000);
+  }
+
+  function v59Clear() {
+    try {
+      var cur = localStorage.getItem(V59_KEY);
+      if (cur) localStorage.setItem(V59_PREV_KEY, cur);
+      localStorage.removeItem(V59_KEY);
+    } catch (e) {}
+  }
+
+  function v59Load() {
+    try {
+      var s = JSON.parse(localStorage.getItem(V59_KEY) || "null");
+      if (!s || s.v !== 1 || !s.savedAt) return null;
+      if (Date.now() - s.savedAt > 24 * 3600 * 1000) return null;
+      return s;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // GPS voltou depois de um tempo parado (app em segundo plano ou reaberto)
+  function v59CheckGap(pos, lat, lng) {
+    if (!navLastFix || !navLastFix.ts) return;
+    var ts = pos.timestamp || Date.now();
+    var ms = ts - navLastFix.ts;
+    if (ms < V59_GAP_MS) return;
+    var meters = haversineMeters(navLastFix.lat, navLastFix.lng, lat, lng);
+    if (navStats) {
+      navStats.gaps = (navStats.gaps || 0) + 1;
+      navStats.gapMs = (navStats.gapMs || 0) + ms;
+      navStats.gapMeters = (navStats.gapMeters || 0) + meters;
+    }
+    var min = Math.round(ms / 60000);
+    showToast("GPS de volta após " + (min < 1 ? "1" : min) + " min sem sinal" + (meters >= 50 ? " — trecho de " + formatDistance(meters) + " ligado em linha reta" : ""));
+  }
+
+  function v59AfterFinish() {
+    var s = navStats;
+    if (s && s.gaps) {
+      var p = document.createElement("p");
+      p.className = "hint";
+      p.textContent =
+        "⚠ " + s.gaps + (s.gaps === 1 ? " trecho" : " trechos") + " sem GPS (app em segundo plano ou fechado), somando " +
+        Math.round((s.gapMs || 0) / 60000) + " min" + (s.gapMeters >= 50 ? " e " + formatDistance(s.gapMeters) + " ligados em linha reta" : "") + ".";
+      x.navSummaryStats.appendChild(p);
+    }
+    v59Clear();
+  }
+
+  function v59Resume(sess) {
+    var route = null;
+    if (sess.mode === "route") {
+      if (sess.routeId) {
+        route = loadSavedRoutes().filter(function (r) {
+          return r && r.id === sess.routeId && !r.deleted;
+        })[0] || null;
+      }
+      if (!route) route = sess.route;
+      if (!route || !route.points || !route.points.length) {
+        showToast("Não foi possível recuperar a rota dessa navegação.");
+        v59Clear();
+        return;
+      }
+    }
+    v59Resuming = true;
+    try {
+      if (sess.mode === "route") {
+        pendingNavRoute = route;
+        startNavigation(route);
+      } else {
+        startFreeNavigation();
+      }
+      navRecordedTrack = (sess.track || []).slice();
+      navLastRecordedPoint = navRecordedTrack.length ? navRecordedTrack[navRecordedTrack.length - 1] : null;
+      navRecordedPolyline.setLatLngs(navRecordedTrack.map(function (p) {
+        return [p.lat, p.lng];
+      }));
+      if (sess.stats) navStats = Object.assign(newNavStats(), sess.stats, { endedAt: null });
+      navSessionWaypoints = sess.wps || [];
+      navFreeModeSavedRouteId = sess.freeId || null;
+      if (sess.lastFix) navLastFix = { lat: sess.lastFix.lat, lng: sess.lastFix.lng, acc: null, ts: sess.lastFix.ts };
+      if (typeof renderNavWaypointMarkers === "function") renderNavWaypointMarkers();
+      if (navMode === "free") el.navDistanceRemaining.textContent = formatDistance(polylineLengthMeters(navRecordedTrack));
+      if (navLastRecordedPoint) {
+        setTimeout(function () {
+          navMap.setView([navLastRecordedPoint.lat, navLastRecordedPoint.lng], 16);
+        }, 120);
+      }
+    } finally {
+      v59Resuming = false;
+    }
+    v59SaveNow();
+    speak("Navegação retomada.");
+    showToast("Navegação retomada de onde parou.");
+  }
+
+  function v59OfferResume() {
+    var sess = v59Load();
+    if (!sess) return;
+    var modal = document.getElementById("nav-resume-modal");
+    var name = sess.mode === "free" ? "Navegação livre" : '"' + ((sess.route && sess.route.name) || "rota sem nome") + '"';
+    var d = new Date(sess.stats && sess.stats.startedAt ? sess.stats.startedAt : sess.savedAt);
+    var meters = polylineLengthMeters(sess.track || []);
+    document.getElementById("nav-resume-text").textContent =
+      name + " estava em andamento (começou às " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) +
+      (meters > 0 ? ", " + formatDistance(meters) + " gravados" : "") + "). O celular fechou o app em segundo plano — dá para continuar de onde parou.";
+    modal.classList.add("open");
+    document.getElementById("btn-nav-resume-ok").onclick = function () {
+      modal.classList.remove("open");
+      primeSpeech();
+      v59Resume(sess);
+    };
+    document.getElementById("btn-nav-resume-discard").onclick = function () {
+      modal.classList.remove("open");
+      v59Clear();
+      showToast("Navegação anterior descartada.");
+    };
+  }
+
+  function initV59Resume() {
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) v59SaveNow();
+    });
+    window.addEventListener("pagehide", v59SaveNow);
+    setTimeout(v59OfferResume, 700);
+  }
+
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -14044,6 +14249,7 @@ button, input, select, textarea { font-family: inherit; }
     safeInit(tryAutoReconnect, "reconexão com Google Drive");
     safeInit(initCommunity, "comunidade");
     safeInit(initV55Theme, "visual novo (v5.5)");
+    safeInit(initV59Resume, "retomar navegação (v5.9)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
