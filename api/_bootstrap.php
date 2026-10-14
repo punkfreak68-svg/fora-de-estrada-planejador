@@ -3,7 +3,7 @@
 // o .htaccess da pasta bloqueia arquivos que começam com "_".
 declare(strict_types=1);
 
-const FDE_SCHEMA_VERSION = 5;
+const FDE_SCHEMA_VERSION = 6;
 const FDE_SESSION_COOKIE = 'fde_sess';
 const FDE_SESSION_DAYS = 60;
 
@@ -187,6 +187,18 @@ function fde_migrate(PDO $pdo): void {
             CONSTRAINT fk_rep_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     }
+    if ($v < 6) {
+        // v5.7: números do app — último acesso da conta e aparelhos ativos por dia (id aleatório, sem dado pessoal)
+        $has = $pdo->query("SHOW COLUMNS FROM users LIKE 'last_seen_at'")->fetch();
+        if (!$has) $pdo->exec('ALTER TABLE users ADD COLUMN last_seen_at DATETIME NULL');
+        $pdo->exec("CREATE TABLE IF NOT EXISTS app_days (
+            day DATE NOT NULL,
+            device CHAR(64) NOT NULL,
+            user_id INT UNSIGNED NULL,
+            PRIMARY KEY (day, device),
+            INDEX (day)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    }
     $pdo->prepare("REPLACE INTO fde_meta (k, v) VALUES ('schema', ?)")->execute([(string)FDE_SCHEMA_VERSION]);
 }
 
@@ -299,7 +311,14 @@ function current_user(): ?array {
     $st = db()->prepare('SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > NOW()');
     $st->execute([hash('sha256', $t)]);
     $row = $st->fetch();
-    if ($row) $u = $row;
+    if ($row) {
+        $u = $row;
+        // último acesso (no máximo uma gravação a cada 10 min por conta)
+        $seen = $row['last_seen_at'] ?? null;
+        if ($seen === null || strtotime((string)$seen) < time() - 600) {
+            db()->prepare('UPDATE users SET last_seen_at = NOW() WHERE id = ?')->execute([(int)$row['id']]);
+        }
+    }
     return $u;
 }
 

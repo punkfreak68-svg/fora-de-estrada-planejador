@@ -3,7 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Fora de Estrada - Navegador e Planejador</title>
+<title>Fora de Estrada — navegador e planejador de trilhas off-road</title>
+<meta name="description" content="App grátis para planejar e navegar trilhas off-road: rotas com GPS offline, roadbook de rally, tomada de tempo, organização de expedições e comunidade de trilheiros. Funciona no celular, tablet e PC.">
+<link rel="canonical" href="https://foradeestrada.sansoliveira.com.br/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Fora de Estrada">
+<meta property="og:title" content="Fora de Estrada — navegador e planejador de trilhas off-road">
+<meta property="og:description" content="Planeje e navegue trilhas com GPS offline, roadbook de rally, tomada de tempo, expedições e comunidade.">
+<meta property="og:url" content="https://foradeestrada.sansoliveira.com.br/">
+<meta property="og:image" content="https://foradeestrada.sansoliveira.com.br/icons/icon-512.png">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#17201B">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2322,6 +2332,18 @@ button, input, select, textarea { font-family: inherit; }
   font-size: 0.85rem; text-decoration: none; background: #1A73E8; color: #fff; border: 1px solid #1A73E8;
 }
 .leaflet-popup-content a.poi-popup-link.poi-directions { background: #fff; color: #1A73E8; }
+
+/* v5.7 — números do app */
+.st-h { margin: 0 0 10px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.st-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.st-tile { background: var(--surf2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.st-tile b { display: block; font-family: var(--mono); font-size: 1.6rem; color: var(--ink); line-height: 1.1; }
+.st-tile span { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+.st-chart { display: flex; align-items: flex-end; gap: 3px; height: 90px; margin-top: 12px; }
+.st-bar { flex: 1 1 0; height: 100%; display: flex; align-items: flex-end; }
+.st-bar i { display: block; width: 100%; background: var(--acc); border-radius: 3px 3px 0 0; }
+.st-row { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 0.9rem; }
+.st-row:first-of-type { border-top: none; }
 </style>
 </head>
 <body>
@@ -2856,6 +2878,7 @@ button, input, select, textarea { font-family: inherit; }
       <button type="button" class="com-tab active" data-main="feed">📰 Feed</button>
       <button type="button" class="com-tab" data-main="profile">👤 Meu perfil</button>
       <button type="button" class="com-tab hidden" data-main="mod" id="com-tab-mod">🛡️ Moderação</button>
+      <button type="button" class="com-tab hidden" data-main="stats" id="com-tab-stats">📊 Números</button>
     </div>
     <div id="com-feed" class="hidden"></div>
     <div id="com-profile" class="hidden">
@@ -3134,8 +3157,13 @@ button, input, select, textarea { font-family: inherit; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.6";
+  var APP_VERSION = "5.7";
   var CHANGELOG = [
+    {
+      version: "5.7",
+      date: "14/10/2026",
+      changes: ["📊 Números do app para o administrador (Comunidade › Números): aparelhos e contas ativas, cadastros, rotas e publicações", "Site preparado para aparecer no Google (descrição, sitemap)"]
+    },
     {
       version: "5.6",
       date: "14/10/2026",
@@ -13227,6 +13255,7 @@ button, input, select, textarea { font-family: inherit; }
     fx.profile.classList.toggle("hidden", t !== "profile");
     if (t === "feed") fdShowList(true);
     if (t === "mod") fdShowMod();
+    if (t === "stats") fdShowStats();
   }
 
   // chamado pelo comRender quando a pessoa está logada
@@ -13238,6 +13267,8 @@ button, input, select, textarea { font-family: inherit; }
       return;
     }
     fx.tabMod.classList.toggle("hidden", u.role !== "admin");
+    var tabStats = document.getElementById("com-tab-stats");
+    if (tabStats) tabStats.classList.toggle("hidden", u.role !== "admin");
     if (fd.tab !== "profile") {
       fx.profile.classList.add("hidden");
       fx.feed.classList.remove("hidden");
@@ -13354,6 +13385,54 @@ button, input, select, textarea { font-family: inherit; }
       '<div class="fd-counts"><span><b>' + u.posts + "</b> trilhas</span><span><b>" + u.followers + "</b> seguidores</span><span><b>" + u.following + "</b> seguindo</span></div>" +
       (u.is_me ? "" : '<button class="com-btn ' + (u.is_following ? "" : "com-btn-primary") + '" data-act="follow" data-user="' + fdEsc(u.username) + '">' + (u.is_following ? "✓ Seguindo (toque para deixar de seguir)" : "+ Seguir") + "</button>") +
       "</div>" + (fd.userPosts.length ? fd.userPosts.map(function (p) { return fdCard(p, false); }).join("") : '<div class="fd-empty">Nenhuma trilha publicada.</div>');
+  }
+
+  // v5.7: números do app (só para o administrador)
+  function fdShowStats() {
+    fd.view = "stats";
+    fx.feed.innerHTML = '<p class="hint com-center">Carregando…</p>';
+    comApi("stats.php?action=summary")
+      .then(function (d) {
+        function tile(v, l) {
+          return '<div class="st-tile"><b>' + v + "</b><span>" + l + "</span></div>";
+        }
+        var byDay = {};
+        d.series.forEach(function (p) { byDay[p.day] = p.n; });
+        var full = [];
+        for (var k = 29; k >= 0; k--) {
+          var dt = new Date(Date.now() - k * 86400000);
+          var key = dt.getFullYear() + "-" + ("0" + (dt.getMonth() + 1)).slice(-2) + "-" + ("0" + dt.getDate()).slice(-2);
+          full.push({ day: key, n: byDay[key] || 0 });
+        }
+        var max = 1;
+        full.forEach(function (p) { if (p.n > max) max = p.n; });
+        var bars = full.map(function (p) {
+          var dd = p.day.split("-");
+          return '<div class="st-bar" title="' + dd[2] + "/" + dd[1] + ": " + p.n + '"><i style="height:' + (p.n ? Math.max(4, Math.round((p.n / max) * 100)) : 2) + '%' + (p.n ? "" : ";opacity:.25") + '"></i></div>';
+        }).join("");
+        var since = d.devices.since ? d.devices.since.split("-").reverse().join("/") : "hoje";
+        var h =
+          '<div class="com-card"><h2>📊 Números do app</h2><p class="hint">Aparelhos = quem abriu o app (com ou sem conta), contado 1x por dia de forma anônima. Contando desde ' + since + ".</p></div>" +
+          '<div class="com-card"><h3 class="st-h">Aparelhos ativos</h3><div class="st-grid">' +
+          tile(d.devices.today, "hoje") + tile(d.devices.d7, "últimos 7 dias") + tile(d.devices.d30, "últimos 30 dias") + tile(d.devices.total, "desde o início") +
+          "</div>" + (d.series.length ? '<div class="st-chart" aria-label="Aparelhos por dia, últimos 30 dias">' + bars + '</div><p class="hint">Aparelhos por dia — últimos 30 dias</p>' : "") + "</div>" +
+          '<div class="com-card"><h3 class="st-h">Contas</h3><div class="st-grid">' +
+          tile(d.accounts.total, "cadastradas") + tile(d.accounts.active1, "ativas hoje") + tile(d.accounts.active7, "ativas em 7 dias") + tile(d.accounts.active30, "ativas em 30 dias") +
+          tile(d.accounts.new7, "novas em 7 dias") + tile(d.accounts.new30, "novas em 30 dias") +
+          "</div></div>" +
+          '<div class="com-card"><h3 class="st-h">Conteúdo</h3><div class="st-grid">' +
+          tile(d.content.routes, "rotas na nuvem") + tile(d.content.expeditions, "expedições") + tile(d.content.posts, "trilhas publicadas") +
+          tile(d.content.comments, "comentários") + tile(d.content.likes, "curtidas") +
+          "</div></div>" +
+          '<div class="com-card"><h3 class="st-h">Últimos cadastros</h3>' +
+          (d.latest.length ? d.latest.map(function (u) {
+            return '<div class="st-row"><span>@' + fdEsc(u.username) + (u.display_name ? " · " + fdEsc(u.display_name) : "") + "</span><span>" + fdEsc(u.created_at.slice(8, 10) + "/" + u.created_at.slice(5, 7)) + "</span></div>";
+          }).join("") : '<p class="hint">Ninguém ainda.</p>') + "</div>";
+        fx.feed.innerHTML = h;
+      })
+      .catch(function (err) {
+        comMsg(err.message, "error");
+      });
   }
 
   function fdShowMod() {
@@ -13846,6 +13925,37 @@ button, input, select, textarea { font-family: inherit; }
     }
   }
 
+  // v5.7: conta 1 aparelho ativo por dia (id aleatório, sem dado pessoal)
+  function v57DailyPing() {
+    if (!navigator.onLine || location.protocol === "file:") return;
+    var day = new Date().toISOString().slice(0, 10);
+    var dev;
+    try {
+      if (localStorage.getItem("fde_ping_day") === day) return;
+      dev = localStorage.getItem("fde_device_id");
+      if (!dev) {
+        var a = new Uint8Array(16);
+        (window.crypto || window.msCrypto).getRandomValues(a);
+        dev = Array.prototype.map.call(a, function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
+        localStorage.setItem("fde_device_id", dev);
+      }
+    } catch (e) {
+      return;
+    }
+    fetch("api/stats.php?action=ping", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "X-FDE": "1", "Content-Type": "application/json" },
+      body: JSON.stringify({ device: dev })
+    })
+      .then(function (r) {
+        if (r.ok) {
+          try { localStorage.setItem("fde_ping_day", day); } catch (e) {}
+        }
+      })
+      .catch(function () {});
+  }
+
   function initV55Theme() {
     var tb = document.getElementById("btn-theme");
     if (tb)
@@ -13898,6 +14008,7 @@ button, input, select, textarea { font-family: inherit; }
     safeInit(tryAutoReconnect, "reconexão com Google Drive");
     safeInit(initCommunity, "comunidade");
     safeInit(initV55Theme, "visual novo (v5.5)");
+    setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
   init();
