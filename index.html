@@ -2349,6 +2349,12 @@ button, input, select, textarea { font-family: inherit; }
 .com-btn.com-btn-primary, .com-btn.com-btn-danger { color: #fff !important; }
 .fd-title { color: var(--ink); }
 .timing-delta-bad { color: var(--danger); }
+
+/* v5.8 — atalho de ajuda */
+.dsh-help { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); background: var(--surf); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.dsh-help b { display: block; font-size: 0.95rem; }
+.dsh-help span { font-size: 0.8rem; color: var(--muted); }
+.dsh-help .svg-ico { color: var(--acc); }
 </style>
 </head>
 <body>
@@ -2412,6 +2418,7 @@ button, input, select, textarea { font-family: inherit; }
     </main>
 
     <aside class="dsh-side">
+      <a class="dsh-help" href="ajuda.html"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5h.01"></path></svg><div><b>Como usar o app</b><span>Guia rápido: instalar, planejar, navegar, offline e rally</span></div></a>
 
   <section class="dashboard-section">
     <h2>Sincronização</h2>
@@ -2437,6 +2444,7 @@ button, input, select, textarea { font-family: inherit; }
     <div class="dashboard-footer-row">
       <span id="dash-version-label" class="app-version">v1.9</span>
       <button id="btn-changelog" class="link-btn">Changelog</button>
+      <a href="ajuda.html" class="link-btn" id="lnk-help">❓ Como usar</a>
     </div>
     <div class="footer-author">por Luiz Augusto de Oliveira Júnior</div>
   </div>
@@ -2808,7 +2816,7 @@ button, input, select, textarea { font-family: inherit; }
     <p class="welcome-sub">Navegador e planejador de trilhas</p>
     <ul class="welcome-list">
       <li><span>🗺️</span> Suas rotas salvas em todos os seus aparelhos, sem precisar do Google Drive</li>
-      <li><span>👥</span> Comunidade: trilhas, ranking de tempos e comboio ao vivo (chegando aos poucos)</li>
+      <li><span>👥</span> Comunidade: publique, comente e baixe trilhas da galera</li>
       <li><span>📴</span> Navegação e Tomada de Tempo funcionam sem internet, com ou sem conta</li>
     </ul>
     <div id="welcome-google-btn" class="com-google-btn"></div>
@@ -2816,6 +2824,7 @@ button, input, select, textarea { font-family: inherit; }
     <button id="btn-welcome-register" class="com-btn">Criar conta</button>
     <p class="hint com-center">Ao continuar com o Google você confirma ter 18 anos ou mais e concorda com os <a href="termos.html" target="_blank" rel="noopener">Termos</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.</p>
     <button id="btn-welcome-skip" class="link-btn welcome-skip">Continuar sem conta</button>
+    <p class="hint com-center"><a href="ajuda.html">❓ Primeira vez? Veja como usar o app</a></p>
   </div>
 </div>
 
@@ -3157,8 +3166,13 @@ button, input, select, textarea { font-family: inherit; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.7.1";
+  var APP_VERSION = "5.8";
   var CHANGELOG = [
+    {
+      version: "5.8",
+      date: "14/10/2026",
+      changes: ["❓ Nova página \"Como usar\" com o passo a passo para quem está começando (link na tela inicial e nas boas-vindas)"]
+    },
     {
       version: "5.7.1",
       date: "14/10/2026",

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Como usar o Fora de Estrada — ajuda e primeiros passos</title>
+<meta name="description" content="Guia rápido do Fora de Estrada: instalar no celular, planejar rota, navegar com GPS offline, roadbook de rally, tomada de tempo, expedições e comunidade.">
+<link rel="canonical" href="https://foradeestrada.sansoliveira.com.br/ajuda.html">
+<meta name="theme-color" content="#17201B">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=JetBrains+Mono:wght@500;700&display=swap">
+<script>
+/* mesmo modo dia/noite escolhido no app (Auto usa o horário: 6h–18h dia) */
+(function () {
+  var p = "auto";
+  try { p = localStorage.getItem("fde_theme_pref") || "auto"; } catch (e) {}
+  var h = new Date().getHours();
+  var m = p === "auto" ? (h >= 6 && h < 18 ? "day" : "night") : p;
+  document.documentElement.setAttribute("data-theme", m);
+})();
+</script>
+<style>
+:root, :root[data-theme="day"] {
+  --bg: #F4F6F1; --surf: #FFFFFF; --surf2: #EEF1EA; --line: #D5DBCF; --ink: #17201B; --ink2: #2F3A33; --muted: #5B6357;
+  --acc: #C2410C; --onAcc: #FFFFFF; --hero: #17201B; --heroInk: #F4F6F1; --heroMuted: #B9C2B3; --tip: #FFF4E0; --tipInk: #6B3B00;
+}
+:root[data-theme="night"] {
+  --bg: #0A0B0C; --surf: #15171A; --surf2: #1C1F23; --line: #2A2D31; --ink: #F2F3F4; --ink2: #D5D8DC; --muted: #8F949B;
+  --acc: #FFD60A; --onAcc: #0A0B0C; --hero: #15171A; --heroInk: #FFFFFF; --heroMuted: #8F949B; --tip: #2A2412; --tipInk: #FFD9A0;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Archivo", -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+a { color: var(--acc); }
+.hero { background: var(--hero); color: var(--heroInk); padding: 22px 18px 28px; }
+.wrap { max-width: 860px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--heroInk); text-decoration: none; font-weight: 700; font-size: 0.95rem; border: 1px solid var(--heroMuted); border-radius: 999px; padding: 6px 14px; }
+.hero h1 { margin: 18px 0 6px; font-weight: 800; font-stretch: 115%; font-size: clamp(1.8rem, 6vw, 2.6rem); line-height: 1.05; }
+.hero p { margin: 0; color: var(--heroMuted); }
+main { padding: 18px 16px 48px; }
+.toc { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin: 0 0 18px; padding: 0; list-style: none; }
+.toc a { display: block; padding: 12px 14px; background: var(--surf); border: 1px solid var(--line); border-radius: 12px; color: var(--ink); text-decoration: none; font-weight: 700; }
+.toc a:hover { border-color: var(--acc); }
+section { background: var(--surf); border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px 8px; margin-top: 14px; scroll-margin-top: 12px; }
+h2 { margin: 0 0 10px; font-weight: 800; font-stretch: 110%; font-size: 1.35rem; display: flex; align-items: center; gap: 10px; }
+h2 .n { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 9px; background: var(--acc); color: var(--onAcc); display: inline-flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-size: 0.95rem; }
+h3 { margin: 16px 0 4px; font-size: 1.02rem; }
+ol, ul { padding-left: 22px; margin: 6px 0 12px; }
+li { margin: 4px 0; }
+.tip { background: var(--tip); color: var(--tipInk); border-radius: 12px; padding: 10px 14px; margin: 10px 0 14px; font-size: 0.95rem; }
+.k { display: inline-block; background: var(--surf2); border: 1px solid var(--line); border-radius: 7px; padding: 0 7px; font-weight: 700; font-size: 0.92em; white-space: nowrap; }
+details { border-top: 1px solid var(--line); padding: 10px 0; }
+details:first-of-type { border-top: none; }
+summary { cursor: pointer; font-weight: 700; }
+details p { margin: 6px 0 0; color: var(--ink2); }
+.foot { text-align: center; color: var(--muted); font-size: 0.9rem; margin-top: 22px; }
+.cta { display: inline-block; margin-top: 10px; background: var(--acc); color: var(--onAcc); text-decoration: none; font-weight: 800; padding: 12px 22px; border-radius: 12px; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <a class="back" href="./">← Voltar ao app</a>
+    <h1>Como usar o Fora de Estrada</h1>
+    <p>Guia rápido para começar: do primeiro acesso à trilha. Leva uns 5 minutos.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <ul class="toc">
+    <li><a href="#instalar">1. Instalar no celular</a></li>
+    <li><a href="#planejar">2. Planejar uma rota</a></li>
+    <li><a href="#navegar">3. Navegar</a></li>
+    <li><a href="#offline">4. Sem sinal (offline)</a></li>
+    <li><a href="#rally">5. Modo Rally / roadbook</a></li>
+    <li><a href="#tempo">6. Tomada de Tempo</a></li>
+    <li><a href="#expedicoes">7. Expedições</a></li>
+    <li><a href="#conta">8. Conta e Comunidade</a></li>
+    <li><a href="#duvidas">Dúvidas comuns</a></li>
+  </ul>
+
+  <section id="instalar">
+    <h2><span class="n">1</span>Instalar no celular</h2>
+    <p>O Fora de Estrada é um app que roda pelo navegador e pode ser instalado como um app normal, com ícone na tela inicial. Não precisa de loja de aplicativos.</p>
+    <h3>Android (Chrome)</h3>
+    <ol>
+      <li>Abra <b>foradeestrada.sansoliveira.com.br</b> no Chrome.</li>
+      <li>Toque no menu <span class="k">⋮</span> e depois em <span class="k">Instalar app</span> (ou <span class="k">Adicionar à tela inicial</span>).</li>
+    </ol>
+    <h3>iPhone (Safari)</h3>
+    <ol>
+      <li>Abra o site no Safari.</li>
+      <li>Toque em <span class="k">Compartilhar</span> e depois em <span class="k">Adicionar à Tela de Início</span>.</li>
+    </ol>
+    <h3>Tablet e PC</h3>
+    <p>Funciona direto no navegador. No PC, o Chrome e o Edge também mostram um botão de instalar na barra de endereço.</p>
+    <div class="tip">Ao abrir pela primeira vez, o app pergunta se você quer criar conta. <b>Não é obrigatório</b>: planejar e navegar funcionam sem conta. A conta serve para ter as rotas em todos os aparelhos e usar a Comunidade.</div>
+  </section>
+
+  <section id="planejar">
+    <h2><span class="n">2</span>Planejar uma rota</h2>
+    <ol>
+      <li>Na tela inicial, toque em <span class="k">Planejar Nova Rota</span>.</li>
+      <li><b>Toque no mapa</b> para marcar os pontos da trilha, um depois do outro. O app liga os pontos e mostra a distância total.</li>
+      <li>Se já tiver as coordenadas, abra o painel <span class="k">☰</span> e use <b>Adicionar ponto manual</b>. Aceita latitude e longitude, graus/minutos/segundos (ex.: 22°55'47.7"S) e o par copiado do Google Maps.</li>
+      <li>Dê um nome à rota no campo do topo e toque em <span class="k">💾 Salvar</span>. Você pode guardar em uma <b>pasta</b> (ex.: "Trilhas da região").</li>
+    </ol>
+    <h3>Também dá para</h3>
+    <ul>
+      <li><b>Importar</b> um arquivo <b>.gpx</b> ou <b>.kml</b> (de outro app ou de um amigo) com <span class="k">📥 Importar</span>.</li>
+      <li><b>Exportar</b> em .gpx ou <b>compartilhar</b> por link e QR code com <span class="k">📤 Compartilhar</span>.</li>
+      <li>Marcar <b>locais com foto e anotação</b> (atoleiro, porteira, perigo, água) em <b>Marcações</b>.</li>
+      <li>Ver a <b>altimetria</b> (subidas e descidas) e a <b>previsão do tempo</b> no começo, meio e fim da rota.</li>
+      <li>Ligar <b>restaurantes, lazer e postos</b> no mapa. Tocando no ponto, aparecem os botões <b>Abrir no Google Maps</b> e <b>Como chegar</b>.</li>
+    </ul>
+  </section>
+
+  <section id="navegar">
+    <h2><span class="n">3</span>Navegar</h2>
+    <ol>
+      <li>Na tela inicial, toque em <span class="k">▶ Iniciar navegação</span> (abre a última rota) ou em <span class="k">Navegar</span> para escolher outra.</li>
+      <li>Confirme. O mapa passa a seguir a sua posição pelo GPS, com a rota planejada em laranja.</li>
+      <li>No topo aparece <b>No traçado</b> enquanto você está na rota. Se sair dela, o aviso fica vermelho e o app <b>avisa por voz e vibração</b>. A distância que conta como "fora" é ajustada no botão <span class="k">Limite: 50m</span>.</li>
+      <li>Embaixo ficam a <b>distância que falta</b>, a <b>velocidade</b> e o <b>hodômetro parcial</b> (toque duas vezes para zerar).</li>
+      <li>No fim, toque em <span class="k">Encerrar Navegação</span> para ver o resumo do trajeto.</li>
+    </ol>
+    <h3>Botões do lado direito</h3>
+    <ul>
+      <li><b>Voz</b>: liga e desliga os avisos falados.</li>
+      <li><b>Marcar local</b>: salva o ponto onde você está, com foto e anotação.</li>
+      <li><b>Enviar posição</b>: manda a sua localização por WhatsApp ou SMS. O SMS funciona sem internet.</li>
+      <li><b>Estatísticas</b>: tempo, distância, velocidade média e máxima.</li>
+      <li><b>Bandeira</b>: liga o Modo Rally (veja abaixo).</li>
+      <li><b>Sol/Lua</b>: troca entre Auto, Dia e Noite.</li>
+    </ul>
+    <h3>Navegar Livre (sem rota)</h3>
+    <p>Na tela de escolher rota, <span class="k">🧭 Navegar Livre</span> grava por onde você passa. No fim, <span class="k">💾 Salvar Trajeto</span> transforma o caminho numa rota normal, que dá para editar e compartilhar.</p>
+    <div class="tip"><b>Modo dia e noite:</b> no automático, o app fica claro de dia (fácil de ler no sol) e escuro à noite (não ofusca), trocando no nascer e no pôr do sol do lugar onde você está.</div>
+  </section>
+
+  <section id="offline">
+    <h2><span class="n">4</span>Sem sinal (offline)</h2>
+    <p>O GPS do celular funciona sem internet. O que precisa de preparo é o <b>mapa de fundo</b>.</p>
+    <ol>
+      <li><b>Antes de sair, ainda com internet</b>, abra a rota em <span class="k">Navegar</span> e confirme. O app baixa o mapa da região da rota.</li>
+      <li>Tudo o que você já viu no mapa fica guardado no aparelho. A tela inicial mostra quantos <b>blocos de mapa offline</b> você tem.</li>
+      <li>Na trilha, a navegação, os alertas, o Modo Rally e a Tomada de Tempo funcionam normalmente sem sinal.</li>
+    </ol>
+    <div class="tip">O mapa offline usa o satélite <b>Esri</b>. O satélite Google só funciona com internet, porque as regras do Google não permitem guardar o mapa no aparelho.</div>
+  </section>
+
+  <section id="rally">
+    <h2><span class="n">5</span>Modo Rally / roadbook</h2>
+    <p>Para quem navega como em rally, com <b>tulipas</b>, <b>CAP</b> (rumo) e <b>hodômetro</b>.</p>
+    <ol>
+      <li>No planejamento, abra <b>Roadbook (rally)</b> no painel. O app gera as casas sozinho a partir das curvas e marcações. Você pode escrever notas e marcar o perigo (<b>!</b>, <b>!!</b>, <b>!!!</b>). Dá para <b>imprimir</b> o roadbook.</li>
+      <li>Na navegação, toque na <b>bandeira</b>. Aparecem o CAP, o hodômetro e a casa atual e a próxima, com a tulipa.</li>
+      <li>Para acertar o hodômetro com o roadbook impresso, use <span class="k">−</span> / <span class="k">+</span> (10 m), <span class="k">= casa</span> (iguala ao km da casa atual) e <span class="k">0</span> (zera).</li>
+    </ol>
+    <p>No tablet deitado e no PC, o roadbook fica numa coluna do lado do mapa.</p>
+  </section>
+
+  <section id="tempo">
+    <h2><span class="n">6</span>Tomada de Tempo</h2>
+    <ol>
+      <li>Toque em <span class="k">Tomada de Tempo</span> e escolha um trecho salvo. A <b>largada</b> é o primeiro ponto e a <b>chegada</b> é o último.</li>
+      <li>Vá até a largada. O cronômetro <b>dispara sozinho</b> quando você cruza a linha e <b>para</b> na chegada.</li>
+      <li>Se a largada e a chegada forem no mesmo lugar, vira <b>circuito</b>, com tempo de cada volta e aviso de melhor volta por voz.</li>
+    </ol>
+  </section>
+
+  <section id="expedicoes">
+    <h2><span class="n">7</span>Expedições</h2>
+    <p>Para organizar uma viagem de vários dias com a turma, tudo num lugar só:</p>
+    <ul>
+      <li><b>Roteiro</b> por dia, com as rotas salvas.</li>
+      <li><b>Equipe e veículos</b>, <b>combustível</b> (autonomia e onde abastecer), <b>água e comida</b>.</li>
+      <li><b>Checklist</b> com responsável, <b>segurança</b> (contato da base e check-ins) e <b>gastos</b> divididos com acerto no fim.</li>
+      <li><b>Briefing</b> pronto para mandar no WhatsApp do grupo ou imprimir.</li>
+    </ul>
+  </section>
+
+  <section id="conta">
+    <h2><span class="n">8</span>Conta e Comunidade</h2>
+    <ul>
+      <li><b>Criar conta:</b> pela tela inicial, em <span class="k">Comunidade</span>, com e-mail e senha ou <b>Entrar com Google</b>. Confirme o e-mail pelo link que chega na sua caixa (veja também o spam).</li>
+      <li><b>Sincronização:</b> com conta, suas rotas e expedições aparecem em todos os seus aparelhos.</li>
+      <li><b>Backup no Google Drive</b> (opcional): guarda uma cópia das rotas e das fotos numa pasta do seu Drive.</li>
+      <li><b>Feed de trilhas:</b> publique uma rota com texto e fotos, curta, comente, siga a galera e <b>baixe</b> as trilhas dos outros para navegar. Por padrão, o app esconde 300 m do começo e do fim da trilha para não mostrar onde você mora.</li>
+      <li><b>Denunciar:</b> qualquer post ou comentário impróprio pode ser denunciado e vai para a moderação.</li>
+      <li><b>Sair, baixar seus dados ou excluir a conta:</b> Comunidade › Meu perfil › quadro <b>Conta</b>.</li>
+    </ul>
+  </section>
+
+  <section id="duvidas">
+    <h2>Dúvidas comuns</h2>
+    <details><summary>Precisa pagar alguma coisa?</summary><p>Não. O app é gratuito.</p></details>
+    <details><summary>O app gasta muita bateria?</summary><p>O GPS ligado o tempo todo gasta bateria em qualquer app de navegação. Na trilha, use o carregador do carro. No modo noite a tela escura também ajuda a economizar.</p></details>
+    <details><summary>O mapa ficou cinza na trilha. E agora?</summary><p>Aquela região não foi baixada antes. O GPS e a rota continuam funcionando (a linha laranja e a sua posição aparecem). Da próxima vez, abra a rota em Navegar com internet antes de sair.</p></details>
+    <details><summary>A tela apaga sozinha durante a navegação.</summary><p>O app pede para a tela ficar acesa enquanto navega. Se o seu celular estiver em modo de economia de bateria, ele pode ignorar o pedido. Desligue a economia durante a trilha.</p></details>
+    <details><summary>Não recebi o e-mail de confirmação.</summary><p>Olhe na caixa de spam ou lixo eletrônico. O remetente é foradeestrada@sansoliveira.com.br.</p></details>
+    <details><summary>Troquei de celular. Perdi minhas rotas?</summary><p>Se você tinha conta, é só entrar com ela no celular novo e as rotas voltam. Sem conta, as rotas ficam só no aparelho antigo. Exporte em .gpx ou ligue o backup no Google Drive antes de trocar.</p></details>
+    <details><summary>O app está com a versão antiga.</summary><p>Feche e abra o app de novo (ou recarregue a página). A versão aparece no rodapé da tela inicial.</p></details>
+    <details><summary>Encontrei um erro ou tenho uma ideia.</summary><p>Escreva para <a href="mailto:foradeestrada@sansoliveira.com.br">foradeestrada@sansoliveira.com.br</a>. Um print da tela ajuda muito.</p></details>
+  </section>
+
+  <div class="foot">
+    <a class="cta" href="./">Abrir o Fora de Estrada</a>
+    <p><a href="termos.html">Termos de Uso</a> · <a href="privacidade.html">Privacidade</a></p>
+  </div>
+</main>
+</body>
+</html>
