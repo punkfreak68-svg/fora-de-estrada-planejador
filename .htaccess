@@ -1,0 +1,16 @@
+<IfModule mod_headers.c>
+  <FilesMatch "^(index\.html|sw\.js|manifest\.json)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+  # v5.8.1 — cabeçalhos de segurança
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(self), camera=(), microphone=(), payment=(), usb=()"
+</IfModule>
+<IfModule mod_mime.c>
+  AddType application/manifest+json .json
+  AddType application/javascript .js
+</IfModule>
+DirectoryIndex index.html
