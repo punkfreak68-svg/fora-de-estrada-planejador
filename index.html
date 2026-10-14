@@ -2355,6 +2355,18 @@ button, input, select, textarea { font-family: inherit; }
 .dsh-help b { display: block; font-size: 0.95rem; }
 .dsh-help span { font-size: 0.8rem; color: var(--muted); }
 .dsh-help .svg-ico { color: var(--acc); }
+/* v6.1 — cartão "Baixar app Android" / "Atualização disponível" */
+.dsh-app { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--surf); border: 1px solid var(--acc); border-radius: 14px; padding: 12px 14px; margin: 0 0 14px; }
+.dsh-app.hidden { display: none; }
+.dsh-app > .svg-ico { color: var(--acc); width: 30px; height: 30px; flex: none; }
+.dsh-app-txt { flex: 1 1 180px; min-width: 0; }
+.dsh-app-txt b { display: block; font-size: 0.98rem; color: var(--ink); }
+.dsh-app-txt span { font-size: 0.82rem; color: var(--muted); }
+.dsh-app-btns { display: flex; gap: 8px; align-items: center; }
+.dsh-app-go { background: var(--acc); color: var(--onAcc); font-weight: 700; text-decoration: none; border-radius: 10px; padding: 9px 16px; font-size: 0.92rem; }
+.dsh-app-later { background: none; border: 0; color: var(--muted); font: inherit; font-size: 0.85rem; padding: 8px 4px; cursor: pointer; }
+.welcome-app { display: none; }
+.welcome-app.show { display: block; }
 /* v6.0 — dentro do app Android: login Google e Drive só funcionam no site */
 html.fde-native #welcome-google-btn,
 html.fde-native #com-google-box,
@@ -2392,6 +2404,14 @@ html.fde-native .native-only { display: block; }
   <div class="dsh-grid">
     <main class="dsh-main">
       <section id="dash-hero" class="dsh-hero" aria-live="polite"></section>
+      <div id="dash-app-card" class="dsh-app hidden" role="region" aria-label="App Android">
+        <svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"></rect><path d="M12 7v7M9 11l3 3 3-3M10 18.5h4"></path></svg>
+        <div class="dsh-app-txt"><b id="dash-app-title">App Android</b><span id="dash-app-sub">Baixe o app: o GPS continua marcando o trajeto com a tela apagada.</span></div>
+        <div class="dsh-app-btns">
+          <a id="dash-app-go" class="dsh-app-go" href="#">Baixar</a>
+          <button id="dash-app-later" class="dsh-app-later" type="button">Agora não</button>
+        </div>
+      </div>
 
       <div class="dashboard-body">
         <button id="btn-dash-plan" class="dashboard-tile">
@@ -2833,6 +2853,7 @@ html.fde-native .native-only { display: block; }
     <p class="hint com-center">Ao continuar com o Google você confirma ter 18 anos ou mais e concorda com os <a href="termos.html" target="_blank" rel="noopener">Termos</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.</p>
     <button id="btn-welcome-skip" class="link-btn welcome-skip">Continuar sem conta</button>
     <p class="hint com-center"><a href="ajuda.html">❓ Primeira vez? Veja como usar o app</a></p>
+    <p id="welcome-app" class="hint com-center welcome-app"><a id="welcome-app-link" href="#">📲 Usa Android? Baixe o app (GPS funciona com a tela apagada)</a></p>
   </div>
 </div>
 
@@ -3185,8 +3206,16 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "6.0";
+  var APP_VERSION = "6.1";
   var CHANGELOG = [
+    {
+      version: "6.1",
+      date: "14/10/2026",
+      changes: [
+        "Botão \"Baixe o app Android\" no painel para quem usa o site no celular Android",
+        "No app Android: aviso no painel quando sai uma versão nova do app, com botão para atualizar"
+      ]
+    },
     {
       version: "6.0",
       date: "14/10/2026",
@@ -14445,6 +14474,94 @@ html.fde-native .native-only { display: block; }
     }
   }
 
+
+  // ================= v6.1: link do app Android e aviso de atualização =================
+  var FDE_APK_URL = "https://github.com/punkfreak68-svg/fora-de-estrada-planejador/releases/latest/download/fora-de-estrada.apk";
+  var FDE_APK_API = "https://api.github.com/repos/punkfreak68-svg/fora-de-estrada-planejador/releases/latest";
+  var V61_HIDE_KEY = "fde_app_card_hidden_until";
+  var V61_LATEST_KEY = "fde_apk_latest_v1";
+
+  function v61Get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function v61Set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  function v61ShowCard(title, sub, btn, url, hideDays) {
+    var card = document.getElementById("dash-app-card");
+    if (!card) return;
+    document.getElementById("dash-app-title").textContent = title;
+    document.getElementById("dash-app-sub").textContent = sub;
+    var go = document.getElementById("dash-app-go");
+    go.textContent = btn;
+    go.onclick = function (ev) {
+      ev.preventDefault();
+      window.location.href = url; // no app, o link vai para o navegador, que baixa o APK
+      if (!FDE_NATIVE) showToast("Baixando… depois abra o arquivo fora-de-estrada.apk para instalar.");
+    };
+    document.getElementById("dash-app-later").onclick = function () {
+      v61Set(V61_HIDE_KEY, String(Date.now() + hideDays * 86400000));
+      card.classList.add("hidden");
+    };
+    card.classList.remove("hidden");
+  }
+
+  // Versão mais nova publicada no GitHub (tag "apk-N"); consulta no máximo a cada 6 h.
+  function v61LatestApk() {
+    var cached = null;
+    try { cached = JSON.parse(v61Get(V61_LATEST_KEY) || "null"); } catch (e) { cached = null; }
+    if (cached && Date.now() - cached.at < 6 * 3600000) return Promise.resolve(cached);
+    return fetch(FDE_APK_API, { headers: { Accept: "application/vnd.github+json" } })
+      .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+      .then(function (j) {
+        var m = /^apk-(\d+)$/.exec(j.tag_name || "");
+        if (!m) throw new Error("tag");
+        var asset = (j.assets || []).filter(function (a) { return /\.apk$/i.test(a.name); })[0];
+        var info = { build: parseInt(m[1], 10), url: asset ? asset.browser_download_url : FDE_APK_URL, at: Date.now() };
+        v61Set(V61_LATEST_KEY, JSON.stringify(info));
+        return info;
+      })
+      .catch(function () { return cached; });
+  }
+
+  function initV61AppCard() {
+    var hiddenUntil = parseInt(v61Get(V61_HIDE_KEY) || "0", 10);
+    var snoozed = Date.now() < hiddenUntil;
+    if (FDE_NATIVE) {
+      var app = fdePlugin("App");
+      if (!app || typeof app.getInfo !== "function") return;
+      Promise.all([Promise.resolve(app.getInfo()), v61LatestApk()]).then(function (res) {
+        var installed = parseInt(res[0] && res[0].build, 10) || 0;
+        var latest = res[1];
+        if (!latest || !(latest.build > installed)) return;
+        // não deixa o "Depois" esconder uma versão mais nova que a adiada
+        var snoozedBuild = parseInt(v61Get("fde_app_card_snoozed_build") || "0", 10);
+        if (snoozed && snoozedBuild >= latest.build) return;
+        v61ShowCard(
+          "Atualização do app disponível",
+          "Versão 1.0." + latest.build + " (você tem a 1.0." + installed + "). Baixe e instale por cima — suas rotas continuam.",
+          "Atualizar",
+          latest.url,
+          3
+        );
+        document.getElementById("dash-app-later").textContent = "Depois";
+        v61Set("fde_app_card_snoozed_build", String(latest.build));
+      });
+      return;
+    }
+    var isAndroid = /Android/i.test(navigator.userAgent || "");
+    if (!isAndroid) return;
+    var wl = document.getElementById("welcome-app");
+    if (wl) {
+      wl.classList.add("show");
+      document.getElementById("welcome-app-link").href = FDE_APK_URL;
+    }
+    if (snoozed) return;
+    v61ShowCard(
+      "Baixe o app Android",
+      "No app, o GPS continua marcando o trajeto com a tela apagada ou com outro app aberto.",
+      "Baixar",
+      FDE_APK_URL,
+      30
+    );
+  }
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -14477,6 +14594,7 @@ html.fde-native .native-only { display: block; }
     safeInit(initCommunity, "comunidade");
     safeInit(initV55Theme, "visual novo (v5.5)");
     safeInit(initV59Resume, "retomar navegação (v5.9)");
+    safeInit(initV61AppCard, "link do app Android (v6.1)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
