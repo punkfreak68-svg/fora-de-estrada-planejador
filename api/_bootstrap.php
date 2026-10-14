@@ -3,7 +3,7 @@
 // o .htaccess da pasta bloqueia arquivos que começam com "_".
 declare(strict_types=1);
 
-const FDE_SCHEMA_VERSION = 6;
+const FDE_SCHEMA_VERSION = 7;
 const FDE_SESSION_COOKIE = 'fde_sess';
 const FDE_SESSION_DAYS = 60;
 
@@ -197,6 +197,17 @@ function fde_migrate(PDO $pdo): void {
             user_id INT UNSIGNED NULL,
             PRIMARY KEY (day, device),
             INDEX (day)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    }
+    if ($v < 7) {
+        // v5.8.2: relatórios da CSP (o que o navegador teria bloqueado), agrupados por diretiva + origem
+        $pdo->exec("CREATE TABLE IF NOT EXISTS csp_reports (
+            directive VARCHAR(40) NOT NULL,
+            blocked VARCHAR(190) NOT NULL,
+            page VARCHAR(190) NOT NULL DEFAULT '',
+            n INT UNSIGNED NOT NULL DEFAULT 1,
+            last_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (directive, blocked)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     }
     $pdo->prepare("REPLACE INTO fde_meta (k, v) VALUES ('schema', ?)")->execute([(string)FDE_SCHEMA_VERSION]);

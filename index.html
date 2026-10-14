@@ -3166,8 +3166,13 @@ button, input, select, textarea { font-family: inherit; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "5.8.1";
+  var APP_VERSION = "5.8.2";
   var CHANGELOG = [
+    {
+      version: "5.8.2",
+      date: "14/10/2026",
+      changes: ["Segurança: política de conteúdo (CSP) em modo observação; o que seria bloqueado aparece em Comunidade › Números"]
+    },
     {
       version: "5.8.1",
       date: "14/10/2026",
@@ -13451,6 +13456,10 @@ button, input, select, textarea { font-family: inherit; }
           tile(d.content.routes, "rotas na nuvem") + tile(d.content.expeditions, "expedições") + tile(d.content.posts, "trilhas publicadas") +
           tile(d.content.comments, "comentários") + tile(d.content.likes, "curtidas") +
           "</div></div>" +
+          '<div class="com-card"><h3 class="st-h">Segurança · bloqueios da CSP (modo observação)</h3>' +
+          ((d.csp && d.csp.length) ? d.csp.map(function (c) {
+            return '<div class="st-row"><span><b>' + fdEsc(c.directive) + "</b> ← " + fdEsc(c.blocked) + (c.page ? " <small>(" + fdEsc(c.page) + ")</small>" : "") + "</span><span>" + c.n + "×</span></div>";
+          }).join("") : '<p class="hint">Nenhum bloqueio registrado. 👍</p>') + "</div>" +
           '<div class="com-card"><h3 class="st-h">Últimos cadastros</h3>' +
           (d.latest.length ? d.latest.map(function (u) {
             return '<div class="st-row"><span>@' + fdEsc(u.username) + (u.display_name ? " · " + fdEsc(u.display_name) : "") + "</span><span>" + fdEsc(u.created_at.slice(8, 10) + "/" + u.created_at.slice(5, 7)) + "</span></div>";

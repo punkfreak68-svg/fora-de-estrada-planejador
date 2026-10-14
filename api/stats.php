@@ -52,7 +52,12 @@ switch ($action) {
         $latest = [];
         $st = $pdo->query('SELECT username, display_name, created_at FROM users ORDER BY id DESC LIMIT 10');
         foreach ($st as $r) $latest[] = ['username' => $r['username'], 'display_name' => $r['display_name'], 'created_at' => (string)$r['created_at']];
-        json_out(['ok' => true, 'devices' => $devices, 'accounts' => $accounts, 'content' => $content, 'series' => $series, 'latest' => $latest]);
+        $csp = [];
+        try {
+            $st = $pdo->query('SELECT directive, blocked, page, n, last_at FROM csp_reports ORDER BY last_at DESC LIMIT 30');
+            foreach ($st as $r) $csp[] = ['directive' => $r['directive'], 'blocked' => $r['blocked'], 'page' => $r['page'], 'n' => (int)$r['n'], 'last_at' => (string)$r['last_at']];
+        } catch (Throwable $e) {}
+        json_out(['ok' => true, 'csp' => $csp, 'devices' => $devices, 'accounts' => $accounts, 'content' => $content, 'series' => $series, 'latest' => $latest]);
 
     default:
         fail('Ação desconhecida.', 404);
