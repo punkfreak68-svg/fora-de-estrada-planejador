@@ -1,5 +1,8 @@
 apply plugin: 'com.android.application'
 
+// Número do build vem do GitHub Actions (1, 2, 3...); cada APK novo fica maior que o anterior
+def fdeBuildNumber = (System.getenv('FDE_VERSION_CODE') ?: '1').toInteger()
+
 android {
     namespace "br.com.sansoliveira.foradeestrada"
     compileSdk rootProject.ext.compileSdkVersion
@@ -7,8 +10,8 @@ android {
         applicationId "br.com.sansoliveira.foradeestrada"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode (System.getenv("FDE_VERSION_CODE") ?: "1").toInteger()
-        versionName "1.0." + (System.getenv("FDE_VERSION_CODE") ?: "1")
+        versionCode fdeBuildNumber
+        versionName "1.0.${fdeBuildNumber}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
