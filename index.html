@@ -2355,6 +2355,25 @@ button, input, select, textarea { font-family: inherit; }
 .dsh-help b { display: block; font-size: 0.95rem; }
 .dsh-help span { font-size: 0.8rem; color: var(--muted); }
 .dsh-help .svg-ico { color: var(--acc); }
+/* v6.4 — desvios, caminho seco × molhado (itens 2 e 8) */
+.nav-wet-box { background: var(--surf2); border-radius: 12px; padding: 10px 12px; margin: 8px 0; }
+.nav-wet-box.hidden { display: none; }
+.nav-wet-q { font-size: .92rem; color: var(--ink); margin-bottom: 8px; }
+.nav-wet-opts { display: flex; gap: 8px; }
+.nav-wet-opt { flex: 1; background: var(--surf); color: var(--ink); border: 2px solid var(--line2); border-radius: 10px; padding: 10px; font: inherit; font-weight: 700; cursor: pointer; }
+.nav-wet-opt.active { border-color: var(--acc); background: var(--acc); color: var(--onAcc); }
+.dev-list { display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow: auto; margin: 8px 0; }
+.dev-item { border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: var(--surf); }
+.dev-item.done { opacity: .7; }
+.dev-item h3 { margin: 0 0 4px; font-size: 1rem; color: var(--ink); }
+.dev-item .dev-meta { font-size: .82rem; color: var(--muted); }
+.dev-svg { display: block; width: 100%; height: 130px; background: var(--surf2); border-radius: 8px; margin: 8px 0; }
+.dev-svg .r { fill: none; stroke: #e08a2c; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.dev-svg .t { fill: none; stroke: #3ba6ff; stroke-width: 5; stroke-dasharray: 2 9; stroke-linecap: round; stroke-linejoin: round; }
+.dev-btns { display: flex; flex-direction: column; gap: 6px; }
+.dev-btns button { text-align: left; background: var(--surf2); color: var(--ink); border: 1px solid var(--line2); border-radius: 10px; padding: 10px 12px; font: inherit; font-weight: 600; cursor: pointer; }
+.dev-btns button.primary { background: var(--acc); color: var(--onAcc); border-color: var(--acc); }
+.dev-done-msg { font-size: .9rem; font-weight: 700; color: var(--ok, #1f7a4a); }
 /* v6.2 — faixa "navegação em andamento" (item 4) */
 .nav-running-bar { position: fixed; left: 12px; right: 12px; bottom: 14px; z-index: 2500; display: flex; align-items: center; gap: 12px; background: var(--ok, #1f7a4a); color: #fff; border: 0; border-radius: 16px; padding: 12px 16px; box-shadow: 0 8px 24px rgba(0,0,0,.28); font: inherit; text-align: left; cursor: pointer; max-width: 640px; margin: 0 auto; }
 .nav-running-bar.hidden { display: none; }
@@ -2746,6 +2765,10 @@ html.fde-native .native-only { display: block; }
         <span id="nav-summary-trip-text">✅ Passeio guardado em Rotas Salvas › Passeios feitos</span>
         <button id="btn-summary-save-route" type="button" class="nav-summary-save">💾 Salvar como rota</button>
       </div>
+      <div id="nav-summary-devs" class="nav-summary-trip hidden">
+        <span id="nav-summary-devs-text">↪ Você saiu da rota</span>
+        <button id="btn-summary-devs" type="button" class="nav-summary-save">Ver desvios</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2755,6 +2778,17 @@ html.fde-native .native-only { display: block; }
   <span class="nrb-txt"><b id="nav-running-title">Navegação em andamento</b><small id="nav-running-sub">toque para voltar</small></span>
   <span class="nrb-go">Voltar ›</span>
 </button>
+
+<div id="dev-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h2 id="dev-modal-title">Desvios do passeio</h2>
+    <p class="hint">Trechos em que o seu caminho (azul) saiu da rota planejada (laranja) e voltou. Diga o que foi cada um: o app guarda o caminho e avisa da próxima vez.</p>
+    <div id="dev-list" class="dev-list"></div>
+    <div class="modal-actions">
+      <button id="btn-dev-close" class="modal-btn-primary">Fechar</button>
+    </div>
+  </div>
+</div>
 
 <div id="save-track-modal" class="modal-overlay">
   <div class="modal-box modal-box-small">
@@ -3061,6 +3095,14 @@ html.fde-native .native-only { display: block; }
 <div id="nav-confirm-modal" class="modal-overlay">
   <div class="modal-box modal-box-small">
     <h2 id="nav-confirm-title">Navegar?</h2>
+    <div id="nav-wet-box" class="nav-wet-box hidden">
+      <div class="nav-wet-q">Esta rota tem <b id="nav-wet-count">1 trecho</b> com desvio para chuva. Como está o caminho?</div>
+      <div class="nav-wet-opts">
+        <button type="button" id="btn-wet-dry" class="nav-wet-opt" data-wet="0">☀️ Seco</button>
+        <button type="button" id="btn-wet-wet" class="nav-wet-opt" data-wet="1">🌧️ Molhado</button>
+      </div>
+      <div id="nav-wet-hint" class="hint"></div>
+    </div>
     <p class="hint">O mapa da região será baixado para uso offline, se houver internet.</p>
     <div class="modal-actions">
       <button id="btn-nav-confirm-cancel" class="modal-btn-secondary">Cancelar</button>
@@ -3255,8 +3297,19 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "6.3";
+  var APP_VERSION = "6.4";
   var CHANGELOG = [
+    {
+      version: "6.4",
+      date: "19/10/2026",
+      changes: [
+        "Desvios: no fim da navegação (e no histórico de passeios) o app mostra onde você saiu da rota e voltou; diga se foi atoleiro e ele guarda o desvio como \"caminho molhado\" e marca o atoleiro no trecho seco",
+        "Caminho seco × molhado: rotas com desvio de atoleiro perguntam antes de navegar, sugerindo pela chuva dos últimos 3 dias; no molhado o desvio fica em roxo forte e o trecho com atoleiro em vermelho",
+        "Andar pelo caminho molhado/alternativo não conta como \"fora da rota\"",
+        "Aviso por voz ao chegar perto de atoleiro, perigo, água ou porteira marcados na rota",
+        "As marcações mostram a data em que foram registradas"
+      ]
+    },
     {
       version: "6.3",
       date: "19/10/2026",
@@ -4589,6 +4642,7 @@ html.fde-native .native-only { display: block; }
   }
 
   function clearRoute() {
+    if (v64PlanAltLayer) v64PlanAltLayer.clearLayers();
     markers.forEach(function (m) {
       map.removeLayer(m);
     });
@@ -5053,6 +5107,7 @@ html.fde-native .native-only { display: block; }
     renderBlockList();
     renderRouteExtras();
     saveDraft();
+    v64DrawPlanningAlts(route);
 
     if (state.points.length > 0) {
       var group = L.featureGroup(markers);
@@ -5097,6 +5152,7 @@ html.fde-native .native-only { display: block; }
     var existingIndex = routes.findIndex(function (r) {
       return r.id === id;
     });
+    if (existingIndex >= 0 && Array.isArray(routes[existingIndex].alts)) record.alts = routes[existingIndex].alts;
     if (existingIndex >= 0) {
       routes[existingIndex] = record;
     } else {
@@ -6430,6 +6486,7 @@ html.fde-native .native-only { display: block; }
     }
     pendingNavRoute = route;
     navConfirmReturnTo = returnTo || "picker";
+    v64PrepareConfirm(route);
     el.navConfirmTitle.textContent = 'Navegar por "' + (route.name || "(sem nome)") + '"?';
     el.navConfirmModal.classList.add("open");
   }
@@ -6873,6 +6930,7 @@ html.fde-native .native-only { display: block; }
       }
     }, 50);
 
+    v64OnNavStart(route);
     startWatchingPosition();
     if (!v59Resuming) v59SaveNow();
   }
@@ -7104,9 +7162,19 @@ html.fde-native .native-only { display: block; }
       var remaining = remainingDistanceMeters(navCurrentRoute.points, nearest);
       el.navDistanceRemaining.textContent = formatDistance(remaining);
 
+      var onAlt = null;
+      if (nearest.distance > deviationThreshold) {
+        onAlt = v64NearestAlt(current);
+        if (onAlt && onAlt.distance <= deviationThreshold) nearest = { segmentIndex: nearest.segmentIndex, t: nearest.t, distance: onAlt.distance };
+        else onAlt = null;
+      }
+      v64HazardAlerts(current);
       navAlertsOnDeviation(nearest.distance, pos.coords.accuracy);
       navAlertsOnRemaining(remaining, polylineLengthMeters(navCurrentRoute.points));
-      if (nearest.distance > deviationThreshold) {
+      if (onAlt) {
+        el.navDeviationPill.className = "nav-deviation-pill nav-deviation-ok";
+        el.navDeviationPill.textContent = onAlt.alt.kind === "molhado" ? "💧 No caminho molhado" : "↪ No caminho alternativo";
+      } else if (nearest.distance > deviationThreshold) {
         el.navDeviationPill.className = "nav-deviation-pill nav-deviation-alert";
         el.navDeviationPill.textContent = "⚠ Fora da rota (" + Math.round(nearest.distance) + "m)";
       } else {
@@ -7236,6 +7304,7 @@ html.fde-native .native-only { display: block; }
     setEndedSummaryMode(true);
     navExtrasOnFinish();
     v62OnFinish();
+    v64OnFinish();
     v59AfterFinish();
   }
 
@@ -7974,7 +8043,9 @@ html.fde-native .native-only { display: block; }
           type: w.type || "outro",
           note: w.note || "",
           photoId: w.photoId || null,
-          createdAt: w.createdAt || Date.now()
+          createdAt: w.createdAt || Date.now(),
+          altId: w.altId || null,
+          resolved: !!w.resolved
         };
       });
   }
@@ -8757,6 +8828,13 @@ html.fde-native .native-only { display: block; }
     title.className = "wp-popup-title";
     title.textContent = t.emoji + " " + t.label;
     div.appendChild(title);
+    if (wp.createdAt) {
+      var when = document.createElement("div");
+      when.className = "wp-popup-note";
+      when.style.opacity = "0.75";
+      when.textContent = "Registrado em " + new Date(wp.createdAt).toLocaleDateString("pt-BR");
+      div.appendChild(when);
+    }
     if (wp.note) {
       var note = document.createElement("div");
       note.className = "wp-popup-note";
@@ -14935,6 +15013,18 @@ html.fde-native .native-only { display: block; }
         downloadTextFile(buildGpxForRoute(r), sanitizeFileName(r.name) + ".gpx", "application/gpx+xml");
       });
       btns.appendChild(gpxB);
+      if (t.mode === "route" && v64FindRoute(t.routeId)) {
+        var devB = document.createElement("button");
+        devB.className = "load-btn";
+        var nDone = t.devDone ? Object.keys(t.devDone).length : 0;
+        devB.textContent = "↪ Desvios" + (nDone ? " ✓" : "");
+        devB.addEventListener("click", function () {
+          var res = v64DevsForTrip(t);
+          if (!res || !res.devs.length) { showToast("Nesse passeio você não saiu da rota."); return; }
+          v64OpenDeviations(res.route.points, res.devs, res.route.id, t);
+        });
+        btns.appendChild(devB);
+      }
       var delB = document.createElement("button");
       delB.className = "delete-btn";
       delB.textContent = "Excluir";
@@ -15003,6 +15093,336 @@ html.fde-native .native-only { display: block; }
       navOpenWaypointAt(e.latlng.lat, e.latlng.lng);
     });
   }
+
+  // ================= v6.4: desvios, caminho seco × molhado e avisos de perigo (itens 2 e 8) =================
+  var V64_ALT_STYLE = {
+    molhado: { color: "#8e44ad", label: "💧 Caminho molhado", word: "caminho molhado" },
+    alternativo: { color: "#0f9d8a", label: "↪ Caminho alternativo", word: "caminho alternativo" }
+  };
+  var V64_HAZARD_TYPES = { atoleiro: 1, perigo: 1, agua: 1, porteira: 1 };
+  var V64_WET_KEY = "fde_wet_mode_v1";
+  var navWetMode = null; // null (rota sem desvio) | "seco" | "molhado"
+  var v64NavAltLayer = null;
+  var v64PlanAltLayer = null;
+  var v64Warned = {};
+  var v64Devs = null; // desvios mostrados no modal: {list, routeId, tripId}
+
+  function v64Simplify(points, tol) {
+    return typeof simplifyRoute === "function" ? simplifyRoute(points, tol) : points;
+  }
+
+  function v64FmtDate(ts) {
+    var d = new Date(ts || Date.now());
+    return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+  }
+
+  // ---- encontra os trechos em que o trajeto saiu da rota e voltou ----
+  function v64FindDeviations(routePts, track) {
+    if (!routePts || routePts.length < 2 || !track || track.length < 3) return [];
+    var OFF = 40, ON = 25, MIN_LEN = 120;
+    var cum = cumulativeDistances(routePts);
+    var proj = track.map(function (p) { return projectOnRoute(p, routePts, cum, null); });
+    var devs = [];
+    var i = 0;
+    while (i < track.length) {
+      if (proj[i].distance <= OFF) { i++; continue; }
+      var start = Math.max(0, i - 1);
+      var j = i, maxD = 0;
+      while (j < track.length && proj[j].distance > ON) { maxD = Math.max(maxD, proj[j].distance); j++; }
+      var open = j >= track.length;
+      var end = open ? track.length - 1 : j;
+      var seg = track.slice(start, end + 1);
+      var len = polylineLengthMeters(seg);
+      if (len >= MIN_LEN && maxD > OFF) {
+        devs.push({
+          startIdx: start, endIdx: end, open: open,
+          leaveAlong: proj[start].along, rejoinAlong: proj[end].along,
+          len: Math.round(len), maxDist: Math.round(maxD),
+          path: v64Simplify(seg, 4).map(function (p) { return { lat: p.lat, lng: p.lng }; })
+        });
+      }
+      i = j + 1;
+    }
+    return devs;
+  }
+
+  function v64DevSvg(routePts, dev) {
+    var W = 600, H = 200, PAD = 14;
+    var cum = cumulativeDistances(routePts);
+    var a = Math.max(0, Math.min(dev.leaveAlong, dev.rejoinAlong) - 150);
+    var b = Math.min(cum[cum.length - 1], Math.max(dev.leaveAlong, dev.rejoinAlong) + 150);
+    var rpts = [];
+    for (var d = a; d <= b; d += Math.max(5, (b - a) / 150)) rpts.push(pointAtDistance(routePts, cum, d));
+    rpts.push(pointAtDistance(routePts, cum, b));
+    var all = rpts.concat(dev.path);
+    var minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+    all.forEach(function (p) { minLat = Math.min(minLat, p.lat); maxLat = Math.max(maxLat, p.lat); minLng = Math.min(minLng, p.lng); maxLng = Math.max(maxLng, p.lng); });
+    var kx = Math.cos(((minLat + maxLat) / 2) * Math.PI / 180);
+    var sx = Math.max((maxLng - minLng) * kx, 1e-6), sy = Math.max(maxLat - minLat, 1e-6);
+    var sc = Math.min((W - 2 * PAD) / sx, (H - 2 * PAD) / sy);
+    var ox = (W - sx * sc) / 2, oy = (H - sy * sc) / 2;
+    function path(pts) {
+      return pts.map(function (p, k) { return (k ? "L" : "M") + (ox + (p.lng - minLng) * kx * sc).toFixed(1) + " " + (oy + (maxLat - p.lat) * sc).toFixed(1); }).join("");
+    }
+    return '<svg class="dev-svg" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="r" d="' + path(rpts) + '"></path><path class="t" d="' + path(dev.path) + '"></path></svg>';
+  }
+
+  function v64FindRoute(id) {
+    if (!id) return null;
+    return loadSavedRoutes().filter(function (r) { return r.id === id && !r.deleted; })[0] || null;
+  }
+
+  // Guarda o desvio na rota salva (e, se for atoleiro, marca o perigo no trecho seco)
+  function v64SaveDeviation(routeId, dev, kind, seenAt) {
+    var routes = loadSavedRoutes();
+    var r = routes.filter(function (x) { return x.id === routeId; })[0];
+    if (!r) return false;
+    var alt = {
+      id: newId("alt"),
+      kind: kind === "molhado" ? "molhado" : "alternativo",
+      points: dev.path,
+      leaveAlong: Math.round(dev.leaveAlong),
+      rejoinAlong: Math.round(dev.rejoinAlong),
+      len: dev.len,
+      createdAt: seenAt || Date.now()
+    };
+    r.alts = Array.isArray(r.alts) ? r.alts : [];
+    r.alts.push(alt);
+    if (kind === "molhado") {
+      var cum = cumulativeDistances(r.points);
+      var mid = pointAtDistance(r.points, cum, (dev.leaveAlong + dev.rejoinAlong) / 2);
+      r.waypoints = normalizeWaypoints(r.waypoints);
+      r.waypoints.push({
+        id: newId("wp"), lat: mid.lat, lng: mid.lng, type: "atoleiro",
+        note: "Atoleiro visto em " + v64FmtDate(seenAt) + ". No seco dá para passar; molhado, use o caminho molhado (desvio).",
+        photoId: null, createdAt: seenAt || Date.now(), altId: alt.id, resolved: false
+      });
+    }
+    r.savedAt = Date.now();
+    persistSavedRoutes(routes);
+    refreshSavedRoutesUI();
+    if (navCurrentRoute && navCurrentRoute.id === routeId) {
+      navCurrentRoute.alts = r.alts;
+      navCurrentRoute.waypoints = r.waypoints;
+      v64DrawNavAlts();
+      renderNavWaypointMarkers();
+    }
+    return true;
+  }
+
+  function v64OpenDeviations(routePts, devs, routeId, trip) {
+    v64Devs = { routePts: routePts, list: devs, routeId: routeId, trip: trip };
+    var done = (trip && trip.devDone) || {};
+    var list = document.getElementById("dev-list");
+    list.innerHTML = "";
+    document.getElementById("dev-modal-title").textContent = devs.length === 1 ? "1 desvio no passeio" : devs.length + " desvios no passeio";
+    devs.forEach(function (dev, k) {
+      var item = document.createElement("div");
+      item.className = "dev-item" + (done[k] ? " done" : "");
+      var h = document.createElement("h3");
+      h.textContent = "Desvio " + (k + 1) + (dev.open ? " (não voltou à rota)" : "");
+      item.appendChild(h);
+      var meta = document.createElement("div");
+      meta.className = "dev-meta";
+      var skipped = Math.abs(dev.rejoinAlong - dev.leaveAlong);
+      meta.textContent = "No km " + fmtKm(Math.min(dev.leaveAlong, dev.rejoinAlong), 1) + " da rota · caminho feito: " + formatDistance(dev.len) +
+        (skipped > 30 ? " · pulou " + formatDistance(skipped) + " da rota" : " · saiu e voltou no mesmo ponto") + " · até " + dev.maxDist + " m fora";
+      item.appendChild(meta);
+      var svg = document.createElement("div");
+      svg.innerHTML = v64DevSvg(routePts, dev);
+      item.appendChild(svg);
+      var btns = document.createElement("div");
+      btns.className = "dev-btns";
+      function finish(msg, key) {
+        done[k] = key;
+        if (trip) {
+          var all = v62LoadTrips();
+          all.forEach(function (x) { if (x.id === trip.id) x.devDone = done; });
+          v62StoreTrips(all);
+          trip.devDone = done;
+        }
+        btns.innerHTML = "";
+        var m = document.createElement("div");
+        m.className = "dev-done-msg";
+        m.textContent = msg;
+        btns.appendChild(m);
+        item.classList.add("done");
+      }
+      if (done[k]) {
+        finish(done[k] === "molhado" ? "✅ Guardado como caminho molhado (atoleiro marcado)" : done[k] === "alternativo" ? "✅ Guardado como caminho alternativo" : "Ignorado", done[k]);
+      } else if (!routeId || dev.open) {
+        var info = document.createElement("div");
+        info.className = "dev-meta";
+        info.textContent = !routeId ? "Salve esta rota para poder guardar os desvios nela." : "Como não voltou para a rota, não dá para guardar como desvio.";
+        btns.appendChild(info);
+      } else {
+        var bWet = document.createElement("button");
+        bWet.className = "primary";
+        bWet.textContent = "🟤 Atoleiro: guardar como caminho molhado";
+        bWet.addEventListener("click", function () {
+          if (v64SaveDeviation(routeId, dev, "molhado", trip ? trip.startedAt : Date.now())) finish("✅ Guardado como caminho molhado (atoleiro marcado)", "molhado");
+        });
+        var bAlt = document.createElement("button");
+        bAlt.textContent = "↪ Guardar como caminho alternativo";
+        bAlt.addEventListener("click", function () {
+          if (v64SaveDeviation(routeId, dev, "alternativo", trip ? trip.startedAt : Date.now())) finish("✅ Guardado como caminho alternativo", "alternativo");
+        });
+        var bIgn = document.createElement("button");
+        bIgn.textContent = "✖ Ignorar (errei o caminho, parei, etc.)";
+        bIgn.addEventListener("click", function () { finish("Ignorado", "ignorar"); });
+        btns.appendChild(bWet);
+        btns.appendChild(bAlt);
+        btns.appendChild(bIgn);
+      }
+      item.appendChild(btns);
+      list.appendChild(item);
+    });
+    openModal(document.getElementById("dev-modal"));
+  }
+
+  function v64DevsForTrip(t) {
+    if (!t || t.mode !== "route") return null;
+    var r = v64FindRoute(t.routeId);
+    if (!r) return null;
+    var devs = v64FindDeviations(r.points, decodePolyline(t.track || ""));
+    return { route: r, devs: devs };
+  }
+
+  // ---- desenha os caminhos alternativos ----
+  function v64AltPopup(alt) {
+    var st = V64_ALT_STYLE[alt.kind] || V64_ALT_STYLE.alternativo;
+    return "<b>" + st.label + "</b><br>" + formatDistance(alt.len || 0) + " · registrado em " + v64FmtDate(alt.createdAt) +
+      (alt.kind === "molhado" ? "<br>Use quando o trecho principal (atoleiro) estiver ruim." : "");
+  }
+
+  function v64AltLines(route, layer, wetMode) {
+    (route.alts || []).forEach(function (alt) {
+      if (!alt.points || alt.points.length < 2) return;
+      var st = V64_ALT_STYLE[alt.kind] || V64_ALT_STYLE.alternativo;
+      var strong = alt.kind === "molhado" && wetMode === "molhado";
+      L.polyline(alt.points.map(function (p) { return [p.lat, p.lng]; }), {
+        color: st.color, weight: strong ? 7 : 5, opacity: strong ? 1 : 0.85, dashArray: strong ? null : "10,8"
+      }).bindPopup(v64AltPopup(alt)).addTo(layer);
+      if (alt.kind === "molhado" && wetMode === "molhado" && route.points && route.points.length > 1) {
+        // trecho seco (com atoleiro) fica marcado como "evitar"
+        var cum = cumulativeDistances(route.points);
+        var a = Math.min(alt.leaveAlong, alt.rejoinAlong), b = Math.max(alt.leaveAlong, alt.rejoinAlong);
+        var seg = [];
+        for (var d = a; d <= b; d += Math.max(5, (b - a) / 80)) { var q = pointAtDistance(route.points, cum, d); seg.push([q.lat, q.lng]); }
+        if (seg.length > 1) L.polyline(seg, { color: "#c0392b", weight: 7, opacity: 0.8, dashArray: "4,10" }).bindPopup("⛔ Trecho seco com atoleiro — com chuva, use o caminho molhado.").addTo(layer);
+      }
+    });
+  }
+
+  function v64DrawNavAlts() {
+    if (!navMap) return;
+    if (!v64NavAltLayer) v64NavAltLayer = L.layerGroup().addTo(navMap);
+    v64NavAltLayer.clearLayers();
+    if (navMode === "route" && navCurrentRoute) v64AltLines(navCurrentRoute, v64NavAltLayer, navWetMode);
+  }
+
+  function v64DrawPlanningAlts(route) {
+    if (typeof map === "undefined" || !map) return;
+    if (!v64PlanAltLayer) v64PlanAltLayer = L.layerGroup().addTo(map);
+    v64PlanAltLayer.clearLayers();
+    if (route) v64AltLines(route, v64PlanAltLayer, null);
+  }
+
+  function v64OnNavStart(route) {
+    v64Warned = {};
+    var hasWet = (route.alts || []).some(function (a) { return a.kind === "molhado"; });
+    if (!hasWet) navWetMode = null;
+    v64DrawNavAlts();
+    if (hasWet && navWetMode) showToast(navWetMode === "molhado" ? "🌧️ Modo molhado: os desvios de atoleiro aparecem em roxo forte." : "☀️ Modo seco: seguindo pelo trecho principal.");
+  }
+
+  function v64NearestAlt(p) {
+    var r = navCurrentRoute;
+    if (!r || !r.alts || !r.alts.length) return null;
+    var best = null;
+    r.alts.forEach(function (alt) {
+      if (!alt.points || alt.points.length < 2) return;
+      var n = nearestPointOnRoute(p, alt.points);
+      if (n && (!best || n.distance < best.distance)) best = { distance: n.distance, alt: alt };
+    });
+    return best;
+  }
+
+  // ---- avisa por voz ao chegar perto de atoleiro/perigo marcado na rota ----
+  function v64HazardAlerts(p) {
+    var r = navCurrentRoute;
+    if (!r || !r.waypoints) return;
+    r.waypoints.forEach(function (w) {
+      if (!V64_HAZARD_TYPES[w.type] || w.resolved) return;
+      var d = haversineMeters(p.lat, p.lng, w.lat, w.lng);
+      if (d > 600) { delete v64Warned[w.id]; return; }
+      if (d > 250 || v64Warned[w.id]) return;
+      v64Warned[w.id] = true;
+      var t = waypointType(w.type);
+      var msg = "Atenção: " + t.label.toLowerCase().split(" /")[0] + " a " + spokenDistance(Math.max(50, d)) + ".";
+      var hasAlt = w.altId && (r.alts || []).some(function (a) { return a.id === w.altId; });
+      if (hasAlt) msg += navWetMode === "molhado" ? " Pegue o caminho molhado." : navWetMode === "seco" ? " No seco dá para passar." : " Há um desvio para tempo molhado.";
+      buzz([300, 120, 300]);
+      speak(msg);
+      showToast(t.emoji + " " + msg);
+    });
+  }
+
+  // ---- escolha seco × molhado antes de navegar (sugestão pela chuva dos últimos dias) ----
+  function v64SetWet(mode) {
+    navWetMode = mode;
+    lsSet(V64_WET_KEY, mode);
+    document.getElementById("btn-wet-dry").classList.toggle("active", mode === "seco");
+    document.getElementById("btn-wet-wet").classList.toggle("active", mode === "molhado");
+  }
+
+  function v64PrepareConfirm(route) {
+    var box = document.getElementById("nav-wet-box");
+    var wets = (route.alts || []).filter(function (a) { return a.kind === "molhado"; });
+    if (!wets.length) { box.classList.add("hidden"); navWetMode = null; return; }
+    box.classList.remove("hidden");
+    document.getElementById("nav-wet-count").textContent = wets.length === 1 ? "1 trecho" : wets.length + " trechos";
+    v64SetWet(lsGet(V64_WET_KEY, "seco") === "molhado" ? "molhado" : "seco");
+    var hint = document.getElementById("nav-wet-hint");
+    hint.textContent = "Vendo a chuva dos últimos 3 dias…";
+    var p0 = route.points[0];
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=" + p0.lat.toFixed(3) + "&longitude=" + p0.lng.toFixed(3) + "&daily=precipitation_sum&past_days=3&forecast_days=1&timezone=auto")
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var arr = (j.daily && j.daily.precipitation_sum) || [];
+        var past = arr.slice(0, 3).reduce(function (s, v) { return s + (v || 0); }, 0);
+        var today = arr[3] || 0;
+        var mm = Math.round(past + today);
+        var wet = mm >= 10;
+        v64SetWet(wet ? "molhado" : "seco");
+        hint.textContent = (mm > 0 ? "Choveu cerca de " + mm + " mm nos últimos dias" : "Não choveu nos últimos dias") + " — sugerimos " + (wet ? "🌧️ Molhado." : "☀️ Seco.");
+      })
+      .catch(function () { hint.textContent = "Sem internet para ver a chuva — escolha você."; });
+  }
+
+  function initV64() {
+    document.getElementById("btn-wet-dry").addEventListener("click", function () { v64SetWet("seco"); });
+    document.getElementById("btn-wet-wet").addEventListener("click", function () { v64SetWet("molhado"); });
+    document.getElementById("btn-dev-close").addEventListener("click", function () {
+      closeModal(document.getElementById("dev-modal"));
+      if (document.getElementById("saved-trips-pane") && !document.getElementById("saved-trips-pane").classList.contains("hidden")) v62RenderTrips();
+    });
+    document.getElementById("btn-summary-devs").addEventListener("click", function () {
+      if (!navCurrentRoute) return;
+      var trip = v62LoadTrips().filter(function (t) { return t.id === v62LastTripId; })[0] || null;
+      v64OpenDeviations(navCurrentRoute.points, v64FindDeviations(navCurrentRoute.points, navRecordedTrack), navCurrentRoute.id, trip);
+    });
+  }
+
+  function v64OnFinish() {
+    var box = document.getElementById("nav-summary-devs");
+    box.classList.add("hidden");
+    if (navMode !== "route" || !navCurrentRoute || navRecordedTrack.length < 3) return;
+    var devs = v64FindDeviations(navCurrentRoute.points, navRecordedTrack);
+    if (!devs.length) return;
+    document.getElementById("nav-summary-devs-text").textContent = "↪ Você saiu da rota em " + (devs.length === 1 ? "1 lugar" : devs.length + " lugares") + ". Foi atoleiro? Guarde o desvio.";
+    box.classList.remove("hidden");
+  }
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -15038,6 +15458,7 @@ html.fde-native .native-only { display: block; }
     safeInit(initV61AppCard, "link do app Android (v6.1)");
     safeInit(initV62Trips, "histórico de passeios (v6.2)");
     safeInit(initV62NavMenu, "menu sem parar a navegação (v6.2)");
+    safeInit(initV64, "desvios e caminho seco/molhado (v6.4)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 

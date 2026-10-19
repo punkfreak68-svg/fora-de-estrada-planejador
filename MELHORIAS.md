@@ -88,4 +88,8 @@ Ordem combinada com o Luiz (19/10): 7 e 1 → 4 e 6 → 2 e 8 → 3 e 9 → 5.
 - ✅ **Item 1 — FEITO na v6.2 (19/10), precisa do APK novo (build 3):** margens para as barras do Android 15 (capacitor `adjustMarginsForEdgeToEdge: auto`) e faixas escuras atrás da hora e dos botões.
 - ✅ **Item 4 — FEITO na v6.3 (19/10):** botão da casinha na navegação vai ao menu sem parar; faixa verde "🧭 Navegando: … · GPS gravando" em todas as telas leva de volta; "Navegar"/"Iniciar navegação" levam à navegação em andamento em vez de começar outra; voltar do Android também leva de volta.
 - ✅ **Item 6 — FEITO na v6.3 (19/10):** segurar o dedo no mapa da navegação abre a marcação naquele ponto (o editor já tem os tipos Atoleiro, Porteira, Água/travessia, Perigo…).
-- Próximos: 2 e 8, depois 3 e 9, por último 5.
+- ✅ **Item 2 — FEITO na v6.4 (19/10):** desvio guardado como "caminho molhado" (roxo) sem apagar o trecho principal; atoleiro marcado no trecho seco com a data; antes de navegar pergunta ☀️ Seco × 🌧️ Molhado com sugestão pela chuva dos últimos 3 dias (Open-Meteo, ≥10 mm = molhado); no molhado o trecho com atoleiro fica vermelho tracejado; andar no desvio não conta como fora da rota; aviso por voz perto de atoleiro/perigo/água/porteira.
+  - Ficou para depois: 2e "marcar como resolvido" (o campo já existe nas marcações; falta o botão) e 2f levar os desvios no GPX/Comunidade.
+- ✅ **Item 8 — FEITO em parte na v6.4 (19/10):** 8a desvios detectados sozinhos no resumo e no histórico (↪ Desvios), com opções Atoleiro/caminho molhado, Caminho alternativo, Ignorar — dá para classificar o passeio de 18/10 recuperado; 8c marcar depois segurando no mapa (item 6).
+  - Ficou para depois: 8b marcação rápida por voz ou botão do fone (perguntar ao Luiz se ainda precisa).
+- Próximos: 3 e 9, por último 5.
