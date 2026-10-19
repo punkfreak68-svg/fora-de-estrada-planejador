@@ -2355,6 +2355,13 @@ button, input, select, textarea { font-family: inherit; }
 .dsh-help b { display: block; font-size: 0.95rem; }
 .dsh-help span { font-size: 0.8rem; color: var(--muted); }
 .dsh-help .svg-ico { color: var(--acc); }
+/* v6.5.1 — tela Rotas Salvas rola (antes ficava travada com muitas rotas) */
+#screen-saved-routes { height: 100%; display: flex; flex-direction: column; }
+#screen-saved-routes > .nav-header, #screen-saved-routes > .saved-tabs { flex: 0 0 auto; }
+#saved-routes-pane, #saved-trips-pane { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+#saved-routes-pane.hidden, #saved-trips-pane.hidden { display: none; }
+#saved-routes-pane .nav-picker-list, #saved-trips-pane .nav-picker-list { overflow: visible; }
+#screen-saved-routes .saved-tabs, #saved-routes-pane > *, #saved-trips-pane > * { max-width: 760px; margin-left: auto; margin-right: auto; box-sizing: border-box; width: 100%; }
 /* v6.5 — mapa carregando (item 5) */
 .map-loading-chip { position: absolute; left: 50%; top: 96px; transform: translateX(-50%); z-index: 850; background: rgba(23,32,27,.85); color: #fff; font-size: .85rem; font-weight: 700; border-radius: 999px; padding: 6px 14px; pointer-events: none; }
 .map-loading-chip.hidden { display: none; }
@@ -3305,8 +3312,13 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "6.5";
+  var APP_VERSION = "6.5.1";
   var CHANGELOG = [
+    {
+      version: "6.5.1",
+      date: "19/10/2026",
+      changes: ["Rotas Salvas: a tela voltou a rolar (ficava travada com muitas rotas) e fica mais estreita no computador"]
+    },
     {
       version: "6.5",
       date: "19/10/2026",
