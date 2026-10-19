@@ -86,4 +86,6 @@ Ordem combinada com o Luiz (19/10): 7 e 1 → 4 e 6 → 2 e 8 → 3 e 9 → 5.
 
 - ✅ **Item 7 — FEITO na v6.2 (19/10):** histórico de passeios automático (Rotas Salvas › Passeios feitos), botão "Salvar como rota" no resumo da navegação com rota, e o passeio de 18/10 recuperado da sessão anterior.
 - ✅ **Item 1 — FEITO na v6.2 (19/10), precisa do APK novo (build 3):** margens para as barras do Android 15 (capacitor `adjustMarginsForEdgeToEdge: auto`) e faixas escuras atrás da hora e dos botões.
-- Próximos: 4 e 6, depois 2 e 8, depois 3 e 9, por último 5.
+- ✅ **Item 4 — FEITO na v6.3 (19/10):** botão da casinha na navegação vai ao menu sem parar; faixa verde "🧭 Navegando: … · GPS gravando" em todas as telas leva de volta; "Navegar"/"Iniciar navegação" levam à navegação em andamento em vez de começar outra; voltar do Android também leva de volta.
+- ✅ **Item 6 — FEITO na v6.3 (19/10):** segurar o dedo no mapa da navegação abre a marcação naquele ponto (o editor já tem os tipos Atoleiro, Porteira, Água/travessia, Perigo…).
+- Próximos: 2 e 8, depois 3 e 9, por último 5.
