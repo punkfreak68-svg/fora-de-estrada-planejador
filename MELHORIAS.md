@@ -92,4 +92,9 @@ Ordem combinada com o Luiz (19/10): 7 e 1 → 4 e 6 → 2 e 8 → 3 e 9 → 5.
   - Ficou para depois: 2e "marcar como resolvido" (o campo já existe nas marcações; falta o botão) e 2f levar os desvios no GPX/Comunidade.
 - ✅ **Item 8 — FEITO em parte na v6.4 (19/10):** 8a desvios detectados sozinhos no resumo e no histórico (↪ Desvios), com opções Atoleiro/caminho molhado, Caminho alternativo, Ignorar — dá para classificar o passeio de 18/10 recuperado; 8c marcar depois segurando no mapa (item 6).
   - Ficou para depois: 8b marcação rápida por voz ou botão do fone (perguntar ao Luiz se ainda precisa).
-- Próximos: 3 e 9, por último 5.
+- ✅ **Item 3 — FEITO na v6.5 (19/10):** a causa provável do "não salva" era que a tomada encerrada antes da chegada era descartada; agora fica no histórico como incompleta. Histórico com 🏆 Ranking (1º 🥇, 2º 🥈… e diferença para o recorde) e 📅 Por data; a lista mostra o melhor tempo e a última tomada. O "fantasma" ao vivo (à frente/atrás do recorde) já existia.
+  - **Nome "Rally" × "Tomada de Tempo": A CONFIRMAR com o Luiz** (não mudei).
+  - Ficou para depois: guardar seco/molhado na tomada; ranking na conta/Comunidade.
+- ✅ **Item 9 — FEITO na v6.5 (19/10):** cartão da última rota mostra "🧭 Último passeio: data · tempo (andando) · km" e "⏱️ Rally: melhor · última (+Δ)"; tocar abre o histórico/ranking. A "última rota" passa a ser a última navegada.
+- ✅ **Item 5 — FEITO na v6.5 (19/10):** na navegação, camada reserva por baixo com as imagens guardadas no aparelho (zoom 13–16, esticadas em zoom maior, sem gastar internet) e aviso "Carregando mapa…" após 1,5 s.
+- **Pendências para conversar:** nome Rally (item 3); 2e botão "resolvido" no atoleiro; 2f desvios no GPX/Comunidade; 8b marcação rápida por voz/botão do fone; testar no celular o APK novo (item 1).

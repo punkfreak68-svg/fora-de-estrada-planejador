@@ -2355,6 +2355,14 @@ button, input, select, textarea { font-family: inherit; }
 .dsh-help b { display: block; font-size: 0.95rem; }
 .dsh-help span { font-size: 0.8rem; color: var(--muted); }
 .dsh-help .svg-ico { color: var(--acc); }
+/* v6.5 — mapa carregando (item 5) */
+.map-loading-chip { position: absolute; left: 50%; top: 96px; transform: translateX(-50%); z-index: 850; background: rgba(23,32,27,.85); color: #fff; font-size: .85rem; font-weight: 700; border-radius: 999px; padding: 6px 14px; pointer-events: none; }
+.map-loading-chip.hidden { display: none; }
+/* v6.5 — tempos no painel (item 9) */
+.dsh-last-box { display: flex; flex-direction: column; gap: 6px; padding: 0 18px 12px; }
+.dsh-last { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; width: 100%; text-align: left; background: var(--surf2); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; font: inherit; color: var(--ink); cursor: pointer; }
+.dsh-last-k { font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.dsh-last-v { font-family: var(--mono); font-size: .9rem; font-weight: 600; }
 /* v6.4 — desvios, caminho seco × molhado (itens 2 e 8) */
 .nav-wet-box { background: var(--surf2); border-radius: 12px; padding: 10px 12px; margin: 8px 0; }
 .nav-wet-box.hidden { display: none; }
@@ -3297,8 +3305,19 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "6.4";
+  var APP_VERSION = "6.5";
   var CHANGELOG = [
+    {
+      version: "6.5",
+      date: "19/10/2026",
+      changes: [
+        "Tomada de Tempo: ranking com posição (🥇🥈🥉) e diferença para o recorde; aba \"Por data\"",
+        "Tomada encerrada antes da chegada agora fica guardada como incompleta (antes era descartada) e não entra no ranking",
+        "Lista de trechos mostra o melhor tempo e a última tomada com a diferença",
+        "Painel: o cartão da última rota mostra o tempo do último passeio e do rally; a \"última rota\" passa a ser a última navegada",
+        "Mapa no zoom: enquanto o satélite carrega (ou sem sinal), aparece por baixo a imagem guardada no aparelho, esticada, em vez do cinza; aviso \"Carregando mapa…\""
+      ]
+    },
     {
       version: "6.4",
       date: "19/10/2026",
@@ -4347,6 +4366,7 @@ html.fde-native .native-only { display: block; }
     function install(google) {
       var useGoogle = !!google && wantGoogle;
       (useGoogle ? google : esri).addTo(mapInstance);
+      if (mapInstance === navMap) v65AddBackstop(mapInstance, useGoogle);
 
       if (google) {
         // If Google starts failing (quota, key restriction, connection drop),
@@ -10798,10 +10818,20 @@ html.fde-native .native-only { display: block; }
   function bestOf(runs) {
     var best = null;
     runs.forEach(function (r) {
+      if (r.complete === false) return; // incompleta não entra no ranking
       var t = r.kind === "laps" ? r.bestLap : r.total;
       if (t != null && (best == null || t < best.time)) best = { time: t, run: r };
     });
     return best;
+  }
+
+  function timingLastText(runs, best) {
+    if (!runs.length) return "";
+    var last = runs.slice().sort(function (a, b) { return b.at - a.at; })[0];
+    var sc = runScore(last);
+    if (sc == null) return " · última incompleta";
+    if (best && best.run.id === last.id) return " · última foi o recorde ⭐";
+    return " · última " + fmtTime(sc) + (best ? " (" + fmtDelta(sc - best.time) + " s)" : "");
   }
 
   // ---- formatação ----
@@ -10960,7 +10990,7 @@ html.fde-native .native-only { display: block; }
         meta.textContent =
           (circuit ? "Circuito" : "Trecho A→B") + " · " + formatDistance(polylineLengthMeters(route.points)) +
           " · " + runs.length + (runs.length === 1 ? " tomada" : " tomadas") +
-          (best ? " · melhor " + (circuit ? "volta " : "") + fmtTime(best.time) : "");
+          (best ? " · melhor " + (circuit ? "volta " : "") + fmtTime(best.time) : "") + timingLastText(runs, best);
         card.appendChild(meta);
         var buttons = document.createElement("div");
         buttons.className = "saved-screen-card-buttons";
@@ -10985,29 +11015,56 @@ html.fde-native .native-only { display: block; }
     });
   }
 
+  var timingHistoryMode = "ranking";
+  function runScore(r) {
+    return r.complete === false ? null : r.kind === "laps" ? r.bestLap : r.total;
+  }
   function renderTimingHistory(route) {
     showTimingSubview("history");
     tx.historyTitle.textContent = "Histórico — " + (route.name || "rota");
     tx.historyList.innerHTML = "";
-    var runs = timingRunsFor(route.id)
-      .slice()
-      .sort(function (a, b) {
-        return b.at - a.at;
-      });
-    var best = bestOf(runs);
-    if (!runs.length) {
+    var all = timingRunsFor(route.id).slice();
+    var best = bestOf(all);
+    if (!all.length) {
       tx.historyList.innerHTML = '<p class="hint">Nenhuma tomada ainda.</p>';
       return;
     }
+    // posição no ranking (só completas, menor tempo primeiro)
+    var ranked = all.filter(function (r) { return runScore(r) != null; }).sort(function (a, b) { return runScore(a) - runScore(b); });
+    var pos = {};
+    ranked.forEach(function (r, i) { pos[r.id] = i + 1; });
+    var tabs = document.createElement("div");
+    tabs.className = "saved-tabs";
+    [["ranking", "🏆 Ranking"], ["data", "📅 Por data"]].forEach(function (t) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "saved-tab" + (timingHistoryMode === t[0] ? " active" : "");
+      b.textContent = t[1];
+      b.addEventListener("click", function () { timingHistoryMode = t[0]; renderTimingHistory(route); });
+      tabs.appendChild(b);
+    });
+    tx.historyList.appendChild(tabs);
+    var summary = document.createElement("p");
+    summary.className = "hint";
+    summary.style.padding = "0 16px";
+    summary.textContent = all.length + (all.length === 1 ? " tomada" : " tomadas") + " · " + ranked.length + " no ranking" +
+      (best ? " · recorde " + fmtTime(best.time) + " em " + new Date(best.run.at).toLocaleDateString("pt-BR") : "");
+    tx.historyList.appendChild(summary);
+    var runs = timingHistoryMode === "ranking"
+      ? ranked.concat(all.filter(function (r) { return runScore(r) == null; }).sort(function (a, b) { return b.at - a.at; }))
+      : all.sort(function (a, b) { return b.at - a.at; });
+    var MEDAL = { 1: "🥇", 2: "🥈", 3: "🥉" };
     runs.forEach(function (run) {
       var isBest = best && best.run.id === run.id;
       var card = document.createElement("div");
       card.className = "saved-screen-card" + (isBest ? " timing-best-card" : "");
       var title = document.createElement("div");
       title.className = "nav-route-card-name";
+      var p = pos[run.id];
+      var delta = p && best && p > 1 ? " (" + fmtDelta(runScore(run) - best.time) + " s)" : "";
       title.textContent =
-        (isBest ? "⭐ " : "") +
-        (run.kind === "laps" ? "Melhor volta " + fmtTime(run.bestLap) + " · total " + fmtTime(run.total) : fmtTime(run.total));
+        (p ? p + "º " + (MEDAL[p] || "") + " " : run.complete === false ? "⏸ " : "") +
+        (run.kind === "laps" ? "Melhor volta " + fmtTime(run.bestLap) + " · total " + fmtTime(run.total) : fmtTime(run.total)) + delta;
       card.appendChild(title);
       var meta = document.createElement("div");
       meta.className = "nav-route-card-meta";
@@ -11016,7 +11073,7 @@ html.fde-native .native-only { display: block; }
         (run.kind === "laps" ? " · " + run.laps.length + (run.laps.length === 1 ? " volta" : " voltas") : "") +
         (run.maxSpeed ? " · máx " + Math.round(run.maxSpeed) + " km/h" : "") +
         (run.avgSpeed ? " · média " + Math.round(run.avgSpeed) + " km/h" : "") +
-        (run.complete === false ? " · incompleta" : "");
+        (run.complete === false ? " · incompleta" + (run.distanceDone ? " (" + formatDistance(run.distanceDone) + " feitos)" : "") : "");
       card.appendChild(meta);
       var det = document.createElement("div");
       det.className = "timing-history-splits";
@@ -11626,7 +11683,17 @@ html.fde-native .native-only { display: block; }
       run.profile = bl.profile;
     } else {
       if (!complete) {
-        T.lastEvent = { text: "Encerrado antes da chegada — não salvo.", good: false };
+        // v6.5: antes era descartada; agora fica no histórico como incompleta (fora do ranking)
+        if (total < 5000) {
+          T.lastEvent = { text: "Encerrado logo na largada — não salvo.", good: false };
+          renderTimingPanel();
+          return;
+        }
+        run.splits = T.laps[0] && T.laps[0].splits ? T.laps[0].splits.map(Math.round) : [];
+        run.distanceDone = Math.round(T.along || 0);
+        saveTimingRun(T.route.id, run);
+        T.savedRun = run;
+        T.lastEvent = { text: "Encerrado antes da chegada — guardado no histórico como incompleta (não entra no ranking).", good: false };
         renderTimingPanel();
         return;
       }
@@ -14152,6 +14219,16 @@ html.fde-native .native-only { display: block; }
     }
 
     var r = routes[0];
+    // v6.5: "última rota" = a mais recente entre salva e navegada
+    var lastTrip = null;
+    try {
+      v62LoadTrips().some(function (t) {
+        if (t.mode !== "route") return false;
+        var rr = routes.filter(function (x) { return x.id === t.routeId; })[0];
+        if (rr) { lastTrip = t; if ((t.startedAt || 0) > (r.savedAt || 0)) r = rr; return true; }
+        return false;
+      });
+    } catch (e) {}
     var meters = r.points.length >= 2 ? polylineLengthMeters(r.points) : 0;
     var wps = Array.isArray(r.waypoints) ? r.waypoints.length : 0;
     var metaBits = [];
@@ -14176,6 +14253,7 @@ html.fde-native .native-only { display: block; }
       '<div><div class="dsh-stat-l">Marcações</div><div class="dsh-stat-v">' + wps + "</div></div>" +
       '<div class="dsh-stat-wide"><div class="dsh-stat-l">Rotas salvas</div><div class="dsh-stat-v">' + routes.length + "</div></div>" +
       "</div>" +
+      v65HeroTimes(r) +
       '<div class="dsh-hero-actions">' +
       '<button type="button" class="dsh-go" id="btn-dash-hero-go"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"></path></svg>Iniciar navegação</button>' +
       '<button type="button" class="dsh-other" id="btn-dash-hero-other">Outra rota</button>' +
@@ -14186,6 +14264,34 @@ html.fde-native .native-only { display: block; }
     document.getElementById("btn-dash-hero-other").addEventListener("click", function () {
       el.btnDashNavigate.click();
     });
+    var bt = document.getElementById("btn-dash-last-trip");
+    if (bt) bt.addEventListener("click", function () { if (window.fdeShowTrips) window.fdeShowTrips(); });
+    var br = document.getElementById("btn-dash-last-rally");
+    if (br) br.addEventListener("click", function () { showScreen("timing"); renderTimingHistory(r); });
+  }
+
+  // v6.5 (item 9): tempo do último passeio e do rally da rota no painel
+  function v65HeroTimes(r) {
+    var rows = "";
+    try {
+      var t = v62LoadTrips().filter(function (x) { return x.mode === "route" && x.routeId === r.id; })[0];
+      if (t && t.stats) {
+        var d = new Date(t.startedAt);
+        rows += '<button type="button" class="dsh-last" id="btn-dash-last-trip"><span class="dsh-last-k">🧭 Último passeio</span><span class="dsh-last-v">' +
+          v55Pad(d.getDate()) + "/" + v55Pad(d.getMonth() + 1) + " · " + v55Esc(fmtDuration(t.stats.totalMs || 0)) +
+          (t.stats.movingMs ? " (" + v55Esc(fmtDuration(t.stats.movingMs)) + " andando)" : "") + " · " + v55Esc(formatDistance(t.distance || 0)) + "</span></button>";
+      }
+      var runs = timingRunsFor(r.id);
+      if (runs.length) {
+        var best = bestOf(runs);
+        var last = runs.slice().sort(function (a, b) { return b.at - a.at; })[0];
+        var sc = runScore(last);
+        var txt = (best ? "melhor " + fmtTime(best.time) : "sem tempo completo") +
+          (sc == null ? " · última incompleta" : best && best.run.id === last.id ? " · última foi o recorde ⭐" : " · última " + fmtTime(sc) + (best ? " (" + fmtDelta(sc - best.time) + " s)" : ""));
+        rows += '<button type="button" class="dsh-last" id="btn-dash-last-rally"><span class="dsh-last-k">⏱️ Rally</span><span class="dsh-last-v">' + v55Esc(txt) + "</span></button>";
+      }
+    } catch (e) {}
+    return rows ? '<div class="dsh-last-box">' + rows + "</div>" : "";
   }
 
   function v55RenderDashboardIfVisible() {
@@ -15423,6 +15529,65 @@ html.fde-native .native-only { display: block; }
     document.getElementById("nav-summary-devs-text").textContent = "↪ Você saiu da rota em " + (devs.length === 1 ? "1 lugar" : devs.length + " lugares") + ". Foi atoleiro? Guarde o desvio.";
     box.classList.remove("hidden");
   }
+
+  // ================= v6.5 (item 5): mapa não fica cinza no zoom =================
+  // Camada "reserva" por baixo: imagens Esri guardadas no aparelho (zoom 13–16), esticadas
+  // quando se aproxima mais. Enquanto o mapa principal carrega (ou falta sinal), aparece a reserva.
+  function v65AddBackstop(mapInstance, mainIsGoogle) {
+    try {
+      // só lê do que já está guardado no aparelho (não gasta internet)
+      var CacheOnly = L.TileLayer.extend({
+        createTile: function (coords, done) {
+          var tile = document.createElement("img");
+          tile.alt = "";
+          getTile(coords.z + "/" + coords.x + "/" + coords.y)
+            .then(function (blob) {
+              if (!blob) return done(new Error("sem tile guardado"), tile);
+              tile.onload = function () { done(null, tile); };
+              tile.onerror = function () { done(new Error("erro"), tile); };
+              tile.src = URL.createObjectURL(blob);
+            })
+            .catch(function () { done(new Error("erro"), tile); });
+          return tile;
+        }
+      });
+      var back = new CacheOnly(TILE_URL_TEMPLATE, {
+        maxZoom: 21,
+        maxNativeZoom: 16,
+        minZoom: 13,
+        keepBuffer: 4,
+        zIndex: 0,
+        attribution: ""
+      });
+      back.addTo(mapInstance);
+      back.bringToBack();
+      mapInstance._fdeBackstop = back;
+    } catch (e) {}
+  }
+
+  function initV65MapLoading() {
+    initNavMapIfNeeded();
+    var chip = document.createElement("div");
+    chip.className = "map-loading-chip hidden";
+    chip.textContent = "Carregando mapa…";
+    document.getElementById("nav-map").appendChild(chip);
+    var pending = 0, timer = null;
+    function update() {
+      if (pending > 0 && !timer) {
+        timer = setTimeout(function () { timer = null; if (pending > 0) chip.classList.remove("hidden"); }, 1500);
+      }
+      if (pending <= 0) { pending = 0; chip.classList.add("hidden"); }
+    }
+    navMap.on("layeradd", function (e) {
+      var l = e.layer;
+      if (!(l instanceof L.TileLayer) || l === navMap._fdeBackstop || l._fdeWatched) return;
+      l._fdeWatched = true;
+      l.on("tileloadstart", function () { pending++; update(); });
+      l.on("tileload tileerror", function () { pending--; update(); });
+      l.on("load", function () { pending = 0; update(); });
+    });
+    navMap.eachLayer(function (l) { navMap.fire("layeradd", { layer: l }); });
+  }
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -15459,6 +15624,7 @@ html.fde-native .native-only { display: block; }
     safeInit(initV62Trips, "histórico de passeios (v6.2)");
     safeInit(initV62NavMenu, "menu sem parar a navegação (v6.2)");
     safeInit(initV64, "desvios e caminho seco/molhado (v6.4)");
+    safeInit(initV65MapLoading, "aviso de mapa carregando (v6.5)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
