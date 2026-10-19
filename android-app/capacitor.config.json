@@ -1,16 +1,17 @@
 {
-  "appId": "br.com.sansoliveira.foradeestrada",
-  "appName": "Fora de Estrada",
-  "webDir": "www",
-  "server": {
-    "url": "https://foradeestrada.sansoliveira.com.br/",
-    "androidScheme": "https",
-    "cleartext": false,
-    "errorPath": "offline.html"
-  },
-  "android": {
-    "useLegacyBridge": true,
-    "allowMixedContent": false,
-    "backgroundColor": "#17201B"
-  }
+ "appId": "br.com.sansoliveira.foradeestrada",
+ "appName": "Fora de Estrada",
+ "webDir": "www",
+ "server": {
+  "url": "https://foradeestrada.sansoliveira.com.br/",
+  "androidScheme": "https",
+  "cleartext": false,
+  "errorPath": "offline.html"
+ },
+ "android": {
+  "useLegacyBridge": true,
+  "allowMixedContent": false,
+  "backgroundColor": "#17201B",
+  "adjustMarginsForEdgeToEdge": "auto"
+ }
 }

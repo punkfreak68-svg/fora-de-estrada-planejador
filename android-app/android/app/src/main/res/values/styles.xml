@@ -13,6 +13,11 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
+        <!-- v6.2: faixa atrás da hora/bateria e dos botões do Android (o app não fica mais por baixo delas) -->
+        <item name="android:windowBackground">@color/fde_bars</item>
+        <item name="android:statusBarColor">@color/fde_bars</item>
+        <item name="android:navigationBarColor">@color/fde_bars</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
 

@@ -2355,6 +2355,23 @@ button, input, select, textarea { font-family: inherit; }
 .dsh-help b { display: block; font-size: 0.95rem; }
 .dsh-help span { font-size: 0.8rem; color: var(--muted); }
 .dsh-help .svg-ico { color: var(--acc); }
+/* v6.2 — histórico de passeios */
+.nav-summary-trip { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--ink2); }
+.nav-summary-trip.hidden { display: none; }
+.nav-summary-trip span { flex: 1 1 180px; }
+.nav-summary-save { background: var(--acc); color: var(--onAcc); border: 0; border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 700; cursor: pointer; }
+.nav-summary-save:disabled { opacity: 0.6; cursor: default; }
+.saved-tabs { display: flex; gap: 8px; padding: 10px 14px 4px; }
+.saved-tab { flex: 1; background: var(--surf); color: var(--ink); border: 1px solid var(--line2); border-radius: 10px; padding: 10px; font: inherit; font-weight: 700; cursor: pointer; }
+.saved-tab.active { background: var(--acc); color: var(--onAcc); border-color: var(--acc); }
+.trips-intro { padding: 4px 16px 0; }
+.trip-card .trip-thumb { display: block; width: 100%; height: 90px; margin: 8px 0 4px; background: var(--surf2); border-radius: 8px; }
+.trip-card .trip-thumb path.trip-line { fill: none; stroke: var(--acc); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.trip-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
+.trip-stats div { background: var(--surf2); border-radius: 8px; padding: 6px 8px; }
+.trip-stats b { display: block; font-size: 0.95rem; color: var(--ink); }
+.trip-stats span { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.trip-badge { display: inline-block; font-size: 0.72rem; font-weight: 700; border-radius: 6px; padding: 2px 6px; margin-left: 6px; background: var(--warnBg); color: var(--warnInk); vertical-align: middle; }
 /* v6.1 — cartão "Baixar app Android" / "Atualização disponível" */
 .dsh-app { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--surf); border: 1px solid var(--acc); border-radius: 14px; padding: 12px 14px; margin: 0 0 14px; }
 .dsh-app.hidden { display: none; }
@@ -2714,6 +2731,10 @@ html.fde-native .native-only { display: block; }
       <div class="nav-summary-row"><span class="dot dot-orange"></span> Planejado</div>
       <div class="nav-summary-row"><span class="dot dot-blue"></span> Percorrido: <b id="nav-summary-distance">--</b></div>
       <div id="nav-summary-stats" class="stats-grid stats-grid-compact"></div>
+      <div id="nav-summary-trip" class="nav-summary-trip hidden">
+        <span id="nav-summary-trip-text">✅ Passeio guardado em Rotas Salvas › Passeios feitos</span>
+        <button id="btn-summary-save-route" type="button" class="nav-summary-save">💾 Salvar como rota</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2735,8 +2756,19 @@ html.fde-native .native-only { display: block; }
     <button id="btn-saved-back" class="icon-btn" aria-label="Voltar ao início">←</button>
     <h1>Rotas Salvas</h1>
   </header>
-  <div id="saved-routes-screen-list" class="nav-picker-list"></div>
-  <p id="saved-routes-screen-empty" class="hint" style="padding: 16px;">Nenhuma rota salva ainda.</p>
+  <div class="saved-tabs" role="tablist">
+    <button id="saved-tab-routes" type="button" class="saved-tab active" role="tab" aria-selected="true">Rotas</button>
+    <button id="saved-tab-trips" type="button" class="saved-tab" role="tab" aria-selected="false">🕘 Passeios feitos</button>
+  </div>
+  <div id="saved-routes-pane">
+    <div id="saved-routes-screen-list" class="nav-picker-list"></div>
+    <p id="saved-routes-screen-empty" class="hint" style="padding: 16px;">Nenhuma rota salva ainda.</p>
+  </div>
+  <div id="saved-trips-pane" class="hidden">
+    <p class="hint trips-intro">Cada navegação fica guardada aqui sozinha, com o caminho que você fez de verdade, o tempo e a velocidade. Fica neste aparelho.</p>
+    <div id="trips-list" class="nav-picker-list"></div>
+    <p id="trips-empty" class="hint" style="padding: 16px;">Nenhum passeio ainda. Quando você encerrar uma navegação, ela aparece aqui.</p>
+  </div>
 </div>
 
 <div id="screen-timing" class="hidden">
@@ -3206,8 +3238,18 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "6.1";
+  var APP_VERSION = "6.2";
   var CHANGELOG = [
+    {
+      version: "6.2",
+      date: "19/10/2026",
+      changes: [
+        "Histórico de passeios: toda navegação (com rota ou Modo Livre) fica guardada sozinha em Rotas Salvas › Passeios feitos, com o caminho percorrido, tempo, velocidade e altitude",
+        "No fim da navegação com rota agora dá para salvar o caminho feito como rota nova (antes só no Modo Livre)",
+        "O último passeio feito antes desta versão foi recuperado e aparece no histórico como \"recuperado\"",
+        "App Android (nova versão do APK): a tela não fica mais por baixo da hora/bateria nem dos botões do celular"
+      ]
+    },
     {
       version: "6.1",
       date: "14/10/2026",
@@ -6132,6 +6174,7 @@ html.fde-native .native-only { display: block; }
       screens[key].classList.toggle("hidden", key !== name);
     });
     if (name === "dashboard") v55RenderDashboardIfVisible();
+    if (name === "saved-routes") v62RenderTrips();
   }
 
   function showNavSubview(name) {
@@ -7157,6 +7200,7 @@ html.fde-native .native-only { display: block; }
     el.navSummaryDistance.textContent = formatDistance(recordedMeters);
     setEndedSummaryMode(true);
     navExtrasOnFinish();
+    v62OnFinish();
     v59AfterFinish();
   }
 
@@ -14562,6 +14606,304 @@ html.fde-native .native-only { display: block; }
       30
     );
   }
+
+  // ================= v6.2: histórico de passeios (caminho percorrido guardado sozinho) =================
+  var V62_TRIPS_KEY = "fde_trips_v1";
+  var V62_MAX_TRIPS = 60;
+  var v62LastTripId = null;
+
+  function v62LoadTrips() {
+    try {
+      var t = JSON.parse(localStorage.getItem(V62_TRIPS_KEY) || "[]");
+      return Array.isArray(t) ? t : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Grava; se faltar espaço, descarta os passeios mais antigos até caber.
+  function v62StoreTrips(trips) {
+    trips = trips.slice(0, V62_MAX_TRIPS);
+    while (trips.length) {
+      try {
+        localStorage.setItem(V62_TRIPS_KEY, JSON.stringify(trips));
+        return true;
+      } catch (e) {
+        trips.pop();
+      }
+    }
+    return false;
+  }
+
+  function v62MakeTrip(o) {
+    var track = (o.track || []).filter(function (p) { return p && typeof p.lat === "number"; });
+    var snap = o.stats ? statsSnapshot(o.stats) : null;
+    return {
+      v: 1,
+      id: "trip_" + (o.startedAt || Date.now()) + "_" + Math.random().toString(36).slice(2, 6),
+      mode: o.mode === "free" ? "free" : "route",
+      routeId: o.routeId || null,
+      routeName: o.routeName || "",
+      folder: o.folder || "",
+      startedAt: (snap && snap.startedAt) || o.startedAt || Date.now(),
+      endedAt: (snap && snap.endedAt) || o.endedAt || Date.now(),
+      stats: snap,
+      gaps: o.stats && o.stats.gaps ? { n: o.stats.gaps, ms: o.stats.gapMs || 0, m: Math.round(o.stats.gapMeters || 0) } : null,
+      distance: Math.round(polylineLengthMeters(track)),
+      n: track.length,
+      track: encodePolyline(track),
+      wps: normalizeWaypoints(o.wps || []),
+      recovered: !!o.recovered
+    };
+  }
+
+  function v62AddTrip(trip) {
+    var trips = v62LoadTrips().filter(function (t) { return t.id !== trip.id; });
+    trips.unshift(trip);
+    trips.sort(function (a, b) { return (b.startedAt || 0) - (a.startedAt || 0); });
+    return v62StoreTrips(trips);
+  }
+
+  function v62OnFinish() {
+    var box = document.getElementById("nav-summary-trip");
+    var btn = document.getElementById("btn-summary-save-route");
+    var txt = document.getElementById("nav-summary-trip-text");
+    v62LastTripId = null;
+    if (!box) return;
+    box.classList.add("hidden");
+    if (navRecordedTrack.length < 2) return;
+    var r = navCurrentRoute;
+    var trip = v62MakeTrip({
+      mode: navMode,
+      routeId: navMode === "route" && r ? r.id : navFreeModeSavedRouteId,
+      routeName: navMode === "route" && r ? r.name : "",
+      folder: r && r.folder ? r.folder : "",
+      track: navRecordedTrack,
+      stats: navStats,
+      wps: navSessionWaypoints
+    });
+    var ok = v62AddTrip(trip);
+    if (ok) v62LastTripId = trip.id;
+    // Modo Livre já salvo como rota durante a navegação: atualiza com o trajeto final
+    if (navMode === "free" && navFreeModeSavedRouteId) updateSavedTrack(navFreeModeSavedRouteId);
+    txt.textContent = ok ? "✅ Passeio guardado em Rotas Salvas › Passeios feitos" : "⚠ Sem espaço no aparelho para guardar o passeio.";
+    var saved = navMode === "free" && navFreeModeSavedRouteId;
+    btn.disabled = !!saved;
+    btn.textContent = saved ? "✅ Salvo como rota" : "💾 Salvar como rota";
+    box.classList.remove("hidden");
+  }
+
+  function v62DefaultTripName(baseName, ts) {
+    var d = new Date(ts || Date.now());
+    var dd = ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2);
+    return (baseName ? baseName + " — feito em " : "Passeio de ") + dd;
+  }
+
+  // Botão do resumo: abre o mesmo "Salvar trajeto como rota" do Modo Livre
+  function initV62Trips() {
+    var btn = document.getElementById("btn-summary-save-route");
+    if (btn) {
+      btn.addEventListener("click", function () {
+        if (navRecordedTrack.length < 2) return;
+        var r = navCurrentRoute;
+        el.saveTrackName.value = v62DefaultTripName(navMode === "route" && r ? r.name : "", navStats && navStats.startedAt);
+        el.saveTrackFolder.value = r && r.folder ? r.folder : "";
+        el.saveTrackModal.classList.add("open");
+        el.saveTrackName.focus();
+      });
+      el.btnSaveTrackConfirm.addEventListener("click", function () {
+        // depois de salvo (o handler original roda antes e fecha o modal)
+        if (!el.saveTrackModal.classList.contains("open") && navFreeModeSavedRouteId && !el.navSummaryPanel.classList.contains("hidden")) {
+          btn.disabled = true;
+          btn.textContent = "✅ Salvo como rota";
+          var trips = v62LoadTrips();
+          var t = trips.filter(function (x) { return x.id === v62LastTripId; })[0];
+          if (t) {
+            t.savedRouteId = navFreeModeSavedRouteId;
+            v62StoreTrips(trips);
+          }
+        }
+      });
+    }
+
+    // Abas da tela Rotas Salvas
+    var tabR = document.getElementById("saved-tab-routes"), tabT = document.getElementById("saved-tab-trips");
+    function setTab(trips) {
+      tabR.classList.toggle("active", !trips);
+      tabT.classList.toggle("active", trips);
+      tabR.setAttribute("aria-selected", String(!trips));
+      tabT.setAttribute("aria-selected", String(trips));
+      document.getElementById("saved-routes-pane").classList.toggle("hidden", trips);
+      document.getElementById("saved-trips-pane").classList.toggle("hidden", !trips);
+      if (trips) v62RenderTrips();
+    }
+    tabR.addEventListener("click", function () { setTab(false); });
+    tabT.addEventListener("click", function () { setTab(true); });
+    window.fdeShowTrips = function () { showScreen("saved-routes"); renderSavedRoutesScreen(); setTab(true); };
+
+    // Recupera o último passeio da versão anterior (ficou guardado ao encerrar)
+    if (lsGet("fde_trips_recovered_v1", "") !== "1") {
+      lsSet("fde_trips_recovered_v1", "1");
+      try {
+        var prev = JSON.parse(localStorage.getItem(V59_PREV_KEY) || "null");
+        if (prev && prev.track && prev.track.length >= 2) {
+          var already = v62LoadTrips().some(function (t) { return prev.stats && t.startedAt === prev.stats.startedAt; });
+          if (!already) {
+            var stats = prev.stats || null;
+            if (stats && !stats.endedAt) stats.endedAt = prev.savedAt;
+            v62AddTrip(v62MakeTrip({
+              mode: prev.mode,
+              routeId: prev.routeId || prev.freeId,
+              routeName: prev.route ? prev.route.name : "",
+              folder: prev.route ? prev.route.folder : "",
+              track: prev.track,
+              stats: stats,
+              wps: prev.wps,
+              recovered: true
+            }));
+          }
+        }
+      } catch (e) {}
+    }
+  }
+
+  function v62TripSvg(points) {
+    var W = 600, H = 170, PAD = 12;
+    if (points.length < 2) return "";
+    var step = Math.max(1, Math.floor(points.length / 300));
+    var pts = [];
+    for (var i = 0; i < points.length; i += step) pts.push(points[i]);
+    pts.push(points[points.length - 1]);
+    var minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+    pts.forEach(function (p) {
+      minLat = Math.min(minLat, p.lat); maxLat = Math.max(maxLat, p.lat);
+      minLng = Math.min(minLng, p.lng); maxLng = Math.max(maxLng, p.lng);
+    });
+    var kx = Math.cos(((minLat + maxLat) / 2) * Math.PI / 180);
+    var sx = Math.max((maxLng - minLng) * kx, 1e-6), sy = Math.max(maxLat - minLat, 1e-6);
+    var sc = Math.min((W - 2 * PAD) / sx, (H - 2 * PAD) / sy);
+    var ox = (W - sx * sc) / 2, oy = (H - sy * sc) / 2;
+    var d = pts.map(function (p, j) {
+      var x = ox + (p.lng - minLng) * kx * sc, y = oy + (maxLat - p.lat) * sc;
+      return (j ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
+    }).join("");
+    return '<svg class="trip-thumb" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="trip-line" d="' + d + '"></path></svg>';
+  }
+
+  function v62TripToRoute(t, name, folder) {
+    var pts = decodePolyline(t.track || "");
+    return {
+      id: "route_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
+      name: name,
+      folder: folder || "",
+      points: pts.map(function (p) { return { lat: p.lat, lng: p.lng }; }),
+      waypoints: normalizeWaypoints(t.wps || []),
+      stats: t.stats || null,
+      savedAt: Date.now()
+    };
+  }
+
+  function v62RenderTrips() {
+    var list = document.getElementById("trips-list");
+    var empty = document.getElementById("trips-empty");
+    if (!list) return;
+    var trips = v62LoadTrips();
+    list.innerHTML = "";
+    empty.style.display = trips.length ? "none" : "block";
+    trips.forEach(function (t) {
+      var card = document.createElement("div");
+      card.className = "saved-screen-card trip-card";
+      var title = document.createElement("div");
+      title.className = "nav-route-card-name";
+      title.textContent = t.mode === "free" ? "🧭 Modo Livre" : (t.routeName || "(rota sem nome)");
+      if (t.recovered) {
+        var b = document.createElement("span");
+        b.className = "trip-badge";
+        b.textContent = "recuperado";
+        title.appendChild(b);
+      }
+      card.appendChild(title);
+      var meta = document.createElement("div");
+      meta.className = "nav-route-card-meta";
+      var d = new Date(t.startedAt);
+      meta.textContent = d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" }) + " · " +
+        d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) +
+        (t.endedAt ? " às " + new Date(t.endedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "");
+      card.appendChild(meta);
+      var pts = decodePolyline(t.track || "");
+      var thumb = document.createElement("div");
+      thumb.innerHTML = v62TripSvg(pts);
+      card.appendChild(thumb);
+      var s = t.stats || {};
+      var grid = document.createElement("div");
+      grid.className = "trip-stats";
+      [
+        [fmtKm(t.distance || s.distance || 0, 1) + " km", "Percorrido"],
+        [s.totalMs != null ? fmtDuration(s.totalMs) : "--", "Tempo total"],
+        [s.movingMs != null ? fmtDuration(s.movingMs) : "--", "Em movimento"],
+        [s.avgMovingKmh != null ? fmtNum(s.avgMovingKmh, 1) + " km/h" : "--", "Vel. média"],
+        [s.maxSpeed != null ? Math.round(s.maxSpeed) + " km/h" : "--", "Vel. máxima"],
+        [s.maxAlt != null ? Math.round(s.maxAlt) + " m" : "--", "Altitude máx."]
+      ].forEach(function (it) {
+        var c = document.createElement("div");
+        var bb = document.createElement("b");
+        bb.textContent = it[0];
+        var sp = document.createElement("span");
+        sp.textContent = it[1];
+        c.appendChild(bb);
+        c.appendChild(sp);
+        grid.appendChild(c);
+      });
+      card.appendChild(grid);
+      if (t.gaps && t.gaps.n) {
+        var g = document.createElement("div");
+        g.className = "nav-route-card-meta";
+        g.textContent = "⚠ " + t.gaps.n + (t.gaps.n === 1 ? " trecho" : " trechos") + " sem GPS (" + Math.round(t.gaps.ms / 60000) + " min)";
+        card.appendChild(g);
+      }
+      var btns = document.createElement("div");
+      btns.className = "saved-screen-card-buttons";
+      var saveB = document.createElement("button");
+      saveB.className = "nav-btn";
+      saveB.textContent = t.savedRouteId ? "✅ Salvo como rota" : "💾 Salvar como rota";
+      saveB.disabled = !!t.savedRouteId;
+      saveB.addEventListener("click", function () {
+        var name = window.prompt("Nome da rota:", v62DefaultTripName(t.mode === "free" ? "" : t.routeName, t.startedAt));
+        if (name == null) return;
+        name = name.trim() || v62DefaultTripName("", t.startedAt);
+        var rec = v62TripToRoute(t, name, t.folder);
+        var routes = loadSavedRoutes();
+        routes.push(rec);
+        persistSavedRoutes(routes);
+        refreshSavedRoutesUI();
+        var all = v62LoadTrips();
+        all.forEach(function (x) { if (x.id === t.id) x.savedRouteId = rec.id; });
+        v62StoreTrips(all);
+        showToast('Salvo em Rotas como "' + name + '".');
+        v62RenderTrips();
+      });
+      btns.appendChild(saveB);
+      var gpxB = document.createElement("button");
+      gpxB.className = "load-btn";
+      gpxB.textContent = "GPX";
+      gpxB.addEventListener("click", function () {
+        var r = v62TripToRoute(t, v62DefaultTripName(t.mode === "free" ? "" : t.routeName, t.startedAt), t.folder);
+        downloadTextFile(buildGpxForRoute(r), sanitizeFileName(r.name) + ".gpx", "application/gpx+xml");
+      });
+      btns.appendChild(gpxB);
+      var delB = document.createElement("button");
+      delB.className = "delete-btn";
+      delB.textContent = "Excluir";
+      delB.addEventListener("click", function () {
+        if (!window.confirm("Excluir este passeio do histórico? (as rotas salvas não são apagadas)")) return;
+        v62StoreTrips(v62LoadTrips().filter(function (x) { return x.id !== t.id; }));
+        v62RenderTrips();
+      });
+      btns.appendChild(delB);
+      card.appendChild(btns);
+      list.appendChild(card);
+    });
+  }
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -14595,6 +14937,7 @@ html.fde-native .native-only { display: block; }
     safeInit(initV55Theme, "visual novo (v5.5)");
     safeInit(initV59Resume, "retomar navegação (v5.9)");
     safeInit(initV61AppCard, "link do app Android (v6.1)");
+    safeInit(initV62Trips, "histórico de passeios (v6.2)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
