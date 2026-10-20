@@ -81,6 +81,24 @@ Situação: app Android v6.1 / APK build 2 passou em todos os testes de campo (G
      b) Rally: "Seu melhor: 12:34 · última: 13:02 (+28 s)". Depende de salvar os tempos (item 3).
      c) Tocar abre o histórico/ranking daquela rota.
 
+10. **Do asfalto para a trilha: Waze e Fora de Estrada juntos** (20/10, conversa sobre o Radarbot)
+   - Como o Luiz usa hoje: Waze no asfalto (radares e trânsito) e, quando entra no mato, muda para o Fora de Estrada.
+   - Ideias (a decidir):
+     a) Botão **"Ir até a largada pelo Waze"** (ou Google Maps) na rota: abre o Waze já navegando até o primeiro ponto da trilha.
+     b) Modo **"a caminho da largada"**: se a navegação for iniciada longe do começo, o app não grita "fora da rota". Mostra a distância até a largada e avisa "Chegou na trilha" quando você entra nela, já começando a gravar.
+     c) **Radares no trecho de asfalto** dentro do próprio Fora de Estrada, usando dados abertos do OpenStreetMap (radares fixos cadastrados, grátis, com atribuição). Cobertura menor que a do Waze/Radarbot e sem radar móvel/blitz.
+     d) **Limite de velocidade da via** (dado do OpenStreetMap, quando existir) no painel da navegação.
+     - Descartado pelo Luiz (20/10): transformar o Fora de Estrada em navegador completo de estrada (rotas curva a curva no asfalto). Ele continua usando o Waze no asfalto.
+     e) **Alertas da comunidade** estilo Radarbot, para a trilha: atoleiro, porteira fechada, ponte caída, compartilhados entre quem usa a mesma rota. Liga com o item 2f.
+
+11. **"Estou perdido": achar a saída / a estrada mais próxima** (20/10)
+   - Pedido do Luiz: perdido no mato, poder escolher um destino próximo e o app mostrar a estrada mais próxima, asfaltada ou de terra.
+   - Ideias (a decidir), pensando que no mato quase nunca tem sinal:
+     a) **Voltar pelo caminho que fiz** (funciona sem internet): o trajeto gravado vira a rota de volta, com seta, distância e voz, até o último ponto conhecido ou o início.
+     b) **Bússola até um ponto** (sem internet): tocar no mapa (ou num ponto salvo, como o carro ou o acampamento) e o app mostra seta, distância e rumo em linha reta.
+     c) **Estrada mais próxima:** busca as estradas do OpenStreetMap em volta (asfalto, terra, carreador) e mostra a mais perto, com o tipo, a distância e a direção. Com internet, na hora; sem internet, só se as estradas da região tiverem sido baixadas antes junto com o mapa offline da rota.
+     d) **Pedir ajuda:** junto do "Enviar minha posição" (SMS funciona sem internet), um botão de emergência com as coordenadas e o 193.
+
 ## Status
 Ordem combinada com o Luiz (19/10): 7 e 1 → 4 e 6 → 2 e 8 → 3 e 9 → 5.
 
@@ -97,4 +115,7 @@ Ordem combinada com o Luiz (19/10): 7 e 1 → 4 e 6 → 2 e 8 → 3 e 9 → 5.
   - Ficou para depois: guardar seco/molhado na tomada; ranking na conta/Comunidade.
 - ✅ **Item 9 — FEITO na v6.5 (19/10):** cartão da última rota mostra "🧭 Último passeio: data · tempo (andando) · km" e "⏱️ Rally: melhor · última (+Δ)"; tocar abre o histórico/ranking. A "última rota" passa a ser a última navegada.
 - ✅ **Item 5 — FEITO na v6.5 (19/10):** na navegação, camada reserva por baixo com as imagens guardadas no aparelho (zoom 13–16, esticadas em zoom maior, sem gastar internet) e aviso "Carregando mapa…" após 1,5 s.
+- ✅ **Item 10 — FEITO na v6.6 (20/10), ideias a e b:** link "ir até a largada pelo Waze" no confirmar e botão "Abrir no Waze" na navegação; modo "a caminho da largada" (sem alarme, sem gravar até entrar na trilha; aviso "Chegou na trilha" por voz e começa a gravar). Ideias c–e (radares, limite de velocidade, alertas da comunidade) ficaram para depois.
+- ✅ **Item 11 — FEITO na v6.6 (20/10):** botão 🆘 (boia vermelha) na navegação: voltar pelo caminho que fiz (linha verde + seta, sem internet), ir até um ponto (largada, fim, onde comecei, marcações ou tocar no mapa; sem internet), estrada mais próxima (Overpass/OpenStreetMap, 5 km, terra e asfalto, precisa de internet) e pedir ajuda (coordenadas, enviar posição, ligar 193/190/192).
+  - Ficou para depois: baixar as estradas junto com o mapa offline, para a "estrada mais próxima" funcionar sem sinal. Lembrar de liberar overpass-api.de e waze.com na revisão da CSP.
 - **Pendências para conversar:** nome Rally (item 3); 2e botão "resolvido" no atoleiro; 2f desvios no GPX/Comunidade; 8b marcação rápida por voz/botão do fone; testar no celular o APK novo (item 1).

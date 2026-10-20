@@ -2355,6 +2355,27 @@ button, input, select, textarea { font-family: inherit; }
 .dsh-help b { display: block; font-size: 0.95rem; }
 .dsh-help span { font-size: 0.8rem; color: var(--muted); }
 .dsh-help .svg-ico { color: var(--acc); }
+/* v6.6 — a caminho da largada (item 10) e estou perdido (item 11) */
+.nav-approach-box, .goal-card { position: absolute; left: 12px; right: 84px; top: 78px; z-index: 890; display: flex; align-items: center; gap: 12px; background: var(--surf); color: var(--ink); border: 1px solid var(--line2); border-radius: 16px; padding: 10px 12px; box-shadow: var(--shadow); max-width: 520px; }
+.nav-approach-box.hidden, .goal-card.hidden { display: none; }
+.nab-txt, .goal-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.nab-txt b, .goal-txt b { font-size: .98rem; }
+.nab-txt span, .goal-txt span { font-size: .85rem; color: var(--ink2); }
+.nab-btn { background: #33ccff; color: #062a3a; border: 0; border-radius: 10px; padding: 9px 12px; font: inherit; font-weight: 800; cursor: pointer; white-space: nowrap; }
+.goal-card { border-color: #1f7a4a; }
+.goal-arrow { width: 46px; height: 46px; flex: none; fill: #1f9d55; transition: transform .4s ease; }
+.goal-close { background: none; border: 0; font-size: 1.2rem; color: var(--muted); cursor: pointer; padding: 6px; }
+.nav-sos-btn { color: #c0392b; }
+.sos-opts { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
+.sos-opt { text-align: left; background: var(--surf2); color: var(--ink); border: 1px solid var(--line2); border-radius: 12px; padding: 11px 12px; font: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.sos-opt b { font-size: 1rem; }
+.sos-opt span { font-size: .82rem; color: var(--muted); }
+.sos-danger { border-color: #c0392b; }
+.sos-sub { display: flex; flex-direction: column; gap: 8px; margin: 6px 0; }
+.sos-sub.hidden { display: none; }
+.sos-sub button, .sos-sub a { text-align: left; background: var(--surf); color: var(--ink); border: 1px solid var(--line2); border-radius: 10px; padding: 10px 12px; font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; display: block; }
+.sos-coords { font-family: var(--mono); font-size: 1.05rem; font-weight: 700; text-align: center; padding: 6px; }
+.map-pick-hint { position: absolute; left: 50%; bottom: 190px; transform: translateX(-50%); z-index: 900; background: #1f7a4a; color: #fff; font-weight: 800; border-radius: 999px; padding: 10px 16px; box-shadow: var(--shadow); }
 /* v6.5.1 — tela Rotas Salvas rola (antes ficava travada com muitas rotas) */
 #screen-saved-routes { height: 100%; display: flex; flex-direction: column; }
 #screen-saved-routes > .nav-header, #screen-saved-routes > .saved-tabs { flex: 0 0 auto; }
@@ -2708,6 +2729,7 @@ html.fde-native .native-only { display: block; }
     <button id="btn-nav-recenter" class="nav-recenter-btn hidden">🎯 Centralizar</button>
 
     <div id="nav-side-tools" class="nav-side-tools">
+      <button id="btn-nav-sos" class="nav-tool-btn nav-sos-btn" title="Estou perdido / pedir ajuda" aria-label="Estou perdido"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle><path d="M5.6 5.6l3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"></path></svg></button>
       <button id="btn-nav-home" class="nav-tool-btn" title="Ir ao menu (a navegação continua)" aria-label="Ir ao menu sem parar a navegação"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 10v10h13V10"></path><path d="M10 20v-5h4v5"></path></svg></button>
       <button id="btn-nav-voice" class="nav-tool-btn" title="Alerta de desvio por voz e vibração" aria-label="Alerta por voz"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10z"></path><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"></path></svg></button>
       <button id="btn-nav-waypoint" class="nav-tool-btn" title="Marcar este local (foto e anotação)" aria-label="Marcar local"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg></button>
@@ -2745,6 +2767,16 @@ html.fde-native .native-only { display: block; }
       <div id="nav-deviation-pill" class="nav-deviation-pill nav-deviation-ok">Aguardando GPS...</div>
       <button id="btn-nav-pip" class="nav-threshold-btn hidden" title="Mini janela flutuante (experimental)">📺 PiP</button>
       <button id="btn-nav-threshold" class="nav-threshold-btn">Limite: 50m ✎</button>
+    </div>
+
+    <div id="nav-approach-box" class="nav-approach-box hidden">
+      <div class="nab-txt"><b>🚗 A caminho da largada</b><span id="nav-approach-dist">—</span></div>
+      <button id="btn-approach-waze" type="button" class="nab-btn">Abrir no Waze</button>
+    </div>
+    <div id="goal-card" class="goal-card hidden">
+      <svg id="goal-arrow" class="goal-arrow" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4 38 40 24 31 10 40Z"></path></svg>
+      <div class="goal-txt"><b id="goal-title">Voltando pelo caminho</b><span id="goal-sub">—</span></div>
+      <button id="btn-goal-close" type="button" class="goal-close" aria-label="Parar">✕</button>
     </div>
 
     <canvas id="nav-pip-canvas" width="320" height="180" style="display:none;"></canvas>
@@ -2793,6 +2825,23 @@ html.fde-native .native-only { display: block; }
   <span class="nrb-txt"><b id="nav-running-title">Navegação em andamento</b><small id="nav-running-sub">toque para voltar</small></span>
   <span class="nrb-go">Voltar ›</span>
 </button>
+
+<div id="sos-modal" class="modal-overlay">
+  <div class="modal-box modal-box-small">
+    <h2>🆘 Estou perdido</h2>
+    <p class="hint">As duas primeiras funcionam sem internet.</p>
+    <div class="sos-opts">
+      <button type="button" id="btn-sos-back" class="sos-opt"><b>↩ Voltar pelo caminho que fiz</b><span>Seta e distância seguindo o trajeto gravado até o começo.</span></button>
+      <button type="button" id="btn-sos-point" class="sos-opt"><b>🧭 Ir até um ponto</b><span>Início da rota, uma marcação ou um lugar que você tocar no mapa.</span></button>
+      <button type="button" id="btn-sos-road" class="sos-opt"><b>🛣️ Estrada mais próxima</b><span>Asfalto e terra perto de você (precisa de internet).</span></button>
+      <button type="button" id="btn-sos-help" class="sos-opt sos-danger"><b>📞 Pedir ajuda</b><span>Enviar sua posição por SMS/WhatsApp e ligar 193.</span></button>
+    </div>
+    <div id="sos-sub" class="sos-sub hidden"></div>
+    <div class="modal-actions">
+      <button id="btn-sos-close" class="modal-btn-secondary">Fechar</button>
+    </div>
+  </div>
+</div>
 
 <div id="dev-modal" class="modal-overlay">
   <div class="modal-box">
@@ -3119,6 +3168,7 @@ html.fde-native .native-only { display: block; }
       <div id="nav-wet-hint" class="hint"></div>
     </div>
     <p class="hint">O mapa da região será baixado para uso offline, se houver internet.</p>
+    <p class="hint">Longe da trilha? Comece a navegação mesmo assim: até chegar nela o app só mostra a distância (sem alarme) e começa a gravar quando você entrar. Para o asfalto: <a href="#" id="btn-confirm-waze">🚗 ir até a largada pelo Waze</a>.</p>
     <div class="modal-actions">
       <button id="btn-nav-confirm-cancel" class="modal-btn-secondary">Cancelar</button>
       <button id="btn-nav-confirm-ok" class="modal-btn-primary">Confirmar</button>
@@ -3312,8 +3362,16 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "6.5.1";
+  var APP_VERSION = "6.6";
   var CHANGELOG = [
+    {
+      version: "6.6",
+      date: "20/10/2026",
+      changes: [
+        "A caminho da largada: comece a navegação de casa — até chegar na trilha o app só mostra a distância (sem alarme de fora da rota), com botão para abrir o Waze; ao entrar na trilha avisa \"Chegou na trilha\" e começa a gravar",
+        "🆘 Estou perdido (botão vermelho na navegação): voltar pelo caminho que fiz e ir até um ponto com seta e distância (funcionam sem internet), estrada mais próxima (asfalto e terra, pelo OpenStreetMap) e pedir ajuda (posição por SMS/WhatsApp e ligar 193/190/192)"
+      ]
+    },
     {
       version: "6.5.1",
       date: "19/10/2026",
@@ -6963,6 +7021,7 @@ html.fde-native .native-only { display: block; }
     }, 50);
 
     v64OnNavStart(route);
+    v66OnNavStart(route);
     startWatchingPosition();
     if (!v59Resuming) v59SaveNow();
   }
@@ -7172,6 +7231,9 @@ html.fde-native .native-only { display: block; }
     }
     el.navCompassNeedle.style.transform = "rotate(" + navMap.getBearing() + "deg)";
 
+    v66GoalUpdate(current, pos);
+    if (v66ApproachCheck(current, pos)) return;
+
     var shouldRecord = true;
     var addedMeters = 0;
     if (navLastRecordedPoint) {
@@ -7337,6 +7399,9 @@ html.fde-native .native-only { display: block; }
     navExtrasOnFinish();
     v62OnFinish();
     v64OnFinish();
+    v66StopGoal();
+    v66Approach = false;
+    document.getElementById("nav-approach-box").classList.add("hidden");
     v59AfterFinish();
   }
 
@@ -15600,6 +15665,262 @@ html.fde-native .native-only { display: block; }
     });
     navMap.eachLayer(function (l) { navMap.fire("layeradd", { layer: l }); });
   }
+
+  // ================= v6.6: a caminho da largada (item 10) e estou perdido (item 11) =================
+  var v66Approach = false;
+  var v66Goal = null; // {kind:"back"|"point", title, target:{lat,lng}, trackRev?}
+  var v66GoalLayer = null;
+  var v66Picking = false;
+  var v66LastGoalSpeak = 0;
+
+  function v66WazeUrl(p) {
+    return "https://waze.com/ul?ll=" + p.lat.toFixed(6) + "," + p.lng.toFixed(6) + "&navigate=yes";
+  }
+
+  function v66OpenWaze(route) {
+    if (!route || !route.points || !route.points.length) return;
+    fdeOpenExternal(v66WazeUrl(route.points[0]));
+  }
+
+  function v66OnNavStart(route) {
+    v66StopGoal();
+    // começa em "a caminho da largada" até o primeiro GPS mostrar que já está na trilha
+    v66Approach = !v59Resuming;
+    document.getElementById("nav-approach-box").classList.add("hidden");
+  }
+
+  // Retorna true enquanto ainda está longe da trilha (não grava, não alarma).
+  function v66ApproachCheck(current, pos) {
+    if (!v66Approach || navMode !== "route" || !navCurrentRoute || !navCurrentRoute.points.length) return false;
+    var nearest = nearestPointOnRoute(current, navCurrentRoute.points);
+    var alt = v64NearestAlt(current);
+    var d = Math.min(nearest.distance, alt ? alt.distance : Infinity);
+    var limit = Math.max(deviationThreshold, 150);
+    var box = document.getElementById("nav-approach-box");
+    var c = pos.coords;
+    navLastFix = { lat: c.latitude, lng: c.longitude, acc: c.accuracy, ts: pos.timestamp || Date.now() };
+    if (d <= limit) {
+      var wasFar = !box.classList.contains("hidden");
+      v66Approach = false;
+      box.classList.add("hidden");
+      if (wasFar) {
+        if (navStats) navStats = newNavStats(); // o passeio conta a partir da trilha
+        buzz([200, 100, 200]);
+        speak("Chegou na trilha. Navegação começando.");
+        showToast("🌄 Chegou na trilha — gravando o passeio.");
+      }
+      return false;
+    }
+    var toStart = haversineMeters(current.lat, current.lng, navCurrentRoute.points[0].lat, navCurrentRoute.points[0].lng);
+    box.classList.remove("hidden");
+    document.getElementById("nav-approach-dist").textContent =
+      "Trilha a " + formatDistance(d) + (Math.abs(toStart - d) > 200 ? " · largada a " + formatDistance(toStart) : "") + " · gravando quando chegar";
+    el.navDeviationPill.className = "nav-deviation-pill nav-deviation-ok";
+    el.navDeviationPill.textContent = "🚗 Indo para a trilha";
+    el.navDistanceRemaining.textContent = formatDistance(d);
+    var sp = c.speed != null && !isNaN(c.speed) ? Math.round(c.speed * 3.6) : null;
+    el.navSpeed.textContent = sp == null ? "--" : String(sp);
+    return true;
+  }
+
+  // ---- alvo com seta (voltar pelo caminho / ir até um ponto) ----
+  function v66StartGoal(goal) {
+    v66Goal = goal;
+    v66LastGoalSpeak = 0;
+    if (!v66GoalLayer) v66GoalLayer = L.layerGroup().addTo(navMap);
+    v66GoalLayer.clearLayers();
+    if (goal.kind === "back" && goal.trackRev) {
+      L.polyline(goal.trackRev.map(function (p) { return [p.lat, p.lng]; }), { color: "#1f9d55", weight: 7, opacity: 0.85 }).addTo(v66GoalLayer);
+    }
+    L.circleMarker([goal.target.lat, goal.target.lng], { radius: 10, color: "#fff", weight: 3, fillColor: "#1f9d55", fillOpacity: 1 }).bindPopup(goal.title).addTo(v66GoalLayer);
+    document.getElementById("goal-title").textContent = goal.title;
+    document.getElementById("goal-card").classList.remove("hidden");
+    closeModal(document.getElementById("sos-modal"));
+    speak(goal.kind === "back" ? "Voltando pelo caminho. Siga a linha verde." : "Seguindo para " + goal.title + ".");
+    if (navLastFix) v66GoalUpdate({ lat: navLastFix.lat, lng: navLastFix.lng }, null);
+  }
+
+  function v66StopGoal() {
+    v66Goal = null;
+    if (v66GoalLayer) v66GoalLayer.clearLayers();
+    var c = document.getElementById("goal-card");
+    if (c) c.classList.add("hidden");
+  }
+
+  function v66CompassText(deg) {
+    var n = ["norte", "nordeste", "leste", "sudeste", "sul", "sudoeste", "oeste", "noroeste"];
+    return n[Math.round(((deg % 360) + 360) % 360 / 45) % 8];
+  }
+
+  function v66GoalUpdate(current) {
+    if (!v66Goal) return;
+    var aim = v66Goal.target, remaining;
+    if (v66Goal.kind === "back") {
+      var tr = v66Goal.trackRev, cum = v66Goal.cum;
+      var pr = projectOnRoute(current, tr, cum, null);
+      var aimAlong = Math.min(cum[cum.length - 1], pr.along + Math.max(30, Math.min(80, pr.distance + 30)));
+      aim = pointAtDistance(tr, cum, aimAlong);
+      remaining = cum[cum.length - 1] - pr.along + pr.distance;
+    } else {
+      remaining = haversineMeters(current.lat, current.lng, aim.lat, aim.lng);
+    }
+    var brg = bearingDeg(current, aim);
+    var mapBearing = navMap && navMap.getBearing ? navMap.getBearing() : 0;
+    document.getElementById("goal-arrow").style.transform = "rotate(" + (brg + mapBearing) + "deg)";
+    var total = haversineMeters(current.lat, current.lng, v66Goal.target.lat, v66Goal.target.lng);
+    document.getElementById("goal-sub").textContent = formatDistance(remaining) + (v66Goal.kind === "back" ? " pelo caminho" : " em linha reta") +
+      " · siga para o " + v66CompassText(brg) + (v66Goal.kind === "back" && Math.abs(total - remaining) > 100 ? " · " + formatDistance(total) + " em linha reta" : "");
+    if (total < 30) {
+      speak("Você chegou.");
+      buzz([300, 100, 300]);
+      showToast("✅ Você chegou: " + v66Goal.title);
+      v66StopGoal();
+      return;
+    }
+    if (Date.now() - v66LastGoalSpeak > 60000) {
+      v66LastGoalSpeak = Date.now();
+      speak("Faltam " + spokenDistance(remaining) + ", para o " + v66CompassText(brg) + ".");
+    }
+  }
+
+  function v66BackGoal() {
+    if (navRecordedTrack.length < 2) { showToast("Ainda não há caminho gravado para voltar."); return; }
+    var rev = navRecordedTrack.slice().reverse().map(function (p) { return { lat: p.lat, lng: p.lng }; });
+    var cum = cumulativeDistances(rev);
+    v66StartGoal({ kind: "back", title: "Voltando pelo caminho", target: rev[rev.length - 1], trackRev: rev, cum: cum });
+  }
+
+  function v66PointMenu() {
+    var sub = document.getElementById("sos-sub");
+    sub.innerHTML = "";
+    sub.classList.remove("hidden");
+    function add(label, fn) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = label;
+      b.addEventListener("click", fn);
+      sub.appendChild(b);
+    }
+    add("👆 Tocar no mapa para escolher o lugar", function () {
+      closeModal(document.getElementById("sos-modal"));
+      v66Picking = true;
+      var hint = document.createElement("div");
+      hint.className = "map-pick-hint";
+      hint.id = "map-pick-hint";
+      hint.textContent = "Toque no mapa no lugar de destino";
+      document.getElementById("nav-map").appendChild(hint);
+      setNavFollowMode(false);
+    });
+    if (navMode === "route" && navCurrentRoute && navCurrentRoute.points.length) {
+      add("🏁 Início da rota (largada)", function () { v66StartGoal({ kind: "point", title: "Largada", target: navCurrentRoute.points[0] }); });
+      add("🎯 Fim da rota", function () { var p = navCurrentRoute.points; v66StartGoal({ kind: "point", title: "Fim da rota", target: p[p.length - 1] }); });
+    }
+    if (navRecordedTrack.length) add("📍 Onde comecei hoje", function () { v66StartGoal({ kind: "point", title: "Onde comecei hoje", target: navRecordedTrack[0] }); });
+    navAllWaypoints().slice(-8).forEach(function (w) {
+      var t = waypointType(w.type);
+      add(t.emoji + " " + (w.note ? w.note.slice(0, 40) : t.label), function () { v66StartGoal({ kind: "point", title: w.note ? w.note.slice(0, 30) : t.label, target: { lat: w.lat, lng: w.lng } }); });
+    });
+  }
+
+  // ---- estrada mais próxima (OpenStreetMap / Overpass) ----
+  var V66_PAVED = { motorway: 1, trunk: 1, primary: 1, secondary: 1, tertiary: 1, motorway_link: 1, trunk_link: 1, primary_link: 1, secondary_link: 1, tertiary_link: 1 };
+  var V66_ROAD_NAME = { motorway: "rodovia", trunk: "rodovia", primary: "estrada principal", secondary: "estrada", tertiary: "estrada", unclassified: "estrada vicinal", residential: "rua", service: "acesso", track: "carreador / estrada de terra" };
+
+  function v66RoadIsPaved(tags) {
+    var sf = (tags.surface || "").toLowerCase();
+    if (/unpaved|dirt|ground|gravel|earth|sand|grass|compacted|mud|fine_gravel/.test(sf)) return false;
+    if (/asphalt|paved|concrete|paving_stones|sett/.test(sf)) return true;
+    return !!V66_PAVED[tags.highway];
+  }
+
+  function v66NearestRoads() {
+    var sub = document.getElementById("sos-sub");
+    sub.classList.remove("hidden");
+    if (!navLastFix) { sub.innerHTML = '<div class="hint">Aguardando o GPS…</div>'; return; }
+    sub.innerHTML = '<div class="hint">Procurando estradas em volta…</div>';
+    var me = { lat: navLastFix.lat, lng: navLastFix.lng };
+    var q = '[out:json][timeout:20];way(around:5000,' + me.lat.toFixed(5) + "," + me.lng.toFixed(5) +
+      ')[highway~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|track|service|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link)$"];out tags geom;';
+    fetch("https://overpass-api.de/api/interpreter", { method: "POST", body: "data=" + encodeURIComponent(q), headers: { "Content-Type": "application/x-www-form-urlencoded" } })
+      .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+      .then(function (j) {
+        var bestAny = null, bestPaved = null;
+        (j.elements || []).forEach(function (w) {
+          if (!w.geometry || w.geometry.length < 2) return;
+          var pts = w.geometry.map(function (g) { return { lat: g.lat, lng: g.lon }; });
+          var n = nearestPointOnRoute(me, pts);
+          var a = pts[n.segmentIndex], b = pts[n.segmentIndex + 1];
+          var at = { lat: a.lat + (b.lat - a.lat) * n.t, lng: a.lng + (b.lng - a.lng) * n.t };
+          var item = { d: n.distance, at: at, tags: w.tags || {} };
+          if (!bestAny || item.d < bestAny.d) bestAny = item;
+          if (v66RoadIsPaved(item.tags) && (!bestPaved || item.d < bestPaved.d)) bestPaved = item;
+        });
+        sub.innerHTML = "";
+        if (!bestAny) { sub.innerHTML = '<div class="hint">Nenhuma estrada cadastrada num raio de 5 km. Use "Voltar pelo caminho".</div>'; return; }
+        function add(item, kind) {
+          var name = item.tags.name || item.tags.ref || V66_ROAD_NAME[item.tags.highway] || "estrada";
+          var brg = bearingDeg(me, item.at);
+          var b = document.createElement("button");
+          b.type = "button";
+          b.textContent = kind + ": " + name + " — " + formatDistance(item.d) + " para o " + v66CompassText(brg) + " (seguir)";
+          b.addEventListener("click", function () { v66StartGoal({ kind: "point", title: kind + ": " + name, target: item.at }); });
+          sub.appendChild(b);
+        }
+        add(bestAny, v66RoadIsPaved(bestAny.tags) ? "🛣️ Asfalto mais perto" : "🟫 Estrada mais perto");
+        if (bestPaved && bestPaved !== bestAny) add(bestPaved, "🛣️ Asfalto mais perto");
+        var note = document.createElement("div");
+        note.className = "hint";
+        note.textContent = "Distância em linha reta, pelos dados do OpenStreetMap (pode faltar algum carreador). © colaboradores do OpenStreetMap";
+        sub.appendChild(note);
+      })
+      .catch(function () {
+        sub.innerHTML = '<div class="hint">Sem internet agora. Use "↩ Voltar pelo caminho" ou "🧭 Ir até um ponto", que funcionam sem sinal.</div>';
+      });
+  }
+
+  function v66HelpMenu() {
+    var sub = document.getElementById("sos-sub");
+    sub.innerHTML = "";
+    sub.classList.remove("hidden");
+    var c = document.createElement("div");
+    c.className = "sos-coords";
+    c.textContent = navLastFix ? navLastFix.lat.toFixed(6) + ", " + navLastFix.lng.toFixed(6) : "Aguardando o GPS…";
+    sub.appendChild(c);
+    var send = document.createElement("button");
+    send.type = "button";
+    send.textContent = "📤 Enviar minha posição (SMS funciona sem internet)";
+    send.addEventListener("click", function () { closeModal(document.getElementById("sos-modal")); openSendPosition(); });
+    sub.appendChild(send);
+    [["📞 Ligar 193 — Bombeiros", "tel:193"], ["📞 Ligar 190 — Polícia", "tel:190"], ["📞 Ligar 192 — SAMU", "tel:192"]].forEach(function (x2) {
+      var a = document.createElement("a");
+      a.href = x2[1];
+      a.textContent = x2[0];
+      sub.appendChild(a);
+    });
+  }
+
+  function initV66() {
+    document.getElementById("btn-approach-waze").addEventListener("click", function () { v66OpenWaze(navCurrentRoute); });
+    document.getElementById("btn-confirm-waze").addEventListener("click", function (e) { e.preventDefault(); v66OpenWaze(pendingNavRoute); });
+    document.getElementById("btn-goal-close").addEventListener("click", v66StopGoal);
+    document.getElementById("btn-nav-sos").addEventListener("click", function () {
+      document.getElementById("sos-sub").classList.add("hidden");
+      openModal(document.getElementById("sos-modal"));
+    });
+    document.getElementById("btn-sos-close").addEventListener("click", function () { closeModal(document.getElementById("sos-modal")); });
+    document.getElementById("btn-sos-back").addEventListener("click", v66BackGoal);
+    document.getElementById("btn-sos-point").addEventListener("click", v66PointMenu);
+    document.getElementById("btn-sos-road").addEventListener("click", v66NearestRoads);
+    document.getElementById("btn-sos-help").addEventListener("click", v66HelpMenu);
+    initNavMapIfNeeded();
+    navMap.on("click", function (e) {
+      if (!v66Picking || !e.latlng) return;
+      v66Picking = false;
+      var h = document.getElementById("map-pick-hint");
+      if (h) h.remove();
+      v66StartGoal({ kind: "point", title: "Ponto escolhido", target: { lat: e.latlng.lat, lng: e.latlng.lng } });
+    });
+  }
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -15637,6 +15958,7 @@ html.fde-native .native-only { display: block; }
     safeInit(initV62NavMenu, "menu sem parar a navegação (v6.2)");
     safeInit(initV64, "desvios e caminho seco/molhado (v6.4)");
     safeInit(initV65MapLoading, "aviso de mapa carregando (v6.5)");
+    safeInit(initV66, "a caminho da largada e estou perdido (v6.6)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
