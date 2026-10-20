@@ -2834,6 +2834,7 @@ html.fde-native .native-only { display: block; }
       <button type="button" id="btn-sos-back" class="sos-opt"><b>↩ Voltar pelo caminho que fiz</b><span>Seta e distância seguindo o trajeto gravado até o começo.</span></button>
       <button type="button" id="btn-sos-point" class="sos-opt"><b>🧭 Ir até um ponto</b><span>Início da rota, uma marcação ou um lugar que você tocar no mapa.</span></button>
       <button type="button" id="btn-sos-road" class="sos-opt"><b>🛣️ Estrada mais próxima</b><span>Asfalto e terra perto de você (precisa de internet).</span></button>
+      <button type="button" id="btn-sos-gmaps" class="sos-opt"><b>🗺️ Abrir no Google Maps</b><span>Abre o app do Google na sua posição. Funciona sem sinal se você baixou a região antes (Google Maps › Mapas off-line).</span></button>
       <button type="button" id="btn-sos-help" class="sos-opt sos-danger"><b>📞 Pedir ajuda</b><span>Enviar sua posição por SMS/WhatsApp e ligar 193.</span></button>
     </div>
     <div id="sos-sub" class="sos-sub hidden"></div>
@@ -3362,8 +3363,13 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "6.6.1";
+  var APP_VERSION = "6.6.2";
   var CHANGELOG = [
+    {
+      version: "6.6.2",
+      date: "20/10/2026",
+      changes: ["🆘 Estou perdido: botão \"Abrir no Google Maps\" na sua posição — funciona sem sinal se você baixou a região no Google Maps (Mapas off-line)"]
+    },
     {
       version: "6.6.1",
       date: "20/10/2026",
@@ -16068,6 +16074,11 @@ html.fde-native .native-only { display: block; }
     document.getElementById("btn-sos-point").addEventListener("click", v66PointMenu);
     document.getElementById("btn-sos-road").addEventListener("click", v66NearestRoads);
     document.getElementById("btn-sos-help").addEventListener("click", v66HelpMenu);
+    document.getElementById("btn-sos-gmaps").addEventListener("click", function () {
+      if (!navLastFix) { showToast("Aguardando o GPS…"); return; }
+      closeModal(document.getElementById("sos-modal"));
+      fdeOpenExternal("https://www.google.com/maps/search/?api=1&query=" + navLastFix.lat.toFixed(6) + "," + navLastFix.lng.toFixed(6));
+    });
     initNavMapIfNeeded();
     navMap.on("click", function (e) {
       if (!v66Picking || !e.latlng) return;
