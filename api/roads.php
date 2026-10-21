@@ -26,6 +26,7 @@ rate_limit('roads', $ip, 120, 60, 'Muitas buscas de estrada. Tente daqui a pouco
 rate_hit('roads', $ip);
 
 function rd_elapsed(): float { global $T0; return microtime(true) - $T0; }
+$RD_DIAG = [];   // resumo das consultas ao Overpass (servidor, código, segundos, quadrados) — ajuda a entender lentidão
 
 function rd_overpass_urls(): array {
     $c = fde_config();
@@ -72,7 +73,7 @@ function rd_polyline(array $pts): string {
 
 /** Busca no Overpass; tenta os servidores em ordem. Devolve elements ou null. */
 function rd_fetch(string $query, int $timeout): ?array {
-    foreach (rd_overpass_urls() as $url) {
+    foreach (rd_overpass_urls() as $idx => $url) {
         $left = RD_BUDGET_S - rd_elapsed();
         if ($left < 15) return null;
         $t1 = microtime(true);
@@ -82,13 +83,16 @@ function rd_fetch(string $query, int $timeout): ?array {
             CURLOPT_POSTFIELDS => 'data=' . rawurlencode($query),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_TIMEOUT => (int)min($timeout, $left - 5),
+            CURLOPT_TIMEOUT => (int)min($idx === 0 ? $timeout : 40, $left - 5),   // reservas: no máximo 40 s
             CURLOPT_ENCODING => '',
             CURLOPT_USERAGENT => 'ForaDeEstrada/7.1 (+https://foradeestrada.sansoliveira.com.br)',
         ]);
         $body = curl_exec($ch);
         $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $cerr = curl_errno($ch);
         curl_close($ch);
+        global $RD_DIAG;
+        $RD_DIAG[] = [parse_url($url, PHP_URL_HOST), $code, round(microtime(true) - $t1, 1), $cerr, is_string($body) ? strlen($body) : 0];
         if ($code === 200 && is_string($body)) {
             $j = json_decode($body, true);
             if (is_array($j) && isset($j['elements']) && is_array($j['elements'])) {
@@ -264,7 +268,7 @@ if ($mode === 'near') {
         $pp = rd_closest($lat, $lng, rd_load('p', $tp), true);
         if ($pp && (!$paved || $pp['d'] < $paved['d'])) $paved = $pp;
     }
-    json_out(['ok' => true, 'any' => $any, 'paved' => $paved, 'partial' => $pending > 0]);
+    json_out(['ok' => true, 'any' => $any, 'paved' => $paved, 'partial' => $pending > 0, 'diag' => $RD_DIAG]);
 }
 
 if ($mode === 'route') {
@@ -284,7 +288,7 @@ if ($mode === 'route') {
     $roads = rd_load('a', $tiles);
     if ($pending && !$roads) fail('O serviço de estradas está ocupado. Tente de novo em instantes.', 503, ['busy' => true]);
     if (function_exists('ob_gzhandler') && str_contains((string)($_SERVER['HTTP_ACCEPT_ENCODING'] ?? ''), 'gzip')) ob_start('ob_gzhandler');
-    json_out(['ok' => true, 'roads' => $roads, 'pending' => $pending]);
+    json_out(['ok' => true, 'roads' => $roads, 'pending' => $pending, 'diag' => $RD_DIAG]);
 }
 
 fail('Modo inválido.');
