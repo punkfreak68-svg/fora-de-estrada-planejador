@@ -3,7 +3,7 @@
 // o .htaccess da pasta bloqueia arquivos que começam com "_".
 declare(strict_types=1);
 
-const FDE_SCHEMA_VERSION = 8;
+const FDE_SCHEMA_VERSION = 9;
 const FDE_SESSION_COOKIE = 'fde_sess';
 const FDE_SESSION_DAYS = 60;
 
@@ -222,6 +222,18 @@ function fde_migrate(PDO $pdo): void {
             PRIMARY KEY (user_id, route_id),
             CONSTRAINT fk_garage_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+    if ($v < 9) {
+        // v7.1 — estradas do OpenStreetMap guardadas no servidor por quadrado do mapa (camada a = todas, p = só asfalto/principais)
+        $pdo->exec("CREATE TABLE IF NOT EXISTS road_tiles (
+            layer CHAR(1) NOT NULL,
+            tx INT NOT NULL,
+            ty INT NOT NULL,
+            n INT UNSIGNED NOT NULL DEFAULT 0,
+            data MEDIUMBLOB NOT NULL,
+            fetched_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (layer, tx, ty)
+        ) ENGINE=InnoDB");
     }
     $pdo->prepare("REPLACE INTO fde_meta (k, v) VALUES ('schema', ?)")->execute([(string)FDE_SCHEMA_VERSION]);
 }

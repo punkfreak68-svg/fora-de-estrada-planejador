@@ -3429,8 +3429,18 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "7.0";
+  var APP_VERSION = "7.1";
   var CHANGELOG = [
+    {
+      version: "7.1",
+      date: "21/10/2026",
+      changes: [
+        "🆘 Estou perdido › estrada mais próxima: agora o nosso servidor faz a busca e guarda as estradas por região — resposta bem mais rápida e sem depender do serviço gratuito lotado (se o servidor falhar, o app ainda tenta direto)",
+        "As estradas em volta da rota também são baixadas pelo servidor ao iniciar a navegação",
+        "Correção: no computador, o mapa do planejamento às vezes abria mostrando o mundo inteiro",
+        "Segurança: a política de conteúdo (CSP) do site passou a bloquear de verdade"
+      ]
+    },
     {
       version: "7.0",
       date: "21/10/2026",
@@ -6469,7 +6479,13 @@ html.fde-native .native-only { display: block; }
   function goToPlanningScreen(afterShown) {
     showScreen("planning");
     setTimeout(function () {
+      // v7.1: se a rota foi enquadrada com a tela escondida (mapa com tamanho zero), o zoom saía errado
+      // (mundo inteiro ou zoom máximo) — enquadra de novo agora que o mapa tem tamanho
+      var wasHidden = map && (function () { var sz = map.getSize(); return !sz.x || !sz.y; })();
       if (map) map.invalidateSize();
+      if (wasHidden && state.points.length > 0 && typeof afterShown !== "function") {
+        map.fitBounds(L.featureGroup(markers).getBounds().pad(0.2));
+      }
       if (typeof afterShown === "function") afterShown();
     }, 50);
   }
@@ -15957,6 +15973,26 @@ html.fde-native .native-only { display: block; }
     return attempt();
   }
 
+  // v7.1: pergunta primeiro ao nosso servidor (ele busca no Overpass com paciência e guarda por região)
+  function v71RoadsServer(body, timeoutMs) {
+    var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, timeoutMs);
+    return fetch("api/roads.php", {
+      method: "POST", credentials: "same-origin", cache: "no-store",
+      headers: { "X-FDE": "1", "Content-Type": "application/json" },
+      body: JSON.stringify(body), signal: ctrl ? ctrl.signal : undefined
+    }).then(function (r) {
+      return r.json().then(function (j) {
+        clearTimeout(timer);
+        if (!j || !j.ok) { var e = new Error((j && j.error) || "http " + r.status); e.busy = !!(j && j.busy); throw e; }
+        return j;
+      });
+    }, function (e) { clearTimeout(timer); throw e; });
+  }
+  function v71ServerItem(x) {
+    return x ? { d: x.d, at: { lat: x.lat, lng: x.lng }, tags: { highway: x.h, surface: x.s, name: x.n } } : null;
+  }
+
   function v66RoadQuery(me, radius, classes) {
     return "[out:json][timeout:15];way(around:" + radius + "," + me.lat.toFixed(5) + "," + me.lng.toFixed(5) + ')[highway~"^(' + classes + ')$"];out tags geom;';
   }
@@ -16039,6 +16075,31 @@ html.fde-native .native-only { display: block; }
         parts.push("way(around:3000," + q0.lat.toFixed(5) + "," + q0.lng.toFixed(5) + ")[highway~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|track|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link)$\"];");
       }
       var q = "[out:json][timeout:120];(" + parts.join("") + ");out tags geom;";
+      var pts = [];
+      for (var k = 0; k < n; k++) {
+        var qq = pointAtDistance(route.points, cum, (total * k) / (n - 1));
+        pts.push([+qq.lat.toFixed(5), +qq.lng.toFixed(5)]);
+      }
+      v71RoadsServer({ mode: "route", pts: pts }, 170000)
+        .then(function (j) {
+          var list = j.roads || [];
+          return v66RoadsPut(route.id, { at: j.pending ? 0 : Date.now(), roads: list }).then(function (ok) {
+            v66Prefetching[route.id] = false;
+            if (j.pending && attempt < 6) {
+              // o servidor ainda está buscando parte da região: volta daqui a pouco para completar
+              setTimeout(function () { v66PrefetchRoads(route, attempt + 1); }, 20000);
+              return;
+            }
+            if (ok && list.length) showToast("🛣️ Estradas da região guardadas para emergência (" + list.length + ").");
+          });
+        })
+        .catch(function () { v71PrefetchDirect(route, attempt, q); });
+    });
+  }
+
+  // Plano B do v6.6.1: direto no serviço público (se o nosso servidor não respondeu)
+  function v71PrefetchDirect(route, attempt, q) {
+      v66Prefetching[route.id] = true;
       v66Overpass(q, 150000)
         .then(function (j) {
           if (j && j.remark && !(j.elements || []).length) throw new Error(j.remark);
@@ -16055,7 +16116,6 @@ html.fde-native .native-only { display: block; }
             v66Prefetching[route.id] = false;
           }
         });
-    });
   }
 
   function v66NearestRoads() {
@@ -16095,6 +16155,24 @@ html.fde-native .native-only { display: block; }
   }
 
   function v66NearestRoadsOnline(sub, me) {
+    var box = sub;
+    box.innerHTML = '<div class="hint">Procurando estradas perto de você…</div>';
+    v71RoadsServer({ mode: "near", lat: +me.lat.toFixed(6), lng: +me.lng.toFixed(6) }, 110000)
+      .then(function (j) {
+        var any = v71ServerItem(j.any), pav = v71ServerItem(j.paved);
+        if (!any && !pav) { box.innerHTML = '<div class="hint">Nenhuma estrada cadastrada por perto. Use "↩ Voltar pelo caminho".</div>'; return; }
+        v66ShowRoads(box, me, any, pav, false);
+      })
+      .catch(function () {
+        if (navigator.onLine === false) {
+          box.innerHTML = '<div class="hint">Sem internet agora. Use "↩ Voltar pelo caminho" ou "🧭 Ir até um ponto", que funcionam sem sinal.</div>';
+          return;
+        }
+        v71NearestRoadsDirect(sub, me);   // servidor fora do ar: pergunta direto ao serviço público, como antes
+      });
+  }
+
+  function v71NearestRoadsDirect(sub, me) {
     var ALL = "motorway|trunk|primary|secondary|tertiary|unclassified|residential|track|service|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link";
     var PAVED = "motorway|trunk|primary|secondary|tertiary|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link";
     var bestAny = null, bestPaved = null;
