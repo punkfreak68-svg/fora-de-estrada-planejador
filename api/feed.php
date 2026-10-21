@@ -339,7 +339,22 @@ function clean_route($r): array {
     $m = is_array($r['meta'] ?? null) ? $r['meta'] : [];
     $meta = ['difficulty' => max(0, min(5, (int)($m['difficulty'] ?? 0))), 'vehicle' => mb_substr((string)($m['vehicle'] ?? ''), 0, 40),
         'season' => mb_substr((string)($m['season'] ?? ''), 0, 40), 'notes' => mb_substr((string)($m['notes'] ?? ''), 0, 500)];
-    return ['name' => mb_substr((string)($r['name'] ?? ''), 0, 100), 'points' => $pts, 'waypoints' => $wps, 'meta' => $meta];
+    // v7.1: desvios (caminho molhado / alternativo) — só tipo, data e pontos
+    $alts = [];
+    foreach (array_slice(is_array($r['alts'] ?? null) ? $r['alts'] : [], 0, 20) as $a) {
+        if (!is_array($a) || !is_array($a['points'] ?? null)) continue;
+        $ap = [];
+        foreach (array_slice($a['points'], 0, 2000) as $p) {
+            if (!is_array($p) || !num_ok($p['lat'] ?? null, -90, 90) || !num_ok($p['lng'] ?? null, -180, 180)) continue 2;
+            $ap[] = ['lat' => round((float)$p['lat'], 6), 'lng' => round((float)$p['lng'], 6)];
+        }
+        if (count($ap) < 2) continue;
+        $alts[] = ['kind' => ($a['kind'] ?? '') === 'molhado' ? 'molhado' : 'alternativo',
+            'createdAt' => is_int($a['createdAt'] ?? null) && $a['createdAt'] > 0 ? $a['createdAt'] : 0, 'points' => $ap];
+    }
+    $out = ['name' => mb_substr((string)($r['name'] ?? ''), 0, 100), 'points' => $pts, 'waypoints' => $wps, 'meta' => $meta];
+    if ($alts) $out['alts'] = $alts;
+    return $out;
 }
 
 function route_km(array $pts): float {

@@ -3429,8 +3429,16 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "7.1";
+  var APP_VERSION = "7.2";
   var CHANGELOG = [
+    {
+      version: "7.2",
+      date: "21/10/2026",
+      changes: [
+        "↪ Desvios (caminho molhado / alternativo) agora vão junto no GPX exportado, como trilhas extras — e voltam como desvios ao importar o GPX no Fora de Estrada",
+        "Comunidade: a trilha publicada leva os desvios; quem baixa recebe o caminho molhado ligado ao atoleiro (com aviso por voz), e o post avisa que tem desvio"
+      ]
+    },
     {
       version: "7.1",
       date: "21/10/2026",
@@ -4845,6 +4853,7 @@ html.fde-native .native-only { display: block; }
     state.waypoints = [];
     state.elevation = null;
     state.roadbookNotes = {};
+    state.pendingAlts = [];
     weatherState = null;
     el.routeName.value = "";
     updateFolderLabel();
@@ -5341,6 +5350,8 @@ html.fde-native .native-only { display: block; }
       return r.id === id;
     });
     if (existingIndex >= 0 && Array.isArray(routes[existingIndex].alts)) record.alts = routes[existingIndex].alts;
+    else if (state.pendingAlts && state.pendingAlts.length) record.alts = state.pendingAlts;   // v7.1: vindos de um GPX
+    state.pendingAlts = [];
     if (existingIndex >= 0) {
       routes[existingIndex] = record;
     } else {
@@ -5600,7 +5611,11 @@ html.fde-native .native-only { display: block; }
   }
 
   function buildGpx() {
-    return buildGpxForRoute(currentPlanningRoute());
+    var r = currentPlanningRoute();
+    // v7.1: desvios (caminho molhado/alternativo) ficam na rota salva, não no rascunho
+    var saved = state.id ? v64FindRoute(state.id) : null;
+    r.alts = saved && saved.alts && saved.alts.length ? saved.alts : (state.pendingAlts || []);
+    return buildGpxForRoute(r);
   }
 
   function sanitizeFileName(name) {
@@ -5645,8 +5660,16 @@ html.fde-native .native-only { display: block; }
     return found.length > 0 ? found[0].textContent.trim() : "";
   }
 
+  function v71IsAltTrk(trk) {
+    var t = trk.getElementsByTagName("type")[0];
+    return !!(t && t.parentNode === trk && /^fde-alt-/.test(t.textContent.trim()));
+  }
   function parseGpxPoints(doc) {
     var els = doc.getElementsByTagName("trkpt");
+    var trks = doc.getElementsByTagName("trk");
+    for (var ti = 0; ti < trks.length; ti++) {
+      if (!v71IsAltTrk(trks[ti])) { if (trks.length > 1) els = trks[ti].getElementsByTagName("trkpt"); break; }
+    }
     if (els.length === 0) els = doc.getElementsByTagName("rtept");
     if (els.length === 0) els = doc.getElementsByTagName("wpt");
     var points = [];
@@ -6066,8 +6089,10 @@ html.fde-native .native-only { display: block; }
         var points, suggestedName;
         var importedWaypoints = [];
         var importedMeta = null;
+        var importedAlts = [];
         if (isGpx) {
           points = parseGpxPoints(doc);
+          importedAlts = v71ParseGpxAlts(doc);
           suggestedName = parseGpxName(doc);
           importedWaypoints = parseGpxWaypoints(doc);
           importedMeta = parseGpxMeta(doc);
@@ -6096,6 +6121,11 @@ html.fde-native .native-only { display: block; }
           if (state.points.length === points.length && (before === 0 || state.points[0].lat === points[0].lat)) {
             state.waypoints = importedWaypoints;
             if (importedMeta) state.meta = importedMeta;
+            state.pendingAlts = v71BuildAlts(state.points, importedAlts, state.waypoints);
+            if (state.pendingAlts.length) {
+              v64DrawPlanningAlts({ alts: state.pendingAlts });
+              showToast("↪ " + state.pendingAlts.length + (state.pendingAlts.length > 1 ? " desvios vieram" : " desvio veio") + " junto (caminho molhado/alternativo). Salve a rota para guardar.");
+            }
             renderRouteExtras();
             saveDraft();
           }
@@ -9468,6 +9498,21 @@ html.fde-native .native-only { display: block; }
     });
     lines.push("    </trkseg>");
     lines.push("  </trk>");
+    // v7.1: cada desvio vira uma trilha extra marcada com <type>fde-alt-…</type> (outros apps mostram como trilha a mais)
+    (route.alts || []).forEach(function (alt) {
+      if (!alt || !alt.points || alt.points.length < 2) return;
+      var wet = alt.kind === "molhado";
+      lines.push("  <trk>");
+      lines.push("    <name>" + escapeXml((wet ? "Caminho molhado (desvio de atoleiro)" : "Caminho alternativo") + " — " + name) + "</name>");
+      lines.push("    <desc>" + escapeXml((wet ? "Use com chuva; no seco dá para passar pela rota principal." : "Desvio da rota principal.") + (alt.createdAt ? " Visto em " + v64FmtDate(alt.createdAt) + "." : "")) + "</desc>");
+      lines.push("    <type>fde-alt-" + (wet ? "molhado" : "alternativo") + "</type>");
+      lines.push("    <trkseg>");
+      alt.points.forEach(function (p) {
+        lines.push('      <trkpt lat="' + p.lat + '" lon="' + p.lng + '"></trkpt>');
+      });
+      lines.push("    </trkseg>");
+      lines.push("  </trk>");
+    });
     lines.push("</gpx>");
     return lines.join("\n");
   }
@@ -13870,6 +13915,14 @@ html.fde-native .native-only { display: block; }
       });
   }
 
+  function v71PostAltsNote(p) {
+    var alts = (p.route && p.route.alts) || [];
+    if (!alts.length) return "";
+    var wet = alts.filter(function (a) { return a.kind === "molhado"; }).length;
+    var txt = wet ? "↪ Tem " + (wet > 1 ? wet + " caminhos molhados" : "caminho molhado") + " (desvio de atoleiro para tempo de chuva)" : "↪ Tem " + alts.length + (alts.length > 1 ? " caminhos alternativos" : " caminho alternativo");
+    return '<p class="hint" style="margin:-4px 0 12px">' + txt + " — vem junto ao baixar.</p>";
+  }
+
   function fdRenderPost() {
     var p = fd.cur;
     var comments = p.comment_list
@@ -13884,6 +13937,7 @@ html.fde-native .native-only { display: block; }
     fx.feed.innerHTML =
       '<button class="exp-btn fd-back" data-act="back">← Voltar ao feed</button>' +
       fdCard(p, true) +
+      v71PostAltsNote(p) +
       '<div class="exp-btn-row" style="margin:-4px 0 12px">' + follow +
       (p.can_delete ? '<button class="exp-btn exp-btn-small" data-act="delete" data-id="' + p.id + '">🗑️ Apagar publicação</button>' : "") +
       (!p.mine ? '<button class="exp-btn exp-btn-small" data-act="report" data-id="' + p.id + '">🚩 Denunciar</button>' : "") + "</div>" +
@@ -14020,6 +14074,8 @@ html.fde-native .native-only { display: block; }
           blocks: [],
           savedAt: Date.now()
         };
+        var alts = v71BuildAlts(rec.points, r.alts || [], rec.waypoints);
+        if (alts.length) rec.alts = alts;
         var all = loadSavedRoutes();
         all.push(rec);
         persistSavedRoutes(all);
@@ -14027,7 +14083,7 @@ html.fde-native .native-only { display: block; }
         var p = fdFind(id);
         if (p && !p.mine) p.downloads++;
         fdRerender();
-        comMsg("⬇️ Trilha salva em Rotas Salvas › Comunidade. Já dá para navegar, usar no Rally ou numa expedição.", "ok");
+        comMsg("⬇️ Trilha salva em Rotas Salvas › Comunidade" + (alts.length ? ", com " + alts.length + (alts.length > 1 ? " desvios" : " desvio") + " (caminho molhado/alternativo)" : "") + ". Já dá para navegar, usar no Rally ou numa expedição.", "ok");
       })
       .catch(function (err) {
         comMsg(err.message, "error");
@@ -14267,7 +14323,8 @@ html.fde-native .native-only { display: block; }
     Promise.all(chosen.map(function (p) { return downscaleImage(p.blob, 1600); }))
       .then(function (blobs) {
         var fdata = new FormData();
-        fdata.append("data", JSON.stringify({ title: title, body: px.form.elements.body.value.trim(), route: { name: r.name, points: pts, waypoints: wps, meta: normalizeMeta(r.meta) } }));
+        var alts = v71AltsForShare(r, pts);
+        fdata.append("data", JSON.stringify({ title: title, body: px.form.elements.body.value.trim(), route: { name: r.name, points: pts, waypoints: wps, meta: normalizeMeta(r.meta), alts: alts } }));
         blobs.forEach(function (b, i) { if (b) fdata.append("photos[]", b, "foto" + i + ".jpg"); });
         px.msg.textContent = "Enviando…";
         return comApi("feed.php?action=create", fdata);
@@ -15475,6 +15532,68 @@ html.fde-native .native-only { display: block; }
   }
 
   // Guarda o desvio na rota salva (e, se for atoleiro, marca o perigo no trecho seco)
+  // v7.1: desvio vindo de fora (GPX ou Comunidade) — recalcula onde sai e volta à rota principal
+  function v71BuildAlts(mainPts, list, waypoints) {
+    if (!mainPts || mainPts.length < 2) return [];
+    var cum = cumulativeDistances(mainPts);
+    var along = function (p) {
+      var n = nearestPointOnRoute(p, mainPts);
+      var i = n.segmentIndex;
+      return { d: cum[i] + (cum[i + 1] - cum[i]) * n.t, off: n.distance };
+    };
+    var out = [];
+    (list || []).slice(0, 20).forEach(function (a) {
+      var pts = (a.points || []).filter(function (p) { return p && isFinite(p.lat) && isFinite(p.lng); }).map(function (p) { return { lat: +p.lat, lng: +p.lng }; });
+      if (pts.length < 2) return;
+      var A = along(pts[0]), B = along(pts[pts.length - 1]);
+      if (A.off > 500 || B.off > 500) return;   // não encosta na rota principal: ignora
+      var alt = {
+        id: newId("alt"),
+        kind: a.kind === "molhado" ? "molhado" : "alternativo",
+        points: pts,
+        leaveAlong: Math.round(Math.min(A.d, B.d)),
+        rejoinAlong: Math.round(Math.max(A.d, B.d)),
+        len: Math.round(polylineLengthMeters(pts)),
+        createdAt: +a.createdAt || Date.now()
+      };
+      out.push(alt);
+      // liga o atoleiro do trecho seco ao desvio (aviso por voz "há um desvio para tempo molhado")
+      if (alt.kind === "molhado") {
+        (waypoints || []).forEach(function (w) {
+          if (w.type !== "atoleiro" || w.altId) return;
+          var W = along(w);
+          if (W.off < 100 && W.d >= alt.leaveAlong - 50 && W.d <= alt.rejoinAlong + 50) w.altId = alt.id;
+        });
+      }
+    });
+    return out;
+  }
+  function v71ParseGpxAlts(doc) {
+    var out = [];
+    var trks = doc.getElementsByTagName("trk");
+    for (var i = 0; i < trks.length; i++) {
+      if (!v71IsAltTrk(trks[i])) continue;
+      var kind = /molhado/.test(trks[i].getElementsByTagName("type")[0].textContent) ? "molhado" : "alternativo";
+      var tp = trks[i].getElementsByTagName("trkpt"), pts = [];
+      for (var j = 0; j < tp.length; j++) {
+        var la = parseFloat(tp[j].getAttribute("lat")), lo = parseFloat(tp[j].getAttribute("lon"));
+        if (!isNaN(la) && !isNaN(lo)) pts.push({ lat: la, lng: lo });
+      }
+      out.push({ kind: kind, points: pts });
+    }
+    return out;
+  }
+  // para publicar: só os pontos e o tipo (quem baixar recalcula o resto); sem desvios nas pontas escondidas
+  function v71AltsForShare(route, pts) {
+    return (route.alts || []).filter(function (a) {
+      if (!a.points || a.points.length < 2) return false;
+      var near = function (p) { var n = nearestPointOnRoute(p, pts); return n.distance < 500; };
+      return near(a.points[0]) && near(a.points[a.points.length - 1]);
+    }).slice(0, 20).map(function (a) {
+      return { kind: a.kind, createdAt: a.createdAt || 0, points: a.points.map(function (p) { return { lat: +(+p.lat).toFixed(6), lng: +(+p.lng).toFixed(6) }; }) };
+    });
+  }
+
   function v64SaveDeviation(routeId, dev, kind, seenAt) {
     var routes = loadSavedRoutes();
     var r = routes.filter(function (x) { return x.id === routeId; })[0];
