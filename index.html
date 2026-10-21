@@ -2355,6 +2355,22 @@ button, input, select, textarea { font-family: inherit; }
 .dsh-help b { display: block; font-size: 0.95rem; }
 .dsh-help span { font-size: 0.8rem; color: var(--muted); }
 .dsh-help .svg-ico { color: var(--acc); }
+/* v7.0 — Garagem */
+#screen-garage { height: 100%; }
+.gar-row { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-top: 1px solid var(--line); }
+.gar-row:first-of-type { border-top: 0; }
+.gar-row-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.gar-row-txt b { color: var(--ink); font-size: .95rem; }
+.gar-row-txt span { color: var(--muted); font-size: .82rem; white-space: pre-line; }
+.gar-row.gar-late .gar-row-txt b { color: var(--dangerInk); }
+.gar-row.gar-soon .gar-row-txt b { color: var(--warnInk); }
+.gar-parts { display: flex; flex-direction: column; gap: 10px; margin: 6px 0; }
+.gar-part-row { position: relative; border: 1px solid var(--line2); border-radius: 10px; padding: 10px 10px 6px; background: var(--surf2); }
+.gar-part-row > .exp-btn-x { position: absolute; top: 2px; right: 2px; }
+.gar-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.gar-chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line2); border-radius: 999px; padding: 5px 10px; font-size: .85rem; color: var(--ink); background: var(--surf); }
+.gar-chip input { width: 16px; height: 16px; }
+#gar-modal .modal-box { max-height: 90vh; overflow-y: auto; }
 /* v6.6 — a caminho da largada (item 10) e estou perdido (item 11) */
 .nav-approach-box, .goal-card { position: absolute; left: 12px; right: 84px; top: 78px; z-index: 890; display: flex; align-items: center; gap: 12px; background: var(--surf); color: var(--ink); border: 1px solid var(--line2); border-radius: 16px; padding: 10px 12px; box-shadow: var(--shadow); max-width: 520px; }
 .nav-approach-box.hidden, .goal-card.hidden { display: none; }
@@ -2519,6 +2535,10 @@ html.fde-native .native-only { display: block; }
         <button id="btn-dash-community" class="dashboard-tile">
           <span class="dashboard-tile-icon"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"></circle><path d="M3 20c0-3 3-5 6-5s6 2 6 5M16 5a3 3 0 0 1 0 6M21 20c0-2-1-4-3-4.5"></path></svg></span>
           <span class="dashboard-tile-label">Comunidade <small id="dash-community-label" class="dash-tile-sub"></small></span>
+        </button>
+        <button id="btn-dash-garage" class="dashboard-tile">
+          <span class="dashboard-tile-icon"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"></path></svg></span>
+          <span class="dashboard-tile-label">Garagem <small id="dash-garage-label" class="dash-tile-sub"></small></span>
         </button>
       </div>
 
@@ -2844,6 +2864,48 @@ html.fde-native .native-only { display: block; }
   </div>
 </div>
 
+<div id="screen-garage" class="hidden">
+  <div id="gar-list-view" class="exp-view">
+    <header class="nav-header">
+      <button id="btn-gar-back" class="icon-btn" aria-label="Voltar ao início">←</button>
+      <h1>🔧 Garagem</h1>
+    </header>
+    <div class="exp-body">
+      <p class="hint exp-intro">Seus veículos: abastecimento e consumo, manutenção preventiva por km ou tempo (o que vencer primeiro), serviços com as peças de cada posição e medições. Os km dos passeios somam sozinhos.</p>
+      <button id="btn-gar-new" class="com-btn com-btn-primary">+ Novo veículo</button>
+      <div id="gar-list" class="exp-list"></div>
+      <p id="gar-empty" class="hint exp-pad">Nenhum veículo ainda.</p>
+    </div>
+  </div>
+  <div id="gar-detail-view" class="exp-view hidden">
+    <header class="nav-header">
+      <button id="btn-gar-detail-back" class="icon-btn" aria-label="Voltar à garagem">←</button>
+      <h1 id="gar-title">Veículo</h1>
+    </header>
+    <div id="gar-tabs" class="exp-tabs" role="tablist">
+      <button type="button" data-tab="resumo" class="active">Resumo</button>
+      <button type="button" data-tab="abast">⛽ Abastecimento</button>
+      <button type="button" data-tab="plano">🗓️ Preventiva</button>
+      <button type="button" data-tab="serv">🛠️ Serviços</button>
+      <button type="button" data-tab="pecas">🔩 Peças</button>
+      <button type="button" data-tab="medi">📏 Medições</button>
+      <button type="button" data-tab="dados">🚙 Dados</button>
+    </div>
+    <div id="gar-body" class="exp-body"></div>
+  </div>
+</div>
+
+<div id="gar-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h2 id="gar-modal-title">—</h2>
+    <div id="gar-modal-body"></div>
+    <div class="modal-actions">
+      <button id="btn-gar-modal-cancel" class="modal-btn-secondary">Cancelar</button>
+      <button id="btn-gar-modal-ok" class="modal-btn-primary">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <div id="dev-modal" class="modal-overlay">
   <div class="modal-box">
     <h2 id="dev-modal-title">Desvios do passeio</h2>
@@ -3160,6 +3222,10 @@ html.fde-native .native-only { display: block; }
 <div id="nav-confirm-modal" class="modal-overlay">
   <div class="modal-box modal-box-small">
     <h2 id="nav-confirm-title">Navegar?</h2>
+    <div id="nav-vehicle-box" class="nav-wet-box hidden">
+      <label class="nav-wet-q" for="nav-vehicle">🚙 Veículo (os km do passeio somam na Garagem)</label>
+      <select id="nav-vehicle" class="folder-input"></select>
+    </div>
     <div id="nav-wet-box" class="nav-wet-box hidden">
       <div class="nav-wet-q">Esta rota tem <b id="nav-wet-count">1 trecho</b> com desvio para chuva. Como está o caminho?</div>
       <div class="nav-wet-opts">
@@ -3363,8 +3429,19 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "6.6.2";
+  var APP_VERSION = "7.0";
   var CHANGELOG = [
+    {
+      version: "7.0",
+      date: "21/10/2026",
+      changes: [
+        "🔧 Garagem: seus veículos com hodômetro (somando os km dos passeios), abastecimento com consumo km/l e aviso de consumo pior que a média",
+        "Preventiva por km ou tempo (o que vencer primeiro), com uso severo e avisos de vencida / perto de vencer; plano inicial de sugestão para 4x4 (ajustável)",
+        "Serviços (preventiva, corretiva, preditiva) com as peças de cada posição: marca, código, onde comprou e valor; na próxima troca o app mostra quanto a peça rodou e a marca anterior; durabilidade por marca",
+        "Medições (sulco dos pneus, pastilhas, bateria, códigos de falha…) com tendência e previsão de quando chega ao limite",
+        "Chassi: o app identifica fabricante, país e ano-modelo; a Garagem sincroniza pela conta"
+      ]
+    },
     {
       version: "6.6.2",
       date: "20/10/2026",
@@ -6350,12 +6427,13 @@ html.fde-native .native-only { display: block; }
       timing: document.getElementById("screen-timing"),
       community: document.getElementById("screen-community"),
       welcome: document.getElementById("screen-welcome"),
-      expeditions: document.getElementById("screen-expeditions")
+      expeditions: document.getElementById("screen-expeditions"),
+      garage: document.getElementById("screen-garage")
     };
     Object.keys(screens).forEach(function (key) {
       screens[key].classList.toggle("hidden", key !== name);
     });
-    if (name === "dashboard") v55RenderDashboardIfVisible();
+    if (name === "dashboard") { v55RenderDashboardIfVisible(); if (typeof garDashLabel === "function") garDashLabel(); }
     if (name === "saved-routes") v62RenderTrips();
     if (typeof v62UpdateRunningBar === "function") setTimeout(v62UpdateRunningBar, 0);
   }
@@ -6588,6 +6666,7 @@ html.fde-native .native-only { display: block; }
     pendingNavRoute = route;
     navConfirmReturnTo = returnTo || "picker";
     v64PrepareConfirm(route);
+    garPrepareConfirm();
     el.navConfirmTitle.textContent = 'Navegar por "' + (route.name || "(sem nome)") + '"?';
     el.navConfirmModal.classList.add("open");
   }
@@ -12536,6 +12615,17 @@ html.fde-native .native-only { display: block; }
           persistExpeditionsLocalOnly(merged);
           onExpeditionsSynced();
         }
+        return comApi("garage.php?action=sync", { vehicles: garLoad() });
+      })
+      .then(function (data) {
+        var local = garLoad();
+        var merged = mergeRouteSets(local, (data && data.vehicles) || []);
+        if (JSON.stringify(merged) !== JSON.stringify(local)) {
+          garPersistLocal(merged);
+          var gs = document.getElementById("screen-garage");
+          if (gs && !gs.classList.contains("hidden")) { if (gar.cur && !document.getElementById("gar-detail-view").classList.contains("hidden")) garRender(); else garShowList(); }
+          garDashLabel();
+        }
         acc.lastOk = Date.now();
         acc.failed = false;
       })
@@ -12571,9 +12661,10 @@ html.fde-native .native-only { display: block; }
     if (!accountSyncReady()) return;
     var body = JSON.stringify({ routes: loadSavedRoutes() });
     var body2 = JSON.stringify({ expeditions: loadExpeditions() });
-    if (body.length + body2.length < 60000) {
+    var body3 = JSON.stringify({ vehicles: garLoad() });
+    if (body.length + body2.length + body3.length < 60000) {
       try {
-        [["routes.php", body], ["expeditions.php", body2]].forEach(function (b) {
+        [["routes.php", body], ["expeditions.php", body2], ["garage.php", body3]].forEach(function (b) {
           fetch("api/" + b[0] + "?action=sync", {
             method: "POST",
             credentials: "same-origin",
@@ -14998,6 +15089,7 @@ html.fde-native .native-only { display: block; }
       stats: navStats,
       wps: navSessionWaypoints
     });
+    try { garOnTripSaved(trip); } catch (e) {}
     var ok = v62AddTrip(trip);
     if (ok) v62LastTripId = trip.id;
     // Modo Livre já salvo como rota durante a navegação: atualiza com o trajeto final
@@ -16088,6 +16180,790 @@ html.fde-native .native-only { display: block; }
       v66StartGoal({ kind: "point", title: "Ponto escolhido", target: { lat: e.latlng.lat, lng: e.latlng.lng } });
     });
   }
+
+  // ================= v7.0: GARAGEM (item 12) =================
+  // Veículos, abastecimento, preventiva por km/tempo, serviços com peças por posição, medições.
+  // Tudo num documento por veículo (sincroniza pela conta como as rotas).
+  var GAR_KEY = "fde_garage_v1";
+  var GAR_CUR_KEY = "fde_gar_cur_vehicle";
+  var gar = { cur: null, tab: "resumo" };
+
+  var GAR_POS_LABEL = { E: "Esquerdo", D: "Direito", DE: "Dianteiro esquerdo", DD: "Dianteiro direito", TE: "Traseiro esquerdo", TD: "Traseiro direito", Estepe: "Estepe", "—": "Geral" };
+  var GAR_COMPONENTS = [
+    { id: "freio_d", label: "Freio dianteiro", pos: ["E", "D"], parts: ["Pastilha", "Disco", "Pinça", "Flexível"] },
+    { id: "freio_t", label: "Freio traseiro", pos: ["E", "D"], parts: ["Pastilha", "Disco", "Lona", "Tambor", "Cilindro de roda"] },
+    { id: "pneu", label: "Pneus", pos: ["DE", "DD", "TE", "TD", "Estepe"], parts: ["Pneu"] },
+    { id: "susp", label: "Suspensão", pos: ["DE", "DD", "TE", "TD"], parts: ["Amortecedor", "Mola", "Coxim do amortecedor", "Batente", "Bucha", "Pivô", "Terminal de direção"] },
+    { id: "transm", label: "Homocinética / semieixo", pos: ["DE", "DD"], parts: ["Coifa", "Junta homocinética", "Semieixo"] },
+    { id: "motor", label: "Motor", pos: ["—"], parts: ["Óleo do motor", "Filtro de óleo", "Filtro de ar", "Filtro de combustível", "Velas", "Correia dentada", "Tensor da correia", "Correia poly-V", "Bomba d'água", "Junta da tampa de válvulas"] },
+    { id: "trem", label: "Câmbio / transferência / diferenciais", pos: ["Câmbio", "Transferência", "Dif. dianteiro", "Dif. traseiro"], parts: ["Óleo", "Coxim", "Retentor"] },
+    { id: "arref", label: "Arrefecimento", pos: ["—"], parts: ["Líquido de arrefecimento", "Radiador", "Mangueira", "Válvula termostática", "Tampa do reservatório"] },
+    { id: "freio_g", label: "Freio (geral)", pos: ["—"], parts: ["Fluido de freio"] },
+    { id: "eletr", label: "Elétrica", pos: ["—"], parts: ["Bateria", "Lâmpada", "Alternador", "Motor de partida"] },
+    { id: "outro", label: "Outro", pos: ["—"], parts: [] }
+  ];
+  var GAR_READINGS = [
+    { id: "sulco", label: "Sulco do pneu", unit: "mm", comp: "pneu", warn: 3, alert: 1.6, low: true },
+    { id: "pressao", label: "Pressão do pneu", unit: "psi", comp: "pneu" },
+    { id: "pastilha", label: "Espessura da pastilha", unit: "mm", pos: ["DE", "DD", "TE", "TD"], warn: 4, alert: 2, low: true },
+    { id: "disco", label: "Espessura do disco", unit: "mm", pos: ["DE", "DD", "TE", "TD"] },
+    { id: "bateria", label: "Tensão da bateria", unit: "V", warn: 12.4, alert: 12.0, low: true },
+    { id: "temp", label: "Temperatura do motor", unit: "°C", warn: 100, alert: 105 },
+    { id: "oleo", label: "Óleo (nível / aspecto)", text: true },
+    { id: "dtc", label: "Código de falha (scanner)", text: true },
+    { id: "outro", label: "Outra medição", text: true }
+  ];
+  // Plano inicial de SUGESTÃO para 4x4 a gasolina (o usuário confere e ajusta com o plano dele)
+  var GAR_PLAN_4X4 = [
+    ["Óleo do motor + filtro", 10000, 365, 5000, 180],
+    ["Filtro de ar", 20000, 730, 10000, 365],
+    ["Filtro de combustível", 40000, 1460, 20000, 730],
+    ["Velas de ignição", 30000, 0, 20000, 0],
+    ["Correia dentada + tensor", 90000, 1825, 60000, 1460],
+    ["Correia poly-V (acessórios)", 40000, 0, 30000, 0],
+    ["Fluido de freio (DOT 4)", 0, 730, 0, 365],
+    ["Líquido de arrefecimento", 40000, 730, 0, 0],
+    ["Óleo do câmbio", 40000, 1460, 20000, 730],
+    ["Óleo da caixa de transferência", 40000, 1460, 20000, 730],
+    ["Óleo dos diferenciais (diant./tras.)", 40000, 1460, 20000, 730],
+    ["Inspeção dos freios", 10000, 365, 5000, 180],
+    ["Rodízio dos pneus", 10000, 0, 0, 0],
+    ["Alinhamento e balanceamento", 10000, 365, 0, 0],
+    ["Suspensão, coifas e homocinéticas (inspeção)", 10000, 365, 5000, 180]
+  ];
+
+  function garId(p) { return (p || "g") + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function garLoad() {
+    try { var a = JSON.parse(localStorage.getItem(GAR_KEY) || "[]"); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  function garPersistLocal(list) {
+    try { localStorage.setItem(GAR_KEY, JSON.stringify(list)); } catch (e) { showToast("Sem espaço no aparelho para salvar a garagem."); }
+  }
+  function garPersist(list) { garPersistLocal(list); scheduleAccountSync(); }
+  function garVehicles() { return garLoad().filter(function (v) { return !v.deleted; }); }
+  function garGet(id) { return garLoad().filter(function (v) { return v.id === id && !v.deleted; })[0] || null; }
+  function garSave(v) {
+    v.savedAt = Date.now();
+    var all = garLoad(), i = all.findIndex(function (x) { return x.id === v.id; });
+    if (i >= 0) all[i] = v; else all.push(v);
+    garPersist(all);
+  }
+  function garNum(x) { var n = parseFloat(String(x == null ? "" : x).replace(/\./g, "").replace(",", ".")); return isNaN(n) ? null : n; }
+  function garDec(x) { var n = parseFloat(String(x == null ? "" : x).replace(",", ".")); return isNaN(n) ? null : n; }
+  function garKm(n) { return n == null ? "—" : Math.round(n).toLocaleString("pt-BR") + " km"; }
+  function garMoney(n) { return n == null ? "—" : "R$ " + Number(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function garDate(ts) { return ts ? new Date(ts).toLocaleDateString("pt-BR") : "—"; }
+  function garDateInput(ts) { var d = new Date(ts || Date.now()); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function garParseDate(s) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); return m ? new Date(+m[1], +m[2] - 1, +m[3], 12).getTime() : Date.now(); }
+  function garEl(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  // ---- hodômetro: última leitura (manual/abastecimento/serviço) + km dos passeios depois dela ----
+  function garCurrentKm(v) {
+    var base = null;
+    (v.kmLog || []).forEach(function (e) { if (e.src !== "trip" && e.km != null && (!base || e.at > base.at || (e.at === base.at && e.km > base.km))) base = e; });
+    var km = base ? base.km : 0;
+    (v.kmLog || []).forEach(function (e) { if (e.src === "trip" && (!base || e.at > base.at)) km += e.delta || 0; });
+    return km;
+  }
+  function garAddKm(v, km, at, src) {
+    if (km == null) return;
+    v.kmLog = v.kmLog || [];
+    v.kmLog.push({ at: at || Date.now(), km: km, src: src || "manual" });
+  }
+
+  // ---- consumo ----
+  function garFuelStats(v) {
+    var f = (v.fuel || []).slice().sort(function (a, b) { return a.km - b.km || a.at - b.at; });
+    var spans = [], prevFull = null, liters = 0, cost = 0;
+    f.forEach(function (e) {
+      if (prevFull) { liters += e.liters || 0; cost += e.total || 0; }
+      if (e.full) {
+        if (prevFull && e.km > prevFull.km && liters > 0) spans.push({ km: e.km - prevFull.km, liters: liters, cost: cost, at: e.at, kml: (e.km - prevFull.km) / liters });
+        prevFull = e; liters = 0; cost = 0;
+      }
+    });
+    var tk = 0, tl = 0, tc = 0;
+    spans.forEach(function (s) { tk += s.km; tl += s.liters; tc += s.cost; });
+    var avg = tl > 0 ? tk / tl : null, last = spans.length ? spans[spans.length - 1] : null;
+    var now = new Date(), month = 0;
+    f.forEach(function (e) { var d = new Date(e.at); if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) month += e.total || 0; });
+    return { spans: spans, avg: avg, last: last, costKm: tk > 0 ? tc / tk : null, month: month, bad: !!(avg && last && spans.length >= 3 && last.kml < avg * 0.85) };
+  }
+
+  // ---- preventiva: vence pelo que chegar primeiro (km ou tempo) ----
+  function garPlanStatus(v, it) {
+    var cur = garCurrentKm(v);
+    var everyKm = v.severe && it.severeKm ? it.severeKm : it.everyKm;
+    var everyDays = v.severe && it.severeDays ? it.severeDays : it.everyDays;
+    var kmLeft = null, daysLeft = null;
+    if (everyKm && it.lastKm != null) kmLeft = it.lastKm + everyKm - cur;
+    if (everyDays && it.lastAt) daysLeft = Math.round((it.lastAt + everyDays * 86400000 - Date.now()) / 86400000);
+    var st = "ok";
+    if ((everyKm && it.lastKm == null) || (everyDays && !it.lastAt && !everyKm)) st = "unknown";
+    if ((kmLeft != null && kmLeft <= 0) || (daysLeft != null && daysLeft <= 0)) st = "late";
+    else if ((kmLeft != null && kmLeft <= Math.max(500, everyKm * 0.1)) || (daysLeft != null && daysLeft <= 15)) st = st === "unknown" ? st : "soon";
+    var parts = [];
+    if (kmLeft != null) parts.push(kmLeft <= 0 ? "venceu há " + garKm(-kmLeft) : "faltam " + garKm(kmLeft));
+    if (daysLeft != null) parts.push(daysLeft <= 0 ? "venceu há " + (-daysLeft) + " dias" : "faltam " + daysLeft + " dias");
+    var rule = [everyKm ? "a cada " + garKm(everyKm) : "", everyDays ? (everyDays % 30 === 0 || everyDays % 365 === 0 ? (everyDays >= 365 && everyDays % 365 === 0 ? everyDays / 365 + (everyDays === 365 ? " ano" : " anos") : everyDays / 30 + " meses") : everyDays + " dias") : ""].filter(Boolean).join(" ou ");
+    return { st: st, kmLeft: kmLeft, daysLeft: daysLeft, text: parts.join(" · ") || "informe a última vez que foi feito", rule: rule + (v.severe && (it.severeKm || it.severeDays) ? " (uso severo)" : "") };
+  }
+
+  // ---- peças: vida de cada peça por posição ----
+  function garPartHistory(v, comp, pos, name) {
+    var list = [];
+    (v.services || []).forEach(function (s) {
+      (s.parts || []).forEach(function (p) {
+        if (p.comp === comp && p.pos === pos && p.name === name) list.push({ at: s.at, km: s.km, brand: p.brand, code: p.code, store: p.store, price: p.price, svc: s.id });
+      });
+    });
+    list.sort(function (a, b) { return (a.km || 0) - (b.km || 0) || a.at - b.at; });
+    for (var i = 0; i < list.length; i++) list[i].life = i + 1 < list.length && list[i + 1].km != null && list[i].km != null ? list[i + 1].km - list[i].km : null;
+    return list;
+  }
+  function garAllPartKeys(v) {
+    var keys = {};
+    (v.services || []).forEach(function (s) { (s.parts || []).forEach(function (p) { keys[p.comp + "|" + p.pos + "|" + p.name] = { comp: p.comp, pos: p.pos, name: p.name }; }); });
+    return Object.keys(keys).map(function (k) { return keys[k]; });
+  }
+  function garBrandStats(v, name) {
+    var by = {};
+    garAllPartKeys(v).filter(function (k) { return k.name === name; }).forEach(function (k) {
+      garPartHistory(v, k.comp, k.pos, k.name).forEach(function (h) {
+        if (h.life == null || !h.brand) return;
+        by[h.brand] = by[h.brand] || { n: 0, km: 0 };
+        by[h.brand].n++; by[h.brand].km += h.life;
+      });
+    });
+    return Object.keys(by).map(function (b) { return { brand: b, avg: by[b].km / by[b].n, n: by[b].n }; }).sort(function (a, b) { return b.avg - a.avg; });
+  }
+  function garComp(id) { return GAR_COMPONENTS.filter(function (c) { return c.id === id; })[0] || GAR_COMPONENTS[GAR_COMPONENTS.length - 1]; }
+
+  // ---- medições ----
+  function garReadingType(id) { return GAR_READINGS.filter(function (r) { return r.id === id; })[0] || GAR_READINGS[GAR_READINGS.length - 1]; }
+  function garReadingState(t, val) {
+    if (t.text || val == null || t.alert == null) return "ok";
+    if (t.low) return val <= t.alert ? "late" : val <= t.warn ? "soon" : "ok";
+    return val >= t.alert ? "late" : val >= t.warn ? "soon" : "ok";
+  }
+  function garReadingSeries(v) {
+    var by = {};
+    (v.readings || []).forEach(function (r) { var k = r.type + "|" + (r.pos || ""); (by[k] = by[k] || []).push(r); });
+    return Object.keys(by).map(function (k) {
+      var arr = by[k].sort(function (a, b) { return a.at - b.at; });
+      var t = garReadingType(arr[0].type), last = arr[arr.length - 1], prev = arr.length > 1 ? arr[arr.length - 2] : null;
+      var proj = null;
+      if (!t.text && t.low && t.alert != null && prev && last.km != null && prev.km != null && last.km > prev.km && prev.value > last.value) {
+        var rate = (prev.value - last.value) / (last.km - prev.km); // por km
+        proj = Math.max(0, (last.value - t.alert) / rate);
+      }
+      return { key: k, t: t, pos: last.pos || "", last: last, prev: prev, state: garReadingState(t, last.value), proj: proj, all: arr };
+    });
+  }
+
+  // ---- alertas do veículo ----
+  function garAlerts(v) {
+    var out = [];
+    (v.plan || []).forEach(function (it) { var s = garPlanStatus(v, it); if (s.st === "late" || s.st === "soon") out.push({ st: s.st, text: it.name + " — " + s.text }); });
+    garReadingSeries(v).forEach(function (r) { if (r.state !== "ok") out.push({ st: r.state, text: r.t.label + (r.pos ? " (" + (GAR_POS_LABEL[r.pos] || r.pos) + ")" : "") + ": " + r.last.value + " " + (r.t.unit || "") }); });
+    var fs = garFuelStats(v);
+    if (fs.bad) out.push({ st: "soon", text: "Consumo do último tanque (" + fmtNum(fs.last.kml, 1) + " km/l) ficou mais de 15% pior que a média (" + fmtNum(fs.avg, 1) + " km/l)" });
+    out.sort(function (a, b) { return (a.st === "late" ? 0 : 1) - (b.st === "late" ? 0 : 1); });
+    return out;
+  }
+
+  // ---- chassi (VIN): fabricante, fábrica/país e ano-modelo ----
+  var GAR_WMI = { "93X": "Mitsubishi (HPE, Brasil)", "9BW": "Volkswagen (Brasil)", "9BG": "Chevrolet (Brasil)", "9BD": "Fiat (Brasil)", "9BF": "Ford (Brasil)", "93H": "Honda (Brasil)", "9BR": "Toyota (Brasil)", "93Y": "Renault (Brasil)", "935": "Citroën (Brasil)", "936": "Peugeot (Brasil)", "9BM": "Mercedes-Benz (Brasil)", "93Z": "Iveco (Brasil)", "9BS": "Scania (Brasil)", "9BV": "Volvo (Brasil)", "953": "VW Caminhões e Ônibus (Brasil)", "94D": "Nissan (Brasil)", "9BH": "Hyundai (Brasil)", "99A": "Audi (Brasil)", "9C2": "Honda motos (Brasil)", "9CD": "Suzuki motos (Brasil)", "93W": "Fiat Professional (Brasil)", "988": "Jeep (Brasil)", "JA4": "Mitsubishi (Japão)", "JMY": "Mitsubishi (Japão)", "JMB": "Mitsubishi (Japão)", "JN1": "Nissan (Japão)", "JT": "Toyota (Japão)", "8AJ": "Toyota (Argentina)", "8AF": "Ford (Argentina)", "8AW": "Volkswagen (Argentina)", "8AD": "Peugeot (Argentina)" };
+  function garDecodeVin(vin) {
+    vin = String(vin || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (vin.length !== 17) return { ok: false, msg: "O chassi tem 17 caracteres (o informado tem " + vin.length + ")." };
+    if (/[IOQ]/.test(vin)) return { ok: false, msg: "Chassi não usa as letras I, O ou Q — confira." };
+    var make = GAR_WMI[vin.slice(0, 3)] || GAR_WMI[vin.slice(0, 2)] || null;
+    var codes = "ABCDEFGHJKLMNPRSTVWXY123456789", c = vin[9], idx = codes.indexOf(c), year = null;
+    if (idx >= 0) {
+      var y = 1980 + idx, nowY = new Date().getFullYear() + 1;
+      while (y + 30 <= nowY) y += 30;
+      year = y;
+    }
+    var country = { "9": "Brasil", "8": "Argentina/Chile", "J": "Japão", "K": "Coreia", "W": "Alemanha", "1": "EUA", "3": "México", "L": "China" }[vin[0]] || null;
+    return { ok: true, vin: vin, make: make, year: year, country: country };
+  }
+
+  // ================= telas =================
+  function garShowList() {
+    showScreen("garage");
+    document.getElementById("gar-list-view").classList.remove("hidden");
+    document.getElementById("gar-detail-view").classList.add("hidden");
+    var list = document.getElementById("gar-list");
+    list.innerHTML = "";
+    var vs = garVehicles();
+    document.getElementById("gar-empty").style.display = vs.length ? "none" : "block";
+    vs.forEach(function (v) {
+      var b = garEl("button", "exp-card");
+      b.type = "button";
+      b.appendChild(garEl("b", null, "🚙 " + (v.name || "Veículo")));
+      var al = garAlerts(v), late = al.filter(function (a) { return a.st === "late"; }).length, soon = al.length - late;
+      var fs = garFuelStats(v);
+      b.appendChild(garEl("span", null, garKm(garCurrentKm(v)) + (fs.avg ? " · média " + fmtNum(fs.avg, 1) + " km/l" : "") +
+        (late ? " · ⛔ " + late + (late === 1 ? " vencida" : " vencidas") : "") + (soon ? " · ⚠️ " + soon + " perto de vencer" : "") + (!al.length ? " · ✅ em dia" : "")));
+      b.addEventListener("click", function () { garOpen(v.id); });
+      list.appendChild(b);
+    });
+  }
+
+  function garOpen(id, tab) {
+    gar.cur = id;
+    if (tab) gar.tab = tab;
+    showScreen("garage");
+    document.getElementById("gar-list-view").classList.add("hidden");
+    document.getElementById("gar-detail-view").classList.remove("hidden");
+    garRender();
+  }
+
+  function garRender() {
+    var v = garGet(gar.cur);
+    if (!v) { garShowList(); return; }
+    document.getElementById("gar-title").textContent = "🚙 " + (v.name || "Veículo");
+    Array.prototype.forEach.call(document.querySelectorAll("#gar-tabs button"), function (b) { b.classList.toggle("active", b.getAttribute("data-tab") === gar.tab); });
+    var body = document.getElementById("gar-body");
+    body.innerHTML = "";
+    ({ resumo: garTabResumo, abast: garTabFuel, plano: garTabPlan, serv: garTabServices, pecas: garTabParts, medi: garTabReadings, dados: garTabData }[gar.tab] || garTabResumo)(v, body);
+  }
+
+  function garSec(body, title, btnText, onBtn) {
+    var sec = garEl("div", "exp-sec");
+    var h = garEl("h2");
+    h.appendChild(garEl("span", null, title));
+    h.appendChild(garEl("span", "exp-sp"));
+    if (btnText) { var b = garEl("button", "exp-btn exp-btn-small", btnText); b.type = "button"; b.addEventListener("click", onBtn); h.appendChild(b); }
+    sec.appendChild(h);
+    body.appendChild(sec);
+    return sec;
+  }
+  function garRow(sec, main, sub, st, actions) {
+    var r = garEl("div", "gar-row" + (st ? " gar-" + st : ""));
+    var t = garEl("div", "gar-row-txt");
+    t.appendChild(garEl("b", null, main));
+    if (sub) t.appendChild(garEl("span", null, sub));
+    r.appendChild(t);
+    (actions || []).forEach(function (a) { var b = garEl("button", "exp-btn exp-btn-small", a[0]); b.type = "button"; b.addEventListener("click", a[1]); r.appendChild(b); });
+    sec.appendChild(r);
+    return r;
+  }
+
+  function garTabResumo(v, body) {
+    var sec = garSec(body, "Hodômetro", "Atualizar km", function () { garFormKm(v); });
+    var cur = garCurrentKm(v);
+    garRow(sec, garKm(cur), "Inclui os km dos passeios gravados no app" + (v.severe ? " · uso severo ligado" : ""));
+    var fs = garFuelStats(v);
+    var s2 = garSec(body, "Consumo", "⛽ Abastecer", function () { garFormFuel(v); });
+    garRow(s2, fs.avg ? "Média " + fmtNum(fs.avg, 1) + " km/l" : "Sem média ainda", fs.last ? "Último tanque: " + fmtNum(fs.last.kml, 1) + " km/l · custo " + (fs.costKm ? garMoney(fs.costKm) + "/km" : "—") + " · gasto no mês " + garMoney(fs.month) : "A média aparece entre dois abastecimentos com tanque cheio.", fs.bad ? "soon" : null);
+    var al = garAlerts(v);
+    var s3 = garSec(body, "Avisos");
+    if (!al.length) garRow(s3, "✅ Tudo em dia", "Nenhuma manutenção vencida ou perto de vencer.");
+    al.forEach(function (a) { garRow(s3, (a.st === "late" ? "⛔ " : "⚠️ ") + a.text, null, a.st); });
+    var s4 = garSec(body, "Próximas manutenções");
+    var items = (v.plan || []).map(function (it) { return { it: it, s: garPlanStatus(v, it) }; })
+      .filter(function (x) { return x.s.st !== "late"; })
+      .sort(function (a, b) { return (a.s.kmLeft == null ? 1e9 : a.s.kmLeft) - (b.s.kmLeft == null ? 1e9 : b.s.kmLeft); }).slice(0, 4);
+    if (!items.length) garRow(s4, "Nenhum item no plano", "Cadastre na aba Preventiva.");
+    items.forEach(function (x) { garRow(s4, x.it.name, x.s.text, x.s.st === "soon" ? "soon" : null); });
+    var last = (v.services || []).slice().sort(function (a, b) { return b.at - a.at; })[0];
+    if (last) { var s5 = garSec(body, "Último serviço"); garRow(s5, last.title || "Serviço", garDate(last.at) + " · " + garKm(last.km) + " · " + last.kind); }
+  }
+
+  function garTabFuel(v, body) {
+    var sec = garSec(body, "Abastecimentos", "+ Abastecer", function () { garFormFuel(v); });
+    var fs = garFuelStats(v);
+    garRow(sec, fs.avg ? "Média " + fmtNum(fs.avg, 1) + " km/l" : "Sem média ainda", fs.costKm ? "Custo " + garMoney(fs.costKm) + " por km · gasto no mês " + garMoney(fs.month) : "Marque \"tanque cheio\" para calcular o consumo.");
+    var list = (v.fuel || []).slice().sort(function (a, b) { return b.at - a.at || b.km - a.km; });
+    if (!list.length) garRow(sec, "Nenhum abastecimento", null);
+    list.forEach(function (f) {
+      var span = fs.spans.filter(function (s) { return s.at === f.at; })[0];
+      garRow(sec, garDate(f.at) + " · " + fmtNum(f.liters, 2) + " L · " + garMoney(f.total),
+        garKm(f.km) + (f.price ? " · " + garMoney(f.price) + "/L" : "") + (f.full ? " · tanque cheio" : " · parcial") + (span ? " · " + fmtNum(span.kml, 1) + " km/l" : "") + (f.station ? " · " + f.station : ""), null,
+        [["Excluir", function () { if (!window.confirm("Excluir este abastecimento?")) return; v.fuel = v.fuel.filter(function (x) { return x.id !== f.id; }); garSave(v); garRender(); }]]);
+    });
+  }
+
+  function garTabPlan(v, body) {
+    var sec = garSec(body, "Plano preventivo", "+ Item", function () { garFormPlan(v, null); });
+    if (v.planSuggested) {
+      var note = garEl("p", "hint", "⚠️ Plano inicial de SUGESTÃO (intervalos típicos de 4x4). Confira e ajuste com o seu plano/manual — toque em cada item para editar.");
+      sec.appendChild(note);
+    }
+    var sev = garEl("label", "exp-check");
+    var cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!v.severe;
+    cb.addEventListener("change", function () { v.severe = cb.checked; garSave(v); garRender(); });
+    sev.appendChild(cb); sev.appendChild(document.createTextNode(" Uso severo (trilha, lama, poeira, reboque) — usa os intervalos menores"));
+    sec.appendChild(sev);
+    if (!(v.plan || []).length) garRow(sec, "Plano vazio", "Use \"+ Item\" ou carregue a sugestão.", null, [["Carregar sugestão 4x4", function () { garLoadSuggestion(v); }]]);
+    (v.plan || []).map(function (it) { return { it: it, s: garPlanStatus(v, it) }; })
+      .sort(function (a, b) { var o = { late: 0, soon: 1, unknown: 2, ok: 3 }; return o[a.s.st] - o[b.s.st]; })
+      .forEach(function (x) {
+        var it = x.it, s = x.s;
+        var icon = { late: "⛔ ", soon: "⚠️ ", unknown: "❔ ", ok: "✅ " }[s.st];
+        garRow(sec, icon + it.name, s.rule + " · " + s.text + (it.lastAt || it.lastKm != null ? " · última: " + garDate(it.lastAt) + (it.lastKm != null ? " com " + garKm(it.lastKm) : "") : ""), s.st === "ok" || s.st === "unknown" ? null : s.st,
+          [["Feito", function () { garFormService(v, { kind: "preventiva", planIds: [it.id], title: it.name }); }], ["Editar", function () { garFormPlan(v, it); }]]);
+      });
+  }
+
+  function garTabServices(v, body) {
+    var sec = garSec(body, "Serviços", "+ Serviço", function () { garFormService(v, null); });
+    var list = (v.services || []).slice().sort(function (a, b) { return b.at - a.at; });
+    if (!list.length) garRow(sec, "Nenhum serviço registrado", "Preventiva, corretiva ou preditiva — com as peças de cada posição.");
+    list.forEach(function (s) {
+      var parts = (s.parts || []).map(function (p) { return p.name + " " + (GAR_POS_LABEL[p.pos] || p.pos) + (p.brand ? " (" + p.brand + ")" : ""); });
+      var total = (s.parts || []).reduce(function (t, p) { return t + (p.price || 0); }, 0) + (s.labor || 0);
+      var kindIcon = { preventiva: "🗓️", corretiva: "🛠️", preditiva: "📏" }[s.kind] || "🛠️";
+      garRow(sec, kindIcon + " " + (s.title || "Serviço") + " — " + garDate(s.at), garKm(s.km) + " · " + s.kind + (s.shop ? " · " + s.shop : "") + (total ? " · " + garMoney(total) : "") + (parts.length ? "\nPeças: " + parts.join("; ") : "") + (s.note ? "\n" + s.note : ""), null,
+        [["Excluir", function () { if (!window.confirm("Excluir este serviço?")) return; v.services = v.services.filter(function (x) { return x.id !== s.id; }); garSave(v); garRender(); }]]);
+    });
+  }
+
+  function garTabParts(v, body) {
+    var keys = garAllPartKeys(v);
+    var intro = garSec(body, "Peças por posição", "+ Serviço", function () { garFormService(v, null); });
+    intro.appendChild(garEl("p", "hint", "Cada peça trocada fica com a sua \"vida\": marca, onde comprou e quanto já rodou. Troca parcial (só pastilha, por exemplo) não mexe no histórico do disco."));
+    if (!keys.length) { garRow(intro, "Nenhuma peça registrada ainda", "Registre um serviço com as peças trocadas."); return; }
+    var cur = garCurrentKm(v);
+    GAR_COMPONENTS.forEach(function (c) {
+      var ks = keys.filter(function (k) { return k.comp === c.id; });
+      if (!ks.length) return;
+      var sec = garSec(body, c.label);
+      ks.sort(function (a, b) { return a.name.localeCompare(b.name) || c.pos.indexOf(a.pos) - c.pos.indexOf(b.pos); }).forEach(function (k) {
+        var h = garPartHistory(v, k.comp, k.pos, k.name), now = h[h.length - 1], prev = h.length > 1 ? h[h.length - 2] : null;
+        garRow(sec, k.name + " — " + (GAR_POS_LABEL[k.pos] || k.pos),
+          (now.brand || "marca não informada") + (now.store ? " · comprada em " + now.store : "") + " · trocada em " + garDate(now.at) + " com " + garKm(now.km) +
+          " · rodou " + garKm(now.km != null ? cur - now.km : null) + (prev && prev.life != null ? "\nAnterior: " + (prev.brand || "?") + " durou " + garKm(prev.life) : ""));
+      });
+      var names = {};
+      ks.forEach(function (k) { names[k.name] = 1; });
+      Object.keys(names).forEach(function (n) {
+        var bs = garBrandStats(v, n);
+        if (bs.length) sec.appendChild(garEl("p", "hint", "Durabilidade de " + n.toLowerCase() + ": " + bs.map(function (b) { return b.brand + " ~" + garKm(b.avg) + " (" + b.n + "x)"; }).join(" · ")));
+      });
+    });
+  }
+
+  function garTabReadings(v, body) {
+    var sec = garSec(body, "Medições (preditiva)", "+ Medição", function () { garFormReading(v); });
+    var series = garReadingSeries(v);
+    if (!series.length) garRow(sec, "Nenhuma medição ainda", "Ex.: sulco dos pneus, espessura das pastilhas, bateria, códigos de falha. O app mostra a tendência e avisa quando sair da faixa.");
+    series.sort(function (a, b) { var o = { late: 0, soon: 1, ok: 2 }; return o[a.state] - o[b.state]; }).forEach(function (r) {
+      var trend = r.prev && !r.t.text ? " · antes " + r.prev.value + " " + (r.t.unit || "") + " em " + garDate(r.prev.at) : "";
+      garRow(sec, (r.state === "late" ? "⛔ " : r.state === "soon" ? "⚠️ " : "") + r.t.label + (r.pos ? " — " + (GAR_POS_LABEL[r.pos] || r.pos) : "") + ": " + r.last.value + " " + (r.t.unit || ""),
+        garDate(r.last.at) + (r.last.km != null ? " · " + garKm(r.last.km) : "") + trend + (r.proj != null ? " · no ritmo atual chega ao limite (" + r.t.alert + " " + r.t.unit + ") em ~" + garKm(r.proj) : "") + (r.last.note ? "\n" + r.last.note : ""), r.state === "ok" ? null : r.state);
+    });
+  }
+
+  function garTabData(v, body) {
+    var sec = garSec(body, "Dados do veículo", "Editar", function () { garFormVehicle(v); });
+    [["Nome", v.name], ["Marca / modelo", [v.make, v.model].filter(Boolean).join(" ")], ["Ano", v.year], ["Motor / câmbio", [v.engine, v.gearbox].filter(Boolean).join(" · ")], ["Combustível", v.fuelType], ["Placa", v.plate], ["Chassi", v.vin], ["Observações", v.notes]].forEach(function (x) {
+      if (x[1]) garRow(sec, x[1], x[0]);
+    });
+    var del = garSec(body, "Excluir");
+    garRow(del, "Excluir este veículo", "Apaga o veículo e todo o histórico dele.", null, [["Excluir", function () {
+      if (!window.confirm('Excluir "' + v.name + '" e todo o histórico?')) return;
+      var all = garLoad();
+      all.forEach(function (x) { if (x.id === v.id) { Object.keys(x).forEach(function (k) { if (k !== "id") delete x[k]; }); x.deleted = true; x.deletedAt = Date.now(); x.savedAt = Date.now(); } });
+      garPersist(all);
+      garShowList();
+    }]]);
+  }
+
+  // ================= formulários =================
+  var garModalOk = null;
+  function garModal(title, build, onOk, okText) {
+    document.getElementById("gar-modal-title").textContent = title;
+    var b = document.getElementById("gar-modal-body");
+    b.innerHTML = "";
+    build(b);
+    document.getElementById("btn-gar-modal-ok").textContent = okText || "Salvar";
+    garModalOk = onOk;
+    openModal(document.getElementById("gar-modal"));
+    var first = b.querySelector("input, select, textarea");
+    if (first) setTimeout(function () { try { first.focus(); } catch (e) {} }, 50);
+  }
+  function garField(parent, label, type, value, opts) {
+    opts = opts || {};
+    var f = garEl("label", "exp-f" + (opts.wide ? " exp-f-wide" : ""));
+    f.appendChild(document.createTextNode(label));
+    var inp;
+    if (type === "select") {
+      inp = document.createElement("select");
+      (opts.options || []).forEach(function (o) { var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; inp.appendChild(op); });
+      if (value != null) inp.value = value;
+    } else if (type === "textarea") {
+      inp = document.createElement("textarea"); inp.rows = 2; inp.value = value || "";
+    } else {
+      inp = document.createElement("input"); inp.type = type; if (value != null) inp.value = value;
+      if (opts.inputmode) inp.setAttribute("inputmode", opts.inputmode);
+      if (opts.placeholder) inp.placeholder = opts.placeholder;
+      if (opts.list) inp.setAttribute("list", opts.list);
+    }
+    if (opts.id) inp.id = opts.id;
+    f.appendChild(inp);
+    parent.appendChild(f);
+    return inp;
+  }
+  function garGrid(parent) { var g = garEl("div", "exp-grid"); parent.appendChild(g); return g; }
+
+  function garFormVehicle(v) {
+    var isNew = !v;
+    v = v || { id: garId("veh"), name: "", plan: [], fuel: [], services: [], readings: [], kmLog: [], createdAt: Date.now() };
+    var f = {};
+    garModal(isNew ? "Novo veículo" : "Editar veículo", function (b) {
+      var g = garGrid(b);
+      f.name = garField(g, "Apelido", "text", v.name, { placeholder: "Ex.: Pajero iO" });
+      f.vin = garField(g, "Chassi (opcional)", "text", v.vin, { placeholder: "17 caracteres" });
+      var vinInfo = garEl("p", "hint exp-f-wide", "");
+      g.appendChild(vinInfo);
+      f.vin.addEventListener("input", function () {
+        var d = garDecodeVin(f.vin.value);
+        if (!f.vin.value.trim()) { vinInfo.textContent = ""; return; }
+        vinInfo.textContent = d.ok ? "🔎 " + [d.make || "fabricante não identificado", d.country, d.year ? "ano-modelo " + d.year : ""].filter(Boolean).join(" · ") : "⚠️ " + d.msg;
+        if (d.ok && d.year && !f.year.value) f.year.value = d.year;
+        if (d.ok && d.make && !f.make.value) f.make.value = d.make.split(" (")[0];
+      });
+      f.make = garField(g, "Marca", "text", v.make, { placeholder: "Mitsubishi" });
+      f.model = garField(g, "Modelo / versão", "text", v.model, { placeholder: "Pajero iO 2.0 16V" });
+      f.year = garField(g, "Ano-modelo", "number", v.year, { inputmode: "numeric" });
+      f.engine = garField(g, "Motor", "text", v.engine, { placeholder: "2.0 16V" });
+      f.gearbox = garField(g, "Câmbio", "select", v.gearbox || "", { options: [["", "—"], ["Manual", "Manual"], ["Automático", "Automático"]] });
+      f.fuelType = garField(g, "Combustível", "select", v.fuelType || "Gasolina", { options: [["Gasolina", "Gasolina"], ["Etanol", "Etanol"], ["Flex", "Flex"], ["Diesel", "Diesel"], ["GNV", "GNV"]] });
+      f.plate = garField(g, "Placa", "text", v.plate);
+      if (isNew) f.km = garField(g, "Km atual no painel", "text", "", { inputmode: "numeric" });
+      f.notes = garField(g, "Observações", "textarea", v.notes, { wide: true });
+      if (isNew) {
+        var lab = garEl("label", "exp-check exp-f-wide");
+        f.sugg = document.createElement("input"); f.sugg.type = "checkbox"; f.sugg.checked = true;
+        lab.appendChild(f.sugg); lab.appendChild(document.createTextNode(" Começar com o plano preventivo de sugestão (4x4) — você ajusta depois"));
+        g.appendChild(lab);
+      }
+    }, function () {
+      var name = f.name.value.trim();
+      if (!name) { showToast("Dê um apelido ao veículo."); return false; }
+      ["make", "model", "engine", "gearbox", "fuelType", "plate", "notes"].forEach(function (k) { v[k] = f[k].value.trim(); });
+      v.name = name;
+      v.vin = f.vin.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      v.year = garNum(f.year.value);
+      if (isNew) {
+        var km = garNum(f.km.value);
+        if (km != null) garAddKm(v, km, Date.now(), "manual");
+        if (f.sugg.checked) { v.plan = GAR_PLAN_4X4.map(function (p) { return { id: garId("pl"), name: p[0], everyKm: p[1] || null, everyDays: p[2] || null, severeKm: p[3] || null, severeDays: p[4] || null, lastKm: null, lastAt: null, suggested: true }; }); v.planSuggested = true; }
+      }
+      garSave(v);
+      lsSet(GAR_CUR_KEY, v.id);
+      garOpen(v.id, isNew ? "plano" : gar.tab);
+      return true;
+    });
+  }
+
+  function garLoadSuggestion(v) {
+    v.plan = (v.plan || []).concat(GAR_PLAN_4X4.map(function (p) { return { id: garId("pl"), name: p[0], everyKm: p[1] || null, everyDays: p[2] || null, severeKm: p[3] || null, severeDays: p[4] || null, lastKm: null, lastAt: null, suggested: true }; }));
+    v.planSuggested = true;
+    garSave(v);
+    garRender();
+  }
+
+  function garFormKm(v) {
+    var f = {};
+    garModal("Atualizar km", function (b) {
+      var g = garGrid(b);
+      f.km = garField(g, "Km no painel", "text", Math.round(garCurrentKm(v)), { inputmode: "numeric" });
+      f.at = garField(g, "Data", "date", garDateInput());
+    }, function () {
+      var km = garNum(f.km.value);
+      if (km == null) { showToast("Informe o km."); return false; }
+      garAddKm(v, km, garParseDate(f.at.value) + (new Date().getHours() * 3600000), "manual");
+      garSave(v); garRender(); return true;
+    });
+  }
+
+  function garFormFuel(v) {
+    var f = {};
+    garModal("⛽ Abastecimento", function (b) {
+      var g = garGrid(b);
+      f.at = garField(g, "Data", "date", garDateInput());
+      f.km = garField(g, "Km no painel", "text", Math.round(garCurrentKm(v)) || "", { inputmode: "numeric" });
+      f.liters = garField(g, "Litros", "text", "", { inputmode: "decimal" });
+      f.price = garField(g, "Preço por litro (R$)", "text", "", { inputmode: "decimal" });
+      f.total = garField(g, "Total pago (R$)", "text", "", { inputmode: "decimal" });
+      f.station = garField(g, "Posto", "text", "");
+      var lab = garEl("label", "exp-check exp-f-wide");
+      f.full = document.createElement("input"); f.full.type = "checkbox"; f.full.checked = true;
+      lab.appendChild(f.full); lab.appendChild(document.createTextNode(" Completei o tanque (usado para calcular o consumo)"));
+      g.appendChild(lab);
+      function calc(src) {
+        var l = garDec(f.liters.value), p = garDec(f.price.value), t = garDec(f.total.value);
+        if (src !== "total" && l && p) f.total.value = (l * p).toFixed(2).replace(".", ",");
+        else if (src === "total" && l && t) f.price.value = (t / l).toFixed(3).replace(".", ",");
+      }
+      f.liters.addEventListener("input", function () { calc("l"); });
+      f.price.addEventListener("input", function () { calc("p"); });
+      f.total.addEventListener("input", function () { calc("total"); });
+    }, function () {
+      var km = garNum(f.km.value), l = garDec(f.liters.value);
+      if (km == null || !l) { showToast("Informe o km e os litros."); return false; }
+      var at = garParseDate(f.at.value) + new Date().getHours() * 3600000;
+      var e = { id: garId("fu"), at: at, km: km, liters: l, price: garDec(f.price.value), total: garDec(f.total.value), full: f.full.checked, station: f.station.value.trim() };
+      if (e.total == null && e.price) e.total = Math.round(e.price * l * 100) / 100;
+      v.fuel = v.fuel || []; v.fuel.push(e);
+      garAddKm(v, km, at, "fuel");
+      garSave(v); gar.tab = gar.tab === "resumo" ? "resumo" : "abast"; garRender();
+      var fs = garFuelStats(v);
+      if (fs.last && fs.last.at === at) showToast("⛽ Consumo deste tanque: " + fmtNum(fs.last.kml, 1) + " km/l" + (fs.avg ? " (média " + fmtNum(fs.avg, 1) + ")" : ""));
+      return true;
+    });
+  }
+
+  function garFormPlan(v, it) {
+    var isNew = !it;
+    it = it || { id: garId("pl"), name: "", everyKm: null, everyDays: null, severeKm: null, severeDays: null, lastKm: null, lastAt: null };
+    var f = {};
+    garModal(isNew ? "Novo item do plano" : "Editar item do plano", function (b) {
+      var g = garGrid(b);
+      f.name = garField(g, "Item", "text", it.name, { wide: true, placeholder: "Ex.: Óleo do motor + filtro" });
+      f.everyKm = garField(g, "A cada (km)", "text", it.everyKm || "", { inputmode: "numeric" });
+      f.everyMonths = garField(g, "ou a cada (meses)", "text", it.everyDays ? Math.round(it.everyDays / 30.4) : "", { inputmode: "numeric" });
+      f.severeKm = garField(g, "Uso severo: a cada (km)", "text", it.severeKm || "", { inputmode: "numeric" });
+      f.severeMonths = garField(g, "Uso severo: a cada (meses)", "text", it.severeDays ? Math.round(it.severeDays / 30.4) : "", { inputmode: "numeric" });
+      f.lastKm = garField(g, "Última vez: km", "text", it.lastKm != null ? it.lastKm : "", { inputmode: "numeric" });
+      f.lastAt = garField(g, "Última vez: data", "date", it.lastAt ? garDateInput(it.lastAt) : "");
+      f.note = garField(g, "Observação (óleo, especificação…)", "textarea", it.note, { wide: true });
+      if (!isNew) {
+        var del = garEl("button", "exp-btn exp-btn-small exp-f-wide", "Excluir este item");
+        del.type = "button";
+        del.addEventListener("click", function () { if (!window.confirm("Excluir \"" + it.name + "\" do plano?")) return; v.plan = v.plan.filter(function (x) { return x.id !== it.id; }); garSave(v); closeModal(document.getElementById("gar-modal")); garRender(); });
+        g.appendChild(del);
+      }
+    }, function () {
+      var name = f.name.value.trim();
+      if (!name) { showToast("Dê um nome ao item."); return false; }
+      var km = garNum(f.everyKm.value), mo = garNum(f.everyMonths.value);
+      if (!km && !mo) { showToast("Informe o intervalo em km e/ou meses."); return false; }
+      it.name = name; it.everyKm = km || null; it.everyDays = mo ? Math.round(mo * 30.4) : null;
+      var skm = garNum(f.severeKm.value), smo = garNum(f.severeMonths.value);
+      it.severeKm = skm || null; it.severeDays = smo ? Math.round(smo * 30.4) : null;
+      it.lastKm = garNum(f.lastKm.value);
+      it.lastAt = f.lastAt.value ? garParseDate(f.lastAt.value) : null;
+      it.note = f.note.value.trim();
+      it.suggested = false;
+      v.plan = v.plan || [];
+      if (isNew) v.plan.push(it);
+      if (!v.plan.some(function (x) { return x.suggested; })) v.planSuggested = false;
+      garSave(v); garRender(); return true;
+    });
+  }
+
+  // Serviço com peças por posição (pastilha D e E, por exemplo); mostra a peça anterior de cada posição
+  function garFormService(v, preset) {
+    preset = preset || {};
+    var f = {}, partRows = [];
+    garModal("🛠️ Registrar serviço", function (b) {
+      var g = garGrid(b);
+      f.at = garField(g, "Data", "date", garDateInput());
+      f.km = garField(g, "Km no painel", "text", Math.round(garCurrentKm(v)) || "", { inputmode: "numeric" });
+      f.kind = garField(g, "Tipo", "select", preset.kind || "corretiva", { options: [["preventiva", "Preventiva"], ["corretiva", "Corretiva"], ["preditiva", "Preditiva (pela medição)"]] });
+      f.title = garField(g, "O que foi feito", "text", preset.title || "", { placeholder: "Ex.: Freio dianteiro" });
+      f.shop = garField(g, "Oficina / quem fez", "text", "");
+      f.labor = garField(g, "Mão de obra (R$)", "text", "", { inputmode: "decimal" });
+      f.note = garField(g, "Observações", "textarea", "", { wide: true });
+      if ((v.plan || []).length) {
+        var pl = garEl("div", "exp-f exp-f-wide");
+        pl.appendChild(document.createTextNode("Este serviço cumpre estes itens do plano:"));
+        f.plan = [];
+        v.plan.forEach(function (it) {
+          var lab = garEl("label", "exp-check");
+          var cb = document.createElement("input"); cb.type = "checkbox"; cb.value = it.id; cb.checked = (preset.planIds || []).indexOf(it.id) >= 0;
+          lab.appendChild(cb); lab.appendChild(document.createTextNode(" " + it.name));
+          pl.appendChild(lab); f.plan.push(cb);
+        });
+        g.appendChild(pl);
+      }
+      var ph = garEl("div", "exp-f exp-f-wide");
+      ph.appendChild(garEl("b", null, "Peças trocadas"));
+      var rowsBox = garEl("div", "gar-parts");
+      ph.appendChild(rowsBox);
+      var add = garEl("button", "exp-btn exp-btn-small", "+ Peça");
+      add.type = "button";
+      add.addEventListener("click", function () { partRows.push(garPartRow(v, rowsBox)); });
+      ph.appendChild(add);
+      g.appendChild(ph);
+    }, function () {
+      var km = garNum(f.km.value);
+      if (km == null) { showToast("Informe o km."); return false; }
+      var at = garParseDate(f.at.value) + new Date().getHours() * 3600000;
+      var parts = [];
+      for (var i = 0; i < partRows.length; i++) {
+        var pr = partRows[i].read();
+        if (!pr) continue;
+        if (!pr.pos.length) { showToast("Marque a posição de \"" + pr.name + "\"."); return false; }
+        var each = pr.price != null && pr.pos.length ? Math.round((pr.price / pr.pos.length) * 100) / 100 : null;
+        pr.pos.forEach(function (p) { parts.push({ id: garId("pt"), comp: pr.comp, pos: p, name: pr.name, brand: pr.brand, code: pr.code, store: pr.store, price: each }); });
+      }
+      var s = { id: garId("sv"), at: at, km: km, kind: f.kind.value, title: f.title.value.trim() || (parts[0] ? parts[0].name : "Serviço"), shop: f.shop.value.trim(), labor: garDec(f.labor.value), note: f.note.value.trim(), parts: parts, planIds: [] };
+      (f.plan || []).forEach(function (cb) {
+        if (!cb.checked) return;
+        s.planIds.push(cb.value);
+        v.plan.forEach(function (it) { if (it.id === cb.value) { it.lastKm = km; it.lastAt = at; } });
+      });
+      v.services = v.services || []; v.services.push(s);
+      garAddKm(v, km, at, "service");
+      garSave(v); garRender();
+      showToast("Serviço registrado" + (parts.length ? " com " + parts.length + (parts.length === 1 ? " peça." : " peças.") : "."));
+      return true;
+    });
+  }
+
+  function garPartRow(v, box) {
+    var row = garEl("div", "gar-part-row");
+    var g = garGrid(row);
+    var comp = garField(g, "Sistema", "select", "freio_d", { options: GAR_COMPONENTS.map(function (c) { return [c.id, c.label]; }) });
+    var listId = garId("dl");
+    var name = garField(g, "Peça", "text", "", { list: listId, placeholder: "Pastilha" });
+    var dl = document.createElement("datalist"); dl.id = listId; row.appendChild(dl);
+    var posBox = garEl("div", "exp-f exp-f-wide");
+    posBox.appendChild(document.createTextNode("Posição"));
+    var chips = garEl("div", "gar-chips"); posBox.appendChild(chips); g.appendChild(posBox);
+    var brand = garField(g, "Marca", "text", "");
+    var code = garField(g, "Código", "text", "");
+    var store = garField(g, "Onde comprou", "text", "");
+    var price = garField(g, "Valor total (R$)", "text", "", { inputmode: "decimal" });
+    var info = garEl("p", "hint exp-f-wide", ""); g.appendChild(info);
+    var rm = garEl("button", "exp-btn-x", "✕"); rm.type = "button"; rm.title = "Remover peça";
+    rm.addEventListener("click", function () { row.remove(); obj.removed = true; });
+    row.insertBefore(rm, row.firstChild);
+    var posCbs = [];
+    function fill() {
+      var c = garComp(comp.value);
+      dl.innerHTML = "";
+      c.parts.forEach(function (p) { var o = document.createElement("option"); o.value = p; dl.appendChild(o); });
+      if (!name.value || garComp(comp.value).parts.indexOf(name.value) < 0) name.value = c.parts[0] || "";
+      chips.innerHTML = ""; posCbs = [];
+      c.pos.forEach(function (p) {
+        var lab = garEl("label", "gar-chip");
+        var cb = document.createElement("input"); cb.type = "checkbox"; cb.value = p; cb.checked = c.pos.length === 1;
+        cb.addEventListener("change", showInfo);
+        lab.appendChild(cb); lab.appendChild(document.createTextNode(" " + (GAR_POS_LABEL[p] || p)));
+        chips.appendChild(lab); posCbs.push(cb);
+      });
+      showInfo();
+    }
+    function showInfo() {
+      var cur = garCurrentKm(v), lines = [];
+      posCbs.filter(function (cb) { return cb.checked; }).forEach(function (cb) {
+        var h = garPartHistory(v, comp.value, cb.value, name.value.trim());
+        var last = h[h.length - 1];
+        if (last) lines.push((GAR_POS_LABEL[cb.value] || cb.value) + ": anterior " + (last.brand || "marca ?") + (last.store ? " (" + last.store + ")" : "") + ", trocada em " + garDate(last.at) + " — rodou " + garKm(last.km != null ? cur - last.km : null));
+      });
+      info.textContent = lines.length ? "↺ " + lines.join(" · ") : "";
+      if (!brand.value && lines.length) {
+        var h0 = garPartHistory(v, comp.value, posCbs.filter(function (cb) { return cb.checked; })[0].value, name.value.trim());
+        if (h0.length) brand.placeholder = h0[h0.length - 1].brand || "";
+      }
+    }
+    comp.addEventListener("change", fill);
+    name.addEventListener("change", showInfo);
+    fill();
+    box.appendChild(row);
+    var obj = {
+      removed: false,
+      read: function () {
+        if (obj.removed || !name.value.trim()) return null;
+        return { comp: comp.value, name: name.value.trim(), pos: posCbs.filter(function (cb) { return cb.checked; }).map(function (cb) { return cb.value; }), brand: brand.value.trim() || brand.placeholder || "", code: code.value.trim(), store: store.value.trim(), price: garDec(price.value) };
+      }
+    };
+    return obj;
+  }
+
+  function garFormReading(v) {
+    var f = {};
+    garModal("📏 Medição", function (b) {
+      var g = garGrid(b);
+      f.type = garField(g, "O que mediu", "select", "sulco", { options: GAR_READINGS.map(function (r) { return [r.id, r.label + (r.unit ? " (" + r.unit + ")" : "")]; }) });
+      f.pos = garField(g, "Posição", "select", "", { options: [["", "—"]] });
+      f.value = garField(g, "Valor", "text", "", { inputmode: "decimal" });
+      f.at = garField(g, "Data", "date", garDateInput());
+      f.km = garField(g, "Km no painel", "text", Math.round(garCurrentKm(v)) || "", { inputmode: "numeric" });
+      f.note = garField(g, "Observação", "textarea", "", { wide: true });
+      function upd() {
+        var t = garReadingType(f.type.value);
+        var pos = t.pos || (t.comp ? garComp(t.comp).pos : null);
+        f.pos.innerHTML = "";
+        [["", "—"]].concat((pos || []).map(function (p) { return [p, GAR_POS_LABEL[p] || p]; })).forEach(function (o) { var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; f.pos.appendChild(op); });
+        f.pos.parentNode.style.display = pos ? "" : "none";
+        f.value.setAttribute("inputmode", t.text ? "text" : "decimal");
+        f.value.placeholder = t.text ? "Ex.: P0420 / nível ok" : (t.alert != null ? "limite " + t.alert + " " + t.unit : "");
+      }
+      f.type.addEventListener("change", upd);
+      upd();
+    }, function () {
+      var t = garReadingType(f.type.value);
+      var val = t.text ? f.value.value.trim() : garDec(f.value.value);
+      if (val == null || val === "") { showToast("Informe o valor."); return false; }
+      var at = garParseDate(f.at.value) + new Date().getHours() * 3600000, km = garNum(f.km.value);
+      v.readings = v.readings || [];
+      v.readings.push({ id: garId("rd"), type: t.id, pos: f.pos.value || "", value: val, at: at, km: km, note: f.note.value.trim() });
+      if (km != null) garAddKm(v, km, at, "manual");
+      garSave(v); garRender();
+      var st = garReadingState(t, val);
+      if (st !== "ok") showToast((st === "late" ? "⛔ " : "⚠️ ") + t.label + " fora da faixa (" + val + " " + (t.unit || "") + ").");
+      return true;
+    });
+  }
+
+  // ---- km dos passeios somam no veículo escolhido ----
+  function garOnTripSaved(trip) {
+    var vid = lsGet(GAR_CUR_KEY, "");
+    var sel = document.getElementById("nav-vehicle");
+    if (sel && sel.dataset.used === "1") vid = sel.value;
+    if (!vid || !trip || !(trip.distance > 0)) return;
+    var v = garGet(vid);
+    if (!v) return;
+    v.kmLog = v.kmLog || [];
+    v.kmLog.push({ at: trip.endedAt || Date.now(), delta: Math.round(trip.distance) / 1000, src: "trip", trip: trip.id });
+    garSave(v);
+    trip.vehicleId = v.id;
+  }
+
+  function garPrepareConfirm() {
+    var box = document.getElementById("nav-vehicle-box"), sel = document.getElementById("nav-vehicle");
+    var vs = garVehicles();
+    if (!vs.length) { box.classList.add("hidden"); sel.dataset.used = "0"; return; }
+    box.classList.remove("hidden");
+    sel.innerHTML = "";
+    [["", "Nenhum"]].concat(vs.map(function (v) { return [v.id, v.name]; })).forEach(function (o) { var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op); });
+    var cur = lsGet(GAR_CUR_KEY, "");
+    sel.value = vs.some(function (v) { return v.id === cur; }) ? cur : vs[0].id;
+    sel.dataset.used = "1";
+  }
+
+  function garDashLabel() {
+    var lab = document.getElementById("dash-garage-label");
+    if (!lab) return;
+    var late = 0, soon = 0;
+    garVehicles().forEach(function (v) { garAlerts(v).forEach(function (a) { if (a.st === "late") late++; else soon++; }); });
+    lab.textContent = late ? "⛔ " + late + (late === 1 ? " vencida" : " vencidas") : soon ? "⚠️ " + soon + " perto" : "";
+  }
+
+  function initV70Garage() {
+    document.getElementById("btn-dash-garage").addEventListener("click", garShowList);
+    document.getElementById("btn-gar-back").addEventListener("click", function () { showScreen("dashboard"); });
+    document.getElementById("btn-gar-detail-back").addEventListener("click", garShowList);
+    document.getElementById("btn-gar-new").addEventListener("click", function () { garFormVehicle(null); });
+    Array.prototype.forEach.call(document.querySelectorAll("#gar-tabs button"), function (b) {
+      b.addEventListener("click", function () { gar.tab = b.getAttribute("data-tab"); garRender(); });
+    });
+    document.getElementById("btn-gar-modal-cancel").addEventListener("click", function () { closeModal(document.getElementById("gar-modal")); });
+    document.getElementById("btn-gar-modal-ok").addEventListener("click", function () {
+      if (garModalOk && garModalOk() !== false) closeModal(document.getElementById("gar-modal"));
+    });
+    document.getElementById("nav-vehicle").addEventListener("change", function () { lsSet(GAR_CUR_KEY, this.value); });
+    garDashLabel();
+  }
+
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -16126,6 +17002,7 @@ html.fde-native .native-only { display: block; }
     safeInit(initV64, "desvios e caminho seco/molhado (v6.4)");
     safeInit(initV65MapLoading, "aviso de mapa carregando (v6.5)");
     safeInit(initV66, "a caminho da largada e estou perdido (v6.6)");
+    safeInit(initV70Garage, "garagem (v7.0)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 

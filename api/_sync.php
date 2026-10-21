@@ -8,10 +8,10 @@ const SYNC_MAX_ITEMS = 3000;
 const SYNC_MAX_ITEM_BYTES = 400 * 1024;
 const SYNC_MAX_BODY = 6 * 1024 * 1024;
 
-// $table: 'routes' | 'expeditions'  (nomes fixos, nunca vindos do usuário)
+// $table: 'routes' | 'expeditions' | 'garage'  (nomes fixos, nunca vindos do usuário)
 // $valid: função que diz se um item não excluído tem o formato mínimo esperado
 function sync_handle(string $table, string $field, callable $valid): never {
-    if (!in_array($table, ['routes', 'expeditions'], true)) throw new RuntimeException('tabela inválida');
+    if (!in_array($table, ['routes', 'expeditions', 'garage'], true)) throw new RuntimeException('tabela inválida');
     $action = $_GET['action'] ?? '';
     if ($action === 'list') {
         $u = require_user();
@@ -62,7 +62,7 @@ function sync_handle(string $table, string $field, callable $valid): never {
 }
 
 function sync_all(string $table, int $uid, bool $onlyLive = false): array {
-    if (!in_array($table, ['routes', 'expeditions'], true)) throw new RuntimeException('tabela inválida');
+    if (!in_array($table, ['routes', 'expeditions', 'garage'], true)) throw new RuntimeException('tabela inválida');
     $st = db()->prepare("SELECT data FROM $table WHERE user_id = ?" . ($onlyLive ? ' AND deleted = 0 ORDER BY updated_at' : ''));
     $st->execute([$uid]);
     $out = [];

@@ -125,7 +125,7 @@ switch ($action) {
         header('Content-Disposition: attachment; filename="meus-dados-fora-de-estrada.json"');
         require __DIR__ . '/_sync.php';
         json_out(['ok' => true, 'exported_at' => date('c'), 'account' => user_private($u) + ['terms_accepted_at' => $u['terms_accepted_at'], 'last_login_at' => $u['last_login_at']],
-            'routes' => sync_all('routes', (int)$u['id'], true), 'expeditions' => sync_all('expeditions', (int)$u['id'], true),
+            'routes' => sync_all('routes', (int)$u['id'], true), 'expeditions' => sync_all('expeditions', (int)$u['id'], true), 'garage' => sync_all('garage', (int)$u['id'], true),
             'posts' => export_rows('SELECT id, title, body, km, difficulty, vehicle, route_json, photos, created_at FROM posts WHERE user_id = ?', (int)$u['id']),
             'comments' => export_rows('SELECT id, post_id, body, created_at FROM comments WHERE user_id = ?', (int)$u['id']),
             'following' => export_rows('SELECT u.username FROM follows f JOIN users u ON u.id = f.followee_id WHERE f.follower_id = ?', (int)$u['id'])]);
