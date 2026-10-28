@@ -2355,6 +2355,10 @@ button, input, select, textarea { font-family: inherit; }
 .dsh-help b { display: block; font-size: 0.95rem; }
 .dsh-help span { font-size: 0.8rem; color: var(--muted); }
 .dsh-help .svg-ico { color: var(--acc); }
+/* v7.5 — mapa do planejamento em tela cheia */
+#btn-plan-full .fde-ico-out, #btn-plan-full.on .fde-ico-in { display: none; }
+#btn-plan-full.on .fde-ico-out { display: inline; }
+#screen-planning.fde-full #app-header, #screen-planning.fde-full #side-panel, #screen-planning.fde-full #panel-overlay { display: none !important; }
 /* v7.4 — esconder pinos do planejamento */
 .fde-pins-hidden .olc-pin-wrapper { display: none !important; }
 .fde-pins-ctl a { display: flex !important; align-items: center; justify-content: center; color: #333; }
@@ -3487,8 +3491,15 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "7.4";
+  var APP_VERSION = "7.5";
   var CHANGELOG = [
+    {
+      version: "7.5",
+      date: "28/10/2026",
+      changes: [
+        "Planejamento: botão de tela cheia no mapa (abaixo do botão de esconder pinos) — some a barra de cima e o painel; no navegador some até a barra do navegador. Toque de novo, Esc ou o voltar do Android para sair"
+      ]
+    },
     {
       version: "7.4",
       date: "28/10/2026",
@@ -4936,6 +4947,27 @@ html.fde-native .native-only { display: block; }
     v74UpdateEnds();
     if (!quiet) showToast(v74Hidden ? "Pontos escondidos — só a rota. Toque de novo no botão para editar os pontos." : "Pontos visíveis.");
   }
+  var V75_ICO_IN = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+  var V75_ICO_OUT = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
+  var v75Full = false;
+  function v75SetFull(on) {
+    v75Full = !!on;
+    document.getElementById("screen-planning").classList.toggle("fde-full", v75Full);
+    var b = document.getElementById("btn-plan-full");
+    // só troca classes: recriar o ícone no meio do toque fazia o mapa achar que o toque era nele (e criava um ponto)
+    if (b) { b.title = v75Full ? "Sair da tela cheia" : "Tela cheia"; b.classList.toggle("on", v75Full); }
+    try {
+      var de = document.documentElement;
+      if (v75Full && !document.fullscreenElement && de.requestFullscreen && !FDE_NATIVE) de.requestFullscreen().catch(function () {});
+      if (!v75Full && document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function () {});
+    } catch (e) {}
+    setTimeout(function () { if (map) map.invalidateSize(); }, 80);
+    setTimeout(function () { if (map) map.invalidateSize(); }, 400);
+  }
+  document.addEventListener("fullscreenchange", function () {
+    if (!document.fullscreenElement && v75Full) v75SetFull(false);   // saiu com Esc / gesto do navegador
+  });
+
   function v74InitPinToggle() {
     v74Ends = L.layerGroup().addTo(map);
     var Ctl = L.Control.extend({
@@ -4950,6 +4982,14 @@ html.fde-native .native-only { display: block; }
         L.DomEvent.disableClickPropagation(box);
         L.DomEvent.on(a, "click", function (ev) { L.DomEvent.preventDefault(ev); v74SetHidden(!v74Hidden); });
         v74Btn = a;
+        // v7.5: tela cheia (esconde a barra de cima e o painel; no navegador também some a barra do navegador)
+        var f = L.DomUtil.create("a", "", box);
+        f.href = "#";
+        f.setAttribute("role", "button");
+        f.id = "btn-plan-full";
+        f.title = "Tela cheia";
+        f.innerHTML = V75_ICO_IN.replace("<svg", '<svg class="fde-ico-in"') + V75_ICO_OUT.replace("<svg", '<svg class="fde-ico-out"');
+        L.DomEvent.on(f, "click", function (ev) { L.DomEvent.preventDefault(ev); v75SetFull(!v75Full); });
         return box;
       }
     });
@@ -6597,6 +6637,7 @@ html.fde-native .native-only { display: block; }
       screens[key].classList.toggle("hidden", key !== name);
     });
     if (name !== "compass" && typeof v73CompassStop === "function") v73CompassStop();
+    if (name !== "planning" && typeof v75Full !== "undefined" && v75Full) v75SetFull(false);
     if (name === "dashboard") { v55RenderDashboardIfVisible(); if (typeof garDashLabel === "function") garDashLabel(); }
     if (name === "saved-routes") v62RenderTrips();
     if (typeof v62UpdateRunningBar === "function") setTimeout(v62UpdateRunningBar, 0);
@@ -15105,6 +15146,7 @@ html.fde-native .native-only { display: block; }
           modal.classList.remove("open");
           return;
         }
+        if (v75Full) { v75SetFull(false); return; }   // tela cheia do mapa: voltar só sai dela
         if (v62NavRunning() && !v62OnNavScreen()) {
           v62GoToActiveNav(); // fora da tela de navegação: voltar leva de volta a ela
           return;
