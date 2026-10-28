@@ -2355,6 +2355,12 @@ button, input, select, textarea { font-family: inherit; }
 .dsh-help b { display: block; font-size: 0.95rem; }
 .dsh-help span { font-size: 0.8rem; color: var(--muted); }
 .dsh-help .svg-ico { color: var(--acc); }
+/* v7.4 — esconder pinos do planejamento */
+.fde-pins-hidden .olc-pin-wrapper { display: none !important; }
+.fde-pins-ctl a { display: flex !important; align-items: center; justify-content: center; color: #333; }
+.fde-pins-ctl a .fde-slash { display: none; }
+.fde-pins-ctl a.on { background: #e08a2c; color: #fff; }
+.fde-pins-ctl a.on .fde-slash { display: inline; }
 /* v7.3 — Bússola */
 #screen-compass { height: 100%; }
 .cmp-body { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
@@ -3481,8 +3487,15 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "7.3";
+  var APP_VERSION = "7.4";
   var CHANGELOG = [
+    {
+      version: "7.4",
+      date: "28/10/2026",
+      changes: [
+        "Planejamento: botão novo no mapa (pino, abaixo do zoom) para esconder os pontos numerados e ver só a linha da rota, com o começo em verde e o fim em vermelho; as marcações continuam aparecendo. Toque de novo para voltar a editar os pontos"
+      ]
+    },
     {
       version: "7.3",
       date: "28/10/2026",
@@ -4688,6 +4701,7 @@ html.fde-native .native-only { display: block; }
     }
 
     polyline = L.polyline([], { color: "#e08a2c", weight: 4 }).addTo(map);
+    v74InitPinToggle();
 
     map.on("click", function (e) {
       if (waypointPlacementMode) {
@@ -4894,6 +4908,55 @@ html.fde-native .native-only { display: block; }
       return [p.lat, p.lng];
     });
     polyline.setLatLngs(latlngs);
+    v74UpdateEnds();
+  }
+
+  // ---- v7.4: botão para esconder os pinos numerados e ver só a linha da rota ----
+  var V74_KEY = "fde_plan_pins_hidden";
+  var v74Hidden = false, v74Ends = null, v74Btn = null;
+  function v74UpdateEnds() {
+    if (!v74Ends) return;
+    v74Ends.clearLayers();
+    if (!v74Hidden || !state.points.length) return;
+    var a = state.points[0], b = state.points[state.points.length - 1];
+    // com os pinos escondidos, marca só o começo (verde) e o fim (vermelho)
+    L.circleMarker([a.lat, a.lng], { radius: 8, color: "#fff", weight: 3, fillColor: "#2e9d55", fillOpacity: 1, interactive: false }).addTo(v74Ends);
+    if (state.points.length > 1) L.circleMarker([b.lat, b.lng], { radius: 8, color: "#fff", weight: 3, fillColor: "#d6362a", fillOpacity: 1, interactive: false }).addTo(v74Ends);
+  }
+  function v74SetHidden(h, quiet) {
+    v74Hidden = !!h;
+    map.getContainer().classList.toggle("fde-pins-hidden", v74Hidden);
+    polyline.setStyle({ weight: v74Hidden ? 5 : 4 });
+    if (v74Btn) {
+      v74Btn.classList.toggle("on", v74Hidden);
+      v74Btn.title = v74Hidden ? "Mostrar os pontos da rota" : "Esconder os pontos (ver só a rota)";
+      v74Btn.setAttribute("aria-pressed", v74Hidden ? "true" : "false");
+    }
+    try { localStorage.setItem(V74_KEY, v74Hidden ? "1" : "0"); } catch (e) {}
+    v74UpdateEnds();
+    if (!quiet) showToast(v74Hidden ? "Pontos escondidos — só a rota. Toque de novo no botão para editar os pontos." : "Pontos visíveis.");
+  }
+  function v74InitPinToggle() {
+    v74Ends = L.layerGroup().addTo(map);
+    var Ctl = L.Control.extend({
+      options: { position: "topleft" },
+      onAdd: function () {
+        var box = L.DomUtil.create("div", "leaflet-bar fde-pins-ctl");
+        var a = L.DomUtil.create("a", "", box);
+        a.href = "#";
+        a.setAttribute("role", "button");
+        a.id = "btn-plan-pins";
+        a.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 21s-6-5.4-6-10a6 6 0 0 1 12 0c0 4.6-6 10-6 10z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="11" r="2" fill="currentColor"/><path class="fde-slash" d="M4 4l16 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+        L.DomEvent.disableClickPropagation(box);
+        L.DomEvent.on(a, "click", function (ev) { L.DomEvent.preventDefault(ev); v74SetHidden(!v74Hidden); });
+        v74Btn = a;
+        return box;
+      }
+    });
+    new Ctl().addTo(map);
+    var saved = false;
+    try { saved = localStorage.getItem(V74_KEY) === "1"; } catch (e) {}
+    v74SetHidden(saved, true);
   }
 
   function clearRoute() {
