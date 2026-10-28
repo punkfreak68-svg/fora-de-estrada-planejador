@@ -2355,6 +2355,25 @@ button, input, select, textarea { font-family: inherit; }
 .dsh-help b { display: block; font-size: 0.95rem; }
 .dsh-help span { font-size: 0.8rem; color: var(--muted); }
 .dsh-help .svg-ico { color: var(--acc); }
+/* v7.3 — Bússola */
+#screen-compass { height: 100%; }
+.cmp-body { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.cmp-read { display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+#cmp-deg { font-size: 3rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink); }
+#cmp-dir { font-size: 1.15rem; font-weight: 700; color: var(--muted); min-height: 1.3em; }
+.cmp-dial-wrap { position: relative; width: min(78vw, 340px); aspect-ratio: 1; }
+.cmp-card { width: 100%; height: 100%; display: block; will-change: transform; }
+.cmp-lubber { position: absolute; left: 50%; top: -10px; width: 0; height: 0; transform: translateX(-50%); border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 14px solid var(--ink); z-index: 1; }
+.cmp-ring { fill: var(--surf, #fff); stroke: var(--line); stroke-width: 2; }
+.cmp-ticks line { stroke: var(--muted); stroke-width: 1; }
+.cmp-ticks line.big { stroke: var(--ink); stroke-width: 2; }
+.cmp-n { fill: var(--danger, #c0392b); font-size: 22px; font-weight: 800; text-anchor: middle; }
+.cmp-c { fill: var(--ink); font-size: 18px; font-weight: 700; text-anchor: middle; }
+.cmp-needle-n { fill: var(--danger, #c0392b); }
+.cmp-needle-s { fill: var(--muted); opacity: .55; }
+.cmp-hub { fill: var(--ink); }
+.cmp-msg { background: var(--warnBg, #fff4e0); color: var(--ink); border-radius: 10px; padding: 10px 12px; max-width: 420px; margin: 0; }
+.cmp-tip { max-width: 420px; }
 /* v7.0 — Garagem */
 #screen-garage { height: 100%; }
 .gar-row { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-top: 1px solid var(--line); }
@@ -2539,6 +2558,10 @@ html.fde-native .native-only { display: block; }
         <button id="btn-dash-garage" class="dashboard-tile">
           <span class="dashboard-tile-icon"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"></path></svg></span>
           <span class="dashboard-tile-label">Garagem <small id="dash-garage-label" class="dash-tile-sub"></small></span>
+        </button>
+        <button id="btn-dash-compass" class="dashboard-tile">
+          <span class="dashboard-tile-icon"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M15.5 8.5l-2 5-5 2 2-5z"></path></svg></span>
+          <span class="dashboard-tile-label">Bússola <small class="dash-tile-sub">funciona sem sinal</small></span>
         </button>
       </div>
 
@@ -2860,6 +2883,35 @@ html.fde-native .native-only { display: block; }
     <div id="sos-sub" class="sos-sub hidden"></div>
     <div class="modal-actions">
       <button id="btn-sos-close" class="modal-btn-secondary">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div id="screen-compass" class="hidden">
+  <div class="exp-view">
+    <header class="nav-header">
+      <button id="btn-cmp-back" class="icon-btn" aria-label="Voltar ao início">←</button>
+      <h1>🧭 Bússola</h1>
+    </header>
+    <div class="exp-body cmp-body">
+      <div class="cmp-read" aria-live="polite"><span id="cmp-deg">—</span><span id="cmp-dir"></span></div>
+      <div class="cmp-dial-wrap">
+        <div class="cmp-lubber" aria-hidden="true"></div>
+        <svg id="cmp-card" class="cmp-card" viewBox="0 0 200 200" role="img" aria-label="Rosa dos ventos">
+          <circle cx="100" cy="100" r="96" class="cmp-ring"></circle>
+          <g id="cmp-ticks"></g>
+          <text x="100" y="34" class="cmp-n">N</text>
+          <text x="170" y="106" class="cmp-c">L</text>
+          <text x="100" y="178" class="cmp-c">S</text>
+          <text x="30" y="106" class="cmp-c">O</text>
+          <polygon points="100,44 109,100 91,100" class="cmp-needle-n"></polygon>
+          <polygon points="100,156 109,100 91,100" class="cmp-needle-s"></polygon>
+          <circle cx="100" cy="100" r="6" class="cmp-hub"></circle>
+        </svg>
+      </div>
+      <p id="cmp-msg" class="cmp-msg hidden"></p>
+      <button id="btn-cmp-enable" class="com-btn com-btn-primary hidden">Ativar bússola</button>
+      <p class="hint cmp-tip">A agulha vermelha aponta para o Norte; o número em cima é o rumo para onde a parte de cima do celular aponta. Se o Norte parecer errado, faça um <b>8</b> no ar com o celular algumas vezes, longe do carro e de metal. Funciona sem internet e sem GPS, com o app aberto e a tela ligada.</p>
     </div>
   </div>
 </div>
@@ -3429,8 +3481,15 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "7.2";
+  var APP_VERSION = "7.3";
   var CHANGELOG = [
+    {
+      version: "7.3",
+      date: "28/10/2026",
+      changes: [
+        "🧭 Bússola: botão novo no painel. Agulha que aponta para o Norte, rumo em graus (0–359°) e direção (N, NE, L, SE…). Usa os sensores do celular — funciona parado, sem rota, sem GPS e sem internet; mantém a tela ligada enquanto aberta; avisa se o aparelho não tiver o sensor ou a permissão for negada"
+      ]
+    },
     {
       version: "7.2",
       date: "21/10/2026",
@@ -6468,11 +6527,13 @@ html.fde-native .native-only { display: block; }
       community: document.getElementById("screen-community"),
       welcome: document.getElementById("screen-welcome"),
       expeditions: document.getElementById("screen-expeditions"),
-      garage: document.getElementById("screen-garage")
+      garage: document.getElementById("screen-garage"),
+      compass: document.getElementById("screen-compass")
     };
     Object.keys(screens).forEach(function (key) {
       screens[key].classList.toggle("hidden", key !== name);
     });
+    if (name !== "compass" && typeof v73CompassStop === "function") v73CompassStop();
     if (name === "dashboard") { v55RenderDashboardIfVisible(); if (typeof garDashLabel === "function") garDashLabel(); }
     if (name === "saved-routes") v62RenderTrips();
     if (typeof v62UpdateRunningBar === "function") setTimeout(v62UpdateRunningBar, 0);
@@ -17161,6 +17222,168 @@ html.fde-native .native-only { display: block; }
     garDashLabel();
   }
 
+  // ================= v7.3: BÚSSOLA (tela própria, sem rota, sem GPS) =================
+  // Usa a orientação "absoluta" do aparelho: o sistema já junta magnetômetro (acha o Norte)
+  // e giroscópio (suaviza o giro). Aqui ainda passa por um filtro leve para a agulha não tremer.
+  var v73 = { on: false, h: null, sx: 0, sy: 0, gotAbs: false, gotAny: false, timer: null, wake: null, raf: 0, lastShown: null };
+  var V73_DIRS = ["N", "NE", "L", "SE", "S", "SO", "O", "NO"];
+
+  function v73DirText(deg) { return V73_DIRS[Math.round(deg / 45) % 8]; }
+
+  // rumo para onde aponta a parte de cima do celular, compensando a inclinação (fórmula da especificação W3C)
+  function v73HeadingFromEuler(alpha, beta, gamma) {
+    var d = Math.PI / 180, x = beta * d, y = gamma * d, z = alpha * d;
+    var cX = Math.cos(x), cY = Math.cos(y), cZ = Math.cos(z), sX = Math.sin(x), sY = Math.sin(y), sZ = Math.sin(z);
+    var Vx = -cZ * sY - sZ * sX * cY, Vy = -sZ * sY + cZ * sX * cY;
+    var h = Math.atan(Vx / Vy);
+    if (Vy < 0) h += Math.PI; else if (Vx < 0) h += 2 * Math.PI;
+    var deg = h * 180 / Math.PI;
+    // com o celular quase deitado a fórmula fica instável: usa o alpha direto
+    if (Math.abs(beta) < 25 && Math.abs(gamma) < 25) deg = 360 - alpha;
+    return (deg + 360) % 360;
+  }
+
+  function v73ScreenAngle() {
+    try { if (screen.orientation && typeof screen.orientation.angle === "number") return screen.orientation.angle; } catch (e) {}
+    return typeof window.orientation === "number" ? window.orientation : 0;
+  }
+
+  function v73Feed(deg) {
+    if (deg == null || isNaN(deg)) return;
+    deg = (deg + v73ScreenAngle() + 360) % 360;
+    var r = deg * Math.PI / 180;
+    if (v73.h == null) { v73.sx = Math.cos(r); v73.sy = Math.sin(r); }
+    else { var k = 0.18; v73.sx += (Math.cos(r) - v73.sx) * k; v73.sy += (Math.sin(r) - v73.sy) * k; }
+    v73.h = (Math.atan2(v73.sy, v73.sx) * 180 / Math.PI + 360) % 360;
+    v73.gotAny = true;
+    if (!v73.raf) v73.raf = requestAnimationFrame(v73Draw);
+  }
+
+  function v73Draw() {
+    v73.raf = 0;
+    if (v73.h == null) return;
+    var card = document.getElementById("cmp-card");
+    // gira a rosa ao contrário do rumo: assim o N (agulha vermelha) fica sempre apontando para o Norte de verdade
+    card.style.transform = "rotate(" + (-v73.h).toFixed(1) + "deg)";
+    // as letras giram junto com a rosa, mas ficam sempre em pé para ler
+    var lets = card.querySelectorAll("text");
+    for (var i = 0; i < lets.length; i++) {
+      var t = lets[i], cx = t.getAttribute("x"), cy = +t.getAttribute("y") - 7;
+      t.setAttribute("transform", "rotate(" + v73.h.toFixed(1) + " " + cx + " " + cy + ")");
+    }
+    var shown = Math.round(v73.h) % 360;
+    if (shown !== v73.lastShown) {
+      v73.lastShown = shown;
+      document.getElementById("cmp-deg").textContent = shown + "°";
+      document.getElementById("cmp-dir").textContent = v73DirText(shown);
+    }
+    v73Msg("");
+  }
+
+  function v73OnAbs(e) {
+    if (e.alpha == null) return;
+    v73.gotAbs = true;
+    v73Feed(v73HeadingFromEuler(e.alpha, e.beta || 0, e.gamma || 0));
+  }
+  function v73OnRel(e) {
+    if (typeof e.webkitCompassHeading === "number" && e.webkitCompassHeading >= 0) {
+      // iPhone: o sistema já entrega o rumo magnético pronto
+      v73Feed(e.webkitCompassHeading);
+      if (typeof e.webkitCompassAccuracy === "number" && (e.webkitCompassAccuracy < 0 || e.webkitCompassAccuracy > 25)) v73Msg("Precisão baixa: faça um 8 no ar com o celular para calibrar.", 6000);
+      return;
+    }
+    if (v73.gotAbs) return;
+    if (e.absolute === true && e.alpha != null) v73Feed(v73HeadingFromEuler(e.alpha, e.beta || 0, e.gamma || 0));
+  }
+
+  // keepMs: o aviso fica pelo menos esse tempo, mesmo com leituras chegando (ex.: pedir calibração)
+  function v73Msg(t, keepMs) {
+    var m = document.getElementById("cmp-msg");
+    if (!t) {
+      if (m.classList.contains("hidden") || Date.now() < (+m.dataset.until || 0)) return;
+      m.classList.add("hidden");
+      return;
+    }
+    m.textContent = t;
+    m.dataset.until = keepMs ? String(Date.now() + keepMs) : "0";
+    m.classList.remove("hidden");
+  }
+
+  function v73Listen() {
+    window.addEventListener("deviceorientationabsolute", v73OnAbs, true);
+    window.addEventListener("deviceorientation", v73OnRel, true);
+    v73.on = true;
+    clearTimeout(v73.timer);
+    v73.timer = setTimeout(function () {
+      if (v73.on && !v73.gotAny) {
+        v73Msg("Não chegou leitura do sensor de direção. Este aparelho pode não ter bússola (magnetômetro), ou o navegador não libera o sensor. No computador ela não funciona — use no celular.");
+      }
+    }, 3000);
+    // mantém a tela ligada enquanto a bússola estiver aberta
+    try {
+      if (navigator.wakeLock && navigator.wakeLock.request) navigator.wakeLock.request("screen").then(function (w) { v73.wake = w; }).catch(function () {});
+    } catch (e) {}
+  }
+
+  function v73CompassStop() {
+    if (!v73.on) return;
+    window.removeEventListener("deviceorientationabsolute", v73OnAbs, true);
+    window.removeEventListener("deviceorientation", v73OnRel, true);
+    v73.on = false;
+    clearTimeout(v73.timer);
+    try { if (v73.wake) v73.wake.release(); } catch (e) {}
+    v73.wake = null;
+  }
+
+  function v73Open() {
+    showScreen("compass");
+    v73.h = null; v73.gotAbs = false; v73.gotAny = false; v73.lastShown = null;
+    document.getElementById("cmp-deg").textContent = "—";
+    document.getElementById("cmp-dir").textContent = "";
+    var m = document.getElementById("cmp-msg"); m.classList.add("hidden"); m.dataset.until = "0";
+    var btn = document.getElementById("btn-cmp-enable");
+    btn.classList.add("hidden");
+    if (!("DeviceOrientationEvent" in window)) {
+      v73Msg("Este aparelho ou navegador não tem sensor de direção. A bússola não funciona aqui.");
+      return;
+    }
+    // iPhone/iPad: precisa pedir permissão com um toque
+    if (typeof DeviceOrientationEvent.requestPermission === "function") {
+      btn.classList.remove("hidden");
+      v73Msg("Toque em \"Ativar bússola\" e permita o acesso ao movimento e orientação.");
+      return;
+    }
+    v73Listen();
+  }
+
+  function initV73Compass() {
+    var ticks = document.getElementById("cmp-ticks");
+    var h = "";
+    for (var a = 0; a < 360; a += 10) {
+      var big = a % 90 === 0, r1 = big ? 78 : 84, rad = a * Math.PI / 180;
+      h += '<line class="' + (big ? "big" : "") + '" x1="' + (100 + 92 * Math.sin(rad)).toFixed(1) + '" y1="' + (100 - 92 * Math.cos(rad)).toFixed(1) + '" x2="' + (100 + r1 * Math.sin(rad)).toFixed(1) + '" y2="' + (100 - r1 * Math.cos(rad)).toFixed(1) + '"></line>';
+    }
+    ticks.innerHTML = h;
+    ticks.setAttribute("class", "cmp-ticks");
+    document.getElementById("btn-dash-compass").addEventListener("click", v73Open);
+    document.getElementById("btn-cmp-back").addEventListener("click", function () { showScreen("dashboard"); });
+    document.getElementById("btn-cmp-enable").addEventListener("click", function () {
+      var btn = this;
+      DeviceOrientationEvent.requestPermission().then(function (st) {
+        if (st === "granted") { btn.classList.add("hidden"); v73Msg(""); v73Listen(); }
+        else v73Msg("Permissão negada. Para usar a bússola, libere \"Movimento e orientação\" nos ajustes do navegador e abra de novo.");
+      }).catch(function () {
+        v73Msg("Não foi possível pedir a permissão do sensor. Libere \"Movimento e orientação\" nos ajustes do navegador.");
+      });
+    });
+    document.addEventListener("visibilitychange", function () {
+      var vis = document.visibilityState === "visible";
+      var onCmp = !document.getElementById("screen-compass").classList.contains("hidden");
+      if (vis && onCmp && !v73.on && !document.getElementById("btn-cmp-enable").offsetParent) v73Listen();
+      else if (!vis) v73CompassStop();
+    });
+  }
+
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -17200,6 +17423,7 @@ html.fde-native .native-only { display: block; }
     safeInit(initV65MapLoading, "aviso de mapa carregando (v6.5)");
     safeInit(initV66, "a caminho da largada e estou perdido (v6.6)");
     safeInit(initV70Garage, "garagem (v7.0)");
+    safeInit(initV73Compass, "bússola (v7.3)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
