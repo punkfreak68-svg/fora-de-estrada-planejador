@@ -2361,6 +2361,12 @@ h1.dsh-title { margin: 0; }
 .dsh-help b { display: block; font-size: 0.95rem; }
 .dsh-help span { font-size: 0.8rem; color: var(--muted); }
 .dsh-help .svg-ico { color: var(--acc); }
+/* v7.8 — trocar o mapa na navegação */
+.nav-side-tools { position: absolute; }
+.nav-layers-menu { position: absolute; right: 60px; top: 0; z-index: 900; background: var(--surf); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 6px; display: flex; flex-direction: column; gap: 4px; min-width: 230px; }
+.nav-layers-menu button { display: flex; align-items: center; gap: 8px; text-align: left; background: transparent; border: 0; border-radius: 10px; padding: 11px 12px; color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
+.nav-layers-menu button.on { background: var(--acc); color: var(--onAcc); }
+.nav-layers-menu small { display: block; font-weight: 400; opacity: .75; font-size: .78rem; }
 /* v7.5 — mapa do planejamento em tela cheia */
 #btn-plan-full .fde-ico-out, #btn-plan-full.on .fde-ico-in { display: none; }
 #btn-plan-full.on .fde-ico-out { display: inline; }
@@ -2790,6 +2796,8 @@ html.fde-native .native-only { display: block; }
 
     <div id="nav-side-tools" class="nav-side-tools">
       <button id="btn-nav-sos" class="nav-tool-btn nav-sos-btn" title="Estou perdido / pedir ajuda" aria-label="Estou perdido"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle><path d="M5.6 5.6l3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"></path></svg></button>
+      <button id="btn-nav-layers" class="nav-tool-btn" title="Trocar o mapa (satélite / topográfico)" aria-label="Trocar o mapa"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5z"></path><path d="M2 12.5l10 5 10-5"></path><path d="M2 17l10 5 10-5"></path></svg></button>
+      <div id="nav-layers-menu" class="nav-layers-menu hidden" role="menu"></div>
       <button id="btn-nav-home" class="nav-tool-btn" title="Ir ao menu (a navegação continua)" aria-label="Ir ao menu sem parar a navegação"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 10v10h13V10"></path><path d="M10 20v-5h4v5"></path></svg></button>
       <button id="btn-nav-voice" class="nav-tool-btn" title="Alerta de desvio por voz e vibração" aria-label="Alerta por voz"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10z"></path><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"></path></svg></button>
       <button id="btn-nav-waypoint" class="nav-tool-btn" title="Marcar este local (foto e anotação)" aria-label="Marcar local"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg></button>
@@ -3501,13 +3509,20 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "7.7";
+  var APP_VERSION = "7.8";
   var CHANGELOG = [
+    {
+      version: "7.8",
+      date: "29/10/2026",
+      changes: [
+        "Navegação: botão novo de camadas (na coluna da direita) para trocar o mapa no meio da trilha — Satélite Google, Satélite Esri, Topográfico ou Topográfico Esri — sem parar a navegação"
+      ]
+    },
     {
       version: "7.7",
       date: "29/10/2026",
       changes: [
-        "Mapa topográfico: a linha da rota ganhou uma borda escura para não se misturar com as estradas (que também são laranja) — no planejamento, na navegação e na tomada de tempo"
+        "Mapa topográfico: a linha da rota fica magenta com borda branca para não se misturar com as estradas (que são laranja) — no planejamento, na navegação e na tomada de tempo"
       ]
     },
     {
@@ -4391,10 +4406,10 @@ html.fde-native .native-only { display: block; }
   function v77Case(line, mapInstance) {
     try {
       var w = (line.options && line.options.weight) || 4;
-      var casing = L.polyline([], { color: "#3a1d00", weight: w + 4, opacity: 0.85, interactive: false });
+      var casing = L.polyline([], { color: "#ffffff", weight: w + 4, opacity: 0.95, interactive: false });
       var orig = line.setLatLngs;
       line.setLatLngs = function (ll) { casing.setLatLngs(ll); return orig.call(line, ll); };
-      v77Lines.push({ line: line, casing: casing, map: mapInstance });
+      v77Lines.push({ line: line, casing: casing, map: mapInstance, color: line.options.color });
       v77Apply();
     } catch (e) {}
     return line;
@@ -4403,6 +4418,8 @@ html.fde-native .native-only { display: block; }
     var on = v77IsTopo();
     v77Lines.forEach(function (o) {
       var has = o.map.hasLayer(o.casing);
+      // no topográfico as estradas são laranja com contorno escuro: a rota fica magenta com borda branca
+      o.line.setStyle({ color: on ? "#d4148f" : o.color });
       if (on && !has) { o.casing.addTo(o.map); o.casing.setLatLngs(o.line.getLatLngs()); o.line.bringToFront(); }
       else if (!on && has) o.map.removeLayer(o.casing);
     });
@@ -4693,6 +4710,7 @@ html.fde-native .native-only { display: block; }
       var useGoogle = !!google && wantGoogle;
       var main = useGoogle ? google : (offLayers[pref] || esri);
       main.addTo(mapInstance);
+      mapInstance._fdeBase = { google: google || null, esri: esri, otm: topo, etopo: etopo, current: useGoogle ? "google" : (offLayers[pref] ? pref : "esri") };
       if (mapInstance === navMap) v65AddBackstop(mapInstance, useGoogle);
 
       if (google) {
@@ -4719,6 +4737,7 @@ html.fde-native .native-only { display: block; }
         mapInstance.on("baselayerchange", function (e) {
           var id = e.layer === google ? "google" : e.layer === topo ? "otm" : e.layer === etopo ? "etopo" : "esri";
           saveBasemapPref(id);
+          if (mapInstance._fdeBase) mapInstance._fdeBase.current = id;
           v77Apply();
           if (id === "otm" || id === "etopo") showToast("Mapa topográfico: ao baixar o mapa offline de uma rota, este é o mapa que fica guardado.");
         });
@@ -17565,6 +17584,66 @@ html.fde-native .native-only { display: block; }
     });
   }
 
+  // ================= v7.8: trocar o mapa (camada) no meio da navegação =================
+  function v78SetBase(mapInstance, id) {
+    var b = mapInstance && mapInstance._fdeBase;
+    if (!b || !b[id] || b.current === id) return false;
+    var old = b[b.current];
+    if (old && mapInstance.hasLayer(old)) mapInstance.removeLayer(old);
+    b[id].addTo(mapInstance);
+    b.current = id;
+    return true;
+  }
+  function v78Choose(id) {
+    saveBasemapPref(id);
+    v78SetBase(navMap, id);
+    if (typeof map !== "undefined" && map) v78SetBase(map, id);   // o planejamento acompanha
+    if (navMap && navMap._fdeBackstop) {   // a reserva offline passa a usar o mapa escolhido
+      try { navMap.removeLayer(navMap._fdeBackstop); } catch (e) {}
+      v65AddBackstop(navMap, id === "google");
+    }
+    v77Apply();
+    v78Menu(false);
+    var names = { google: "Satélite Google", esri: "Satélite Esri", otm: "Topográfico", etopo: "Topográfico Esri" };
+    var toast = "🗺️ " + names[id];
+    if (id !== "google" && navigator.onLine === false) toast += " — sem sinal, aparece só o que já foi baixado deste mapa.";
+    showToast(toast);
+  }
+  function v78Menu(open) {
+    var menu = document.getElementById("nav-layers-menu");
+    if (!open) { menu.classList.add("hidden"); return; }
+    var b = navMap && navMap._fdeBase;
+    if (!b) return;
+    var opts = [];
+    if (b.google) opts.push(["google", "Satélite Google", "mais nítido · precisa de internet"]);
+    opts.push(["esri", "Satélite Esri", "funciona offline"]);
+    opts.push(["otm", "Topográfico", "curvas de nível · offline se baixado"]);
+    opts.push(["etopo", "Topográfico Esri", "offline se baixado"]);
+    menu.innerHTML = "";
+    opts.forEach(function (o) {
+      var bt = document.createElement("button");
+      bt.type = "button";
+      bt.setAttribute("role", "menuitemradio");
+      bt.setAttribute("data-layer", o[0]);
+      bt.className = b.current === o[0] ? "on" : "";
+      bt.innerHTML = "<span>" + (b.current === o[0] ? "✓ " : "") + o[1] + "<small>" + o[2] + "</small></span>";
+      bt.addEventListener("click", function () { v78Choose(o[0]); });
+      menu.appendChild(bt);
+    });
+    menu.classList.remove("hidden");
+  }
+  function initV78NavLayers() {
+    var btn = document.getElementById("btn-nav-layers");
+    btn.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      v78Menu(document.getElementById("nav-layers-menu").classList.contains("hidden"));
+    });
+    document.addEventListener("click", function (ev) {
+      var menu = document.getElementById("nav-layers-menu");
+      if (!menu.classList.contains("hidden") && !menu.contains(ev.target) && ev.target !== btn) v78Menu(false);
+    });
+  }
+
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -17605,6 +17684,7 @@ html.fde-native .native-only { display: block; }
     safeInit(initV66, "a caminho da largada e estou perdido (v6.6)");
     safeInit(initV70Garage, "garagem (v7.0)");
     safeInit(initV73Compass, "bússola (v7.3)");
+    safeInit(initV78NavLayers, "camadas na navegação (v7.8)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
