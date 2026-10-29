@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fora de Estrada × Wikiloc × OsmAnd × Gaia GPS — qual app usar na trilha off-road</title>
+<meta name="description" content="Comparação honesta de apps para trilha de jipe, 4x4 e moto: Fora de Estrada, Wikiloc, OsmAnd, Gaia GPS e Google Maps. Navegação offline, aviso fora da rota, preços e o que cada um faz melhor.">
+<link rel="canonical" href="https://foradeestrada.sansoliveira.com.br/comparar.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Qual app usar na trilha off-road? Fora de Estrada × Wikiloc × OsmAnd × Gaia GPS">
+<meta property="og:description" content="Comparação honesta: navegação offline, aviso fora da rota, preços e o que cada app faz melhor.">
+<meta property="og:url" content="https://foradeestrada.sansoliveira.com.br/comparar.html">
+<meta property="og:image" content="https://foradeestrada.sansoliveira.com.br/icons/og-1200x630.jpg">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#17201B">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=JetBrains+Mono:wght@500;700&display=swap">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "O Fora de Estrada substitui o Wikiloc?", "acceptedAnswer": {"@type": "Answer", "text": "Depende do uso. O Wikiloc tem um acervo enorme de trilhas publicadas por milhões de pessoas — ótimo para descobrir trilhas novas. O Fora de Estrada é focado em planejar e navegar trilhas de veículo (jipe, 4x4, moto, quadriciclo), com a navegação com aviso de voz grátis, caminho seco/molhado, roadbook de rally e tomada de tempo. Muita gente usa os dois: acha a trilha no Wikiloc e navega no Fora de Estrada."}}, {"@type": "Question", "name": "Dá para importar trilha do Wikiloc, OsmAnd ou Gaia GPS?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. Baixe a trilha em GPX ou KML no outro app e use Importar no planejamento do Fora de Estrada. Os pontos de interesse do arquivo também vêm junto."}}, {"@type": "Question", "name": "O Fora de Estrada é mesmo grátis?", "acceptedAnswer": {"@type": "Answer", "text": "Sim, todas as funções são gratuitas, inclusive a navegação com aviso de voz e o mapa offline."}}, {"@type": "Question", "name": "Funciona no iPhone?", "acceptedAnswer": {"@type": "Answer", "text": "Sim, pelo navegador (Safari). O app instalável com GPS em segundo plano por enquanto é só para Android."}}]}</script>
+<script>
+/* mesmo modo dia/noite escolhido no app (Auto usa o horário: 6h–18h dia) */
+(function () {
+  var p = "auto";
+  try { p = localStorage.getItem("fde_theme_pref") || "auto"; } catch (e) {}
+  var h = new Date().getHours();
+  var m = p === "auto" ? (h >= 6 && h < 18 ? "day" : "night") : p;
+  document.documentElement.setAttribute("data-theme", m);
+})();
+</script>
+<style>
+:root, :root[data-theme="day"] {
+  --bg: #F4F6F1; --surf: #FFFFFF; --surf2: #EEF1EA; --line: #D5DBCF; --ink: #17201B; --ink2: #2F3A33; --muted: #5B6357;
+  --acc: #C2410C; --onAcc: #FFFFFF; --hero: #17201B; --heroInk: #F4F6F1; --heroMuted: #B9C2B3; --tip: #FFF4E0; --tipInk: #6B3B00;
+}
+:root[data-theme="night"] {
+  --bg: #0A0B0C; --surf: #15171A; --surf2: #1C1F23; --line: #2A2D31; --ink: #F2F3F4; --ink2: #D5D8DC; --muted: #8F949B;
+  --acc: #FFD60A; --onAcc: #0A0B0C; --hero: #15171A; --heroInk: #FFFFFF; --heroMuted: #8F949B; --tip: #2A2412; --tipInk: #FFD9A0;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Archivo", -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+a { color: var(--acc); }
+.hero { background: var(--hero); color: var(--heroInk); padding: 22px 18px 28px; }
+.wrap { max-width: 860px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--heroInk); text-decoration: none; font-weight: 700; font-size: 0.95rem; border: 1px solid var(--heroMuted); border-radius: 999px; padding: 6px 14px; }
+.hero h1 { margin: 18px 0 6px; font-weight: 800; font-stretch: 115%; font-size: clamp(1.8rem, 6vw, 2.6rem); line-height: 1.05; }
+.hero p { margin: 0; color: var(--heroMuted); }
+main { padding: 18px 16px 48px; }
+.toc { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin: 0 0 18px; padding: 0; list-style: none; }
+.toc a { display: block; padding: 12px 14px; background: var(--surf); border: 1px solid var(--line); border-radius: 12px; color: var(--ink); text-decoration: none; font-weight: 700; }
+.toc a:hover { border-color: var(--acc); }
+section { background: var(--surf); border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px 8px; margin-top: 14px; scroll-margin-top: 12px; }
+h2 { margin: 0 0 10px; font-weight: 800; font-stretch: 110%; font-size: 1.35rem; display: flex; align-items: center; gap: 10px; }
+h2 .n { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 9px; background: var(--acc); color: var(--onAcc); display: inline-flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-size: 0.95rem; }
+h3 { margin: 16px 0 4px; font-size: 1.02rem; }
+ol, ul { padding-left: 22px; margin: 6px 0 12px; }
+li { margin: 4px 0; }
+.tip { background: var(--tip); color: var(--tipInk); border-radius: 12px; padding: 10px 14px; margin: 10px 0 14px; font-size: 0.95rem; }
+.k { display: inline-block; background: var(--surf2); border: 1px solid var(--line); border-radius: 7px; padding: 0 7px; font-weight: 700; font-size: 0.92em; white-space: nowrap; }
+details { border-top: 1px solid var(--line); padding: 10px 0; }
+details:first-of-type { border-top: none; }
+summary { cursor: pointer; font-weight: 700; }
+details p { margin: 6px 0 0; color: var(--ink2); }
+.foot { text-align: center; color: var(--muted); font-size: 0.9rem; margin-top: 22px; }
+.cta { display: inline-block; margin-top: 10px; background: var(--acc); color: var(--onAcc); text-decoration: none; font-weight: 800; padding: 12px 22px; border-radius: 12px; }
+</style>
+<style>
+.cmp-wrap { overflow-x: auto; margin: 6px -4px 14px; }
+table.cmp { border-collapse: collapse; width: 100%; min-width: 640px; font-size: .92rem; }
+table.cmp th, table.cmp td { border-bottom: 1px solid var(--line); padding: 9px 8px; text-align: left; vertical-align: top; }
+table.cmp thead th { font-weight: 800; background: var(--surf2); position: sticky; top: 0; }
+table.cmp th.us, table.cmp td.us { background: color-mix(in srgb, var(--acc) 9%, transparent); }
+table.cmp tbody th, table.cmp thead th:first-child { font-weight: 700; color: var(--ink2); position: sticky; left: 0; background: var(--surf); z-index: 1; width: 132px; min-width: 132px; box-shadow: 1px 0 0 var(--line); }
+table.cmp thead th:first-child { background: var(--surf2); z-index: 2; }
+table.cmp td { min-width: 118px; }
+.cmp-hint { display: none; color: var(--muted); font-size: .82rem; margin: 0 0 4px; }
+@media (max-width: 700px) { .cmp-hint { display: block; } }
+.y { color: #1f8a46; font-weight: 700; } .n { color: var(--muted); } .p { color: #a0620c; font-weight: 700; }
+:root[data-theme="night"] .y { color: #3ddc84; } :root[data-theme="night"] .p { color: #ffc46b; }
+.small { color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="hero"><div class="wrap">
+  <a class="back" href="./">← Abrir o Fora de Estrada</a>
+  <h1>Qual app usar na trilha off-road?</h1>
+  <p>Fora de Estrada × Wikiloc × OsmAnd × Gaia GPS × Google Maps — o que cada um faz melhor, sem enrolação.</p>
+</div></div>
+<main><div class="wrap">
+
+  <section id="resumo">
+    <h2>Resumo rápido</h2>
+    <ul>
+      <li><b>Wikiloc</b> — o maior acervo de trilhas publicadas. Ótimo para <b>descobrir</b> trilha nova. Gravar e baixar mapa é grátis; navegar com aviso de voz fora da trilha é no Premium.</li>
+      <li><b>OsmAnd</b> — mapas offline muito completos do mundo todo (OpenStreetMap), navegação e gravação grátis. A versão grátis limita a 7 downloads de mapa; curvas de nível e mapas ilimitados são pagos.</li>
+      <li><b>Gaia GPS</b> — muito usado para overland, com camadas de mapa avançadas, várias delas pensadas para os Estados Unidos (terras públicas, NatGeo). Mapas offline completos são no Premium, cobrado em dólar.</li>
+      <li><b>Google Maps</b> — o melhor no asfalto (trânsito, endereços) e baixa áreas offline, mas não segue uma trilha off-road importada nem grava o seu caminho.</li>
+      <li><b>Fora de Estrada</b> — feito para trilha de <b>veículo</b> (jipe, 4x4, moto, quadriciclo): planeja no satélite, navega offline com <b>aviso de voz grátis</b>, guarda <b>caminho seco e caminho molhado</b>, tem <b>roadbook de rally</b>, <b>tomada de tempo com ranking</b>, <b>🆘 estrada mais próxima</b> e <b>Garagem</b> do veículo. Tudo grátis.</li>
+    </ul>
+    <div class="tip">💡 Dá para usar junto: ache a trilha no Wikiloc, baixe o <b>GPX</b> e importe no Fora de Estrada para navegar com os recursos de off-road.</div>
+  </section>
+
+  <section id="tabela">
+    <h2>Lado a lado</h2>
+    <p class="cmp-hint">↔ Arraste a tabela para o lado para ver os outros apps.</p>
+    <div class="cmp-wrap"><table class="cmp">
+      <thead><tr><th></th><th class="us">Fora de Estrada</th><th>Wikiloc</th><th>OsmAnd</th><th>Gaia GPS</th><th>Google Maps</th></tr></thead>
+      <tbody>
+        <tr><th>Preço</th><td class="us"><span class="y">Grátis</span></td><td>Grátis + Premium (R$ 41,90/ano)</td><td>Grátis + Maps+ (US$ 14,99/ano ou US$ 69,99 vitalício)</td><td>Grátis limitado + Premium (em US$)</td><td><span class="y">Grátis</span></td></tr>
+        <tr><th>Mapa offline</th><td class="us"><span class="y">Sim</span> (satélite da rota)</td><td><span class="y">Sim</span> (topográfico)</td><td><span class="p">7 downloads</span> no grátis</td><td><span class="p">Premium</span></td><td><span class="y">Sim</span> (áreas)</td></tr>
+        <tr><th>Seguir trilha importada (GPX/KML)</th><td class="us"><span class="y">Sim</span></td><td><span class="p">Premium</span></td><td><span class="y">Sim</span></td><td><span class="y">Sim</span></td><td><span class="n">Não</span></td></tr>
+        <tr><th>Aviso de voz fora da rota</th><td class="us"><span class="y">Sim, grátis</span></td><td><span class="p">Premium</span></td><td><span class="y">Sim</span></td><td>—</td><td>Só em estrada</td></tr>
+        <tr><th>Gravar o caminho feito</th><td class="us"><span class="y">Sim</span></td><td><span class="y">Sim</span></td><td><span class="y">Sim</span></td><td><span class="y">Sim</span></td><td><span class="n">Não</span></td></tr>
+        <tr><th>Caminho seco × molhado (desvio de atoleiro)</th><td class="us"><span class="y">Sim</span></td><td><span class="n">Não</span></td><td><span class="n">Não</span></td><td><span class="n">Não</span></td><td><span class="n">Não</span></td></tr>
+        <tr><th>Roadbook de rally e tomada de tempo</th><td class="us"><span class="y">Sim</span></td><td><span class="n">Não</span></td><td><span class="n">Não</span></td><td><span class="n">Não</span></td><td><span class="n">Não</span></td></tr>
+        <tr><th>🆘 Estrada mais próxima / voltar pelo caminho</th><td class="us"><span class="y">Sim</span></td><td><span class="n">Não</span></td><td>—</td><td><span class="n">Não</span></td><td><span class="n">Não</span></td></tr>
+        <tr><th>Garagem (abastecimento e manutenção)</th><td class="us"><span class="y">Sim</span></td><td><span class="n">Não</span></td><td>Parcial (OBD-II no Pro)</td><td><span class="n">Não</span></td><td><span class="n">Não</span></td></tr>
+        <tr><th>Acervo de trilhas da comunidade</th><td class="us"><span class="p">Começando</span></td><td><span class="y">Enorme</span></td><td>Via OpenStreetMap</td><td><span class="y">Grande</span></td><td>—</td></tr>
+        <tr><th>Curvas de nível / relevo 3D</th><td class="us">Altimetria da rota</td><td>3D no Premium</td><td>Maps+ / Pro</td><td><span class="y">Sim</span></td><td>Relevo básico</td></tr>
+        <tr><th>iPhone</th><td class="us">Pelo navegador</td><td><span class="y">App</span></td><td><span class="y">App</span></td><td><span class="y">App</span></td><td><span class="y">App</span></td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">Recursos e preços conferidos nas lojas e sites oficiais em 29/10/2026 e podem mudar. Wikiloc, OsmAnd, Gaia GPS e Google Maps são marcas dos seus donos; esta página não tem ligação com eles. Achou algo desatualizado? Escreva para <a href="mailto:foradeestrada@sansoliveira.com.br">foradeestrada@sansoliveira.com.br</a>.</p>
+  </section>
+
+  <section id="quando">
+    <h2>Quando usar cada um</h2>
+    <ul>
+      <li><b>Quero descobrir uma trilha nova perto de mim:</b> Wikiloc (ou a Comunidade do Fora de Estrada).</li>
+      <li><b>Vou de jipe/4x4/moto e quero navegar a trilha sem sinal, com aviso de voz, sem pagar:</b> Fora de Estrada.</li>
+      <li><b>Trilha com atoleiro que muda com a chuva:</b> Fora de Estrada (caminho seco × molhado, com sugestão pela chuva dos últimos dias).</li>
+      <li><b>Rally de regularidade, roadbook ou cronometrar o percurso com a turma:</b> Fora de Estrada.</li>
+      <li><b>Preciso de mapa topográfico detalhado de um país inteiro offline:</b> OsmAnd (Maps+).</li>
+      <li><b>Viagem overland nos EUA:</b> Gaia GPS.</li>
+      <li><b>Chegar até o começo da trilha pelo asfalto:</b> Waze ou Google Maps — o Fora de Estrada tem o botão “ir até a largada pelo Waze”.</li>
+    </ul>
+  </section>
+
+  <section id="duvidas">
+    <h2>Dúvidas comuns</h2>
+    <details><summary>O Fora de Estrada substitui o Wikiloc?</summary><p>Depende do uso. O Wikiloc tem um acervo enorme de trilhas publicadas por milhões de pessoas — ótimo para descobrir trilhas novas. O Fora de Estrada é focado em planejar e navegar trilhas de veículo (jipe, 4x4, moto, quadriciclo), com a navegação com aviso de voz grátis, caminho seco/molhado, roadbook de rally e tomada de tempo. Muita gente usa os dois: acha a trilha no Wikiloc e navega no Fora de Estrada.</p></details>
+    <details><summary>Dá para importar trilha do Wikiloc, OsmAnd ou Gaia GPS?</summary><p>Sim. Baixe a trilha em GPX ou KML no outro app e use Importar no planejamento do Fora de Estrada. Os pontos de interesse do arquivo também vêm junto.</p></details>
+    <details><summary>O Fora de Estrada é mesmo grátis?</summary><p>Sim, todas as funções são gratuitas, inclusive a navegação com aviso de voz e o mapa offline.</p></details>
+    <details><summary>Funciona no iPhone?</summary><p>Sim, pelo navegador (Safari). O app instalável com GPS em segundo plano por enquanto é só para Android.</p></details>
+  </section>
+
+  <div class="foot">
+    <a class="cta" href="./">Abrir o Fora de Estrada — grátis</a>
+    <p><a href="ajuda.html">Como usar</a> · <a href="termos.html">Termos de Uso</a> · <a href="privacidade.html">Privacidade</a></p>
+  </div>
+</div></main>
+</body>
+</html>
