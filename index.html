@@ -4,16 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Fora de Estrada — navegador e planejador de trilhas off-road</title>
-<meta name="description" content="App grátis para planejar e navegar trilhas off-road: rotas com GPS offline, roadbook de rally, tomada de tempo, organização de expedições e comunidade de trilheiros. Funciona no celular, tablet e PC.">
+<meta name="description" content="App grátis para planejar e navegar trilhas off-road de jipe, 4x4 e moto: GPS offline sem sinal, roadbook de rally, tomada de tempo, expedições e comunidade de trilheiros.">
 <link rel="canonical" href="https://foradeestrada.sansoliveira.com.br/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Fora de Estrada">
 <meta property="og:title" content="Fora de Estrada — navegador e planejador de trilhas off-road">
-<meta property="og:description" content="Planeje e navegue trilhas com GPS offline, roadbook de rally, tomada de tempo, expedições e comunidade.">
+<meta property="og:description" content="Planeje e navegue trilhas de jipe, 4x4 e moto com GPS offline, roadbook de rally, tomada de tempo e comunidade. Grátis.">
 <meta property="og:url" content="https://foradeestrada.sansoliveira.com.br/">
-<meta property="og:image" content="https://foradeestrada.sansoliveira.com.br/icons/icon-512.png">
+<meta property="og:image" content="https://foradeestrada.sansoliveira.com.br/icons/og-1200x630.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Fora de Estrada — rota de trilha no mapa de satélite">
 <meta property="og:locale" content="pt_BR">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Fora de Estrada", "alternateName": "Fora de Estrada — navegador e planejador de trilhas off-road", "url": "https://foradeestrada.sansoliveira.com.br/", "description": "App grátis para planejar e navegar trilhas off-road de jipe, 4x4, moto e quadriciclo: mapa de satélite, GPS offline sem sinal de celular, aviso por voz fora da rota, roadbook de rally, tomada de tempo com ranking, expedições, garagem do veículo e comunidade de trilheiros.", "applicationCategory": "TravelApplication", "applicationSubCategory": "Navegação off-road", "operatingSystem": "Android, navegador (Chrome, Safari, Edge)", "inLanguage": "pt-BR", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "BRL"}, "image": "https://foradeestrada.sansoliveira.com.br/icons/og-1200x630.jpg", "screenshot": "https://foradeestrada.sansoliveira.com.br/icons/og-1200x630.jpg", "featureList": ["Planejamento de rotas no mapa de satélite", "Navegação com GPS offline", "Aviso por voz ao sair da rota", "Roadbook de rally", "Tomada de tempo com ranking", "Caminho seco e caminho molhado (desvio de atoleiro)", "Estrada mais próxima e bússola para quem se perdeu", "Garagem: abastecimento e manutenção do veículo", "Comunidade para publicar e baixar trilhas", "Importa e exporta GPX e KML"], "author": {"@type": "Person", "name": "Luiz Augusto de Oliveira Júnior"}}</script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#17201B">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2007,6 +2011,7 @@ html, body {
 .welcome-logo { width: 88px; height: 88px; border-radius: 20px; align-self: center; }
 .welcome-body h1 { margin: 4px 0 0; color: var(--ink2); font-size: 1.6rem; }
 .welcome-sub { margin: 0 0 6px; color: var(--muted); }
+.welcome-intro { margin: 0; color: var(--ink2); font-size: .95rem; line-height: 1.45; }
 .welcome-list { list-style: none; margin: 6px 0 10px; padding: 0; text-align: left; display: flex; flex-direction: column; gap: 10px; }
 .welcome-list li { display: flex; gap: 10px; align-items: flex-start; background: var(--surf); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--ink2); font-size: 0.92rem; line-height: 1.35; }
 .welcome-list li span { font-size: 1.2rem; line-height: 1.1; }
@@ -2192,7 +2197,8 @@ button, input, select, textarea { font-family: inherit; }
 .dsh-title { font-weight: 800; font-stretch: 115%; font-size: 1.15rem; line-height: 1.1; }
 .dsh-sub { font-size: 0.75rem; color: var(--hero-muted); }
 .dsh-greet { margin-top: 16px; }
-.dsh-greet h1 { margin: 0; font-weight: 800; font-stretch: 112%; font-size: 1.75rem; line-height: 1.05; color: var(--hero-ink); }
+h1.dsh-title { margin: 0; }
+.dsh-greet .dsh-greet-h { margin: 0; font-weight: 800; font-stretch: 112%; font-size: 1.75rem; line-height: 1.05; color: var(--hero-ink); }
 .dsh-status { margin: 6px 0 0; font-size: 0.82rem; color: var(--hero-muted); }
 .dsh-grid { display: flex; flex-direction: column; gap: 14px; padding: 16px; }
 .dsh-main, .dsh-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
@@ -2244,7 +2250,7 @@ button, input, select, textarea { font-family: inherit; }
 
 @media (min-width: 900px) {
   .dsh-top { padding: 18px 28px 26px; }
-  .dsh-greet h1 { font-size: 2.1rem; }
+  .dsh-greet .dsh-greet-h { font-size: 2.1rem; }
   .dsh-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; align-items: start; padding: 20px 28px; gap: 20px; }
   .dashboard-body { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .dsh-hero-map { height: 210px; }
@@ -2511,7 +2517,7 @@ html.fde-native .native-only { display: block; }
         <div class="dsh-brand">
           <img src="icons/icon-192.png" alt="Logo Fora de Estrada" class="dsh-logo">
           <div>
-            <div class="dsh-title">Fora de Estrada</div>
+            <h1 class="dsh-title">Fora de Estrada</h1>
             <div class="dsh-sub">Navegador e planejador off-road</div>
           </div>
         </div>
@@ -2522,7 +2528,7 @@ html.fde-native .native-only { display: block; }
         </button>
       </div>
       <div class="dsh-greet">
-        <h1 id="dash-greeting">Bom dia</h1>
+        <p id="dash-greeting" class="dsh-greet-h">Bom dia</p>
         <p id="dash-status" class="dsh-status"></p>
       </div>
     </div>
@@ -3112,8 +3118,11 @@ html.fde-native .native-only { display: block; }
   <div class="welcome-body">
     <img src="icons/icon-192.png" alt="" class="welcome-logo">
     <h1>Fora de Estrada</h1>
-    <p class="welcome-sub">Navegador e planejador de trilhas</p>
+    <p class="welcome-sub">Navegador e planejador de trilhas off-road</p>
+    <p class="welcome-intro">App grátis para quem anda de <b>jipe, 4x4, moto, UTV e quadriciclo</b>: desenhe a trilha no mapa de satélite, baixe o mapa e navegue com GPS mesmo <b>sem sinal de celular</b>, com aviso por voz quando sair da rota.</p>
     <ul class="welcome-list">
+      <li><span>🧭</span> Navegação off-road com GPS offline, roadbook de rally e tomada de tempo com ranking</li>
+      <li><span>🆘</span> Perdido no mato? Volte pelo caminho, ache a estrada mais próxima ou use a bússola</li>
       <li><span>🗺️</span> Suas rotas salvas em todos os seus aparelhos, sem precisar do Google Drive</li>
       <li><span>👥</span> Comunidade: publique, comente e baixe trilhas da galera</li>
       <li><span>📴</span> Navegação e Tomada de Tempo funcionam sem internet, com ou sem conta</li>
@@ -14626,8 +14635,8 @@ html.fde-native .native-only { display: block; }
     if (!routes.length) {
       hero.innerHTML =
         '<div class="dsh-empty"><div class="dsh-kicker">Comece por aqui</div>' +
-        '<div class="dsh-hero-name" style="padding:4px 0 0">Nenhuma rota ainda</div>' +
-        "<p>Desenhe a sua primeira trilha no mapa ou importe um GPX/KML. Depois é só navegar.</p>" +
+        '<h2 class="dsh-hero-name" style="padding:4px 0 0;margin:0">Planeje sua trilha off-road</h2>' +
+        "<p>App grátis para quem anda de jipe, 4x4, moto e quadriciclo: desenhe a trilha no mapa de satélite ou importe um GPX/KML e navegue com GPS mesmo sem sinal de celular, com aviso por voz quando sair da rota.</p>" +
         '<button type="button" class="dsh-go" id="btn-dash-hero-plan"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><path d="M12 5v14M5 12h14"></path></svg>Planejar a primeira rota</button></div>';
       document.getElementById("btn-dash-hero-plan").addEventListener("click", function () {
         goToPlanningScreen();
