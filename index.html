@@ -3501,8 +3501,15 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "7.6";
+  var APP_VERSION = "7.7";
   var CHANGELOG = [
+    {
+      version: "7.7",
+      date: "29/10/2026",
+      changes: [
+        "Mapa topográfico: a linha da rota ganhou uma borda escura para não se misturar com as estradas (que também são laranja) — no planejamento, na navegação e na tomada de tempo"
+      ]
+    },
     {
       version: "7.6",
       date: "29/10/2026",
@@ -4378,6 +4385,28 @@ html.fde-native .native-only { display: block; }
     var p = readBasemapPref();
     return V76_BASEMAPS[p] || V76_BASEMAPS.esri;
   }
+  // v7.7: borda escura por baixo da linha da rota quando o mapa é topográfico (as estradas também são laranja)
+  var v77Lines = [];
+  function v77IsTopo() { var p = readBasemapPref(); return p === "otm" || p === "etopo"; }
+  function v77Case(line, mapInstance) {
+    try {
+      var w = (line.options && line.options.weight) || 4;
+      var casing = L.polyline([], { color: "#3a1d00", weight: w + 4, opacity: 0.85, interactive: false });
+      var orig = line.setLatLngs;
+      line.setLatLngs = function (ll) { casing.setLatLngs(ll); return orig.call(line, ll); };
+      v77Lines.push({ line: line, casing: casing, map: mapInstance });
+      v77Apply();
+    } catch (e) {}
+    return line;
+  }
+  function v77Apply() {
+    var on = v77IsTopo();
+    v77Lines.forEach(function (o) {
+      var has = o.map.hasLayer(o.casing);
+      if (on && !has) { o.casing.addTo(o.map); o.casing.setLatLngs(o.line.getLatLngs()); o.line.bringToFront(); }
+      else if (!on && has) o.map.removeLayer(o.casing);
+    });
+  }
   function v76TileUrl(def, z, x, y) {
     var sub = def.subdomains ? def.subdomains.charAt((x + y) % def.subdomains.length) : "";
     return def.url.replace("{s}", sub).replace("{z}", z).replace("{x}", x).replace("{y}", y);
@@ -4690,6 +4719,7 @@ html.fde-native .native-only { display: block; }
         mapInstance.on("baselayerchange", function (e) {
           var id = e.layer === google ? "google" : e.layer === topo ? "otm" : e.layer === etopo ? "etopo" : "esri";
           saveBasemapPref(id);
+          v77Apply();
           if (id === "otm" || id === "etopo") showToast("Mapa topográfico: ao baixar o mapa offline de uma rota, este é o mapa que fica guardado.");
         });
       }
@@ -4752,7 +4782,7 @@ html.fde-native .native-only { display: block; }
       );
     }
 
-    polyline = L.polyline([], { color: "#e08a2c", weight: 4 }).addTo(map);
+    polyline = v77Case(L.polyline([], { color: "#e08a2c", weight: 4 }).addTo(map), map);
     v74InitPinToggle();
 
     map.on("click", function (e) {
@@ -7262,7 +7292,7 @@ html.fde-native .native-only { display: block; }
     });
     navMap.setView([-14.235, -51.9253], 5);
     setupBaseMap(navMap, false);
-    navPlannedPolyline = L.polyline([], { color: "#e08a2c", weight: 5 }).addTo(navMap);
+    navPlannedPolyline = v77Case(L.polyline([], { color: "#e08a2c", weight: 5 }).addTo(navMap), navMap);
     navRecordedPolyline = L.polyline([], { color: "#3ba6ff", weight: 4, dashArray: "2,8" }).addTo(navMap);
 
     navMap.on("dragstart", function () {
@@ -11615,7 +11645,7 @@ html.fde-native .native-only { display: block; }
     });
     timingMap.setView([-14.235, -51.9253], 5);
     setupBaseMap(timingMap, false);
-    timingRouteLine = L.polyline([], { color: "#e08a2c", weight: 4 }).addTo(timingMap);
+    timingRouteLine = v77Case(L.polyline([], { color: "#e08a2c", weight: 4 }).addTo(timingMap), timingMap);
     timingTrackLine = L.polyline([], { color: "#3ba6ff", weight: 3, dashArray: "2,7" }).addTo(timingMap);
   }
 
