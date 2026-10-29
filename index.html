@@ -3501,8 +3501,15 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "7.5";
+  var APP_VERSION = "7.6";
   var CHANGELOG = [
+    {
+      version: "7.6",
+      date: "29/10/2026",
+      changes: [
+        "🗺️ Mapa topográfico: no botão de camadas do planejamento, escolha \"Topográfico (curvas de nível)\" (OpenTopoMap) ou \"Topográfico Esri\". Mostra o relevo, morros, rios e trilhas; a navegação usa o mesmo mapa e, ao baixar o mapa offline da rota, é ele que fica guardado"
+      ]
+    },
     {
       version: "7.5",
       date: "28/10/2026",
@@ -4357,6 +4364,24 @@ html.fde-native .native-only { display: block; }
 
   // ---- offline tile cache (IndexedDB) ----
   var TILE_URL_TEMPLATE = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+  // v7.6: mapas que podem ser guardados no aparelho. "prefix" separa as imagens de cada mapa no banco offline.
+  var V76_BASEMAPS = {
+    esri: { label: "Satélite Esri (offline)", url: TILE_URL_TEMPLATE, prefix: "", maxNative: 19,
+      attribution: "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community" },
+    otm: { label: "Topográfico (curvas de nível)", url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", subdomains: "abc", prefix: "otm/", maxNative: 17,
+      attribution: 'Mapa: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, SRTM | Estilo: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)' },
+    etopo: { label: "Topográfico Esri", url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", prefix: "etopo/", maxNative: 19,
+      attribution: "Tiles &copy; Esri &mdash; Esri, HERE, Garmin, USGS, NGA, EPA, NPS" }
+  };
+  // mapa usado para baixar/ler offline: o escolhido, se for um dos que podem ser guardados; senão o satélite Esri
+  function v76OfflineDef() {
+    var p = readBasemapPref();
+    return V76_BASEMAPS[p] || V76_BASEMAPS.esri;
+  }
+  function v76TileUrl(def, z, x, y) {
+    var sub = def.subdomains ? def.subdomains.charAt((x + y) % def.subdomains.length) : "";
+    return def.url.replace("{s}", sub).replace("{z}", z).replace("{x}", x).replace("{y}", y);
+  }
   var TILE_DB_NAME = "foraDeEstradaTiles";
   var TILE_STORE = "tiles";
   var tileDbPromise = null;
@@ -4472,7 +4497,7 @@ html.fde-native .native-only { display: block; }
     createTile: function (coords, done) {
       var tile = document.createElement("img");
       tile.alt = "";
-      var key = coords.z + "/" + coords.x + "/" + coords.y;
+      var key = (this.options.keyPrefix || "") + coords.z + "/" + coords.x + "/" + coords.y;
       var url = this.getTileUrl(coords);
 
       function showFromBlob(blob) {
@@ -4521,13 +4546,12 @@ html.fde-native .native-only { display: block; }
     return OfflineTileLayer;
   }
 
-  function createOfflineTileLayer() {
+  function createOfflineTileLayer(id) {
     var LayerClass = getOfflineTileLayerClass();
-    return new LayerClass(TILE_URL_TEMPLATE, {
-      attribution:
-        "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
-      maxZoom: 19
-    });
+    var def = V76_BASEMAPS[id] || V76_BASEMAPS.esri;
+    var opts = { attribution: def.attribution, maxZoom: 19, maxNativeZoom: def.maxNative, keyPrefix: def.prefix };
+    if (def.subdomains) opts.subdomains = def.subdomains;
+    return new LayerClass(def.url, opts);
   }
 
   // ---- Google satellite base map (Map Tiles API, 2D tiles) ----
@@ -4628,13 +4652,18 @@ html.fde-native .native-only { display: block; }
   // Installs the base map on a Leaflet map: Google when configured/online/
   // preferred, otherwise Esri. withControl adds the Google/Esri switcher.
   function setupBaseMap(mapInstance, withControl) {
-    var esri = createOfflineTileLayer();
+    var esri = createOfflineTileLayer("esri");
+    var topo = createOfflineTileLayer("otm");
+    var etopo = createOfflineTileLayer("etopo");
     var online = navigator.onLine !== false;
-    var wantGoogle = googleTilesAvailable() && online && readBasemapPref() !== "esri";
+    var pref = readBasemapPref();
+    var offLayers = { esri: esri, otm: topo, etopo: etopo };
+    var wantGoogle = googleTilesAvailable() && online && !offLayers[pref];
 
     function install(google) {
       var useGoogle = !!google && wantGoogle;
-      (useGoogle ? google : esri).addTo(mapInstance);
+      var main = useGoogle ? google : (offLayers[pref] || esri);
+      main.addTo(mapInstance);
       if (mapInstance === navMap) v65AddBackstop(mapInstance, useGoogle);
 
       if (google) {
@@ -4651,15 +4680,17 @@ html.fde-native .native-only { display: block; }
         });
       }
 
-      if (withControl && google) {
-        L.control
-          .layers({ "Satélite Google (online)": google, "Satélite Esri (offline)": esri }, null, {
-            position: "topright",
-            collapsed: true
-          })
-          .addTo(mapInstance);
+      if (withControl) {
+        var choices = {};
+        if (google) choices["Satélite Google (online)"] = google;
+        choices[V76_BASEMAPS.esri.label] = esri;
+        choices[V76_BASEMAPS.otm.label] = topo;
+        choices[V76_BASEMAPS.etopo.label] = etopo;
+        L.control.layers(choices, null, { position: "topright", collapsed: true }).addTo(mapInstance);
         mapInstance.on("baselayerchange", function (e) {
-          saveBasemapPref(e.layer === google ? "google" : "esri");
+          var id = e.layer === google ? "google" : e.layer === topo ? "otm" : e.layer === etopo ? "etopo" : "esri";
+          saveBasemapPref(id);
+          if (id === "otm" || id === "etopo") showToast("Mapa topográfico: ao baixar o mapa offline de uma rota, este é o mapa que fica guardado.");
         });
       }
     }
@@ -7056,8 +7087,10 @@ html.fde-native .native-only { display: block; }
         }
         var t = tileList[index++];
         active++;
-        var url = TILE_URL_TEMPLATE.replace("{z}", t.z).replace("{x}", t.x).replace("{y}", t.y);
-        hasTile(t.key)
+        var def = v76OfflineDef();
+        var url = v76TileUrl(def, t.z, t.x, t.y);
+        var tkey = def.prefix + t.key;
+        hasTile(tkey)
           .then(function (exists) {
             if (exists) return null;
             return fetch(url, { mode: "cors" })
@@ -7066,7 +7099,7 @@ html.fde-native .native-only { display: block; }
                 return resp.blob();
               })
               .then(function (blob) {
-                return putTile(t.key, blob);
+                return putTile(tkey, blob);
               });
           })
           .then(function () {
@@ -16031,7 +16064,7 @@ html.fde-native .native-only { display: block; }
         createTile: function (coords, done) {
           var tile = document.createElement("img");
           tile.alt = "";
-          getTile(coords.z + "/" + coords.x + "/" + coords.y)
+          getTile((this.options.keyPrefix || "") + coords.z + "/" + coords.x + "/" + coords.y)
             .then(function (blob) {
               if (!blob) return done(new Error("sem tile guardado"), tile);
               tile.onload = function () { done(null, tile); };
@@ -16042,7 +16075,10 @@ html.fde-native .native-only { display: block; }
           return tile;
         }
       });
-      var back = new CacheOnly(TILE_URL_TEMPLATE, {
+      var bdef = mainIsGoogle ? V76_BASEMAPS.esri : v76OfflineDef();
+      var back = new CacheOnly(bdef.url, {
+        keyPrefix: bdef.prefix,
+        subdomains: bdef.subdomains || "abc",
         maxZoom: 21,
         maxNativeZoom: 16,
         minZoom: 13,
