@@ -291,4 +291,22 @@ if ($mode === 'route') {
     json_out(['ok' => true, 'roads' => $roads, 'pending' => $pending, 'diag' => $RD_DIAG]);
 }
 
+// v7.9 — Modo Aventura: estradas de terra/carreadores em volta de um ponto (~4 km)
+if ($mode === 'area') {
+    $lat = (float)($in['lat'] ?? 0); $lng = (float)($in['lng'] ?? 0);
+    if (!rd_valid($lat, $lng)) fail('Posição inválida.');
+    $tiles = rd_tiles_around('a', $lat, $lng, 4000);
+    $pending = rd_ensure('a', $tiles);
+    if ($pending && rd_elapsed() < RD_BUDGET_S - 40) $pending = rd_ensure('a', $tiles);
+    $roads = array_values(array_filter(rd_load('a', $tiles), function ($r) {
+        $h = $r['h'] ?? ''; $sf = strtolower($r['s'] ?? '');
+        if ($h === 'track') return true;
+        if (preg_match('/unpaved|dirt|ground|gravel|earth|sand|grass|compacted|mud|fine_gravel/', $sf)) return true;
+        return $h === 'unclassified' && !preg_match('/asphalt|paved|concrete|paving_stones|sett/', $sf);
+    }));
+    if ($pending && !$roads) fail('O serviço de estradas está ocupado. Tente de novo em instantes.', 503, ['busy' => true]);
+    if (function_exists('ob_gzhandler') && str_contains((string)($_SERVER['HTTP_ACCEPT_ENCODING'] ?? ''), 'gzip')) ob_start('ob_gzhandler');
+    json_out(['ok' => true, 'roads' => $roads, 'pending' => $pending, 'diag' => $RD_DIAG]);
+}
+
 fail('Modo inválido.');

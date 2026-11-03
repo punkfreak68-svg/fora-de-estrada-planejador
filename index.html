@@ -2361,6 +2361,16 @@ h1.dsh-title { margin: 0; }
 .dsh-help b { display: block; font-size: 0.95rem; }
 .dsh-help span { font-size: 0.8rem; color: var(--muted); }
 .dsh-help .svg-ico { color: var(--acc); }
+/* v7.9 — Modo Aventura */
+.nav-adv-btn { margin-top: 8px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.nav-adv-btn small { font-weight: 500; opacity: .8; font-size: .78rem; }
+#btn-nav-region:not(.off) { background: var(--acc); color: var(--onAcc); border-color: var(--acc); }
+.nav-region-panel { top: 60px; min-width: 250px; padding: 10px 12px; gap: 2px; }
+.nav-region-panel h4 { margin: 0 0 4px; font-size: .9rem; }
+.nav-region-panel label { display: flex; align-items: center; gap: 8px; padding: 7px 2px; font-weight: 600; font-size: .9rem; cursor: pointer; }
+.nav-region-panel label i { width: 22px; height: 0; border-top: 4px solid; flex: 0 0 auto; }
+.nav-region-panel label .n { margin-left: auto; font-weight: 400; color: var(--muted); font-size: .8rem; }
+.nav-region-panel .hint { margin: 4px 0 0; font-size: .78rem; }
 /* v7.8 — trocar o mapa na navegação */
 .nav-side-tools { position: absolute; }
 .nav-layers-menu { position: absolute; right: 60px; top: 0; z-index: 900; background: var(--surf); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 6px; display: flex; flex-direction: column; gap: 4px; min-width: 230px; }
@@ -2581,6 +2591,10 @@ html.fde-native .native-only { display: block; }
           <span class="dashboard-tile-icon"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"></path></svg></span>
           <span class="dashboard-tile-label">Garagem <small id="dash-garage-label" class="dash-tile-sub"></small></span>
         </button>
+        <button id="btn-dash-adventure" class="dashboard-tile">
+          <span class="dashboard-tile-icon"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"></path><path d="M9 4v14M15 6v14"></path></svg></span>
+          <span class="dashboard-tile-label">Modo Aventura <small class="dash-tile-sub">trilhas da região</small></span>
+        </button>
         <button id="btn-dash-compass" class="dashboard-tile">
           <span class="dashboard-tile-icon"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M15.5 8.5l-2 5-5 2 2-5z"></path></svg></span>
           <span class="dashboard-tile-label">Bússola <small class="dash-tile-sub">funciona sem sinal</small></span>
@@ -2780,6 +2794,7 @@ html.fde-native .native-only { display: block; }
     </header>
     <div class="nav-free-mode-banner">
       <button id="btn-nav-free-mode" class="nav-free-btn">🧭 Navegar Livre (sem rota)</button>
+      <button id="btn-nav-adventure" class="nav-free-btn nav-adv-btn">🗺️ Modo Aventura <small>rode à vontade vendo as trilhas da região</small></button>
     </div>
     <div id="nav-picker-list" class="nav-picker-list"></div>
     <p id="nav-picker-empty" class="hint" style="padding: 16px;">Nenhuma rota salva. Volte ao planejamento para criar uma.</p>
@@ -2798,6 +2813,8 @@ html.fde-native .native-only { display: block; }
       <button id="btn-nav-sos" class="nav-tool-btn nav-sos-btn" title="Estou perdido / pedir ajuda" aria-label="Estou perdido"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle><path d="M5.6 5.6l3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"></path></svg></button>
       <button id="btn-nav-layers" class="nav-tool-btn" title="Trocar o mapa (satélite / topográfico)" aria-label="Trocar o mapa"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5z"></path><path d="M2 12.5l10 5 10-5"></path><path d="M2 17l10 5 10-5"></path></svg></button>
       <div id="nav-layers-menu" class="nav-layers-menu hidden" role="menu"></div>
+      <button id="btn-nav-region" class="nav-tool-btn off" title="Trilhas da região (rotas, passeios, Comunidade, estradas de terra)" aria-label="Trilhas da região"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"></path><path d="M9 4v14M15 6v14"></path></svg></button>
+      <div id="nav-region-panel" class="nav-layers-menu nav-region-panel hidden"></div>
       <button id="btn-nav-home" class="nav-tool-btn" title="Ir ao menu (a navegação continua)" aria-label="Ir ao menu sem parar a navegação"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 10v10h13V10"></path><path d="M10 20v-5h4v5"></path></svg></button>
       <button id="btn-nav-voice" class="nav-tool-btn" title="Alerta de desvio por voz e vibração" aria-label="Alerta por voz"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10z"></path><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"></path></svg></button>
       <button id="btn-nav-waypoint" class="nav-tool-btn" title="Marcar este local (foto e anotação)" aria-label="Marcar local"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg></button>
@@ -3509,8 +3526,16 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "7.8";
+  var APP_VERSION = "7.9";
   var CHANGELOG = [
+    {
+      version: "7.9",
+      date: "03/11/2026",
+      changes: [
+        "🗺️ Modo Aventura (painel ou Navegar): rode à vontade com o Modo Livre gravando o caminho e veja no mapa as trilhas da região — suas rotas (laranja), seus passeios (azul), trilhas da Comunidade (verde tracejado, dá para baixar) e estradas de terra do OpenStreetMap (marrom). Marque pontos com 📍 e salve o trajeto no fim",
+        "Botão \"Trilhas da região\" na navegação: liga/desliga a camada e escolhe o que mostrar (vale também navegando uma rota)"
+      ]
+    },
     {
       version: "7.8",
       date: "29/10/2026",
@@ -8848,6 +8873,7 @@ html.fde-native .native-only { display: block; }
 
   // ---- hooks called from the existing navigation code ----
   function navExtrasOnStart() {
+    if (typeof v79Refresh === "function") setTimeout(function () { v79Refresh(false); v79Apply(); }, 300);
     navOffRoute = false;
     navLastAlertAt = 0;
     navLastAlertDistance = 0;
@@ -17584,6 +17610,207 @@ html.fde-native .native-only { display: block; }
     });
   }
 
+  // ================= v7.9: MODO AVENTURA — trilhas da região na navegação =================
+  // Desenha por baixo da navegação: minhas rotas, meus passeios, trilhas da Comunidade e estradas de terra (OSM).
+  var V79_KEY = "fde_region_layers_v1";
+  var V79_COM_KEY = "fde_region_com_v1";
+  var V79_DEFS = [
+    ["rotas", "Minhas rotas", "#e08a2c", ""],
+    ["passeios", "Meus passeios", "#7cc4ff", ""],
+    ["comunidade", "Trilhas da Comunidade", "#1f9d55", "8,6"],
+    ["terra", "Estradas de terra", "#8a5a2b", "3,6"]
+  ];
+  var v79 = { on: false, show: { rotas: true, passeios: true, comunidade: true, terra: true }, groups: {}, counts: {}, terraAt: null, comAt: null, busy: {} };
+  (function () {
+    try { var j = JSON.parse(localStorage.getItem(V79_KEY) || "null"); if (j) { v79.on = !!j.on; for (var k in j.show) v79.show[k] = !!j.show[k]; } } catch (e) {}
+  })();
+  function v79Save() { try { localStorage.setItem(V79_KEY, JSON.stringify({ on: v79.on, show: v79.show })); } catch (e) {} }
+
+  function v79Center() {
+    if (navLastFix) return { lat: navLastFix.lat, lng: navLastFix.lng };
+    var c = navMap && navMap.getCenter();
+    return c ? { lat: c.lat, lng: c.lng } : null;
+  }
+  function v79Group(id) {
+    if (!v79.groups[id]) v79.groups[id] = L.layerGroup();
+    return v79.groups[id];
+  }
+  function v79Style(id) {
+    var d = V79_DEFS.filter(function (x) { return x[0] === id; })[0];
+    return { color: d[2], weight: id === "terra" ? 3 : 4, opacity: id === "terra" ? 0.9 : 0.75, dashArray: d[3] || null, interactive: true };
+  }
+
+  function v79DrawLocal() {
+    var gr = v79Group("rotas"); gr.clearLayers();
+    var n = 0;
+    loadSavedRoutes().forEach(function (r) {
+      if (!r.points || r.points.length < 2) return;
+      if (navCurrentRoute && navCurrentRoute.id === r.id) return;
+      var km = (polylineLengthMeters(r.points) / 1000).toFixed(1).replace(".", ",");
+      L.polyline(r.points.map(function (p) { return [p.lat, p.lng]; }), v79Style("rotas"))
+        .bindPopup("<b>📁 " + v55Esc(r.name || "Rota") + "</b><br>" + km + " km · sua rota salva").addTo(gr);
+      n++;
+    });
+    v79.counts.rotas = n;
+    var gp = v79Group("passeios"); gp.clearLayers();
+    var m = 0;
+    v62LoadTrips().forEach(function (t) {
+      var pts = t.track ? decodePolyline(t.track) : [];
+      if (pts.length < 2) return;
+      var d = new Date(t.startedAt || Date.now());
+      var when = v55Pad(d.getDate()) + "/" + v55Pad(d.getMonth() + 1) + "/" + d.getFullYear();
+      L.polyline(pts.map(function (p) { return [p.lat, p.lng]; }), v79Style("passeios"))
+        .bindPopup("<b>🕘 Passeio de " + when + "</b><br>" + (t.routeName ? v55Esc(t.routeName) + " · " : "") + ((t.distance || 0) / 1000).toFixed(1).replace(".", ",") + " km percorridos").addTo(gp);
+      m++;
+    });
+    v79.counts.passeios = m;
+  }
+
+  function v79DrawCom(items) {
+    var g = v79Group("comunidade"); g.clearLayers();
+    (items || []).forEach(function (it) {
+      var pts = (it.pts || []).filter(function (q) { return q && q.length > 1; });
+      if (pts.length < 2) return;
+      var pop = document.createElement("div");
+      pop.innerHTML = "<b>👥 " + v55Esc(it.title) + "</b><br>@" + v55Esc(it.author) + " · " + String(it.km || 0).replace(".", ",") + " km" + (it.difficulty ? " · dificuldade " + it.difficulty + "/5" : "") + "<br>";
+      var bt = document.createElement("button");
+      bt.type = "button"; bt.className = "exp-btn exp-btn-small"; bt.textContent = "⬇️ Baixar para Rotas Salvas";
+      bt.addEventListener("click", function () { fdDownload(it.id); setTimeout(function () { v79DrawLocal(); v79RenderPanel(); }, 1500); });
+      pop.appendChild(bt);
+      L.polyline(pts, v79Style("comunidade")).bindPopup(pop).addTo(g);
+    });
+    v79.counts.comunidade = (items || []).length;
+  }
+  function v79LoadCom(force) {
+    var c = v79Center();
+    if (!c || v79.busy.com) return;
+    var cache = null;
+    try { cache = JSON.parse(localStorage.getItem(V79_COM_KEY) || "null"); } catch (e) {}
+    if (cache && cache.items) {
+      v79DrawCom(cache.items);
+      var moved = haversineMeters(c.lat, c.lng, cache.lat, cache.lng);
+      if (!force && moved < 6000 && Date.now() - cache.at < 86400000) return;
+    }
+    if (navigator.onLine === false) return;
+    v79.busy.com = true;
+    comApi("feed.php?action=nearby&lat=" + c.lat.toFixed(4) + "&lng=" + c.lng.toFixed(4) + "&r=20")
+      .then(function (d) {
+        try { localStorage.setItem(V79_COM_KEY, JSON.stringify({ at: Date.now(), lat: c.lat, lng: c.lng, items: d.posts || [] })); } catch (e) {}
+        v79DrawCom(d.posts || []);
+        v79RenderPanel();
+      })
+      .catch(function (err) {
+        if (err && err.status === 401) { v79.counts.comunidade = -1; v79RenderPanel(); }   // sem conta
+      })
+      .then(function () { v79.busy.com = false; });
+  }
+
+  function v79DrawTerra(list) {
+    var g = v79Group("terra"); g.clearLayers();
+    v66UnpackRoads(list).forEach(function (w) {
+      var pts = w.geometry.map(function (q) { return [q.lat, q.lon]; });
+      var t = w.tags || {};
+      var name = t.name || V66_ROAD_NAME[t.highway] || "estrada de terra";
+      L.polyline(pts, v79Style("terra")).bindPopup("<b>🟫 " + v55Esc(name) + "</b><br>pelo OpenStreetMap" + (t.surface ? " · piso: " + v55Esc(t.surface) : "")).addTo(g);
+    });
+    v79.counts.terra = (list || []).length;
+  }
+  function v79LoadTerra(force) {
+    var c = v79Center();
+    if (!c || v79.busy.terra) return;
+    var key = "area:" + c.lat.toFixed(2) + "," + c.lng.toFixed(2);
+    if (!force && v79.terraAt && haversineMeters(c.lat, c.lng, v79.terraAt.lat, v79.terraAt.lng) < 2500) return;
+    v79.busy.terra = true;
+    v66RoadsGet(key).then(function (cached) {
+      if (cached && cached.roads) {
+        v79DrawTerra(cached.roads); v79.terraAt = c; v79RenderPanel();
+        if (Date.now() - cached.at < 30 * 86400000) { v79.busy.terra = false; return; }
+      }
+      if (navigator.onLine === false) { v79.busy.terra = false; return; }
+      return v71RoadsServer({ mode: "area", lat: +c.lat.toFixed(5), lng: +c.lng.toFixed(5) }, 170000).then(function (j) {
+        v79DrawTerra(j.roads || []); v79.terraAt = c; v79RenderPanel();
+        if (!j.pending) v66RoadsPut(key, { at: Date.now(), roads: j.roads || [] });
+        else setTimeout(function () { v79LoadTerra(true); }, 20000);   // o servidor ainda está buscando parte da região
+      }).catch(function () {}).then(function () { v79.busy.terra = false; });
+    }).catch(function () { v79.busy.terra = false; });
+  }
+
+  function v79Apply() {
+    if (!navMap) return;
+    V79_DEFS.forEach(function (d) {
+      var g = v79Group(d[0]);
+      var want = v79.on && v79.show[d[0]];
+      if (want && !navMap.hasLayer(g)) g.addTo(navMap);
+      if (!want && navMap.hasLayer(g)) navMap.removeLayer(g);
+    });
+    // a rota que está sendo navegada e o caminho gravado ficam por cima
+    if (navPlannedPolyline) navPlannedPolyline.bringToFront();
+    if (navRecordedPolyline) navRecordedPolyline.bringToFront();
+    var b = document.getElementById("btn-nav-region");
+    if (b) b.classList.toggle("off", !v79.on);
+  }
+  function v79Refresh(force) {
+    if (!v79.on || !navMap) return;
+    v79DrawLocal();
+    if (v79.show.terra) v79LoadTerra(force);
+    if (v79.show.comunidade) v79LoadCom(force);
+    v79Apply();
+    v79RenderPanel();
+  }
+  function v79SetOn(on) {
+    v79.on = !!on; v79Save();
+    if (v79.on) v79Refresh(false);
+    v79Apply();
+    if (!v79.on) document.getElementById("nav-region-panel").classList.add("hidden");
+  }
+  function v79RenderPanel() {
+    var p = document.getElementById("nav-region-panel");
+    if (!p) return;
+    var h = "<h4>Trilhas da região</h4>";
+    V79_DEFS.forEach(function (d) {
+      var n = v79.counts[d[0]];
+      var cnt = n === -1 ? "entre na conta" : n == null ? "…" : String(n);
+      h += '<label><input type="checkbox" data-v79="' + d[0] + '"' + (v79.show[d[0]] ? " checked" : "") + '><i style="border-color:' + d[2] + (d[3] ? ";border-top-style:dashed" : "") + '"></i>' + d[1] + '<span class="n">' + cnt + "</span></label>";
+    });
+    h += '<p class="hint">Toque numa linha do mapa para ver o nome. O Modo Livre grava o seu caminho e o 📍 marca pontos; no fim, salve o trajeto como rota.</p>';
+    h += '<button type="button" id="btn-v79-off" class="exp-btn exp-btn-small" style="margin-top:6px">Desligar trilhas da região</button>';
+    p.innerHTML = h;
+    document.getElementById("btn-v79-off").addEventListener("click", function () { v79SetOn(false); });
+    Array.prototype.forEach.call(p.querySelectorAll("input[data-v79]"), function (cb) {
+      cb.addEventListener("change", function () {
+        v79.show[cb.getAttribute("data-v79")] = cb.checked; v79Save(); v79Refresh(false); v79Apply();
+      });
+    });
+  }
+
+  function v79StartAdventure() {
+    v79.on = true; v79Save();
+    startFreeNavigation();
+    setTimeout(function () { v79Refresh(true); v79RenderPanel(); document.getElementById("nav-region-panel").classList.remove("hidden"); setTimeout(function () { document.getElementById("nav-region-panel").classList.add("hidden"); }, 5000); }, 400);
+    showToast("🗺️ Modo Aventura: gravando o seu caminho. Use 📍 para marcar pontos.");
+  }
+
+  function initV79Adventure() {
+    document.getElementById("btn-nav-adventure").addEventListener("click", function () { primeSpeech(); v79StartAdventure(); });
+    document.getElementById("btn-dash-adventure").addEventListener("click", function () {
+      if (v62NavRunning()) { v62GoToActiveNav(); v79SetOn(true); return; }
+      primeSpeech(); v79StartAdventure();
+    });
+    var btn = document.getElementById("btn-nav-region");
+    var panel = document.getElementById("nav-region-panel");
+    btn.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      if (!v79.on) { v79SetOn(true); v79RenderPanel(); panel.classList.remove("hidden"); return; }
+      if (panel.classList.contains("hidden")) { v79RenderPanel(); panel.classList.remove("hidden"); }
+      else panel.classList.add("hidden");
+    });
+    document.addEventListener("click", function (ev) {
+      if (!panel.classList.contains("hidden") && !panel.contains(ev.target) && ev.target !== btn && !btn.contains(ev.target)) panel.classList.add("hidden");
+    });
+    // atualiza conforme anda (estradas de terra a cada ~2,5 km; Comunidade a cada ~6 km)
+    setInterval(function () { if (v79.on && v62NavRunning()) { if (v79.show.terra) v79LoadTerra(false); if (v79.show.comunidade) v79LoadCom(false); } }, 15000);
+  }
+
   // ================= v7.8: trocar o mapa (camada) no meio da navegação =================
   function v78SetBase(mapInstance, id) {
     var b = mapInstance && mapInstance._fdeBase;
@@ -17685,6 +17912,7 @@ html.fde-native .native-only { display: block; }
     safeInit(initV70Garage, "garagem (v7.0)");
     safeInit(initV73Compass, "bússola (v7.3)");
     safeInit(initV78NavLayers, "camadas na navegação (v7.8)");
+    safeInit(initV79Adventure, "modo aventura (v7.9)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 

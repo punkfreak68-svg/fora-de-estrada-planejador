@@ -43,6 +43,33 @@ switch ($action) {
         $rows = array_slice($rows, 0, FEED_PAGE);
         json_out(['ok' => true, 'posts' => array_map(fn($r) => post_out($r, $meId, $isAdmin), $rows), 'more' => $more]);
 
+    case 'nearby':
+        // v7.9 — Modo Aventura: trilhas publicadas perto de um ponto (usa o traçado resumido do post)
+        $lat = (float)($_GET['lat'] ?? 0); $lng = (float)($_GET['lng'] ?? 0);
+        $rKm = max(1.0, min(40.0, (float)($_GET['r'] ?? 15)));
+        if ($lat < -85 || $lat > 85 || $lng < -180 || $lng > 180 || ($lat == 0.0 && $lng == 0.0)) fail('Posição inválida.');
+        rate_limit('nearby', (string)$meId, 120, 60, 'Muitas buscas seguidas. Espere um pouco.');
+        rate_hit('nearby', (string)$meId);
+        $st = db()->prepare('SELECT p.id, p.title, p.km, p.difficulty, p.vehicle, p.preview_json, u.username
+            FROM posts p JOIN users u ON u.id = p.user_id WHERE (p.hidden = 0 OR p.user_id = ?) ORDER BY p.id DESC LIMIT 800');
+        $st->execute([$meId]);
+        $kx = 111.32 * cos(deg2rad($lat)); $ky = 110.54;
+        $out = [];
+        foreach ($st->fetchAll() as $p) {
+            $pts = json_decode((string)$p['preview_json'], true) ?: [];
+            $near = false;
+            foreach ($pts as $q) {
+                if (!is_array($q) || count($q) < 2) continue;
+                $dx = ((float)$q[1] - $lng) * $kx; $dy = ((float)$q[0] - $lat) * $ky;
+                if ($dx * $dx + $dy * $dy <= $rKm * $rKm) { $near = true; break; }
+            }
+            if (!$near) continue;
+            $out[] = ['id' => (int)$p['id'], 'title' => $p['title'], 'km' => (float)$p['km'], 'difficulty' => (int)$p['difficulty'],
+                'vehicle' => $p['vehicle'], 'author' => $p['username'], 'pts' => $pts];
+            if (count($out) >= 60) break;
+        }
+        json_out(['ok' => true, 'posts' => $out]);
+
     case 'get':
         $p = load_post((int)($_GET['id'] ?? 0), $meId, $isAdmin);
         $out = post_out($p, $meId, $isAdmin);
