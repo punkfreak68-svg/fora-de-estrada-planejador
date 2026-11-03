@@ -17626,10 +17626,9 @@ html.fde-native .native-only { display: block; }
   })();
   function v79Save() { try { localStorage.setItem(V79_KEY, JSON.stringify({ on: v79.on, show: v79.show })); } catch (e) {} }
 
+  // só busca o que tem em volta depois que o GPS achou a posição (o centro do mapa pode estar longe)
   function v79Center() {
-    if (navLastFix) return { lat: navLastFix.lat, lng: navLastFix.lng };
-    var c = navMap && navMap.getCenter();
-    return c ? { lat: c.lat, lng: c.lng } : null;
+    return navLastFix ? { lat: navLastFix.lat, lng: navLastFix.lng } : null;
   }
   function v79Group(id) {
     if (!v79.groups[id]) v79.groups[id] = L.layerGroup();
@@ -17696,6 +17695,7 @@ html.fde-native .native-only { display: block; }
     comApi("feed.php?action=nearby&lat=" + c.lat.toFixed(4) + "&lng=" + c.lng.toFixed(4) + "&r=20")
       .then(function (d) {
         try { localStorage.setItem(V79_COM_KEY, JSON.stringify({ at: Date.now(), lat: c.lat, lng: c.lng, items: d.posts || [] })); } catch (e) {}
+        v79.comAt = c;
         v79DrawCom(d.posts || []);
         v79RenderPanel();
       })
@@ -17808,7 +17808,7 @@ html.fde-native .native-only { display: block; }
       if (!panel.classList.contains("hidden") && !panel.contains(ev.target) && ev.target !== btn && !btn.contains(ev.target)) panel.classList.add("hidden");
     });
     // atualiza conforme anda (estradas de terra a cada ~2,5 km; Comunidade a cada ~6 km)
-    setInterval(function () { if (v79.on && v62NavRunning()) { if (v79.show.terra) v79LoadTerra(false); if (v79.show.comunidade) v79LoadCom(false); } }, 15000);
+    setInterval(function () { if (v79.on && v62NavRunning()) { if (v79.show.terra) v79LoadTerra(false); if (v79.show.comunidade) v79LoadCom(!v79.comAt); } }, 10000);
   }
 
   // ================= v7.8: trocar o mapa (camada) no meio da navegação =================
