@@ -1,16 +1,38 @@
 // Service Worker for "Fora de Estrada - Navegador e Planejador".
-// Caches the app shell (this HTML page + its core script/style/icon/manifest
-// dependencies) so the app can open and function with zero network
-// connectivity. Map tiles, Google Drive API calls and Google auth are
-// deliberately left untouched here — those already have their own offline
-// handling in app code (IndexedDB tile cache, graceful catch on sync failures).
+// v8.0 — "Abrir sempre":
+//  * Leaflet, leaflet-rotate e o gerador de QR agora vêm do próprio site (/vendor/),
+//    então o app não depende de CDN nenhuma para abrir.
+//  * Instalação atômica: se algum arquivo essencial não baixar (sinal ruim no meio
+//    da atualização), a versão nova NÃO é instalada e a antiga continua valendo.
+//    Antes, a versão nova era ativada incompleta e o cache antigo apagado — o app
+//    podia abrir sem mapa no meio do mato.
+//  * Cache primeiro: a página abre na hora com a cópia guardada e a cópia é
+//    atualizada em segundo plano. Antes o app esperava a internet sem prazo e,
+//    com "1 risquinho" de sinal, ficava em tela branca.
+//  * Fontes num cache de nome fixo (não precisam ser baixadas de novo a cada versão).
+// Blocos de mapa, API, Drive e login Google continuam fora daqui (têm tratamento próprio).
 
-var CACHE_NAME = "fora-de-estrada-shell-v46";
+var CACHE_NAME = "fora-de-estrada-shell-v47";
+var FONT_CACHE = "fde-fonts-v1";
 
-var SHELL_RELATIVE_PATHS = [
+// sem estes o app não funciona: se um falhar, a instalação inteira falha
+var ESSENTIAL_PATHS = [
   "./",
   "./index.html",
   "./manifest.json",
+  "./vendor/leaflet/leaflet.css",
+  "./vendor/leaflet/leaflet.js",
+  "./vendor/leaflet-rotate/leaflet-rotate.js"
+];
+
+// bons de ter: se falhar, tenta aproveitar a cópia de uma versão anterior
+var OPTIONAL_PATHS = [
+  "./vendor/qrcode/qrcode.js",
+  "./vendor/leaflet/images/layers.png",
+  "./vendor/leaflet/images/layers-2x.png",
+  "./vendor/leaflet/images/marker-icon.png",
+  "./vendor/leaflet/images/marker-icon-2x.png",
+  "./vendor/leaflet/images/marker-shadow.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-192.png",
@@ -19,38 +41,65 @@ var SHELL_RELATIVE_PATHS = [
   "./icons/favicon-32.png"
 ];
 
-var EXTERNAL_SHELL_URLS = [
-  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
-  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
-  "https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js",
-  // gerador de QR code (v4.1) — guardado pra funcionar também sem internet
-  "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"
-];
-
-// Resolve relative paths against the service worker's own location so this
-// works correctly regardless of which origin the app is deployed to
-// (localhost during development, the real Netlify domain in production).
-var APP_SHELL_URLS = SHELL_RELATIVE_PATHS.map(function (p) {
+function abs(p) {
   return new URL(p, self.location.href).href;
-}).concat(EXTERNAL_SHELL_URLS);
+}
+var ESSENTIAL_URLS = ESSENTIAL_PATHS.map(abs);
+var OPTIONAL_URLS = OPTIONAL_PATHS.map(abs);
+var APP_SHELL_URLS = ESSENTIAL_URLS.concat(OPTIONAL_URLS);
+var INDEX_URL = abs("./index.html");
+var ROOT_URL = abs("./");
 
-var INDEX_URL = new URL("./index.html", self.location.href).href;
+function fetchFresh(url) {
+  return fetch(url, { cache: "reload" }).then(function (resp) {
+    if (!resp || !resp.ok) throw new Error("falhou: " + url);
+    return resp;
+  });
+}
 
 self.addEventListener("install", function (event) {
-  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
+      // 1) essenciais: tudo ou nada
       return Promise.all(
-        APP_SHELL_URLS.map(function (url) {
-          return fetch(url, { cache: "reload" })
-            .then(function (resp) {
-              if (resp && resp.ok) return cache.put(url, resp);
-            })
-            .catch(function () {
-              /* this one resource failed to precache; fetch handler below will retry live */
-            });
+        ESSENTIAL_URLS.map(function (url) {
+          return fetchFresh(url).then(function (resp) {
+            return { url: url, resp: resp };
+          });
         })
-      );
+      )
+        .then(function (list) {
+          return Promise.all(
+            list.map(function (it) {
+              return cache.put(it.url, it.resp);
+            })
+          );
+        })
+        .then(function () {
+          // 2) opcionais: rede, senão a cópia de uma versão anterior
+          return Promise.all(
+            OPTIONAL_URLS.map(function (url) {
+              return fetchFresh(url)
+                .then(function (resp) {
+                  return cache.put(url, resp);
+                })
+                .catch(function () {
+                  return caches.match(url).then(function (old) {
+                    if (old) return cache.put(url, old);
+                  });
+                });
+            })
+          );
+        })
+        .then(function () {
+          return self.skipWaiting();
+        })
+        .catch(function (err) {
+          // instalação incompleta: apaga o cache novo pela metade e mantém a versão antiga
+          return caches.delete(CACHE_NAME).then(function () {
+            throw err;
+          });
+        });
     })
   );
 });
@@ -58,17 +107,31 @@ self.addEventListener("install", function (event) {
 self.addEventListener("activate", function (event) {
   event.waitUntil(
     caches
-      .keys()
-      .then(function (names) {
+      .open(CACHE_NAME)
+      .then(function (cache) {
+        // só apaga as versões antigas se a nova está completa
         return Promise.all(
-          names
-            .filter(function (n) {
-              return n !== CACHE_NAME && n.indexOf("-fonts") === -1;
-            })
-            .map(function (n) {
-              return caches.delete(n);
-            })
+          ESSENTIAL_URLS.map(function (url) {
+            return cache.match(url);
+          })
         );
+      })
+      .then(function (hits) {
+        var complete = hits.every(function (h) {
+          return !!h;
+        });
+        if (!complete) return;
+        return caches.keys().then(function (names) {
+          return Promise.all(
+            names
+              .filter(function (n) {
+                return n !== CACHE_NAME && n !== FONT_CACHE;
+              })
+              .map(function (n) {
+                return caches.delete(n);
+              })
+          );
+        });
       })
       .then(function () {
         return self.clients.claim();
@@ -76,17 +139,31 @@ self.addEventListener("activate", function (event) {
   );
 });
 
+// guarda a resposta nova no cache (em segundo plano)
+function refresh(req, cacheKey) {
+  return fetch(req).then(function (resp) {
+    if (resp && resp.ok && resp.type !== "opaque") {
+      var clone = resp.clone();
+      caches.open(CACHE_NAME).then(function (cache) {
+        cache.put(cacheKey || req, clone);
+      });
+    }
+    return resp;
+  });
+}
+
 self.addEventListener("fetch", function (event) {
   var req = event.request;
   if (req.method !== "GET") return;
+  var url = new URL(req.url);
 
-  // a API da comunidade nunca passa pelo cache (sessão/dados sempre ao vivo)
-  if (new URL(req.url).pathname.indexOf("/api/") !== -1) return;
-  // fontes do visual novo (v5.5): guarda na primeira vez para funcionar offline
-  var host = new URL(req.url).hostname;
-  if (host === "fonts.googleapis.com" || host === "fonts.gstatic.com") {
+  // a API nunca passa pelo cache (sessão/dados sempre ao vivo)
+  if (url.pathname.indexOf("/api/") !== -1) return;
+
+  // fontes: guarda na primeira vez, cache de nome fixo
+  if (url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com") {
     event.respondWith(
-      caches.open(CACHE_NAME + "-fonts").then(function (cache) {
+      caches.open(FONT_CACHE).then(function (cache) {
         return cache.match(req).then(function (hit) {
           if (hit) return hit;
           return fetch(req).then(function (resp) {
@@ -98,23 +175,37 @@ self.addEventListener("fetch", function (event) {
     );
     return;
   }
-  var isShellUrl = APP_SHELL_URLS.indexOf(req.url) !== -1 || req.mode === "navigate";
-  if (!isShellUrl) return; // let map tiles, Drive API, Google auth, etc. go straight to network as usual
+
+  var isNavigate = req.mode === "navigate";
+  var isShell = APP_SHELL_URLS.indexOf(url.origin + url.pathname) !== -1;
+  if (!isNavigate && !isShell) return; // blocos de mapa, Drive, login Google etc. vão direto à rede
+
+  // páginas do app (/, /index.html, /?rota=...) usam a mesma cópia guardada
+  var isAppPage =
+    isNavigate &&
+    url.origin === self.location.origin &&
+    (url.pathname === new URL(ROOT_URL).pathname || url.pathname === new URL(INDEX_URL).pathname);
+  var cacheKey = isAppPage ? INDEX_URL : null;
 
   event.respondWith(
-    fetch(req)
-      .then(function (resp) {
-        if (resp && resp.ok) {
-          var clone = resp.clone();
-          caches.open(CACHE_NAME).then(function (cache) {
-            cache.put(req, clone);
-          });
-        }
-        return resp;
+    caches
+      .match(cacheKey || req, { ignoreSearch: true })
+      .then(function (hit) {
+        if (!hit && isAppPage) return caches.match(ROOT_URL);
+        return hit;
       })
-      .catch(function () {
-        return caches.match(req).then(function (cached) {
-          return cached || caches.match(INDEX_URL);
+      .then(function (cached) {
+        var net = refresh(req, cacheKey);
+        if (cached) {
+          // abre na hora; a atualização segue em segundo plano
+          event.waitUntil(net.catch(function () {}));
+          return cached;
+        }
+        // sem cópia guardada: rede; se falhar, a página do app (outras páginas do site abrem o app)
+        return net.catch(function () {
+          return caches.match(INDEX_URL).then(function (idx) {
+            return idx || caches.match(ROOT_URL);
+          });
         });
       })
   );
