@@ -22,8 +22,35 @@ const RD_BUDGET_S = 140;
 
 $T0 = microtime(true);
 $ip = client_ip();
-rate_limit('roads', $ip, 120, 60, 'Muitas buscas de estrada. Tente daqui a pouco.');
+// v8.3: sem conta o limite é menor (o app ainda tenta direto no OpenStreetMap se precisar)
+$rdUser = current_user();
+if ($rdUser) {
+    rate_limit('roads_u', (string)$rdUser['id'], 120, 60, 'Muitas buscas de estrada. Tente daqui a pouco.');
+    rate_hit('roads_u', (string)$rdUser['id']);
+}
+rate_limit('roads', $ip, $rdUser ? 240 : 20, 60, 'Muitas buscas de estrada. Tente daqui a pouco.');
 rate_hit('roads', $ip);
+
+// v8.3: no máximo 3 buscas ao Overpass ao mesmo tempo no servidor inteiro (cada uma pode levar minutos;
+// sem limite, poucos pedidos seguravam todos os processos do PHP e derrubavam o site)
+const RD_SLOTS = 3;
+$RD_SLOT = null;
+function rd_take_slot(): bool {
+    global $RD_SLOT;
+    if ($RD_SLOT !== null) return true;
+    for ($i = 1; $i <= RD_SLOTS; $i++) {
+        $st = db()->prepare('SELECT GET_LOCK(?, 0)');
+        $st->execute(['fde_overpass_' . $i]);
+        if ((int)$st->fetchColumn() === 1) { $RD_SLOT = 'fde_overpass_' . $i; return true; }
+    }
+    return false;
+}
+function rd_release_slot(): void {
+    global $RD_SLOT;
+    if ($RD_SLOT === null) return;
+    db()->prepare('SELECT RELEASE_LOCK(?)')->execute([$RD_SLOT]);
+    $RD_SLOT = null;
+}
 
 function rd_elapsed(): float { global $T0; return microtime(true) - $T0; }
 $RD_DIAG = [];   // resumo das consultas ao Overpass (servidor, código, segundos, quadrados) — ajuda a entender lentidão
@@ -37,8 +64,9 @@ function rd_overpass_urls(): array {
     ];
 }
 
+// v8.3: só a América do Sul (o app é para trilhas no Brasil e vizinhos)
 function rd_valid(float $lat, float $lng): bool {
-    return $lat >= -85 && $lat <= 85 && $lng >= -180 && $lng <= 180 && !($lat == 0.0 && $lng == 0.0);
+    return $lat >= -56 && $lat <= 13 && $lng >= -82 && $lng <= -34;
 }
 
 /** Quadrados (tx,ty) que cobrem um círculo de raio $m metros em volta do ponto. */
@@ -125,6 +153,7 @@ function rd_ensure(string $layer, array $tiles): int {
 
     // limite global de consultas ao Overpass por hora (respeito ao serviço gratuito)
     if (rate_count('roads_fetch', 'all', 60) >= 400) return count($missing);
+    if (!rd_take_slot()) return count($missing);   // servidor já está buscando o máximo de uma vez
 
     // muitos quadrados de cidade numa consulta só estouram o tempo do Overpass: se falhar, tenta grupos menores
     $done = 0;
@@ -169,7 +198,7 @@ function rd_fetch_tiles(string $layer, array $batch): bool {
             'i' => (int)($w['id'] ?? 0),
             'h' => (string)($t['highway'] ?? ''),
             's' => (string)($t['surface'] ?? ''),
-            'n' => mb_substr((string)($t['name'] ?? $t['ref'] ?? ''), 0, 80),
+            'n' => mb_substr(str_replace(['<', '>'], '', (string)($t['name'] ?? $t['ref'] ?? '')), 0, 80),
             'p' => rd_polyline($pts),
         ];
         foreach ($hit as $k => $_) $per[$k][] = $road;

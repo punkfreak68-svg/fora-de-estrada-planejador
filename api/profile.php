@@ -69,6 +69,7 @@ switch ($action) {
         if ($f['size'] > 3 * 1024 * 1024) fail('Imagem grande demais (máx. 3 MB).');
         $info = @getimagesize($f['tmp_name']);
         if (!$info || !in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) fail('Formato não aceito. Use JPG, PNG ou WebP.');
+        if ($info[0] > 12000 || $info[1] > 12000 || $info[0] * $info[1] > 40000000) fail('Imagem grande demais (máx. 40 megapixels).');
         $src = match ($info[2]) {
             IMAGETYPE_JPEG => @imagecreatefromjpeg($f['tmp_name']),
             IMAGETYPE_PNG => @imagecreatefrompng($f['tmp_name']),

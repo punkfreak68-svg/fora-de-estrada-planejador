@@ -204,10 +204,14 @@ switch ($action) {
         $ins->execute([$kind, $id, $meId, $reason]);
         if ($ins->rowCount()) {
             rate_hit('report', (string)$meId);
-            db()->prepare("UPDATE $table SET reports = (SELECT COUNT(*) FROM reports WHERE kind = ? AND target_id = ?), hidden = IF(reports >= ?, 1, hidden) WHERE id = ?")
-                ->execute([$kind, $id, REPORTS_TO_HIDE, $id]);
-            // segunda passada para o IF enxergar o valor novo de reports
-            db()->prepare("UPDATE $table SET hidden = 1 WHERE id = ? AND reports >= ?")->execute([$id, REPORTS_TO_HIDE]);
+            db()->prepare("UPDATE $table SET reports = (SELECT COUNT(*) FROM reports WHERE kind = ? AND target_id = ?) WHERE id = ?")
+                ->execute([$kind, $id, $id]);
+            // v8.3: só esconde sozinho com denúncias de contas confiáveis (e-mail confirmado e mais de 7 dias, ou admin);
+            // as outras continuam contando e aparecem para o admin revisar
+            $tc = db()->prepare("SELECT COUNT(*) FROM reports r JOIN users u ON u.id = r.user_id
+                WHERE r.kind = ? AND r.target_id = ? AND (u.role = 'admin' OR (u.email_verified = 1 AND u.created_at < (NOW() - INTERVAL 7 DAY)))");
+            $tc->execute([$kind, $id]);
+            if ((int)$tc->fetchColumn() >= REPORTS_TO_HIDE) db()->prepare("UPDATE $table SET hidden = 1 WHERE id = ?")->execute([$id]);
         }
         json_out(['ok' => true]);
 
@@ -361,7 +365,7 @@ function clean_route($r): array {
         if (!is_array($w) || !num_ok($w['lat'] ?? null, -90, 90) || !num_ok($w['lng'] ?? null, -180, 180)) continue;
         $wps[] = ['lat' => round((float)$w['lat'], 6), 'lng' => round((float)$w['lng'], 6),
             'type' => preg_replace('/[^a-z_]/', '', (string)($w['type'] ?? 'outro')) ?: 'outro',
-            'note' => mb_substr((string)($w['note'] ?? ''), 0, 300)];
+            'note' => mb_substr(str_replace(['<', '>'], '', (string)($w['note'] ?? '')), 0, 300)];
     }
     $m = is_array($r['meta'] ?? null) ? $r['meta'] : [];
     $meta = ['difficulty' => max(0, min(5, (int)($m['difficulty'] ?? 0))), 'vehicle' => mb_substr((string)($m['vehicle'] ?? ''), 0, 40),
@@ -379,7 +383,7 @@ function clean_route($r): array {
         $alts[] = ['kind' => ($a['kind'] ?? '') === 'molhado' ? 'molhado' : 'alternativo',
             'createdAt' => is_int($a['createdAt'] ?? null) && $a['createdAt'] > 0 ? $a['createdAt'] : 0, 'points' => $ap];
     }
-    $out = ['name' => mb_substr((string)($r['name'] ?? ''), 0, 100), 'points' => $pts, 'waypoints' => $wps, 'meta' => $meta];
+    $out = ['name' => mb_substr(str_replace(['<', '>'], '', (string)($r['name'] ?? '')), 0, 100), 'points' => $pts, 'waypoints' => $wps, 'meta' => $meta];
     if ($alts) $out['alts'] = $alts;
     return $out;
 }
@@ -422,6 +426,8 @@ function save_post_photo(array $f, int $uid): ?string {
     if (($f['error'] ?? 1) !== UPLOAD_ERR_OK || $f['size'] > 10 * 1024 * 1024) return null;
     $info = @getimagesize($f['tmp_name']);
     if (!$info || !in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) return null;
+    // v8.3: imagem pequena em bytes mas gigante em pixels derrubaria a memória do servidor
+    if ($info[0] > 12000 || $info[1] > 12000 || $info[0] * $info[1] > 40000000) return null;
     $src = match ($info[2]) {
         IMAGETYPE_JPEG => @imagecreatefromjpeg($f['tmp_name']),
         IMAGETYPE_PNG => @imagecreatefrompng($f['tmp_name']),

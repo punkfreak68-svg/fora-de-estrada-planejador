@@ -2016,6 +2016,10 @@ html, body {
 .welcome-list li { display: flex; gap: 10px; align-items: flex-start; background: var(--surf); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--ink2); font-size: 0.92rem; line-height: 1.35; }
 .welcome-list li span { font-size: 1.2rem; line-height: 1.1; }
 .welcome-body a { color: var(--acc); }
+.v83-trash-link { display: block; margin: 18px auto 8px; min-height: 44px; }
+.v83-trash-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line, rgba(127,127,127,.25)); }
+.v83-trash-name { flex: 1; font-size: 0.95rem; }
+.v83-trash-row .load-btn { min-height: 44px; min-width: 96px; padding: 8px 14px; font-weight: 700; }
 .v82-badge.v82-ok { color: #2e9d55; font-weight: 700; }
 .v82-badge.v82-part { color: #c77700; font-weight: 700; }
 .welcome-skip { align-self: center; margin-top: 4px; font-size: 0.95rem; color: var(--ink2); }
@@ -3426,7 +3430,7 @@ html.fde-native .native-only { display: block; }
       <label>Título<input name="title" maxlength="100" required></label>
       <label>Conte como é a trilha<textarea name="body" rows="4" maxlength="1500" placeholder="Ex.: muita lama depois da ponte, dá para fazer em 3 horas, leve guincho…"></textarea></label>
       <p id="publish-meta" class="hint"></p>
-      <label class="com-check"><input type="checkbox" name="trim" checked> <span>Esconder os primeiros e os últimos 300 m (protege o endereço de casa)</span></label>
+      <label class="com-check"><input type="checkbox" name="trim" checked> <span>Esconder de 300 a 600 m do começo e do fim (protege o endereço de casa)</span></label>
       <div>
         <div class="hint">Fotos (até 4):</div>
         <div id="publish-photos" class="pub-photos"></div>
@@ -3528,8 +3532,18 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "8.2";
+  var APP_VERSION = "8.3";
   var CHANGELOG = [
+    {
+      version: "8.3",
+      date: "04/11/2026",
+      changes: [
+        "🗑 Lixeira: rota apagada (com a conta conectada) fica 30 dias na conta — em Rotas Salvas › \"Rotas apagadas\" dá para recuperar",
+        "Privacidade ao publicar: o pedaço escondido do começo e do fim agora varia entre 300 e 600 m, e desvios que passam perto de casa não vão junto",
+        "Comunidade: uma trilha só sai do ar sozinha com denúncias de contas confirmadas; as outras vão para revisão",
+        "Servidor mais protegido contra abuso (limites no serviço de estradas, espaço por conta, fotos gigantes)"
+      ]
+    },
     {
       version: "8.2",
       date: "04/11/2026",
@@ -6902,6 +6916,8 @@ html.fde-native .native-only { display: block; }
     });
     var grouped = groupRoutesByFolder(sorted);
 
+    v83TrashLink();
+
     grouped.order.forEach(function (folder) {
       var heading = document.createElement("div");
       heading.className = "nav-folder-heading";
@@ -7180,6 +7196,79 @@ html.fde-native .native-only { display: block; }
     return (meters / 1000).toFixed(1) + " km";
   }
 
+
+
+  // ===================== v8.3 — lixeira de rotas (30 dias, na conta) =====================
+  function v83TrashLink() {
+    var old = document.getElementById("v83-trash-link");
+    if (old) old.remove();
+    if (!com || !com.user) return;
+    var b = document.createElement("button");
+    b.type = "button";
+    b.id = "v83-trash-link";
+    b.className = "link-btn v83-trash-link";
+    b.textContent = "🗑 Rotas apagadas (recuperar até 30 dias)";
+    b.addEventListener("click", v83OpenTrash);
+    el.savedRoutesScreenList.parentNode.appendChild(b);
+  }
+
+  function v83OpenTrash() {
+    var ov = document.getElementById("v83-trash-modal");
+    if (!ov) {
+      ov = document.createElement("div");
+      ov.id = "v83-trash-modal";
+      ov.className = "modal-overlay";
+      ov.innerHTML = '<div class="modal-box"><h2>Rotas apagadas</h2><p class="hint">Rotas apagadas com a conta conectada ficam guardadas 30 dias. Toque em Recuperar para trazer de volta (em todos os aparelhos).</p><div id="v83-trash-list"></div><div class="modal-actions"><button type="button" class="modal-btn-secondary" id="btn-v83-trash-close">Fechar</button></div></div>';
+      document.body.appendChild(ov);
+      document.getElementById("btn-v83-trash-close").addEventListener("click", function () { ov.classList.remove("open"); });
+    }
+    var list = document.getElementById("v83-trash-list");
+    list.textContent = "Carregando…";
+    ov.classList.add("open");
+    comApi("routes.php?action=trash")
+      .then(function (data) {
+        list.innerHTML = "";
+        if (!data.items || !data.items.length) {
+          list.textContent = "Nenhuma rota apagada nos últimos 30 dias.";
+          return;
+        }
+        data.items.forEach(function (it) {
+          var row = document.createElement("div");
+          row.className = "v83-trash-row";
+          var t = document.createElement("div");
+          t.className = "v83-trash-name";
+          var d = new Date(String(it.deleted_at).replace(" ", "T"));
+          t.textContent = (it.name || "(sem nome)") + " — apagada em " + (isNaN(d) ? it.deleted_at : d.toLocaleDateString("pt-BR"));
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "load-btn";
+          btn.textContent = "Recuperar";
+          btn.addEventListener("click", function () {
+            btn.disabled = true;
+            comApi("routes.php?action=restore", { id: it.id })
+              .then(function (res) {
+                var local = loadSavedRoutes();
+                var merged = mergeRouteSets(local, (res.routes || []).map(v81UnpackRoute));
+                persistSavedRoutesLocalOnly(merged);
+                refreshSavedRoutesUI();
+                renderSavedRoutesScreen();
+                row.remove();
+                showToast('Rota "' + (it.name || "sem nome") + '" recuperada.');
+              })
+              .catch(function (err) {
+                btn.disabled = false;
+                showToast(err.message || "Não foi possível recuperar agora.");
+              });
+          });
+          row.appendChild(t);
+          row.appendChild(btn);
+          list.appendChild(row);
+        });
+      })
+      .catch(function (err) {
+        list.textContent = err.offline ? "Sem internet — a lixeira fica na conta, tente com sinal." : (err.message || "Não foi possível abrir a lixeira.");
+      });
+  }
 
   // ===================== v8.2 — mapa pronto antes de sair =====================
   // * "Baixar para offline" em cada rota salva, com selo ✔ e registro do que foi baixado.
@@ -13167,7 +13256,8 @@ html.fde-native .native-only { display: block; }
           refreshSavedRoutesUI();
           scheduleDrivePush(); // o backup no Drive também recebe o que veio da conta
         }
-        if (data.rejected) showToast(data.rejected + " rota(s) não puderam ser sincronizadas (grandes demais ou inválidas).");
+        if (data.over_quota) v81Alert("⚠ Sua conta chegou ao limite de espaço para rotas (50 MB). As rotas novas ficam só neste aparelho — apague rotas que não usa para voltar a sincronizar.");
+        else if (data.rejected) showToast(data.rejected + " rota(s) não puderam ser sincronizadas (grandes demais ou inválidas).");
         return comApi("expeditions.php?action=sync", { expeditions: loadExpeditions() });
       })
       .then(function (data) {
@@ -14710,14 +14800,16 @@ html.fde-native .native-only { display: block; }
   };
 
   // corta ~300 m do começo e do fim (pela distância ao longo do traçado), para não revelar onde a pessoa mora
-  function trimRouteEnds(points, meters) {
+  // v8.3: o corte do fim pode ser diferente do começo (metersEnd)
+  function trimRouteEnds(points, meters, metersEnd) {
+    var mEnd = metersEnd == null ? meters : metersEnd;
     var cum = cumulativeDistances(points);
     var total = cum[cum.length - 1];
-    if (total < meters * 2 + 500) return null; // curta demais para cortar
+    if (total < meters + mEnd + 500) return null; // curta demais para cortar
     var out = [];
     out.push(pointAtDistance(points, cum, meters));
-    for (var i = 0; i < points.length; i++) if (cum[i] > meters && cum[i] < total - meters) out.push({ lat: points[i].lat, lng: points[i].lng });
-    out.push(pointAtDistance(points, cum, total - meters));
+    for (var i = 0; i < points.length; i++) if (cum[i] > meters && cum[i] < total - mEnd) out.push({ lat: points[i].lat, lng: points[i].lng });
+    out.push(pointAtDistance(points, cum, total - mEnd));
     return out;
   }
 
@@ -14806,15 +14898,23 @@ html.fde-native .native-only { display: block; }
     if (title.length < 3) return showToast("Dê um título para a trilha.");
     var pts = r.points.map(function (p) { return { lat: p.lat, lng: wrapLng(p.lng) }; });
     var wps = normalizeWaypoints(r.waypoints).map(function (w) { return { lat: w.lat, lng: wrapLng(w.lng), type: w.type, note: w.note }; });
+    var hide = null;
     if (px.form.elements.trim.checked) {
       var start = pts[0], end = pts[pts.length - 1];
-      var cut = trimRouteEnds(pts, 300);
+      // v8.3: corte aleatório entre 300 e 600 m em cada ponta (com 300 m fixos dava para "medir" de volta até a casa)
+      var cutA = 300 + Math.round(Math.random() * 300), cutB = 300 + Math.round(Math.random() * 300);
+      var cut = trimRouteEnds(pts, cutA, cutB);
+      if (!cut) {
+        cutA = cutB = 300; // trilha curta: volta para o corte mínimo
+        cut = trimRouteEnds(pts, 300, 300);
+      }
       if (!cut) {
         if (!window.confirm("A trilha é curta demais para esconder 300 m de cada ponta. Publicar o traçado inteiro?")) return;
       } else {
         pts = cut;
+        hide = { start: start, end: end, rA: Math.max(cutA, 300) + 50, rB: Math.max(cutB, 300) + 50 };
         wps = wps.filter(function (w) {
-          return haversineMeters(w.lat, w.lng, start.lat, start.lng) > 300 && haversineMeters(w.lat, w.lng, end.lat, end.lng) > 300;
+          return haversineMeters(w.lat, w.lng, start.lat, start.lng) > hide.rA && haversineMeters(w.lat, w.lng, end.lat, end.lng) > hide.rB;
         });
       }
     }
@@ -14824,7 +14924,7 @@ html.fde-native .native-only { display: block; }
     Promise.all(chosen.map(function (p) { return downscaleImage(p.blob, 1600); }))
       .then(function (blobs) {
         var fdata = new FormData();
-        var alts = v71AltsForShare(r, pts);
+        var alts = v71AltsForShare(r, pts, hide);
         fdata.append("data", JSON.stringify({ title: title, body: px.form.elements.body.value.trim(), route: { name: r.name, points: pts, waypoints: wps, meta: normalizeMeta(r.meta), alts: alts } }));
         blobs.forEach(function (b, i) { if (b) fdata.append("photos[]", b, "foto" + i + ".jpg"); });
         px.msg.textContent = "Enviando…";
@@ -16621,10 +16721,14 @@ html.fde-native .native-only { display: block; }
     return out;
   }
   // para publicar: só os pontos e o tipo (quem baixar recalcula o resto); sem desvios nas pontas escondidas
-  function v71AltsForShare(route, pts) {
+  // v8.3: com o corte de privacidade, desvio que passa perto do começo/fim original (casa) não vai
+  function v71AltsForShare(route, pts, hide) {
     return (route.alts || []).filter(function (a) {
       if (!a.points || a.points.length < 2) return false;
       var near = function (p) { var n = nearestPointOnRoute(p, pts); return n.distance < 500; };
+      if (hide && a.points.some(function (p) {
+        return haversineMeters(p.lat, p.lng, hide.start.lat, hide.start.lng) <= hide.rA || haversineMeters(p.lat, p.lng, hide.end.lat, hide.end.lng) <= hide.rB;
+      })) return false;
       return near(a.points[0]) && near(a.points[a.points.length - 1]);
     }).slice(0, 20).map(function (a) {
       return { kind: a.kind, createdAt: a.createdAt || 0, points: a.points.map(function (p) { return { lat: +(+p.lat).toFixed(6), lng: +(+p.lng).toFixed(6) }; }) };
