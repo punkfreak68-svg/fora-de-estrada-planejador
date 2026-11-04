@@ -2016,6 +2016,8 @@ html, body {
 .welcome-list li { display: flex; gap: 10px; align-items: flex-start; background: var(--surf); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--ink2); font-size: 0.92rem; line-height: 1.35; }
 .welcome-list li span { font-size: 1.2rem; line-height: 1.1; }
 .welcome-body a { color: var(--acc); }
+.v82-badge.v82-ok { color: #2e9d55; font-weight: 700; }
+.v82-badge.v82-part { color: #c77700; font-weight: 700; }
 .welcome-skip { align-self: center; margin-top: 4px; font-size: 0.95rem; color: var(--ink2); }
 .acc-sync-box { margin-bottom: 10px; }
 .acc-login-btn { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a8a3d; background: #2e6b30; color: #fff; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
@@ -3331,7 +3333,7 @@ html.fde-native .native-only { display: block; }
       </div>
       <div id="nav-wet-hint" class="hint"></div>
     </div>
-    <p class="hint">O mapa da região será baixado para uso offline, se houver internet.</p>
+    <p id="nav-confirm-offline" class="hint">O mapa da região será baixado para uso offline, se houver internet.</p>
     <p class="hint">Longe da trilha? Comece a navegação mesmo assim: até chegar nela o app só mostra a distância (sem alarme) e começa a gravar quando você entrar. Para o asfalto: <a href="#" id="btn-confirm-waze">🚗 ir até a largada pelo Waze</a>.</p>
     <div class="modal-actions">
       <button id="btn-nav-confirm-cancel" class="modal-btn-secondary">Cancelar</button>
@@ -3526,8 +3528,20 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "8.1";
+  var APP_VERSION = "8.2";
   var CHANGELOG = [
+    {
+      version: "8.2",
+      date: "04/11/2026",
+      changes: [
+        "⬇ \"Baixar para offline\" em cada rota salva: baixe o mapa em casa, no Wi-Fi, e veja o selo ✔ mapa offline no cartão e na hora de navegar",
+        "O mapa offline agora guarda satélite + topográfico: dá para trocar de camada no meio do mato sem sinal",
+        "Saiu do corredor da rota? O fundo não fica mais cinza: o app amplia o mapa de zoom menor que já está guardado",
+        "Caminhos alternativos (seco/molhado) também entram no mapa baixado",
+        "Download honesto: com sinal fraco não trava, tenta de novo e diz quantos blocos faltaram",
+        "Com sinal fraco, se o mapa do Google não responder em 5 s, o app usa o mapa que funciona offline"
+      ]
+    },
     {
       version: "8.1",
       date: "04/11/2026",
@@ -4805,11 +4819,24 @@ html.fde-native .native-only { display: block; }
       return;
     }
 
+    // v8.2: sinal fraco — se o Google não responder em 5 s, usa o mapa que funciona offline
+    var settled = false;
+    var guard = setTimeout(function () {
+      if (settled) return;
+      settled = true;
+      install(null);
+    }, 5000);
     getGoogleTilesSession()
       .then(function (token) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(guard);
         install(createGoogleTileLayer(token));
       })
       .catch(function () {
+        if (settled) return;
+        settled = true;
+        clearTimeout(guard);
         install(null);
         if (wantGoogle) showToast("Não foi possível carregar o mapa do Google — usando o mapa Esri.");
       });
@@ -6902,6 +6929,13 @@ html.fde-native .native-only { display: block; }
           extra.textContent = extraText;
           card.appendChild(extra);
         }
+        var offBadge = v82Badge(route);
+        if (offBadge) {
+          var ob = document.createElement("div");
+          ob.className = "nav-route-card-meta v82-badge" + (v82IsReady(route) ? " v82-ok" : " v82-part");
+          ob.textContent = offBadge;
+          card.appendChild(ob);
+        }
 
         var buttons = document.createElement("div");
         buttons.className = "saved-screen-card-buttons";
@@ -6925,6 +6959,15 @@ html.fde-native .native-only { display: block; }
           });
         });
         buttons.appendChild(openBtn);
+
+        var offBtn = document.createElement("button");
+        offBtn.className = "load-btn v82-off-btn";
+        offBtn.textContent = v82IsReady(route) ? "✔ Offline" : "⬇ Baixar para offline";
+        offBtn.title = "Baixa o mapa (satélite + topográfico) em volta da rota para usar sem sinal";
+        offBtn.addEventListener("click", function () {
+          v82DownloadRoute(route);
+        });
+        buttons.appendChild(offBtn);
 
         var shareBtn = document.createElement("button");
         shareBtn.className = "load-btn";
@@ -6999,7 +7042,8 @@ html.fde-native .native-only { display: block; }
         var meta = document.createElement("div");
         meta.className = "nav-route-card-meta";
         var pickerExtra = routeCardExtraText(route);
-        meta.textContent = route.points.length + " pontos" + (pickerExtra ? " · " + pickerExtra : "");
+        var pickBadge = v82Badge(route);
+        meta.textContent = route.points.length + " pontos" + (pickerExtra ? " · " + pickerExtra : "") + (pickBadge ? " · " + pickBadge : "");
         info.appendChild(meta);
         card.appendChild(info);
 
@@ -7035,6 +7079,15 @@ html.fde-native .native-only { display: block; }
     v64PrepareConfirm(route);
     garPrepareConfirm();
     el.navConfirmTitle.textContent = 'Navegar por "' + (route.name || "(sem nome)") + '"?';
+    var offP = document.getElementById("nav-confirm-offline");
+    if (offP) {
+      var st = v82Status(route);
+      offP.textContent = v82IsReady(route)
+        ? "✔ O mapa offline desta rota já está no aparelho (" + (st.layers || []).map(v82LayerName).join(" + ") + ")."
+        : st
+          ? "⚠ O mapa offline desta rota está incompleto — com internet, o que falta é baixado agora."
+          : "⬇ O mapa da rota (satélite + topográfico) será baixado agora para funcionar sem sinal. Melhor fazer isso no Wi-Fi, antes de sair.";
+    }
     el.navConfirmModal.classList.add("open");
   }
 
@@ -7127,6 +7180,103 @@ html.fde-native .native-only { display: block; }
     return (meters / 1000).toFixed(1) + " km";
   }
 
+
+  // ===================== v8.2 — mapa pronto antes de sair =====================
+  // * "Baixar para offline" em cada rota salva, com selo ✔ e registro do que foi baixado.
+  // * Baixa satélite + topográfico juntos (troca de camada sem sinal funciona).
+  // * Caminhos alternativos (seco/molhado) entram no download.
+  // * Download com prazo por bloco (10 s), 2 novas tentativas e resultado honesto ("180 de 240").
+  var V82_KEY = "fde_offline_maps_v1";
+  var v82NoNav = false;
+
+  function v82Load() {
+    try {
+      var o = JSON.parse(localStorage.getItem(V82_KEY) || "{}");
+      return o && typeof o === "object" ? o : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  function v82Sig(route) {
+    return routeSignature(route.points || []) + "|" + ((route.alts || []).length);
+  }
+  function v82Status(route) {
+    if (!route || !route.id) return null;
+    var r = v82Load()[route.id];
+    if (!r || r.sig !== v82Sig(route)) return null;
+    return r;
+  }
+  function v82IsReady(route) {
+    var r = v82Status(route);
+    return !!(r && r.total > 0 && r.ok >= r.total * 0.97);
+  }
+  function v82Mark(route, res, prefixes) {
+    if (!route || !route.id) return;
+    var all = v82Load();
+    all[route.id] = { sig: v82Sig(route), at: Date.now(), total: res.total, ok: res.completed, failed: res.failed, layers: prefixes };
+    try {
+      localStorage.setItem(V82_KEY, JSON.stringify(all));
+    } catch (e) {}
+  }
+  function v82Badge(route) {
+    var r = v82Status(route);
+    if (!r) return "";
+    if (v82IsReady(route)) return "✔ mapa offline";
+    return "⚠ mapa offline incompleto (" + Math.round((100 * r.ok) / Math.max(1, r.total)) + "%)";
+  }
+  // camadas a baixar: a escolhida + a do outro tipo (satélite ↔ topográfico)
+  function v82Defs() {
+    var p = readBasemapPref();
+    if (p === "otm") return [V76_BASEMAPS.otm, V76_BASEMAPS.esri];
+    if (p === "etopo") return [V76_BASEMAPS.etopo, V76_BASEMAPS.esri];
+    return [V76_BASEMAPS.esri, V76_BASEMAPS.etopo];
+  }
+  function v82LayerName(prefix) {
+    return prefix === "otm/" || prefix === "etopo/" ? "topográfico" : "satélite";
+  }
+  // rota + caminhos alternativos (cada um à parte, para não ligar pontas com linha reta)
+  function v82TileList(route) {
+    var seen = {}, out = [];
+    function add(list) {
+      list.forEach(function (t) {
+        if (!seen[t.key]) {
+          seen[t.key] = true;
+          out.push(t);
+        }
+      });
+    }
+    add(computeTileListForRoute(route.points || []));
+    (route.alts || []).forEach(function (a) {
+      if (a && a.points && a.points.length) add(computeTileListForRoute(a.points));
+    });
+    return out;
+  }
+  // fetch com prazo (sinal fraco não prende o download para sempre)
+  function v82Fetch(url, ms) {
+    var ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    var timer = setTimeout(function () {
+      if (ctl) ctl.abort();
+    }, ms);
+    return fetch(url, ctl ? { mode: "cors", signal: ctl.signal } : { mode: "cors" })
+      .then(function (resp) {
+        if (!resp.ok) throw new Error("status " + resp.status);
+        return resp.blob();
+      })
+      .then(
+        function (b) {
+          clearTimeout(timer);
+          return b;
+        },
+        function (e) {
+          clearTimeout(timer);
+          throw e;
+        }
+      );
+  }
+  function v82DownloadRoute(route) {
+    beginTileDownload(route, { noNav: true });
+  }
+
   // ---- tile pre-fetch for offline navigation ----
   var TILE_ZOOM_LEVELS = [13, 14, 15, 16];
 
@@ -7177,71 +7327,67 @@ html.fde-native .native-only { display: block; }
     return list;
   }
 
-  function downloadTiles(tileList, onProgress, isCancelled) {
+  // v8.2: várias camadas, prazo por bloco e novas tentativas
+  function downloadTiles(tileList, onProgress, isCancelled, defs) {
+    defs = defs && defs.length ? defs : [v76OfflineDef()];
+    var jobs = [];
+    defs.forEach(function (def) {
+      tileList.forEach(function (t) {
+        jobs.push({ def: def, t: t });
+      });
+    });
     return new Promise(function (resolve) {
-      var total = tileList.length;
-      var completed = 0;
-      var failed = 0;
-      var index = 0;
-      var CONCURRENCY = 6;
-      var active = 0;
-
-      if (total === 0) {
-        resolve({ completed: 0, failed: 0, total: 0, cancelled: false });
-        return;
+      var total = jobs.length, completed = 0, failed = 0, index = 0, active = 0, CONCURRENCY = 6, ended = false;
+      function fin(cancelled) {
+        if (ended) return;
+        ended = true;
+        resolve({ completed: completed, failed: failed, total: total, cancelled: cancelled });
       }
-
+      if (total === 0) return fin(false);
+      function attempt(url, left) {
+        return v82Fetch(url, 10000).catch(function (e) {
+          if (left > 0 && !isCancelled()) {
+            return new Promise(function (r) { setTimeout(r, 800); }).then(function () { return attempt(url, left - 1); });
+          }
+          throw e;
+        });
+      }
       function next() {
         if (isCancelled()) {
-          resolve({ completed: completed, failed: failed, total: total, cancelled: true });
+          if (active === 0) fin(true);
           return;
         }
-        if (index >= tileList.length) {
-          if (active === 0) resolve({ completed: completed, failed: failed, total: total, cancelled: false });
+        if (index >= jobs.length) {
+          if (active === 0) fin(false);
           return;
         }
-        var t = tileList[index++];
+        var j = jobs[index++];
         active++;
-        var def = v76OfflineDef();
-        var url = v76TileUrl(def, t.z, t.x, t.y);
-        var tkey = def.prefix + t.key;
+        var url = v76TileUrl(j.def, j.t.z, j.t.x, j.t.y);
+        var tkey = j.def.prefix + j.t.key;
         hasTile(tkey)
           .then(function (exists) {
             if (exists) return null;
-            return fetch(url, { mode: "cors" })
-              .then(function (resp) {
-                if (!resp.ok) throw new Error("bad status");
-                return resp.blob();
-              })
-              .then(function (blob) {
-                return putTile(tkey, blob);
-              });
+            return attempt(url, 2).then(function (blob) {
+              return putTile(tkey, blob);
+            });
           })
-          .then(function () {
-            completed++;
-          })
-          .catch(function () {
-            failed++;
-          })
+          .then(function () { completed++; }, function () { failed++; })
           .then(function () {
             active--;
             onProgress(completed + failed, total);
             next();
           });
       }
-
       for (var i = 0; i < CONCURRENCY; i++) next();
     });
   }
 
   function checkOnline() {
     if (!navigator.onLine) return Promise.resolve(false);
-    return fetch(TILE_URL_TEMPLATE.replace("{z}", "0").replace("{x}", "0").replace("{y}", "0"), {
-      mode: "cors",
-      cache: "no-store"
-    })
-      .then(function (r) {
-        return r.ok;
+    return v82Fetch(TILE_URL_TEMPLATE.replace("{z}", "0").replace("{x}", "0").replace("{y}", "0") + "?t=" + Date.now(), 6000)
+      .then(function () {
+        return true;
       })
       .catch(function () {
         return false;
@@ -7250,61 +7396,92 @@ html.fde-native .native-only { display: block; }
 
   var downloadCancelled = false;
 
-  function beginTileDownload(route) {
+  function beginTileDownload(route, opts) {
+    opts = opts || {};
+    v82NoNav = !!opts.noNav;
     downloadCancelled = false;
+    el.btnNavDownloadSkip.textContent = v82NoNav ? "Cancelar" : "Pular e continuar";
     el.navDownloadModal.classList.add("open");
     el.navOfflineAlert.classList.add("hidden");
     el.navDownloadProgressBar.style.width = "0%";
+    // já baixado (e a rota não mudou): não gasta internet de novo
+    if (!v82NoNav && v82IsReady(route)) {
+      el.navDownloadProgressBar.style.width = "100%";
+      el.navDownloadStatus.textContent = "✔ O mapa offline desta rota já está no aparelho.";
+      finishDownloadFlow(route, 700);
+      return;
+    }
     el.navDownloadStatus.textContent = "Verificando conexão...";
 
     checkOnline().then(function (online) {
       if (downloadCancelled) return;
       if (!online) {
         el.navOfflineAlert.classList.remove("hidden");
-        el.navDownloadStatus.textContent = "Sem internet no momento.";
-        finishDownloadFlow(route);
+        el.navDownloadStatus.textContent = "Sem internet no momento." + (v82Status(route) ? " " + v82Badge(route) + " de antes continua no aparelho." : "");
+        finishDownloadFlow(route, 2500);
         return;
       }
-      var tileList = computeTileListForRoute(route.points);
+      var tileList = v82TileList(route);
       if (tileList.length === 0) {
-        finishDownloadFlow(route);
+        finishDownloadFlow(route, 300);
         return;
       }
-      el.navDownloadStatus.textContent = "Baixando tiles: 0 / " + tileList.length;
+      var defs = v82Defs();
+      var names = defs.map(function (d) { return v82LayerName(d.prefix); }).join(" + ");
+      el.navDownloadStatus.textContent = "Baixando mapa (" + names + "): 0 / " + tileList.length * defs.length;
       downloadTiles(
         tileList,
         function (done, total) {
-          el.navDownloadStatus.textContent = "Baixando tiles: " + done + " / " + total;
+          el.navDownloadStatus.textContent = "Baixando mapa (" + names + "): " + done + " / " + total;
           el.navDownloadProgressBar.style.width = Math.round((done / total) * 100) + "%";
         },
         function () {
           return downloadCancelled;
-        }
+        },
+        defs
       ).then(function (result) {
         if (downloadCancelled) return;
+        v82Mark(route, result, defs.map(function (d) { return d.prefix; }));
+        var slow = false;
         if (result.completed === 0 && result.failed > 0) {
           el.navOfflineAlert.classList.remove("hidden");
-          el.navDownloadStatus.textContent = "Não foi possível baixar os mapas agora.";
+          el.navDownloadStatus.textContent = "Não foi possível baixar o mapa agora (sinal fraco?). Tente de novo com sinal melhor.";
+          slow = true;
+        } else if (result.failed > 0) {
+          el.navDownloadStatus.textContent =
+            "Mapa salvo: " + result.completed + " de " + result.total + " blocos. ⚠ " + result.failed +
+            " não baixaram — sem sinal, esses trechos podem ficar sem fundo. Tente de novo com sinal melhor.";
+          slow = true;
         } else {
-          el.navDownloadStatus.textContent = "Mapa da região salvo (" + result.completed + " blocos).";
+          el.navDownloadStatus.textContent = "✔ Mapa offline salvo (" + names + ", " + result.completed + " blocos).";
         }
-        finishDownloadFlow(route);
+        finishDownloadFlow(route, slow ? 4000 : 900);
       });
     });
   }
 
-  function finishDownloadFlow(route) {
+  function finishDownloadFlow(route, delay) {
     if (downloadCancelled) return;
     setTimeout(function () {
       if (downloadCancelled) return;
       el.navDownloadModal.classList.remove("open");
+      if (v82NoNav) {
+        v82NoNav = false;
+        if (!document.getElementById("screen-saved-routes").classList.contains("hidden")) renderSavedRoutesScreen();
+        if (v82IsReady(route)) showToast("✔ Mapa offline de \"" + (route.name || "rota") + "\" pronto para usar sem sinal.");
+        return;
+      }
       startNavigation(route);
-    }, 700);
+    }, delay == null ? 700 : delay);
   }
 
   el.btnNavDownloadSkip.addEventListener("click", function () {
     downloadCancelled = true;
     el.navDownloadModal.classList.remove("open");
+    if (v82NoNav) {
+      v82NoNav = false;
+      return;
+    }
     startNavigation(pendingNavRoute);
   });
 
@@ -16708,32 +16885,54 @@ html.fde-native .native-only { display: block; }
   // ================= v6.5 (item 5): mapa não fica cinza no zoom =================
   // Camada "reserva" por baixo: imagens Esri guardadas no aparelho (zoom 13–16), esticadas
   // quando se aproxima mais. Enquanto o mapa principal carrega (ou falta sinal), aparece a reserva.
+  // v8.2: procura o bloco em TODAS as camadas guardadas e, se faltar, amplia um bloco de zoom
+  // menor (até 4 níveis): fora do corredor baixado o fundo não fica mais cinza.
   function v65AddBackstop(mapInstance, mainIsGoogle) {
     try {
-      // só lê do que já está guardado no aparelho (não gasta internet)
+      var first = mainIsGoogle ? V76_BASEMAPS.esri : v76OfflineDef();
+      var order = [first].concat(["esri", "etopo", "otm"].map(function (k) { return V76_BASEMAPS[k]; }).filter(function (d) { return d !== first; }));
       var CacheOnly = L.TileLayer.extend({
         createTile: function (coords, done) {
-          var tile = document.createElement("img");
-          tile.alt = "";
-          getTile((this.options.keyPrefix || "") + coords.z + "/" + coords.x + "/" + coords.y)
-            .then(function (blob) {
-              if (!blob) return done(new Error("sem tile guardado"), tile);
-              var objUrl = URL.createObjectURL(blob);
-              tile.onload = function () { URL.revokeObjectURL(objUrl); done(null, tile); };
-              tile.onerror = function () { URL.revokeObjectURL(objUrl); done(new Error("erro"), tile); };
-              tile.src = objUrl;
-            })
-            .catch(function () { done(new Error("erro"), tile); });
+          var tile = document.createElement("canvas");
+          tile.width = tile.height = 256;
+          var cands = [];
+          for (var dz = 0; dz <= 4 && coords.z - dz >= 9; dz++) {
+            order.forEach(function (d) { cands.push({ d: d, dz: dz }); });
+          }
+          var i = 0;
+          function tryNext() {
+            if (i >= cands.length) return done(new Error("sem tile guardado"), tile);
+            var c = cands[i++];
+            var z = coords.z - c.dz, x = coords.x >> c.dz, y = coords.y >> c.dz;
+            getTile(c.d.prefix + z + "/" + x + "/" + y).then(function (blob) {
+              if (!blob) return tryNext();
+              var u = URL.createObjectURL(blob);
+              var img = new Image();
+              img.onload = function () {
+                URL.revokeObjectURL(u);
+                var sz = 256 >> c.dz;
+                var sx = (coords.x - (x << c.dz)) * sz, sy = (coords.y - (y << c.dz)) * sz;
+                try {
+                  tile.getContext("2d").drawImage(img, sx, sy, sz, sz, 0, 0, 256, 256);
+                } catch (e) {}
+                done(null, tile);
+              };
+              img.onerror = function () {
+                URL.revokeObjectURL(u);
+                tryNext();
+              };
+              img.src = u;
+            }, tryNext);
+          }
+          tryNext();
           return tile;
         }
       });
-      var bdef = mainIsGoogle ? V76_BASEMAPS.esri : v76OfflineDef();
-      var back = new CacheOnly(bdef.url, {
-        keyPrefix: bdef.prefix,
-        subdomains: bdef.subdomains || "abc",
+      var back = new CacheOnly(first.url, {
+        subdomains: first.subdomains || "abc",
         maxZoom: 21,
         maxNativeZoom: 16,
-        minZoom: 13,
+        minZoom: 12,
         keepBuffer: 4,
         zIndex: 0,
         attribution: ""
@@ -18420,9 +18619,12 @@ html.fde-native .native-only { display: block; }
     if (!b) return;
     var opts = [];
     if (b.google) opts.push(["google", "Satélite Google", "mais nítido · precisa de internet"]);
-    opts.push(["esri", "Satélite Esri", "funciona offline"]);
-    opts.push(["otm", "Topográfico", "curvas de nível · offline se baixado"]);
-    opts.push(["etopo", "Topográfico Esri", "offline se baixado"]);
+    var offSt = navCurrentRoute ? v82Status(navCurrentRoute) : null;
+    var offL = (offSt && offSt.layers) || [];
+    var got = function (pfx, base) { return offL.indexOf(pfx) !== -1 ? "✔ baixado para esta rota" : base; };
+    opts.push(["esri", "Satélite Esri", got("", "funciona offline")]);
+    opts.push(["otm", "Topográfico", got("otm/", "curvas de nível · offline se baixado")]);
+    opts.push(["etopo", "Topográfico Esri", got("etopo/", "offline se baixado")]);
     menu.innerHTML = "";
     opts.forEach(function (o) {
       var bt = document.createElement("button");
