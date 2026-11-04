@@ -39,10 +39,24 @@ jobs:
       - name: Sincronizar Capacitor
         run: npx cap sync android
 
+      - name: Preparar chave de assinatura
+        env:
+          FDE_KEYSTORE_BASE64: ${{ secrets.FDE_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$FDE_KEYSTORE_BASE64" ]; then
+            echo "::error::Falta o segredo FDE_KEYSTORE_BASE64 no GitHub (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+          echo "$FDE_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/fde-release.jks"
+
       - name: Compilar APK
         working-directory: android-app/android
         env:
           FDE_VERSION_CODE: ${{ github.run_number }}
+          FDE_KEYSTORE_FILE: ${{ runner.temp }}/fde-release.jks
+          FDE_KEYSTORE_PASSWORD: ${{ secrets.FDE_KEYSTORE_PASSWORD }}
+          FDE_KEY_ALIAS: ${{ secrets.FDE_KEY_ALIAS }}
+          FDE_KEY_PASSWORD: ${{ secrets.FDE_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon
@@ -59,6 +73,6 @@ jobs:
         with:
           tag_name: apk-${{ github.run_number }}
           name: Fora de Estrada Android (build ${{ github.run_number }})
-          body: APK de teste gerado automaticamente. Instale por cima da versão anterior.
+          body: "APK gerado automaticamente. Atualiza por cima da versão anterior. Se você tinha o app antigo (antes de 04/11/2026, chave de teste), desinstale ele uma vez antes de instalar este — se usa sem conta, exporte as rotas em GPX antes."
           files: android-app/fora-de-estrada.apk
           make_latest: true

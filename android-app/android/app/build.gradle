@@ -19,20 +19,23 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
-    // Chave de TESTE (não é segredo): serve só para que cada APK novo instale
-    // por cima do anterior. Para a Google Play usaremos outra chave, guardada
-    // pelo usuário, fora do git.
+    // Chave de assinatura (v8.4): vem dos "Secrets" do GitHub, nunca do repositório.
+    // O GitHub Actions monta o arquivo da chave e passa caminho/senhas por variáveis de ambiente.
+    // Sem elas (ex.: build local), o APK de release sai sem assinatura.
+    def fdeKeystore = System.getenv('FDE_KEYSTORE_FILE')
     signingConfigs {
-        fdeTest {
-            storeFile file('fde-test.keystore')
-            storePassword 'fde-teste-123'
-            keyAlias 'fde-test'
-            keyPassword 'fde-teste-123'
+        if (fdeKeystore) {
+            release {
+                storeFile file(fdeKeystore)
+                storePassword System.getenv('FDE_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('FDE_KEY_ALIAS')
+                keyPassword System.getenv('FDE_KEY_PASSWORD')
+            }
         }
     }
     buildTypes {
         release {
-            signingConfig signingConfigs.fdeTest
+            if (fdeKeystore) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

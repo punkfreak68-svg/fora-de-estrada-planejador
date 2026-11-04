@@ -29,3 +29,8 @@ build/
 # Comunidade: fotos enviadas pelos usuários (ficam só no servidor)
 uploads/avatars/
 uploads/posts/
+
+# Chaves de assinatura do app Android (ficam só nos Secrets do GitHub e numa cópia de segurança)
+*.jks
+*.keystore
+*.p12
