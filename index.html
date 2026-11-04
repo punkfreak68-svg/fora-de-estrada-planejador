@@ -3526,8 +3526,19 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "8.0";
+  var APP_VERSION = "8.1";
   var CHANGELOG = [
+    {
+      version: "8.1",
+      date: "04/11/2026",
+      changes: [
+        "🛟 Trajeto gravado não se perde mais: os pontos vão para o aparelho a cada poucos segundos. Se o celular fechar o app, perde-se no máximo uns segundos (antes podia sumir 1 a 2 minutos)",
+        "Expedição de vários dias: navegação parada há mais de 24 h vira \"passeio recuperado\" em Passeios feitos, em vez de sumir",
+        "Começar uma navegação nova sem encerrar a anterior guarda a anterior como passeio",
+        "Rotas e trajetos ocupam cerca de 10× menos espaço no aparelho, e trajetos longos (acima de ~40 km) agora sincronizam com a conta",
+        "Sem espaço no aparelho, o app avisa de verdade (antes dizia \"salvo\" mesmo sem salvar) e avisa quando o espaço passa de 80%"
+      ]
+    },
     {
       version: "8.0",
       date: "03/11/2026",
@@ -5440,7 +5451,7 @@ html.fde-native .native-only { display: block; }
   function saveDraft() {
     state.name = el.routeName.value;
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(v81PackRoute(state)));
     } catch (e) {
       /* storage full or unavailable; ignore */
     }
@@ -5464,6 +5475,7 @@ html.fde-native .native-only { display: block; }
     } catch (e) {
       return;
     }
+    v81UnpackRoute(draft);
     if (!draft || !Array.isArray(draft.points) || draft.points.length === 0) return;
 
     state.id = draft.id || null;
@@ -5527,6 +5539,7 @@ html.fde-native .native-only { display: block; }
       if (!Array.isArray(parsed)) return [];
       parsed.forEach(function (r) {
         if (!r) return;
+        v81UnpackRoute(r);
         wrapPointList(r.points);
         wrapPointList(r.waypoints);
       });
@@ -5536,19 +5549,33 @@ html.fde-native .native-only { display: block; }
     }
   }
 
+  // v8.1: grava compactado e diz se deu certo (quem chama só mostra "salvo" se gravou)
   function persistSavedRoutesLocalOnly(routes) {
+    var json = JSON.stringify(routes.map(v81PackRoute));
+    var ok = false;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(routes));
+      localStorage.setItem(STORAGE_KEY, json);
+      ok = true;
     } catch (e) {
-      showToast("Erro ao salvar: armazenamento local indisponível ou cheio.");
+      if (v81FreeDisposable()) {
+        try {
+          localStorage.setItem(STORAGE_KEY, json);
+          ok = true;
+        } catch (e2) {}
+      }
     }
+    if (!ok) v81NoSpace("a rota");
     v55RenderDashboardIfVisible();
+    if (ok) v81CheckSpace();
+    return ok;
   }
 
   function persistSavedRoutes(routes) {
-    persistSavedRoutesLocalOnly(routes);
+    var ok = persistSavedRoutesLocalOnly(routes);
+    if (!ok) return false;
     scheduleDrivePush();
     scheduleAccountSync();
+    return true;
   }
 
   function groupRoutesByFolder(routes) {
@@ -5648,7 +5675,7 @@ html.fde-native .native-only { display: block; }
     } else {
       routes.push(record);
     }
-    persistSavedRoutes(routes);
+    if (!persistSavedRoutes(routes)) return;
 
     state.id = id;
     state.name = name;
@@ -7425,6 +7452,7 @@ html.fde-native .native-only { display: block; }
 
   function startNavigation(route) {
     initNavMapIfNeeded();
+    if (!v59Resuming) v81BeginFresh();
     navMode = "route";
     navCurrentRoute = route;
     resetNavSession();
@@ -7460,6 +7488,7 @@ html.fde-native .native-only { display: block; }
 
   function startFreeNavigation() {
     initNavMapIfNeeded();
+    if (!v59Resuming) v81BeginFresh();
     navMode = "free";
     navCurrentRoute = null;
     resetNavSession();
@@ -7777,7 +7806,7 @@ html.fde-native .native-only { display: block; }
     };
     var routes = loadSavedRoutes();
     routes.push(record);
-    persistSavedRoutes(routes);
+    if (!persistSavedRoutes(routes)) return;
     refreshSavedRoutesUI();
     navFreeModeSavedRouteId = id;
     el.saveTrackModal.classList.remove("open");
@@ -7803,7 +7832,7 @@ html.fde-native .native-only { display: block; }
     target.waypoints = mergedWps;
     target.stats = statsSnapshot(navStats);
     target.savedAt = Date.now();
-    persistSavedRoutes(routes);
+    if (!persistSavedRoutes(routes)) return;
     refreshSavedRoutesUI();
     showToast("Trajeto atualizado (" + target.points.length + " pontos).");
   }
@@ -9706,7 +9735,7 @@ html.fde-native .native-only { display: block; }
     target.waypoints = normalizeWaypoints(target.waypoints);
     target.waypoints.push(wp);
     target.savedAt = Date.now();
-    persistSavedRoutes(routes);
+    if (!persistSavedRoutes(routes)) return false;
     refreshSavedRoutesUI();
     // se essa mesma rota está aberta no planejamento, mantém os dois iguais
     if (state.id === routeId) {
@@ -12952,11 +12981,10 @@ html.fde-native .native-only { display: block; }
       acc.again = true;
       return acc.busy;
     }
-    var before = JSON.stringify(loadSavedRoutes());
-    acc.busy = comApi("routes.php?action=sync", { routes: JSON.parse(before) })
+    acc.busy = comApi("routes.php?action=sync", { routes: loadSavedRoutes().map(v81PackForSync) })
       .then(function (data) {
         var local = loadSavedRoutes();
-        var merged = mergeRouteSets(local, data.routes || []);
+        var merged = mergeRouteSets(local, (data.routes || []).map(v81UnpackRoute));
         if (JSON.stringify(merged) !== JSON.stringify(local)) {
           persistSavedRoutesLocalOnly(merged);
           refreshSavedRoutesUI();
@@ -13016,7 +13044,7 @@ html.fde-native .native-only { display: block; }
     clearTimeout(acc.timer);
     acc.timer = null;
     if (!accountSyncReady()) return;
-    var body = JSON.stringify({ routes: loadSavedRoutes() });
+    var body = JSON.stringify({ routes: loadSavedRoutes().map(v81PackForSync) });
     var body2 = JSON.stringify({ expeditions: loadExpeditions() });
     var body3 = JSON.stringify({ vehicles: garLoad() });
     if (body.length + body2.length + body3.length < 60000) {
@@ -14906,6 +14934,477 @@ html.fde-native .native-only { display: block; }
     v55RenderDashboardIfVisible();
   }
 
+  // ===================== v8.1 — nunca perder trajeto =====================
+  // * Pontos do trajeto gravados no IndexedDB em pedacinhos "só acrescenta" (a cada ~4 s),
+  //   com gravação garantida em disco. Antes, a sessão inteira era reescrita no localStorage,
+  //   que o navegador só manda para o disco com atraso: num travamento sumiam 40 s a 2 min.
+  // * Rotas, rascunho e sessão guardados compactados (polyline, precisão 6 ≈ 10 cm): ~10× menos espaço.
+  // * Falta de espaço avisa de verdade (nada de "salvo" quando não salvou).
+  // * Sessão antiga/abandonada vira "passeio recuperado" em vez de sumir.
+  var V81_DB = "fde_track_v1";
+  var v81Ok = typeof indexedDB !== "undefined";
+  var v81DbP = null;
+  var v81Sid = null;
+  var v81Written = 0;
+  var v81Busy = false;
+  var v81LastFlush = 0;
+  var v81FailWarned = false;
+  var v81RouteCache = { ref: null, n: -1, packed: null };
+
+  function v81NewSid() {
+    return "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+
+  // ---- polyline com precisão 6 ----
+  function v81Enc(points) {
+    var out = "", pLat = 0, pLng = 0;
+    function enc(v) {
+      v = v < 0 ? ~(v << 1) : v << 1;
+      var s = "";
+      while (v >= 0x20) {
+        s += String.fromCharCode((0x20 | (v & 0x1f)) + 63);
+        v >>= 5;
+      }
+      return s + String.fromCharCode(v + 63);
+    }
+    for (var i = 0; i < points.length; i++) {
+      var lat = Math.round(points[i].lat * 1e6), lng = Math.round(points[i].lng * 1e6);
+      out += enc(lat - pLat) + enc(lng - pLng);
+      pLat = lat;
+      pLng = lng;
+    }
+    return out;
+  }
+
+  function v81Dec(str) {
+    var pts = [], i = 0, lat = 0, lng = 0;
+    while (i < str.length) {
+      var sh = 0, res = 0, b;
+      do { b = str.charCodeAt(i++) - 63; res |= (b & 0x1f) << sh; sh += 5; } while (b >= 0x20 && i < str.length);
+      lat += res & 1 ? ~(res >> 1) : res >> 1;
+      sh = 0; res = 0;
+      do { b = str.charCodeAt(i++) - 63; res |= (b & 0x1f) << sh; sh += 5; } while (b >= 0x20 && i < str.length);
+      lng += res & 1 ? ~(res >> 1) : res >> 1;
+      pts.push({ lat: lat / 1e6, lng: lng / 1e6 });
+    }
+    return pts;
+  }
+
+  // lista de pontos -> { pe: coordenadas compactadas, px: extras (role/blockId...) em trechos }
+  function v81PackPoints(points) {
+    if (!Array.isArray(points) || points.length < 20) return null;
+    var runs = [], prevKey = null;
+    for (var i = 0; i < points.length; i++) {
+      var p = points[i];
+      if (!p || typeof p.lat !== "number" || typeof p.lng !== "number" || !isFinite(p.lat) || !isFinite(p.lng)) return null;
+      var ex = null;
+      for (var k in p) {
+        if (k !== "lat" && k !== "lng" && Object.prototype.hasOwnProperty.call(p, k)) {
+          ex = ex || {};
+          ex[k] = p[k];
+        }
+      }
+      var key = ex ? JSON.stringify(ex) : "";
+      if (key !== prevKey) {
+        runs.push([i, ex]);
+        prevKey = key;
+      }
+    }
+    var out = { pe: v81Enc(points) };
+    if (runs.length > 1 || (runs[0] && runs[0][1])) out.px = runs;
+    return out;
+  }
+
+  function v81UnpackPoints(o) {
+    var pts = v81Dec(o.pe);
+    if (Array.isArray(o.px)) {
+      for (var r = 0; r < o.px.length; r++) {
+        var ex = o.px[r][1];
+        if (!ex) continue;
+        var end = r + 1 < o.px.length ? o.px[r + 1][0] : pts.length;
+        for (var i = o.px[r][0]; i < end && i < pts.length; i++) {
+          for (var k in ex) pts[i][k] = ex[k];
+        }
+      }
+    }
+    return pts;
+  }
+
+  // cópia rasa de uma rota (ou rascunho) com os pontos compactados
+  function v81PackRoute(r) {
+    if (!r || typeof r !== "object" || r.deleted) return r;
+    var pk = v81PackPoints(r.points);
+    var altsPk = null;
+    if (Array.isArray(r.alts)) {
+      altsPk = r.alts.map(function (a) {
+        var ap = a && v81PackPoints(a.points);
+        if (!ap) return a;
+        var c = Object.assign({}, a, { points: [], pe: ap.pe });
+        if (ap.px) c.px = ap.px;
+        return c;
+      });
+    }
+    if (!pk && !altsPk) return r;
+    var c = Object.assign({}, r);
+    if (pk) {
+      c.points = [];
+      c.pe = pk.pe;
+      if (pk.px) c.px = pk.px;
+    }
+    if (altsPk) c.alts = altsPk;
+    return c;
+  }
+
+  // desfaz a compactação no próprio objeto (recém-lido do armazenamento ou do servidor)
+  function v81UnpackRoute(r) {
+    if (!r || typeof r !== "object") return r;
+    if (typeof r.pe === "string") {
+      r.points = v81UnpackPoints(r);
+      delete r.pe;
+      delete r.px;
+    }
+    if (Array.isArray(r.alts)) {
+      r.alts.forEach(function (a) {
+        if (a && typeof a.pe === "string") {
+          a.points = v81UnpackPoints(a);
+          delete a.pe;
+          delete a.px;
+        }
+      });
+    }
+    return r;
+  }
+
+  // para a conta: só compacta o que passaria do limite do servidor (aparelhos antigos leem o resto)
+  function v81PackForSync(r) {
+    try {
+      if (r && !r.deleted && JSON.stringify(r).length > 300000) return v81PackRoute(r);
+    } catch (e) {}
+    return r;
+  }
+
+  // ---- avisos de espaço ----
+  function v81Alert(msg) {
+    var bar = document.getElementById("fde-v81-alert");
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "fde-v81-alert";
+      bar.setAttribute("role", "alert");
+      bar.style.cssText = "position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top,0px));z-index:100001;display:flex;gap:10px;align-items:center;padding:12px 12px 12px 16px;border-radius:14px;background:#b3261e;color:#fff;font:600 15px/1.35 system-ui,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.45)";
+      var t = document.createElement("span");
+      t.style.flex = "1";
+      var x = document.createElement("button");
+      x.type = "button";
+      x.textContent = "✕";
+      x.setAttribute("aria-label", "Fechar aviso");
+      x.style.cssText = "min-width:44px;min-height:44px;border:0;border-radius:10px;background:rgba(255,255,255,.18);color:#fff;font:700 18px system-ui";
+      x.onclick = function () { bar.remove(); };
+      bar.appendChild(t);
+      bar.appendChild(x);
+      document.body.appendChild(bar);
+    }
+    bar.firstChild.textContent = msg;
+  }
+
+  function v81LsChars() {
+    var n = 0;
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        n += k.length + (localStorage.getItem(k) || "").length;
+      }
+    } catch (e) {}
+    return n;
+  }
+
+  var v81SpaceWarnedAt = 0;
+  function v81CheckSpace() {
+    if (Date.now() - v81SpaceWarnedAt < 6 * 3600000) return;
+    var pct = Math.round(v81LsChars() / 50000); // limite ≈ 5 milhões de caracteres
+    if (pct >= 80) {
+      v81SpaceWarnedAt = Date.now();
+      v81Alert("⚠ O espaço do app no aparelho está " + Math.min(pct, 100) + "% cheio. Apague rotas que não usa (ou exporte em GPX) para não ficar sem espaço na próxima trilha.");
+    }
+  }
+
+  // libera o que é só cópia de segurança antiga (pode ser refeito)
+  function v81FreeDisposable() {
+    try {
+      if (localStorage.getItem(V59_PREV_KEY)) {
+        localStorage.removeItem(V59_PREV_KEY);
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function v81NoSpace(what) {
+    v81Alert("⚠ Sem espaço no aparelho: " + what + " NÃO foi salva. Apague rotas que não usa (ou exporte em GPX) e tente de novo.");
+  }
+
+  // ---- IndexedDB ----
+  function v81Db() {
+    if (v81DbP) return v81DbP;
+    v81DbP = new Promise(function (resolve, reject) {
+      if (!v81Ok) return reject(new Error("sem IndexedDB"));
+      var rq;
+      try {
+        rq = indexedDB.open(V81_DB, 1);
+      } catch (e) {
+        return reject(e);
+      }
+      rq.onupgradeneeded = function () {
+        var db = rq.result;
+        if (!db.objectStoreNames.contains("chunks")) db.createObjectStore("chunks", { keyPath: ["sid", "seq"] });
+        if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta", { keyPath: "sid" });
+      };
+      rq.onsuccess = function () { resolve(rq.result); };
+      rq.onerror = function () { reject(rq.error); };
+    });
+    v81DbP.catch(function () {
+      v81Ok = false;
+    });
+    return v81DbP;
+  }
+
+  // abre uma transação; fn(store) pode devolver um pedido, cujo resultado é entregue no fim
+  function v81Tx(storeName, mode, fn) {
+    return v81Db().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = mode === "readwrite" ? db.transaction(storeName, mode, { durability: "strict" }) : db.transaction(storeName, mode);
+        var req = fn(tx.objectStore(storeName));
+        tx.oncomplete = function () { resolve(req && "result" in req ? req.result : undefined); };
+        tx.onerror = function () { reject(tx.error); };
+        tx.onabort = function () { reject(tx.error); };
+      });
+    });
+  }
+
+  function v81WriteFailed() {
+    if (v81FailWarned) return;
+    v81FailWarned = true;
+    v81Alert("⚠ O aparelho recusou gravar o trajeto (sem espaço?). A gravação continua na memória — libere espaço e não feche o app.");
+  }
+
+  function v81Flush(force) {
+    if (!v81Ok || !v81Sid || v81Busy) return;
+    if (!force && Date.now() - v81LastFlush < 4000) return;
+    var n = navRecordedTrack.length;
+    if (n <= v81Written) return;
+    var sid = v81Sid, start = v81Written;
+    var pts = navRecordedTrack.slice(start, n).map(v59Round);
+    v81Busy = true;
+    v81LastFlush = Date.now();
+    v81Tx("chunks", "readwrite", function (st) {
+      return st.put({ sid: sid, seq: start, pts: pts });
+    })
+      .then(function () {
+        if (v81Sid === sid) v81Written = Math.max(v81Written, start + pts.length);
+        v81FailWarned = false;
+      }, function () {
+        v81WriteFailed();
+      })
+      .then(function () {
+        v81Busy = false;
+      });
+  }
+
+  function v81PutMeta(sess) {
+    if (!v81Ok || !sess || !sess.sid) return;
+    var m = Object.assign({}, sess, { track: [] });
+    v81Tx("meta", "readwrite", function (st) {
+      return st.put(m);
+    }).catch(function () {});
+  }
+
+  function v81AllMeta() {
+    if (!v81Ok) return Promise.resolve([]);
+    return v81Tx("meta", "readonly", function (st) {
+      return st.getAll();
+    }).then(function (r) { return r || []; }, function () { return []; });
+  }
+
+  // fields: { done: true } ou { ended: true } (encerrada, mas o passeio não coube)
+  function v81MarkMeta(sid, fields) {
+    if (!v81Ok || !sid) return;
+    v81Tx("meta", "readwrite", function (st) {
+      var g = st.get(sid);
+      g.onsuccess = function () {
+        var m = g.result || { sid: sid, v: 1, savedAt: Date.now() };
+        Object.assign(m, fields, { markedAt: Date.now() });
+        st.put(m);
+      };
+      return g;
+    }).catch(function () {});
+  }
+
+  function v81ReadTrack(sid) {
+    if (!v81Ok || !sid) return Promise.resolve(null);
+    return v81Tx("chunks", "readonly", function (st) {
+      return st.getAll(IDBKeyRange.bound([sid, -1], [sid, Infinity]));
+    }).then(function (rows) {
+      rows = (rows || []).slice().sort(function (a, b) { return a.seq - b.seq; });
+      var out = [];
+      rows.forEach(function (r) {
+        if (r.seq < out.length) out = out.slice(0, r.seq);
+        out = out.concat(r.pts || []);
+      });
+      return out;
+    }, function () {
+      return null;
+    });
+  }
+
+  function v81DeleteSession(sid) {
+    return v81Tx("chunks", "readwrite", function (st) {
+      return st.delete(IDBKeyRange.bound([sid, -1], [sid, Infinity]));
+    }).then(function () {
+      return v81Tx("meta", "readwrite", function (st) { return st.delete(sid); });
+    });
+  }
+
+  // apaga trajetos encerrados há mais de 3 dias (o passeio já está guardado)
+  function v81Purge() {
+    v81AllMeta().then(function (metas) {
+      var lim = Date.now() - 3 * 86400000;
+      metas.forEach(function (m) {
+        if (m.done && (m.markedAt || m.savedAt || 0) < lim) v81DeleteSession(m.sid).catch(function () {});
+      });
+    });
+  }
+
+  // sessões não encerradas (localStorage + IndexedDB), mais nova primeiro
+  function v81LoadSessions(lsRaw) {
+    var ls = null;
+    try {
+      ls = JSON.parse(lsRaw !== undefined ? lsRaw || "null" : localStorage.getItem(V59_KEY) || "null");
+    } catch (e) {}
+    if (!(ls && ls.v === 1 && ls.savedAt)) ls = null;
+    return v81AllMeta().then(function (metas) {
+      var bySid = {};
+      metas.forEach(function (m) { bySid[m.sid] = m; });
+      var list = [];
+      if (ls) {
+        var twin = ls.sid ? bySid[ls.sid] : null;
+        if (twin && twin.done) ls = null;
+        else if (twin && (twin.savedAt || 0) > ls.savedAt) ls = null; // a do IndexedDB é mais nova
+        if (ls) list.push(ls);
+      }
+      metas.forEach(function (m) {
+        if (m.done) return;
+        if (ls && ls.sid === m.sid) return;
+        list.push(m);
+      });
+      list.sort(function (a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
+      return list;
+    });
+  }
+
+  // completa a sessão com o trajeto (do IndexedDB ou do formato antigo) e os pontos da rota
+  function v81Hydrate(s) {
+    if (s.route) v81UnpackRoute(s.route);
+    var legacy = Array.isArray(s.track) ? s.track : [];
+    if (typeof s.te === "string") legacy = v81Dec(s.te);
+    s._fromDb = false;
+    if (!s.sid || !v81Ok) {
+      s.track = legacy;
+      return Promise.resolve(s);
+    }
+    return v81ReadTrack(s.sid).then(function (t) {
+      if (t && t.length && t.length >= legacy.length) {
+        s.track = t;
+        s._fromDb = true;
+      } else {
+        s.track = legacy;
+      }
+      return s;
+    });
+  }
+
+  // guarda uma sessão abandonada como "passeio recuperado"; devolve true se resolvido
+  function v81Rescue(s, quiet) {
+    var tr = s.track || [];
+    var startedAt = s.stats && s.stats.startedAt;
+    var resolved = tr.length < 2;
+    var saved = false;
+    if (!resolved) {
+      var already = v62LoadTrips().some(function (t) { return startedAt && t.startedAt === startedAt; });
+      if (already) resolved = true;
+      else {
+        var stats = s.stats ? Object.assign({}, s.stats) : null;
+        if (stats && !stats.endedAt) stats.endedAt = s.savedAt;
+        var trip = v62MakeTrip({
+          mode: s.mode,
+          routeId: s.routeId || s.freeId,
+          routeName: s.route ? s.route.name : "",
+          folder: s.route ? s.route.folder : "",
+          track: tr,
+          stats: stats,
+          wps: s.wps,
+          recovered: true
+        });
+        if (v62AddTrip(trip)) {
+          saved = resolved = true;
+          try { garOnTripSaved(trip); } catch (e) {}
+        }
+      }
+    }
+    if (!resolved) return false; // sem espaço: tenta de novo na próxima abertura
+    if (s.sid) v81MarkMeta(s.sid, { done: true });
+    try {
+      var cur = JSON.parse(localStorage.getItem(V59_KEY) || "null");
+      if (cur && (cur.sid ? cur.sid === s.sid : cur.savedAt === s.savedAt)) localStorage.removeItem(V59_KEY);
+    } catch (e) {}
+    if (saved && !quiet) {
+      var d = new Date(startedAt || s.savedAt);
+      showToast("Trajeto de " + ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + " (" + formatDistance(polylineLengthMeters(tr)) + ") guardado em Rotas Salvas › Passeios feitos.");
+      if (typeof v62RenderTrips === "function") try { v62RenderTrips(); } catch (e) {}
+    }
+    return true;
+  }
+
+  // começo de uma navegação nova: o que ficou aberto antes vira passeio recuperado
+  function v81BeginFresh() {
+    var raw = null;
+    try { raw = localStorage.getItem(V59_KEY); } catch (e) {}
+    v81Sid = v81NewSid();
+    v81Written = 0;
+    v81FailWarned = false;
+    var mine = v81Sid;
+    v81LoadSessions(raw).then(function (list) {
+      list.forEach(function (s) {
+        if (s.sid && s.sid === mine) return;
+        v81Hydrate(s).then(function (h) { v81Rescue(h); });
+      });
+    }).catch(function () {});
+  }
+
+  // rotas guardadas antes da v8.1 (formato cheio): compacta uma vez para liberar espaço
+  function v81CompactExisting() {
+    var raw = "";
+    try { raw = localStorage.getItem(STORAGE_KEY) || ""; } catch (e) { return; }
+    if (raw.length < 100000) return;
+    var routes = loadSavedRoutes();
+    var packed = JSON.stringify(routes.map(v81PackRoute));
+    if (packed.length < raw.length * 0.8) {
+      try { localStorage.setItem(STORAGE_KEY, packed); } catch (e) {}
+    }
+  }
+
+  // rota da sessão compactada (refeita só quando a rota muda)
+  function v81SessRoute(r) {
+    if (!r) return null;
+    var n = (r.points || []).length;
+    if (v81RouteCache.ref !== r || v81RouteCache.n !== n) {
+      v81RouteCache = {
+        ref: r,
+        n: n,
+        packed: v81PackRoute({ id: r.id || null, name: r.name || "", points: (r.points || []).map(v59Round), waypoints: r.waypoints || [], roadbookNotes: r.roadbookNotes || null, folder: r.folder || "" })
+      };
+    }
+    return v81RouteCache.packed;
+  }
+
 
   // ===================== v5.9 — navegação sobrevive ao app fechado =====================
   // O Android pode congelar ou fechar o app em segundo plano. A sessão de navegação é salva
@@ -14926,30 +15425,43 @@ html.fde-native .native-only { display: block; }
     return !!(navWatchId !== null && view && !view.classList.contains("hidden") && el.navSummaryPanel.classList.contains("hidden"));
   }
 
-  function v59SaveNow() {
-    if (!v59Active()) return;
+  // v8.1: o trajeto vai para o IndexedDB (v81Flush); aqui fica só o "resumo" da sessão
+  function v59BuildSess() {
+    if (!v81Sid) v81Sid = v81NewSid();
     var r = navCurrentRoute;
-    var sess = {
+    return {
       v: 1,
+      sid: v81Sid,
       savedAt: Date.now(),
       mode: navMode,
       routeId: r && r.id ? r.id : null,
-      route: r ? { id: r.id || null, name: r.name || "", points: (r.points || []).map(v59Round), waypoints: r.waypoints || [], roadbookNotes: r.roadbookNotes || null, folder: r.folder || "" } : null,
-      track: navRecordedTrack.map(v59Round),
+      route: v81SessRoute(r),
+      track: v81Ok ? [] : navRecordedTrack.map(v59Round),
+      n: navRecordedTrack.length,
       stats: navStats,
       wps: navSessionWaypoints || [],
       freeId: navFreeModeSavedRouteId || null,
       lastFix: navLastFix ? { lat: navLastFix.lat, lng: navLastFix.lng, ts: navLastFix.ts } : null
     };
+  }
+
+  function v59SaveNow() {
+    if (!v59Active()) return;
+    var sess = v59BuildSess();
     try {
       localStorage.setItem(V59_KEY, JSON.stringify(sess));
       v59LastSave = Date.now();
     } catch (e) {
-      /* armazenamento cheio: segue sem salvar */
+      if (!v81Ok) v81WriteFailed();
+    }
+    if (v81Ok) {
+      v81PutMeta(sess);
+      v81Flush(true);
     }
   }
 
   function v59SaveSoon() {
+    v81Flush(false);
     if (Date.now() - v59LastSave > 8000) {
       v59SaveNow();
       return;
@@ -14961,22 +15473,28 @@ html.fde-native .native-only { display: block; }
     }, 8000);
   }
 
-  function v59Clear() {
+  // encerra a sessão: guarda uma cópia compacta (prev) e marca como resolvida.
+  // fields = { ended: true } quando o passeio não coube (vira "recuperado" na próxima abertura)
+  function v59Clear(sess, track, fields) {
+    var s = sess || null;
     try {
-      var cur = localStorage.getItem(V59_KEY);
-      if (cur) localStorage.setItem(V59_PREV_KEY, cur);
-      localStorage.removeItem(V59_KEY);
+      if (!s) s = JSON.parse(localStorage.getItem(V59_KEY) || "null");
     } catch (e) {}
-  }
-
-  function v59Load() {
+    if (s) {
+      var tr = track || s.track || [];
+      var prev = Object.assign({}, s, { track: [], te: v81Enc(tr.map(v59Round)) });
+      try {
+        localStorage.setItem(V59_PREV_KEY, JSON.stringify(prev));
+      } catch (e) {}
+    }
     try {
-      var s = JSON.parse(localStorage.getItem(V59_KEY) || "null");
-      if (!s || s.v !== 1 || !s.savedAt) return null;
-      if (Date.now() - s.savedAt > 24 * 3600 * 1000) return null;
-      return s;
-    } catch (e) {
-      return null;
+      var cur = JSON.parse(localStorage.getItem(V59_KEY) || "null");
+      if (cur && (!s || !cur.sid || cur.sid === s.sid)) localStorage.removeItem(V59_KEY);
+    } catch (e) {}
+    if (s && s.sid) v81MarkMeta(s.sid, fields || { done: true });
+    if (!s || !v81Sid || s.sid === v81Sid) {
+      v81Sid = null;
+      v81Written = 0;
     }
   }
 
@@ -15006,7 +15524,9 @@ html.fde-native .native-only { display: block; }
         Math.round((s.gapMs || 0) / 60000) + " min" + (s.gapMeters >= 50 ? " e " + formatDistance(s.gapMeters) + " ligados em linha reta" : "") + ".";
       x.navSummaryStats.appendChild(p);
     }
-    v59Clear();
+    v81Flush(true);
+    var tripOk = !!v62LastTripId || navRecordedTrack.length < 2;
+    v59Clear(v59BuildSess(), navRecordedTrack, tripOk ? { done: true } : { ended: true });
   }
 
   function v59Resume(sess) {
@@ -15019,8 +15539,8 @@ html.fde-native .native-only { display: block; }
       }
       if (!route) route = sess.route;
       if (!route || !route.points || !route.points.length) {
-        showToast("Não foi possível recuperar a rota dessa navegação.");
-        v59Clear();
+        // não dá para retomar a rota, mas o caminho já percorrido é guardado como passeio
+        if (!v81Rescue(sess)) showToast("Não foi possível recuperar a rota dessa navegação.");
         return;
       }
     }
@@ -15033,6 +15553,14 @@ html.fde-native .native-only { display: block; }
         startFreeNavigation();
       }
       navRecordedTrack = (sess.track || []).slice();
+      if (sess.sid && sess._fromDb) {
+        v81Sid = sess.sid;
+        v81Written = navRecordedTrack.length;
+      } else {
+        if (sess.sid) v81MarkMeta(sess.sid, { done: true });
+        v81Sid = v81NewSid();
+        v81Written = 0;
+      }
       navLastRecordedPoint = navRecordedTrack.length ? navRecordedTrack[navRecordedTrack.length - 1] : null;
       navRecordedPolyline.setLatLngs(navRecordedTrack.map(function (p) {
         return [p.lat, p.lng];
@@ -15056,9 +15584,35 @@ html.fde-native .native-only { display: block; }
     showToast("Navegação retomada de onde parou.");
   }
 
+  // v8.1: sessões com mais de 24 h (ou encerradas sem espaço) viram "passeio recuperado";
+  // a mais recente é oferecida para continuar
   function v59OfferResume() {
-    var sess = v59Load();
-    if (!sess) return;
+    v81LoadSessions()
+      .then(function (list) {
+        var now = Date.now();
+        var fresh = null;
+        var chain = Promise.resolve();
+        list.forEach(function (s) {
+          if (!fresh && !s.ended && now - (s.savedAt || 0) <= 24 * 3600 * 1000) {
+            fresh = s;
+            return;
+          }
+          chain = chain.then(function () {
+            return v81Hydrate(s).then(function (h) { v81Rescue(h); });
+          });
+        });
+        return chain.then(function () {
+          if (!fresh) return;
+          return v81Hydrate(fresh).then(function (s) {
+            if (v59Active() || (navWatchId !== null)) return;
+            v59ShowResume(s);
+          });
+        });
+      })
+      .catch(function () {});
+  }
+
+  function v59ShowResume(sess) {
     var modal = document.getElementById("nav-resume-modal");
     var name = sess.mode === "free" ? "Navegação livre" : '"' + ((sess.route && sess.route.name) || "rota sem nome") + '"';
     var d = new Date(sess.stats && sess.stats.startedAt ? sess.stats.startedAt : sess.savedAt);
@@ -15074,7 +15628,7 @@ html.fde-native .native-only { display: block; }
     };
     document.getElementById("btn-nav-resume-discard").onclick = function () {
       modal.classList.remove("open");
-      v59Clear();
+      v59Clear(sess, sess.track);
       showToast("Navegação anterior descartada.");
     };
   }
@@ -15085,6 +15639,8 @@ html.fde-native .native-only { display: block; }
     });
     window.addEventListener("pagehide", v59SaveNow);
     setTimeout(v59OfferResume, 700);
+    setTimeout(v81Purge, 15000);
+    setTimeout(v81CompactExisting, 6000);
   }
 
   // ================= v6.0: APP ANDROID (Capacitor) =================
@@ -15399,14 +15955,20 @@ html.fde-native .native-only { display: block; }
   }
 
   // Grava; se faltar espaço, descarta os passeios mais antigos até caber.
+  // v8.1: antes de apagar passeios antigos, libera a cópia de segurança; e avisa o que apagou
   function v62StoreTrips(trips) {
     trips = trips.slice(0, V62_MAX_TRIPS);
+    var dropped = 0, freed = false;
     while (trips.length) {
       try {
         localStorage.setItem(V62_TRIPS_KEY, JSON.stringify(trips));
+        if (dropped) v81Alert("⚠ Sem espaço no aparelho: " + (dropped === 1 ? "o passeio mais antigo foi apagado" : "os " + dropped + " passeios mais antigos foram apagados") + " para guardar o novo. Exporte em GPX os que quiser manter.");
+        else v81CheckSpace();
         return true;
       } catch (e) {
+        if (!freed) { freed = true; if (v81FreeDisposable()) continue; }
         trips.pop();
+        dropped++;
       }
     }
     return false;
@@ -15524,6 +16086,7 @@ html.fde-native .native-only { display: block; }
       lsSet("fde_trips_recovered_v1", "1");
       try {
         var prev = JSON.parse(localStorage.getItem(V59_PREV_KEY) || "null");
+        if (prev && typeof prev.te === "string") prev.track = v81Dec(prev.te);
         if (prev && prev.track && prev.track.length >= 2) {
           var already = v62LoadTrips().some(function (t) { return prev.stats && t.startedAt === prev.stats.startedAt; });
           if (!already) {
@@ -15652,7 +16215,7 @@ html.fde-native .native-only { display: block; }
         var rec = v62TripToRoute(t, name, t.folder);
         var routes = loadSavedRoutes();
         routes.push(rec);
-        persistSavedRoutes(routes);
+        if (!persistSavedRoutes(routes)) return;
         refreshSavedRoutesUI();
         var all = v62LoadTrips();
         all.forEach(function (x) { if (x.id === t.id) x.savedRouteId = rec.id; });
