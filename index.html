@@ -2544,6 +2544,40 @@ html.fde-native #com-google-box,
 html.fde-native #btn-drive-connect { display: none !important; }
 html.fde-native .native-only { display: block; }
 .native-only { display: none; }
+/* ===================== v8.5 — iniciante e visual ===================== */
+.v85-start { display: block; width: 100%; max-width: 420px; margin: 14px auto 4px; min-height: 56px; font-size: 1.1rem !important; font-weight: 800 !important; }
+.v85-start-sub { margin-top: 2px; }
+.v85-or { text-align: center; font-weight: 700; margin: 22px 0 6px; color: var(--ink2); }
+#screen-welcome .welcome-list { margin-top: 18px; }
+.v85-plan-hint { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 850; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 120px); padding: 8px 8px 8px 14px; border-radius: 22px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: var(--shadow); font: 700 14px/1.25 system-ui, sans-serif; }
+.v85-plan-hint span { white-space: nowrap; }
+.v85-plan-hint.v85-plan-hint-start { background: var(--acc); color: var(--onAcc); border-color: transparent; padding: 10px 16px; }
+.v85-plan-hint button { flex: 0 0 auto; min-height: 40px; padding: 6px 14px; border: 0; border-radius: 18px; background: var(--acc); color: var(--onAcc); font: 800 14px system-ui, sans-serif; }
+#v85-plan-menu { position: fixed; right: 8px; top: 60px; z-index: 1200; display: flex; flex-direction: column; gap: 4px; min-width: 240px; padding: 6px; border-radius: 14px; background: var(--surf); border: 1px solid var(--line); box-shadow: var(--shadow); }
+#v85-plan-menu.hidden { display: none; }
+#v85-plan-menu button { min-height: 48px; text-align: left; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 700 15px system-ui, sans-serif; }
+#v85-plan-menu button.v85-danger { color: #d6362a; }
+#btn-plan-more { display: none; }
+@media (max-width: 768px) {
+  #app-header { height: auto; flex-wrap: wrap; row-gap: 6px; padding: 6px; }
+  #app-body { height: auto; flex: 1 1 auto; min-height: 0; }
+  #app-header #route-name { flex: 1 1 0; min-width: 0; min-height: 44px; font-size: 1rem; }
+  #app-header .header-actions { order: 5; flex: 1 0 100%; gap: 6px; }
+  #app-header .header-actions button { flex: 1 1 0; min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 4px 2px; font-size: 1.15rem; line-height: 1; }
+  #app-header .header-actions .btn-label { display: block; font-size: 11.5px; font-weight: 800; }
+  #app-header #btn-export, #app-header #btn-share-route, #app-header #btn-clear-points, #app-header #btn-new { display: none; }
+  #app-header #btn-plan-more { display: flex; }
+  #app-header #btn-home, #app-header #btn-menu { min-width: 48px; min-height: 48px; }
+  #v85-plan-menu { top: 116px; }
+}
+.nav-header .icon-btn, .icon-btn { min-width: 48px; min-height: 48px; }
+.leaflet-touch .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; font-size: 22px; }
+.saved-screen-card-buttons button, .nav-route-card-btn { min-height: 44px; }
+input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
+.saved-screen-card-buttons .nav-btn, .saved-list .nav-btn, .nav-route-card-btn, .com-btn-primary { background: var(--acc) !important; border-color: var(--acc) !important; color: var(--onAcc) !important; font-weight: 800; }
+.v85-gps-card { position: absolute; left: 10px; right: 10px; top: 76px; z-index: 1150; padding: 14px; border-radius: 16px; background: var(--surf); color: var(--ink); border: 2px solid #d6362a; box-shadow: var(--shadow); font: 15px/1.4 system-ui, sans-serif; }
+.v85-gps-card p { margin: 6px 0; }
+.v85-gps-card button { width: 100%; min-height: 48px; margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -2677,6 +2711,13 @@ html.fde-native .native-only { display: block; }
     <button id="btn-clear-points" title="Limpar pontos da rota atual">🧹 <span class="btn-label">Limpar</span></button>
     <button id="btn-new" title="Nova rota">＋ <span class="btn-label">Nova</span></button>
     <button id="btn-nav-mode" title="Modo Navegação">🧭 <span class="btn-label">Navegar</span></button>
+    <button id="btn-plan-more" type="button" title="Mais opções" aria-expanded="false">⋯ <span class="btn-label">Mais</span></button>
+  </div>
+  <div id="v85-plan-menu" class="hidden" role="menu">
+    <button type="button" data-v85="btn-export">⬇ Exportar GPX</button>
+    <button type="button" data-v85="btn-share-route">📤 Compartilhar (link, QR, GPX)</button>
+    <button type="button" data-v85="btn-new">＋ Nova rota</button>
+    <button type="button" data-v85="btn-clear-points" class="v85-danger">🧹 Apagar os pontos</button>
   </div>
   <input type="file" id="import-file-input" accept=".gpx,.kml" class="hidden" />
 </header>
@@ -2790,7 +2831,7 @@ html.fde-native .native-only { display: block; }
 
     <section class="panel-section">
       <h2>Mapa offline</h2>
-      <p class="hint">🗺️ <strong id="tile-cache-count">0</strong> blocos de mapa salvos neste aparelho para uso sem internet.</p>
+      <p class="hint">🗺️ <strong id="tile-cache-count">0</strong> pedaços de mapa guardados neste aparelho para usar sem internet.</p>
     </section>
 
     <footer class="app-footer">
@@ -2872,7 +2913,7 @@ html.fde-native .native-only { display: block; }
 
     <div id="nav-hud-top">
       <div id="nav-deviation-pill" class="nav-deviation-pill nav-deviation-ok">Aguardando GPS...</div>
-      <button id="btn-nav-pip" class="nav-threshold-btn hidden" title="Mini janela flutuante (experimental)">📺 PiP</button>
+      <button id="btn-nav-pip" class="nav-threshold-btn hidden" title="Mini janela flutuante (experimental)">📺 Mini janela</button>
       <button id="btn-nav-threshold" class="nav-threshold-btn">Limite: 50m ✎</button>
     </div>
 
@@ -3167,6 +3208,8 @@ html.fde-native .native-only { display: block; }
     <img src="icons/icon-192.png" alt="" class="welcome-logo">
     <h1>Fora de Estrada</h1>
     <p class="welcome-sub">Navegador e planejador de trilhas off-road</p>
+    <button id="btn-welcome-start" type="button" class="com-btn com-btn-primary v85-start">▶ Começar agora — sem conta</button>
+    <p class="hint com-center v85-start-sub">Planeje no mapa, importe um GPX ou só grave o seu caminho. Dá para criar conta depois.</p>
     <p class="welcome-intro">App grátis para quem anda de <b>jipe, 4x4, moto, UTV e quadriciclo</b>: desenhe a trilha no mapa de satélite, baixe o mapa e navegue com GPS mesmo <b>sem sinal de celular</b>, com aviso por voz quando sair da rota.</p>
     <ul class="welcome-list">
       <li><span>🧭</span> Navegação off-road com GPS offline, roadbook de rally e tomada de tempo com ranking</li>
@@ -3175,11 +3218,12 @@ html.fde-native .native-only { display: block; }
       <li><span>👥</span> Comunidade: publique, comente e baixe trilhas da galera</li>
       <li><span>📴</span> Navegação e Tomada de Tempo funcionam sem internet, com ou sem conta</li>
     </ul>
+    <p class="v85-or">Já tem conta, ou quer as rotas em todos os seus aparelhos?</p>
     <div id="welcome-google-btn" class="com-google-btn"></div>
     <p class="hint com-center native-only">No app, entre com usuário e senha. Se você criou a conta pelo Google no site, defina uma senha lá em Comunidade › Perfil.</p>
     <button id="btn-welcome-login" class="com-btn com-btn-primary">Entrar com usuário e senha</button>
     <button id="btn-welcome-register" class="com-btn">Criar conta</button>
-    <p class="hint com-center">Ao continuar com o Google você confirma ter 18 anos ou mais e concorda com os <a href="termos.html" target="_blank" rel="noopener">Termos</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.</p>
+    <p class="hint com-center">Ao entrar ou criar conta você confirma ter 18 anos ou mais e concorda com os <a href="termos.html" target="_blank" rel="noopener">Termos</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.</p>
     <button id="btn-welcome-skip" class="link-btn welcome-skip">Continuar sem conta</button>
     <p class="hint com-center"><a href="ajuda.html">❓ Primeira vez? Veja como usar o app</a></p>
     <p id="welcome-app" class="hint com-center welcome-app"><a id="welcome-app-link" href="#">📲 Usa Android? Baixe o app (GPS funciona com a tela apagada)</a></p>
@@ -3242,7 +3286,7 @@ html.fde-native .native-only { display: block; }
         <div class="com-or"><span>ou</span></div>
         <div id="com-google-btn" class="com-google-btn"></div>
         <p id="com-google-unavailable" class="hint hidden">O login com Google não carregou (sem internet?). Tente de novo mais tarde.</p>
-        <p class="hint com-center">Ao continuar com o Google você confirma ter 18 anos ou mais e concorda com os <a href="termos.html" target="_blank" rel="noopener">Termos</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.</p>
+        <p class="hint com-center">Ao entrar ou criar conta você confirma ter 18 anos ou mais e concorda com os <a href="termos.html" target="_blank" rel="noopener">Termos</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.</p>
       </div>
     </div>
 
@@ -3431,10 +3475,10 @@ html.fde-native .native-only { display: block; }
 <div id="import-mode-modal" class="modal-overlay">
   <div class="modal-box modal-box-small">
     <h2>Importar rota</h2>
-    <p class="hint">Substituir a rota atual pelo arquivo importado, ou adicionar como um novo bloco combinável (pra montar uma rota juntando vários arquivos)?</p>
+    <p class="hint">Você já tem uma rota no mapa. O que fazer com o arquivo?</p>
     <div class="modal-actions">
-      <button id="btn-import-mode-replace" class="modal-btn-secondary">Substituir rota atual</button>
-      <button id="btn-import-mode-add-block" class="modal-btn-primary">Adicionar como bloco</button>
+      <button id="btn-import-mode-replace" class="modal-btn-secondary">Trocar pela nova</button>
+      <button id="btn-import-mode-add-block" class="modal-btn-primary">Juntar com a atual</button>
     </div>
   </div>
 </div>
@@ -3548,8 +3592,20 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "8.4";
+  var APP_VERSION = "8.5";
   var CHANGELOG = [
+    {
+      version: "8.5",
+      date: "05/11/2026",
+      changes: [
+        "👋 Boas-vindas com \"Começar agora — sem conta\" grande no topo (criar conta fica para depois)",
+        "Planejamento guiado: o mapa diz onde tocar e mostra a distância, com o botão Salvar à mão",
+        "No celular, a barra do planejamento tem Salvar, Importar, Navegar e Mais com nome; exportar, compartilhar, nova e apagar ficam em Mais",
+        "Importar com o mapa vazio abre direto a escolha do arquivo; com rota no mapa: \"Trocar pela nova\" ou \"Juntar com a atual\"",
+        "GPS sem permissão: o app explica como liberar no Android e no iPhone (antes ficava \"Aguardando GPS\" para sempre)",
+        "Botões maiores para o dedo, uma cor só para a ação principal e menos termos técnicos"
+      ]
+    },
     {
       version: "8.4",
       date: "05/11/2026",
@@ -5135,6 +5191,7 @@ html.fde-native .native-only { display: block; }
   }
 
   function refreshPolyline() {
+    setTimeout(v85UpdateHint, 0);
     var latlngs = state.points.map(function (p) {
       return [p.lat, p.lng];
     });
@@ -6585,6 +6642,12 @@ html.fde-native .native-only { display: block; }
   var pendingImportMode = "replace";
 
   el.btnImport.addEventListener("click", function () {
+    // v8.5: mapa vazio — não pergunta nada, abre direto a escolha do arquivo
+    if (!state.points.length) {
+      pendingImportMode = "replace";
+      el.importFileInput.click();
+      return;
+    }
     el.importModeModal.classList.add("open");
   });
 
@@ -6820,13 +6883,11 @@ html.fde-native .native-only { display: block; }
       .catch(function (err) {
         if (myToken !== poiFetchToken) return;
         if (err && err.message === "missing-key") {
-          showToast("Pontos de interesse não configurados (chave de API ausente).");
+          showToast("A busca de postos e restaurantes não está disponível neste app.");
         } else if (err && err.code === "RESOURCE_EXHAUSTED") {
-          showToast("Limite de uso da Places API atingido por agora. Tente novamente em alguns minutos.");
-        } else if (err && err.code === "PERMISSION_DENIED") {
-          showToast("Sem permissão para buscar pontos de interesse. Verifique a chave da Places API no Google Cloud.");
+          showToast("Muitas buscas agora. Tente de novo em alguns minutos.");
         } else {
-          showToast("Não foi possível carregar pontos de interesse agora." + (err && err.message ? " (" + err.message.slice(0, 80) + ")" : ""));
+          showToast("Não foi possível mostrar postos e restaurantes agora. Tente mais tarde.");
         }
         el.togglePoi.checked = false;
       });
@@ -7043,7 +7104,7 @@ html.fde-native .native-only { display: block; }
         var meta = document.createElement("div");
         meta.className = "nav-route-card-meta";
         var date = new Date(route.savedAt);
-        meta.textContent = route.points.length + " pontos · " + date.toLocaleString("pt-BR");
+        meta.textContent = route.points.length + " pontos · salva em " + date.toLocaleDateString("pt-BR");
         card.appendChild(meta);
         var extraText = routeCardExtraText(route);
         if (extraText) {
@@ -7305,6 +7366,89 @@ html.fde-native .native-only { display: block; }
 
 
 
+
+
+  // ===================== v8.5 — iniciante e visual =====================
+  function v85UpdateHint() {
+    if (!map) return;
+    var box = document.getElementById("v85-plan-hint");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "v85-plan-hint";
+      box.className = "v85-plan-hint";
+      map.getContainer().appendChild(box);
+      L.DomEvent.disableClickPropagation(box);
+      L.DomEvent.disableScrollPropagation(box);
+    }
+    var n = state.points.length;
+    box.innerHTML = "";
+    var t = document.createElement("span");
+    if (n === 0) t.textContent = "👆 Toque no mapa onde a trilha começa";
+    else if (n === 1) t.textContent = "👆 Agora toque por onde o caminho segue";
+    else t.textContent = "📏 " + formatDistance(polylineLengthMeters(state.points)) + " · " + n + " pontos";
+    box.appendChild(t);
+    if (n >= 2) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = "💾 Salvar";
+      b.addEventListener("click", function () { el.btnSave.click(); });
+      box.appendChild(b);
+    }
+    box.classList.toggle("v85-plan-hint-start", n < 2);
+  }
+
+  function initV85() {
+    var st = document.getElementById("btn-welcome-start");
+    if (st) st.addEventListener("click", function () { var sk = document.getElementById("btn-welcome-skip"); if (sk) sk.click(); });
+    var more = document.getElementById("btn-plan-more");
+    var menu = document.getElementById("v85-plan-menu");
+    if (more && menu) {
+      more.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        var open = menu.classList.contains("hidden");
+        menu.classList.toggle("hidden", !open);
+        more.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      menu.querySelectorAll("button[data-v85]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          menu.classList.add("hidden");
+          more.setAttribute("aria-expanded", "false");
+          var orig = document.getElementById(b.getAttribute("data-v85"));
+          if (orig) orig.click();
+        });
+      });
+      document.addEventListener("click", function (ev) {
+        if (!menu.classList.contains("hidden") && !menu.contains(ev.target) && ev.target !== more && !more.contains(ev.target)) menu.classList.add("hidden");
+      });
+    }
+    v85UpdateHint();
+  }
+
+  function v85GpsDenied() {
+    if (document.getElementById("v85-gps-card")) return;
+    var view = document.getElementById("nav-active-view");
+    if (!view) return;
+    var c = document.createElement("div");
+    c.id = "v85-gps-card";
+    c.className = "v85-gps-card";
+    c.setAttribute("role", "alert");
+    c.innerHTML =
+      "<b>📍 O app está sem permissão de localização</b>" +
+      "<p>Sem ela não dá para navegar nem gravar o caminho.</p>" +
+      "<p><b>Android:</b> toque no cadeado ao lado do endereço (ou em Configurações › Apps › Fora de Estrada) › Permissões › Localização › <b>Permitir</b>.</p>" +
+      "<p><b>iPhone:</b> Ajustes › Privacidade › Serviços de Localização › Safari (ou o app) › <b>Ao Usar o App</b>.</p>" +
+      '<button type="button" class="modal-btn-primary">Já liberei — tentar de novo</button>';
+    c.querySelector("button").addEventListener("click", function () {
+      c.remove();
+      startWatchingPosition();
+      v84WakeOn();
+    });
+    view.appendChild(c);
+    if (el.navDeviationPill) {
+      el.navDeviationPill.className = "nav-deviation-pill nav-deviation-alert";
+      el.navDeviationPill.textContent = "📍 Sem permissão de GPS";
+    }
+  }
 
   // ===================== v8.4 — uso no mato =====================
   // * Coluna da navegação com 4 botões fixos e legenda (SOS, Mapa, Marcar, Mais); o resto
@@ -7861,7 +8005,7 @@ html.fde-native .native-only { display: block; }
     } catch (e) {
       /* ignore */
     }
-    el.btnNavThreshold.textContent = "Limite: " + deviationThreshold + "m ✎";
+    el.btnNavThreshold.textContent = "Avisar a " + deviationThreshold + " m ✎";
   }
 
   function saveThreshold(v) {
@@ -7871,7 +8015,7 @@ html.fde-native .native-only { display: block; }
     } catch (e) {
       /* ignore */
     }
-    el.btnNavThreshold.textContent = "Limite: " + deviationThreshold + "m ✎";
+    el.btnNavThreshold.textContent = "Avisar a " + deviationThreshold + " m ✎";
   }
 
   el.btnNavThreshold.addEventListener("click", function () {
@@ -8189,7 +8333,7 @@ html.fde-native .native-only { display: block; }
 
   function stopNavPip() {
     navPipActive = false;
-    if (el.btnNavPip) el.btnNavPip.textContent = "📺 PiP";
+    if (el.btnNavPip) el.btnNavPip.textContent = "📺 Mini janela";
     if (navPipStream) {
       navPipStream.getTracks().forEach(function (t) {
         t.stop();
@@ -8203,8 +8347,13 @@ html.fde-native .native-only { display: block; }
     stopNavPip();
   });
 
+  // v8.5: permissão negada vira um cartão com o que fazer; sem sinal, aviso simples (no máximo 1 a cada 30 s)
+  var v85GpsWarnAt = 0;
   function onNavPositionError(err) {
-    showToast("Erro de GPS: " + (err && err.message ? err.message : "sinal indisponível"));
+    if (err && err.code === 1) { v85GpsDenied(); return; }
+    if (Date.now() - v85GpsWarnAt < 30000) return;
+    v85GpsWarnAt = Date.now();
+    showToast("📡 Sem sinal de GPS agora — continua tentando. Céu aberto ajuda.");
   }
 
   function onNavPosition(pos) {
@@ -15334,7 +15483,7 @@ html.fde-native .native-only { display: block; }
     if (g) g.textContent = greet + (first ? ", " + first : "");
     var status = [];
     status.push(routes.length === 1 ? "1 rota salva" : routes.length + " rotas salvas");
-    if (typeof cachedTileCount === "number" && cachedTileCount > 0) status.push(cachedTileCount + " blocos de mapa offline");
+    if (typeof cachedTileCount === "number" && cachedTileCount > 0) status.push("mapa offline guardado");
     if (window.FDETheme) status.push(v55ThemeText(window.FDETheme.state));
     var s = document.getElementById("dash-status");
     if (s) s.textContent = status.join(" · ");
@@ -15389,10 +15538,11 @@ html.fde-native .native-only { display: block; }
       "</div>" +
       v65HeroTimes(r) +
       '<div class="dsh-hero-actions">' +
-      '<button type="button" class="dsh-go" id="btn-dash-hero-go"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"></path></svg>Iniciar navegação</button>' +
+      '<button type="button" class="dsh-go" id="btn-dash-hero-go"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"></path></svg>' + (v62NavRunning() ? "Voltar à navegação" : "Iniciar navegação") + "</button>" +
       '<button type="button" class="dsh-other" id="btn-dash-hero-other">Outra rota</button>' +
       "</div>";
     document.getElementById("btn-dash-hero-go").addEventListener("click", function () {
+      if (v62NavRunning()) { v62GoToActiveNav(); return; }   // v8.5: não oferece começar de novo
       openNavConfirm(r, "dashboard");
     });
     document.getElementById("btn-dash-hero-other").addEventListener("click", function () {
@@ -19087,6 +19237,7 @@ html.fde-native .native-only { display: block; }
     safeInit(initV78NavLayers, "camadas na navegação (v7.8)");
     safeInit(initV79Adventure, "modo aventura (v7.9)");
     safeInit(initV84NavMore, "coluna da navegação (v8.4)");
+    safeInit(initV85, "iniciante e visual (v8.5)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
