@@ -2016,6 +2016,22 @@ html, body {
 .welcome-list li { display: flex; gap: 10px; align-items: flex-start; background: var(--surf); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--ink2); font-size: 0.92rem; line-height: 1.35; }
 .welcome-list li span { font-size: 1.2rem; line-height: 1.1; }
 .welcome-body a { color: var(--acc); }
+/* v8.4: coluna da navegação com legenda + painel "Mais opções" */
+#nav-side-tools > .nav-tool-btn[data-cap] { position: relative; margin-bottom: 12px; }
+#nav-side-tools > .nav-tool-btn[data-cap]::after { content: attr(data-cap); position: absolute; top: calc(100% + 1px); left: 50%; transform: translateX(-50%); font: 800 11px/1 system-ui, sans-serif; color: #fff; text-shadow: 0 0 3px #000, 0 0 3px #000, 0 1px 2px #000; white-space: nowrap; pointer-events: none; }
+#nav-more-sheet { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 1100; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; border-radius: 18px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(0,0,0,.45); max-height: 70%; overflow-y: auto; }
+#nav-more-sheet.hidden { display: none; }
+#nav-more-sheet .nav-tool-btn.v84-proxy { display: none; }
+#nav-active-view.v84-compact #nav-more-sheet .nav-tool-btn.v84-proxy { display: flex; }
+#nav-active-view.v84-compact #nav-side-tools > #btn-nav-layers, #nav-active-view.v84-compact #nav-side-tools > #btn-nav-waypoint { display: none; }
+#nav-more-sheet .v84-more-head { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; font: 800 16px/1.2 system-ui, sans-serif; padding: 2px 2px 4px 6px; }
+#nav-more-sheet .v84-more-close { min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; background: rgba(127,127,127,.18); color: inherit; font: 700 18px system-ui; }
+#nav-more-sheet .nav-tool-btn { width: auto; height: auto; min-height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding: 8px 12px; }
+#nav-more-sheet .nav-tool-btn .svg-ico { flex: 0 0 auto; }
+#nav-more-sheet .v84-lbl { font: 700 14px/1.2 system-ui, sans-serif; text-align: left; }
+.v84-tips { margin: 8px 0 4px 18px; padding: 0; line-height: 1.45; }
+.v84-tips li { margin-bottom: 6px; }
+.v84-list-more { width: 100%; min-height: 44px; margin: 6px 0; }
 .v83-trash-link { display: block; margin: 18px auto 8px; min-height: 44px; }
 .v83-trash-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line, rgba(127,127,127,.25)); }
 .v83-trash-name { flex: 1; font-size: 0.95rem; }
@@ -3532,8 +3548,21 @@ html.fde-native .native-only { display: block; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "8.3";
+  var APP_VERSION = "8.4";
   var CHANGELOG = [
+    {
+      version: "8.4",
+      date: "05/11/2026",
+      changes: [
+        "📥 Importar GPX/KML já salva a rota — dá para navegar na hora. Trilha com milhares de pontos: o app oferece simplificar (traçado muda menos de 3 m)",
+        "🧭 No planejamento, o botão Navegar vai direto para a rota que está na tela",
+        "Rota grande abre na hora: com mais de 500 pontos mostra só a linha (10 mil pontos: de 15 s para menos de 1 s)",
+        "Navegação com 4 botões fixos e com nome (SOS, Mapa, Marcar, Mais); o resto fica em \"Mais opções\" — nada mais escondido atrás do Rally",
+        "No navegador (iPhone/PWA) a tela fica acesa durante a navegação, para o GPS não parar",
+        "App Android: dicas de bateria na primeira navegação para o celular não parar a gravação",
+        "Modo Aventura gasta menos internet e bateria"
+      ]
+    },
     {
       version: "8.3",
       date: "04/11/2026",
@@ -5017,8 +5046,15 @@ html.fde-native .native-only { display: block; }
     var marker = L.marker([point.lat, point.lng], {
       draggable: true,
       icon: numberedIcon(index + 1, point.role)
-    }).addTo(map);
-    marker.bindPopup(buildPopupContent(index));
+    });
+    // v8.4: com os pinos escondidos, nem entram no mapa (rota de milhares de pontos não trava)
+    if (!v74Hidden) marker.addTo(map);
+    marker._fdeN = index + 1;
+    marker._fdeRole = point.role || "";
+    // v8.4: o balão é montado só quando abre (antes: um por ponto, com Plus Code, a cada mudança)
+    marker.bindPopup(function () {
+      return buildPopupContent(markers.indexOf(marker));
+    });
 
     marker.on("dragend", function () {
       var idx = markers.indexOf(marker);
@@ -5030,7 +5066,6 @@ html.fde-native .native-only { display: block; }
       state.points[idx].lng = wl;
       refreshPolyline();
       renderPointList();
-      marker.setPopupContent(buildPopupContent(idx));
       saveDraft();
     });
 
@@ -5088,10 +5123,14 @@ html.fde-native .native-only { display: block; }
     saveDraft();
   }
 
+  // v8.4: só troca o ícone dos pinos cujo número/papel mudou
   function reindexMarkers() {
     markers.forEach(function (marker, idx) {
-      marker.setIcon(numberedIcon(idx + 1, state.points[idx].role));
-      marker.bindPopup(buildPopupContent(idx));
+      var role = (state.points[idx] && state.points[idx].role) || "";
+      if (marker._fdeN === idx + 1 && marker._fdeRole === role) return;
+      marker.setIcon(numberedIcon(idx + 1, role));
+      marker._fdeN = idx + 1;
+      marker._fdeRole = role;
     });
   }
 
@@ -5106,6 +5145,13 @@ html.fde-native .native-only { display: block; }
   // ---- v7.4: botão para esconder os pinos numerados e ver só a linha da rota ----
   var V74_KEY = "fde_plan_pins_hidden";
   var v74Hidden = false, v74Ends = null, v74Btn = null;
+  // v8.4: rota grande abre com os pinos escondidos (só a linha + começo/fim)
+  function v84BigRoute(n) {
+    if (n > 500 && !v74Hidden && map) {
+      v74SetHidden(true, true, true);
+      setTimeout(function () { showToast("Rota grande (" + n + " pontos): mostrando só a linha. Para editar ponto a ponto, toque no botão de pinos do mapa."); }, 400);
+    }
+  }
   function v74UpdateEnds() {
     if (!v74Ends) return;
     v74Ends.clearLayers();
@@ -5115,16 +5161,20 @@ html.fde-native .native-only { display: block; }
     L.circleMarker([a.lat, a.lng], { radius: 8, color: "#fff", weight: 3, fillColor: "#2e9d55", fillOpacity: 1, interactive: false }).addTo(v74Ends);
     if (state.points.length > 1) L.circleMarker([b.lat, b.lng], { radius: 8, color: "#fff", weight: 3, fillColor: "#d6362a", fillOpacity: 1, interactive: false }).addTo(v74Ends);
   }
-  function v74SetHidden(h, quiet) {
+  function v74SetHidden(h, quiet, noSave) {
     v74Hidden = !!h;
     map.getContainer().classList.toggle("fde-pins-hidden", v74Hidden);
+    markers.forEach(function (m) {
+      if (v74Hidden) map.removeLayer(m);
+      else if (!map.hasLayer(m)) m.addTo(map);
+    });
     polyline.setStyle({ weight: v74Hidden ? 5 : 4 });
     if (v74Btn) {
       v74Btn.classList.toggle("on", v74Hidden);
       v74Btn.title = v74Hidden ? "Mostrar os pontos da rota" : "Esconder os pontos (ver só a rota)";
       v74Btn.setAttribute("aria-pressed", v74Hidden ? "true" : "false");
     }
-    try { localStorage.setItem(V74_KEY, v74Hidden ? "1" : "0"); } catch (e) {}
+    if (!noSave) try { localStorage.setItem(V74_KEY, v74Hidden ? "1" : "0"); } catch (e) {}
     v74UpdateEnds();
     if (!quiet) showToast(v74Hidden ? "Pontos escondidos — só a rota. Toque de novo no botão para editar os pontos." : "Pontos visíveis.");
   }
@@ -5181,6 +5231,7 @@ html.fde-native .native-only { display: block; }
   }
 
   function clearRoute() {
+    v84ListAll = false;
     if (v64PlanAltLayer) v64PlanAltLayer.clearLayers();
     markers.forEach(function (m) {
       map.removeLayer(m);
@@ -5221,6 +5272,7 @@ html.fde-native .native-only { display: block; }
   }
 
   // ---- point list panel ----
+  var v84ListAll = false;
   function renderPointList() {
     el.pointList.innerHTML = "";
     el.pointCount.textContent = String(state.points.length);
@@ -5237,7 +5289,10 @@ html.fde-native .native-only { display: block; }
       el.routeTotalDistance.classList.add("hidden");
     }
 
+    // v8.4: rota grande mostra só os primeiros pontos na lista (o mapa continua com todos)
+    var listMax = v84ListAll ? Infinity : 150;
     state.points.forEach(function (p, idx) {
+      if (idx >= listMax) return;
       var li = document.createElement("li");
 
       var row = document.createElement("div");
@@ -5309,6 +5364,19 @@ html.fde-native .native-only { display: block; }
 
       el.pointList.appendChild(li);
     });
+    if (state.points.length > listMax) {
+      var moreLi = document.createElement("li");
+      var moreBtn = document.createElement("button");
+      moreBtn.type = "button";
+      moreBtn.className = "load-btn v84-list-more";
+      moreBtn.textContent = "Mostrar todos os " + state.points.length + " pontos";
+      moreBtn.addEventListener("click", function () {
+        v84ListAll = true;
+        renderPointList();
+      });
+      moreLi.appendChild(moreBtn);
+      el.pointList.appendChild(moreLi);
+    }
 
     if (typeof renderElevation === "function" && x) {
       renderElevation();
@@ -5531,6 +5599,7 @@ html.fde-native .native-only { display: block; }
     el.routeName.value = state.name;
     updateFolderLabel();
     wrapPointList(state.waypoints);
+    v84BigRoute(draft.points.length);
     draft.points.forEach(function (p) {
       var restored = { lat: p.lat, lng: wrapLng(p.lng) };
       if (p.role === "start" || p.role === "end") restored.role = p.role;
@@ -5650,6 +5719,7 @@ html.fde-native .native-only { display: block; }
     state.roadbookNotes = route.roadbookNotes && typeof route.roadbookNotes === "object" ? JSON.parse(JSON.stringify(route.roadbookNotes)) : {};
     el.routeName.value = route.name;
     updateFolderLabel();
+    v84BigRoute(route.points.length);
     route.points.forEach(function (p) {
       var restored = { lat: p.lat, lng: p.lng };
       if (p.role === "start" || p.role === "end") restored.role = p.role;
@@ -6401,6 +6471,7 @@ html.fde-native .native-only { display: block; }
       if (!window.confirm("Importar essa rota vai substituir a rota atual não salva. Continuar?")) return;
     }
     clearRoute();
+    v84BigRoute(points.length);
     points.forEach(function (p) {
       state.points.push({ lat: p.lat, lng: p.lng });
       markers.push(createMarker(state.points[state.points.length - 1], state.points.length - 1));
@@ -6475,6 +6546,12 @@ html.fde-native .native-only { display: block; }
             saveDraft();
           }
         } else {
+          // v8.4: trilha com muitos pontos (GPX de relógio/Wikiloc): oferece simplificar
+          if (points.length > 1500) {
+            var simp = simplifyRoute(points, 3);
+            if (simp.length < points.length * 0.8 &&
+                window.confirm("Esta trilha tem " + points.length + " pontos. Simplificar para " + simp.length + " pontos (recomendado)? O traçado muda menos de 3 m e o app fica bem mais leve.")) points = simp;
+          }
           var before = state.points.length;
           applyImportedRoute(points, suggestedName);
           if (state.points.length === points.length && (before === 0 || state.points[0].lat === points[0].lat)) {
@@ -6487,6 +6564,15 @@ html.fde-native .native-only { display: block; }
             }
             renderRouteExtras();
             saveDraft();
+            // v8.4: importar já salva a rota (antes o 🧭 caía em "Nenhuma rota salva")
+            var impName = (el.routeName.value || "").trim() || file.name.replace(/\.(gpx|kml)$/i, "").trim() || "Trilha importada";
+            el.routeName.value = impName;
+            var nAlts = (state.pendingAlts || []).length;
+            performSaveCurrentRoute(impName, state.folder || "");
+            if (state.id) {
+              showToast('✔ "' + impName + '" importada e salva (' + state.points.length + " pontos" +
+                (nAlts ? ", " + nAlts + (nAlts > 1 ? " desvios" : " desvio") : "") + "). Toque em 🧭 Navegar para ir.");
+            }
           }
         }
       } catch (e) {
@@ -6855,7 +6941,28 @@ html.fde-native .native-only { display: block; }
     }
   }
 
+  // v8.4: com uma rota na tela, o 🧭 navega por ela (salvando antes, se mudou)
   el.btnNavMode.addEventListener("click", function () {
+    if (state.points.length >= 2) {
+      var nm = (el.routeName.value || "").trim();
+      var saved = state.id ? loadSavedRoutes().filter(function (r) { return r.id === state.id && !r.deleted; })[0] : null;
+      var dirty = !saved || routeSignature(saved.points) !== routeSignature(state.points) || (saved.name || "") !== nm;
+      if (dirty) {
+        if (!nm) {
+          var d = new Date();
+          nm = "Trilha " + ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2);
+          el.routeName.value = nm;
+        }
+        performSaveCurrentRoute(nm, state.folder || "");
+        saved = state.id ? loadSavedRoutes().filter(function (r) { return r.id === state.id && !r.deleted; })[0] : null;
+      }
+      if (saved) {
+        showScreen("navigation");
+        showNavSubview("picker");
+        openNavConfirm(saved, "planning");
+        return;
+      }
+    }
     showScreen("navigation");
     showNavSubview("picker");
   });
@@ -7197,6 +7304,175 @@ html.fde-native .native-only { display: block; }
   }
 
 
+
+
+  // ===================== v8.4 — uso no mato =====================
+  // * Coluna da navegação com 4 botões fixos e legenda (SOS, Mapa, Marcar, Mais); o resto
+  //   vai para "Mais opções" com o nome escrito (antes: 11 ícones, alguns cobertos pelo Rally).
+  // * Tela acesa durante a navegação no navegador (iPhone/PWA): sem isso o GPS para quando apaga.
+  // * App Android: guia de bateria na primeira navegação.
+  var V84_MORE_IDS = ["btn-nav-region", "btn-nav-voice", "btn-nav-sendpos", "btn-nav-stats", "btn-nav-rally", "btn-nav-home", "btn-nav-theme"];
+  var V84_LABELS = {
+    "btn-nav-region": "Trilhas da região",
+    "btn-nav-voice": "Alerta por voz",
+    "btn-nav-sendpos": "Enviar posição",
+    "btn-nav-stats": "Estatísticas",
+    "btn-nav-rally": "Modo Rally",
+    "btn-nav-home": "Ir ao menu",
+    "btn-nav-theme": "Dia / noite"
+  };
+  var V84_CAPS = { "btn-nav-sos": "SOS", "btn-nav-layers": "Mapa", "btn-nav-waypoint": "Marcar" };
+
+  var v84Fit = function () {};
+  function v84MoreOpen(open) {
+    var sh = document.getElementById("nav-more-sheet");
+    var b = document.getElementById("btn-nav-more");
+    if (!sh) return;
+    sh.classList.toggle("hidden", !open);
+    if (b) b.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  function initV84NavMore() {
+    var col = document.getElementById("nav-side-tools");
+    var view = document.getElementById("nav-active-view");
+    if (!col || !view || document.getElementById("btn-nav-more")) return;
+    Object.keys(V84_CAPS).forEach(function (id) {
+      var b = document.getElementById(id);
+      if (b) b.setAttribute("data-cap", V84_CAPS[id]);
+    });
+    var more = document.createElement("button");
+    more.id = "btn-nav-more";
+    more.type = "button";
+    more.className = "nav-tool-btn";
+    more.title = "Mais opções";
+    more.setAttribute("aria-label", "Mais opções");
+    more.setAttribute("aria-expanded", "false");
+    more.setAttribute("data-cap", "Mais");
+    more.innerHTML = '<svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle></svg>';
+    var wp = document.getElementById("btn-nav-waypoint");
+    if (wp && wp.parentNode === col) col.insertBefore(more, wp.nextSibling);
+    else col.appendChild(more);
+
+    var sheet = document.createElement("div");
+    sheet.id = "nav-more-sheet";
+    sheet.className = "hidden";
+    sheet.setAttribute("role", "dialog");
+    sheet.setAttribute("aria-label", "Mais opções da navegação");
+    var head = document.createElement("div");
+    head.className = "v84-more-head";
+    var ttl = document.createElement("span");
+    ttl.textContent = "Mais opções";
+    var close = document.createElement("button");
+    close.type = "button";
+    close.className = "v84-more-close";
+    close.textContent = "✕";
+    close.setAttribute("aria-label", "Fechar");
+    close.addEventListener("click", function () { v84MoreOpen(false); });
+    head.appendChild(ttl);
+    head.appendChild(close);
+    sheet.appendChild(head);
+    V84_MORE_IDS.forEach(function (id) {
+      var b = document.getElementById(id);
+      if (!b) return;
+      var lbl = document.createElement("span");
+      lbl.className = "v84-lbl";
+      lbl.textContent = V84_LABELS[id];
+      b.appendChild(lbl);
+      sheet.appendChild(b);
+      // tocou numa opção: fecha o painel (a opção faz o que já fazia)
+      b.addEventListener("click", function () { setTimeout(function () { v84MoreOpen(false); }, 0); });
+    });
+    // atalhos para "Mapa" e "Marcar" no painel — aparecem só quando a coluna fica compacta
+    [["btn-nav-layers", "Trocar o mapa"], ["btn-nav-waypoint", "Marcar local"]].forEach(function (pair) {
+      var orig = document.getElementById(pair[0]);
+      if (!orig) return;
+      var px = document.createElement("button");
+      px.type = "button";
+      px.className = "nav-tool-btn v84-proxy";
+      px.innerHTML = orig.innerHTML;
+      var lbl = document.createElement("span");
+      lbl.className = "v84-lbl";
+      lbl.textContent = pair[1];
+      px.appendChild(lbl);
+      px.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        v84MoreOpen(false);
+        setTimeout(function () { orig.click(); }, 0);
+      });
+      sheet.insertBefore(px, head.nextSibling);
+    });
+    view.appendChild(sheet);
+
+    // tela baixa + painel do Rally aberto: a coluna fica só com SOS e Mais (nada coberto)
+    var rp = document.getElementById("rally-panel");
+    function fit() {
+      view.classList.remove("v84-compact");
+      if (!rp || rp.classList.contains("hidden") || view.classList.contains("hidden")) return;
+      var pr = rp.getBoundingClientRect();
+      var cr = col.getBoundingClientRect();
+      if (pr.height && cr.bottom + 8 > pr.top && cr.left < pr.right) view.classList.add("v84-compact");
+    }
+    if (rp && window.MutationObserver) new MutationObserver(function () { setTimeout(fit, 30); }).observe(rp, { attributes: true, attributeFilter: ["class"] });
+    window.addEventListener("resize", function () { setTimeout(fit, 60); });
+    v84Fit = fit;
+
+    more.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      v84MoreOpen(sheet.classList.contains("hidden"));
+    });
+    document.addEventListener("click", function (ev) {
+      if (sheet.classList.contains("hidden")) return;
+      if (sheet.contains(ev.target) || ev.target === more || more.contains(ev.target)) return;
+      v84MoreOpen(false);
+    });
+  }
+
+  // ---- tela acesa na navegação (navegador) ----
+  var v84Wake = null, v84WantWake = false;
+  function v84WakeOn() {
+    v84WantWake = true;
+    if (FDE_NATIVE) return;   // no app Android o GPS continua com a tela apagada
+    try {
+      if (navigator.wakeLock && navigator.wakeLock.request && !v84Wake) {
+        navigator.wakeLock.request("screen").then(function (lock) {
+          v84Wake = lock;
+          lock.addEventListener("release", function () { v84Wake = null; });
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+  function v84WakeOff() {
+    v84WantWake = false;
+    try { if (v84Wake) v84Wake.release(); } catch (e) {}
+    v84Wake = null;
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && v84WantWake) v84WakeOn();
+  });
+
+  // ---- guia de bateria (app Android, uma vez) ----
+  function v84BatteryTip() {
+    if (!FDE_NATIVE || lsGet("fde_v84_battery_tip", "") === "1") return;
+    lsSet("fde_v84_battery_tip", "1");
+    var ov = document.createElement("div");
+    ov.className = "modal-overlay open";
+    ov.id = "v84-battery-modal";
+    ov.innerHTML =
+      '<div class="modal-box modal-box-small"><h2>🔋 Para não parar de gravar</h2>' +
+      '<p class="hint">Alguns celulares fecham apps em segundo plano para economizar bateria — aí a gravação da trilha para.</p>' +
+      '<ol class="v84-tips"><li>Não feche o app pela lista de apps recentes durante a trilha.</li>' +
+      "<li>Em <b>Configurações › Apps › Fora de Estrada › Bateria</b>, escolha <b>Sem restrições</b> (ou “Não otimizar”).</li>" +
+      "<li>Xiaomi, Samsung, Motorola e outros têm ajustes extras: veja o seu modelo em <b>dontkillmyapp.com</b>.</li></ol>" +
+      '<div class="modal-actions"><button type="button" class="modal-btn-primary" id="btn-v84-battery-ok">Entendi</button></div></div>';
+    document.body.appendChild(ov);
+    document.getElementById("btn-v84-battery-ok").addEventListener("click", function () { ov.remove(); });
+  }
+
+  function v84OnNavStart() {
+    v84MoreOpen(false);
+    v84WakeOn();
+    setTimeout(v84BatteryTip, 1500);
+  }
 
   // ===================== v8.3 — lixeira de rotas (30 dias, na conta) =====================
   function v83TrashLink() {
@@ -7749,6 +8025,7 @@ html.fde-native .native-only { display: block; }
     v64OnNavStart(route);
     v66OnNavStart(route);
     startWatchingPosition();
+    v84OnNavStart();
     if (!v59Resuming) v59SaveNow();
   }
 
@@ -7774,6 +8051,7 @@ html.fde-native .native-only { display: block; }
     }, 50);
 
     startWatchingPosition();
+    v84OnNavStart();
     if (!v59Resuming) v59SaveNow();
   }
 
@@ -7797,6 +8075,7 @@ html.fde-native .native-only { display: block; }
   function stopWatchingPosition() {
     if (navWatchId !== null) fdeClearWatch(navWatchId);
     navWatchId = null;
+    v84WakeOff();   // v8.4: navegação parou, a tela pode apagar de novo
   }
 
   // ---- Picture-in-Picture (experimental) ----
@@ -8967,7 +9246,9 @@ html.fde-native .native-only { display: block; }
   }
 
   function refreshVoiceButton() {
+    var v84VoiceLbl = x.btnNavVoice.querySelector(".v84-lbl");
     x.btnNavVoice.innerHTML = voiceEnabled ? '<svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10z"></path><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"></path></svg>' : '<svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10z"></path><path d="M16 9.5l5 5M21 9.5l-5 5"></path></svg>';
+    if (v84VoiceLbl) x.btnNavVoice.appendChild(v84VoiceLbl);
     x.btnNavVoice.classList.toggle("off", !voiceEnabled);
     x.btnNavVoice.title = voiceEnabled ? "Alertas por voz e vibração: ligados" : "Alertas por voz e vibração: desligados";
   }
@@ -18566,11 +18847,19 @@ html.fde-native .native-only { display: block; }
     var cache = null;
     try { cache = JSON.parse(localStorage.getItem(V79_COM_KEY) || "null"); } catch (e) {}
     if (cache && cache.items) {
-      v79DrawCom(cache.items);
+      // v8.4: só redesenha quando o conteúdo muda (antes: apagava e redesenhava a cada 10 s)
+      if (v79.comDrawnAt !== cache.at) {
+        v79.comDrawnAt = cache.at;
+        v79DrawCom(cache.items);
+      }
       var moved = haversineMeters(c.lat, c.lng, cache.lat, cache.lng);
       if (!force && moved < 6000 && Date.now() - cache.at < 86400000) return;
     }
     if (navigator.onLine === false) return;
+    if (!com.user) {   // v8.4: sem conta o servidor recusa — não fica perguntando a cada 10 s
+      if (v79.counts.comunidade !== -1) { v79.counts.comunidade = -1; v79RenderPanel(); }
+      return;
+    }
     v79.busy.com = true;
     comApi("feed.php?action=nearby&lat=" + c.lat.toFixed(4) + "&lng=" + c.lng.toFixed(4) + "&r=20")
       .then(function (d) {
@@ -18581,6 +18870,7 @@ html.fde-native .native-only { display: block; }
       })
       .catch(function (err) {
         if (err && err.status === 401) { v79.counts.comunidade = -1; v79RenderPanel(); }   // sem conta
+        v79.comAt = v79.comAt || c;   // v8.4: erro (sem sinal/servidor) não vira nova tentativa a cada 10 s
       })
       .then(function () { v79.busy.com = false; });
   }
@@ -18796,6 +19086,7 @@ html.fde-native .native-only { display: block; }
     safeInit(initV73Compass, "bússola (v7.3)");
     safeInit(initV78NavLayers, "camadas na navegação (v7.8)");
     safeInit(initV79Adventure, "modo aventura (v7.9)");
+    safeInit(initV84NavMore, "coluna da navegação (v8.4)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
