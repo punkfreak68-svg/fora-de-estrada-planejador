@@ -2594,6 +2594,15 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 .v86-card-menu.hidden { display: none; }
 .v86-card-menu button { min-height: 48px; text-align: left; padding: 10px 14px; }
 .v86-card-menu .delete-btn { margin-top: 6px; }
+/* v8.7: satélite atrás da última rota */
+.dsh-hero-map .v87-casing { display: none; }
+.dsh-hero-map.v87-on { background: #2b3326; }
+.dsh-hero-map.v87-on { height: 130px; }
+@media (min-width: 900px) { .dsh-hero-map.v87-on { height: 210px; } }
+.dsh-hero-map.v87-on .v87-casing { display: inline; }
+.dsh-hero-map.v87-on .v87-contour { display: none; }
+.dsh-hero-map .v87-sat { opacity: 0; transition: opacity .35s; }
+.dsh-hero-map.v87-on .v87-sat { opacity: 1; filter: brightness(1.08) saturate(.9); }
 </style>
 </head>
 <body>
@@ -3608,8 +3617,15 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "8.6";
+  var APP_VERSION = "8.7";
   var CHANGELOG = [
+    {
+      version: "8.7",
+      date: "05/11/2026",
+      changes: [
+        "Tela inicial: o cartão da última rota mostra a foto de satélite do lugar atrás da linha (antes era só um desenho); sem sinal, usa o mapa offline baixado e, se não tiver, volta ao desenho"
+      ]
+    },
     {
       version: "8.6",
       date: "05/11/2026",
@@ -7444,6 +7460,77 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
 
 
+
+  // ===================== v8.7 — satélite no fundo da última rota =====================
+  // O cartão da tela inicial era só um desenho (linha + 2 curvas de enfeite). Agora monta
+  // os blocos de satélite atrás da rota: primeiro os guardados no aparelho (mapa offline),
+  // senão da internet. Se faltar mais da metade, fica o desenho de antes (nada de cinza).
+  var v87HeroXf = null;
+  var v87HeroToken = 0;
+  var v87HeroUrls = [];
+  function v87MercX(lng) { return (lng + 180) / 360 * 256; }
+  function v87MercY(lat) {
+    var r = Math.max(-85, Math.min(85, lat)) * Math.PI / 180;
+    return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * 256;
+  }
+  function v87HeroSatellite(svg) {
+    var xf = v87HeroXf;
+    var token = ++v87HeroToken;
+    v87HeroUrls.forEach(function (u) { try { URL.revokeObjectURL(u); } catch (e) {} });
+    v87HeroUrls = [];
+    if (!svg || !xf) return;
+    if (navigator.webdriver && !window.__fdeHeroSat) return; // testes antigos: sem rede externa
+    // ~0,6 unidade do desenho por pixel do bloco: nítido sem baixar demais
+    var z = Math.round(Math.log(xf.s / 0.6) / Math.LN2);
+    z = Math.max(3, Math.min(17, z));
+    var n = Math.pow(2, z), t = 256 / n; // tamanho do bloco em unidades Mercator (z0)
+    var size = t * xf.s;                // tamanho do bloco no desenho
+    // cobre o desenho com folga dos lados (a caixa da tela é mais larga que 600x170)
+    var X0 = (-80 - xf.ox) / xf.s, X1 = (680 - xf.ox) / xf.s, Y0 = (-30 - xf.oy) / xf.s, Y1 = (200 - xf.oy) / xf.s;
+    var tx0 = Math.floor(X0 / t), tx1 = Math.floor(X1 / t), ty0 = Math.max(0, Math.floor(Y0 / t)), ty1 = Math.min(n - 1, Math.floor(Y1 / t));
+    var jobs = [];
+    for (var ty = ty0; ty <= ty1; ty++) for (var tx = tx0; tx <= tx1; tx++) jobs.push([tx, ty]);
+    if (!jobs.length || jobs.length > 40) return;
+    var NS = "http://www.w3.org/2000/svg";
+    var g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "v87-sat");
+    var ok = 0, done = 0;
+    function finish() {
+      if (token !== v87HeroToken || !svg.isConnected) return;
+      if (ok < jobs.length / 2) { if (g.parentNode) g.parentNode.removeChild(g); return; }
+      svg.classList.add("v87-on");
+    }
+    svg.insertBefore(g, svg.firstChild);
+    jobs.forEach(function (j) {
+      var x = ((j[0] % n) + n) % n, y = j[1];
+      var key = z + "/" + x + "/" + y;
+      var put = function (href) {
+        var im = new Image();
+        im.onload = function () {
+          if (token !== v87HeroToken) return;
+          var el = document.createElementNS(NS, "image");
+          el.setAttribute("x", (xf.ox + j[0] * size).toFixed(2));
+          el.setAttribute("y", (xf.oy + j[1] * size).toFixed(2));
+          el.setAttribute("width", (size + 0.6).toFixed(2));
+          el.setAttribute("height", (size + 0.6).toFixed(2));
+          el.setAttribute("preserveAspectRatio", "none");
+          el.setAttribute("href", href);
+          g.appendChild(el);
+          ok++; if (++done === jobs.length) finish();
+        };
+        im.onerror = function () { if (++done === jobs.length) finish(); };
+        im.src = href;
+      };
+      getTile(key).then(function (blob) {
+        if (blob) { var u = URL.createObjectURL(blob); v87HeroUrls.push(u); put(u); }
+        else if (navigator.onLine !== false) put(TILE_URL_TEMPLATE.replace("{z}", z).replace("{x}", x).replace("{y}", y));
+        else if (++done === jobs.length) finish();
+      }).catch(function () {
+        if (navigator.onLine !== false) put(TILE_URL_TEMPLATE.replace("{z}", z).replace("{x}", x).replace("{y}", y));
+        else if (++done === jobs.length) finish();
+      });
+    });
+  }
 
   // ===================== v8.6 — avisos do próprio app =====================
   // Substitui confirm()/prompt() do navegador (diálogo branco, letra pequena, "localhost diz…"
@@ -15621,6 +15708,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     });
     var contour =
       '<path d="M-20 50 C150 15 300 85 450 50 S600 20 640 35M-20 115 C150 80 300 150 450 115 S600 85 640 100" fill="none" stroke="var(--map-line)" stroke-width="1.5"></path>';
+    v87HeroXf = null;
     if (pts.length < 2) return contour;
     var step = Math.max(1, Math.floor(pts.length / 240));
     var sample = [];
@@ -15636,14 +15724,16 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       minLng = Math.min(minLng, p.lng);
       maxLng = Math.max(maxLng, p.lng);
     });
-    var kx = Math.cos(((minLat + maxLat) / 2) * Math.PI / 180);
-    var spanX = Math.max((maxLng - minLng) * kx, 1e-6),
-      spanY = Math.max(maxLat - minLat, 1e-6);
+    // v8.7: projeção Mercator (a mesma dos blocos de mapa), para o satélite casar com a linha
+    var mx0 = v87MercX(minLng), mx1 = v87MercX(maxLng), my0 = v87MercY(maxLat), my1 = v87MercY(minLat);
+    var spanX = Math.max(mx1 - mx0, 1e-9),
+      spanY = Math.max(my1 - my0, 1e-9);
     var scale = Math.min((W - 2 * PAD) / spanX, (H - 2 * PAD) / spanY);
     var offX = (W - spanX * scale) / 2,
       offY = (H - spanY * scale) / 2;
+    v87HeroXf = { s: scale, ox: offX - mx0 * scale, oy: offY - my0 * scale };
     function xy(p) {
-      return [offX + (p.lng - minLng) * kx * scale, offY + (maxLat - p.lat) * scale];
+      return [offX + (v87MercX(p.lng) - mx0) * scale, offY + (v87MercY(p.lat) - my0) * scale];
     }
     var d = sample
       .map(function (p, idx) {
@@ -15654,7 +15744,8 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     var a = xy(sample[0]),
       b = xy(sample[sample.length - 1]);
     return (
-      contour +
+      '<g class="v87-contour">' + contour + "</g>" +
+      '<path class="v87-casing" d="' + d + '" fill="none" stroke="#fff" stroke-opacity="0.9" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"></path>' +
       '<path d="' + d + '" fill="none" stroke="var(--acc)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>' +
       '<circle cx="' + a[0].toFixed(1) + '" cy="' + a[1].toFixed(1) + '" r="8" fill="var(--ok)" stroke="var(--surf)" stroke-width="3"></circle>' +
       '<circle cx="' + b[0].toFixed(1) + '" cy="' + b[1].toFixed(1) + '" r="8" fill="var(--danger)" stroke="var(--surf)" stroke-width="3"></circle>'
@@ -15743,6 +15834,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       '<button type="button" class="dsh-go" id="btn-dash-hero-go"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"></path></svg>' + (v62NavRunning() ? "Voltar à navegação" : "Iniciar navegação") + "</button>" +
       '<button type="button" class="dsh-other" id="btn-dash-hero-other">Outra rota</button>' +
       "</div>";
+    v87HeroSatellite(hero.querySelector(".dsh-hero-map"));
     document.getElementById("btn-dash-hero-go").addEventListener("click", function () {
       if (v62NavRunning()) { v62GoToActiveNav(); return; }   // v8.5: não oferece começar de novo
       openNavConfirm(r, "dashboard");
