@@ -34,3 +34,6 @@ uploads/posts/
 *.jks
 *.keystore
 *.p12
+
+# atalho local do git push (v8.4)
+Enviar Fora de Estrada.bat
