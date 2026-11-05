@@ -91,7 +91,7 @@ details p { margin: 6px 0 0; color: var(--ink2); }
       <li>Abra o arquivo baixado. Se o Android pedir, permita <span class="k">Instalar apps desconhecidos</span> para o Chrome (ou para o app de Arquivos).</li>
       <li>Na primeira navegação, permita a <b>localização</b> e as <b>notificações</b>.</li>
     </ol>
-    <div class="tip"><b>Atualizar:</b> as telas e funções novas chegam sozinhas, porque o app abre o site. Só quando avisarmos de uma versão nova do app, baixe pelo mesmo link e instale por cima — suas rotas continuam lá.<br><b>No app</b>, entre com usuário e senha (o botão do Google só funciona no site). Criou a conta pelo Google? Defina uma senha no site em Comunidade › Perfil.</div>
+    <div class="tip"><b>Atualizar:</b> as telas e funções novas chegam sozinhas, porque o app abre o site. Só quando avisarmos de uma versão nova do app, baixe pelo mesmo link e instale por cima — suas rotas continuam lá.<br><b>Instalou o app antes de 04/11/2026?</b> Uma única vez, desinstale o antigo e instale o novo (o app passou a ter uma assinatura nova). Com conta, as rotas voltam sozinhas; sem conta, exporte as rotas em GPX antes.<br><b>No app</b>, entre com usuário e senha (o botão do Google só funciona no site). Criou a conta pelo Google? Defina uma senha no site em Comunidade › Perfil.</div>
     <h3>Android (Chrome, sem instalar APK)</h3>
     <ol>
       <li>Abra <b>foradeestrada.sansoliveira.com.br</b> no Chrome.</li>
@@ -110,57 +110,73 @@ details p { margin: 6px 0 0; color: var(--ink2); }
   <section id="planejar">
     <h2><span class="n">2</span>Planejar uma rota</h2>
     <ol>
-      <li>Na tela inicial, toque em <span class="k">Planejar Nova Rota</span>.</li>
-      <li><b>Toque no mapa</b> para marcar os pontos da trilha, um depois do outro. O app liga os pontos e mostra a distância total.</li>
+      <li>Na tela inicial, toque em <span class="k">Planejar Nova Rota</span>. O mapa mostra a dica <b>"Toque no mapa onde a trilha começa"</b>.</li>
+      <li><b>Toque no mapa</b> para marcar os pontos da trilha, um depois do outro. O app liga os pontos e mostra a <b>distância</b> no alto do mapa, junto com o botão <span class="k">💾 Salvar</span>.</li>
       <li>Se já tiver as coordenadas, abra o painel <span class="k">☰</span> e use <b>Adicionar ponto manual</b>. Aceita latitude e longitude, graus/minutos/segundos (ex.: 22°55'47.7"S) e o par copiado do Google Maps.</li>
       <li>Dê um nome à rota no campo do topo e toque em <span class="k">💾 Salvar</span>. Você pode guardar em uma <b>pasta</b> (ex.: "Trilhas da região").</li>
     </ol>
+    <h3>A barra do planejamento</h3>
+    <ul>
+      <li><span class="k">💾 Salvar</span> · <span class="k">📥 Importar</span> · <span class="k">🧭 Navegar</span> (vai direto para a rota que está na tela) · <span class="k">⋯ Mais</span></li>
+      <li>Em <span class="k">⋯ Mais</span>: <b>Exportar GPX</b>, <b>Compartilhar</b> (link, QR code ou GPX), <b>Nova rota</b> e <b>Apagar os pontos</b>.</li>
+    </ul>
     <h3>Também dá para</h3>
     <ul>
-      <li><b>Importar</b> um arquivo <b>.gpx</b> ou <b>.kml</b> (de outro app ou de um amigo) com <span class="k">📥 Importar</span>.</li>
-      <li><b>Exportar</b> em .gpx ou <b>compartilhar</b> por link e QR code com <span class="k">📤 Compartilhar</span>.</li>
+      <li><b>Importar</b> um arquivo <b>.gpx</b> ou <b>.kml</b> (de outro app ou de um amigo) com <span class="k">📥 Importar</span>. A rota <b>já fica salva</b> e dá para navegar na hora. Trilha com milhares de pontos (relógio, Wikiloc): o app oferece <b>simplificar</b> — o traçado muda menos de 3 m e fica bem mais leve.</li>
+      <li>Rota muito grande (mais de 500 pontos) abre mostrando <b>só a linha</b>. Para editar ponto a ponto, toque no botão de pinos do mapa.</li>
       <li>Marcar <b>locais com foto e anotação</b> (atoleiro, porteira, perigo, água) em <b>Marcações</b>.</li>
       <li>Ver a <b>altimetria</b> (subidas e descidas) e a <b>previsão do tempo</b> no começo, meio e fim da rota.</li>
       <li>Ligar <b>restaurantes, lazer e postos</b> no mapa. Tocando no ponto, aparecem os botões <b>Abrir no Google Maps</b> e <b>Como chegar</b>.</li>
     </ul>
+    <h3>Rotas Salvas</h3>
+    <p>Cada rota tem <span class="k">▶ Navegar</span>, <span class="k">✎ Editar</span> (abre no mapa) e <span class="k">⋯</span> com <b>Compartilhar</b>, <b>Publicar na Comunidade</b> e <b>Excluir</b>. Enquanto o mapa offline não foi baixado, aparece também <span class="k">⬇ Baixar mapa para usar sem sinal</span>.</p>
   </section>
 
   <section id="navegar">
     <h2><span class="n">3</span>Navegar</h2>
     <ol>
-      <li>Na tela inicial, toque em <span class="k">▶ Iniciar navegação</span> (abre a última rota) ou em <span class="k">Navegar</span> para escolher outra.</li>
+      <li>Na tela inicial, toque em <span class="k">▶ Iniciar navegação</span> (abre a última rota) ou em <span class="k">Navegar</span> para escolher outra. Com uma navegação em andamento, o botão vira <span class="k">▶ Voltar à navegação</span>.</li>
       <li>Confirme. O mapa passa a seguir a sua posição pelo GPS, com a rota planejada em laranja.</li>
-      <li>No topo aparece <b>No traçado</b> enquanto você está na rota. Se sair dela, o aviso fica vermelho e o app <b>avisa por voz e vibração</b>. A distância que conta como "fora" é ajustada no botão <span class="k">Limite: 50m</span>.</li>
+      <li>No topo aparece <b>No caminho</b> enquanto você está na rota. Se sair dela, o aviso fica vermelho e o app <b>avisa por voz e vibração</b>. A distância que conta como "fora" é ajustada no botão <span class="k">Avisar a 50 m ✎</span>.</li>
       <li>Embaixo ficam a <b>distância que falta</b>, a <b>velocidade</b> e o <b>hodômetro parcial</b> (toque duas vezes para zerar).</li>
       <li>No fim, toque em <span class="k">Encerrar Navegação</span> para ver o resumo do trajeto.</li>
     </ol>
     <h3>Botões do lado direito</h3>
+    <p>São 4, com o nome embaixo de cada um:</p>
     <ul>
-      <li><b>Voz</b>: liga e desliga os avisos falados.</li>
-      <li><b>🆘 Boia vermelha (estou perdido)</b>: <b>voltar pelo caminho que fiz</b> e <b>ir até um ponto</b> (seta e distância, funcionam sem internet), <b>estrada mais próxima</b> (asfalto e terra, precisa de internet) <b>abrir no Google Maps</b> na sua posição e <b>pedir ajuda</b> (manda a posição por SMS/WhatsApp e liga 193). Dica: antes do passeio, baixe a região no Google Maps (foto do perfil › Mapas off-line) — assim ele também funciona sem sinal.</li>
-      <li><b>Casinha (menu)</b>: vai para o menu <b>sem parar a navegação</b>. Uma faixa verde embaixo mostra que o GPS continua gravando; toque nela para voltar.</li>
-      <li><b>Marcar local</b>: salva o ponto onde você está, com foto e anotação. Para marcar um lugar longe de você (um atoleiro que você viu adiante, por exemplo), <b>segure o dedo no mapa</b> em cima do lugar.</li>
-      <li><b>Enviar posição</b>: manda a sua localização por WhatsApp ou SMS. O SMS funciona sem internet.</li>
-      <li><b>Estatísticas</b>: tempo, distância, velocidade média e máxima.</li>
-      <li><b>Bandeira</b>: liga o Modo Rally (veja abaixo).</li>
-      <li><b>Sol/Lua</b>: troca entre Auto, Dia e Noite.</li>
+      <li><b>SOS (estou perdido)</b>: <b>voltar pelo caminho que fiz</b> e <b>ir até um ponto</b> (seta e distância, funcionam sem internet), <b>estrada mais próxima</b> (asfalto e terra; as estradas em volta da rota ficam guardadas para funcionar sem sinal), <b>abrir no Google Maps</b> na sua posição e <b>pedir ajuda</b> (manda a posição por SMS/WhatsApp e liga 193).</li>
+      <li><b>Mapa</b>: troca a camada — satélite ou topográfico (com curvas de nível). Mostra "✔ baixado para esta rota" no que já está no aparelho.</li>
+      <li><b>Marcar</b>: salva o ponto onde você está, com foto e anotação. Para marcar um lugar longe de você (um atoleiro que você viu adiante, por exemplo), <b>segure o dedo no mapa</b> em cima do lugar.</li>
+      <li><b>Mais</b>: abre as outras opções, cada uma com o nome escrito:
+        <ul>
+          <li><b>Trilhas da região</b>: mostra no mapa suas rotas, seus passeios, trilhas da Comunidade e estradas de terra perto de você.</li>
+          <li><b>Alerta por voz</b>: liga e desliga os avisos falados.</li>
+          <li><b>Enviar posição</b>: manda a sua localização por WhatsApp ou SMS. O SMS funciona sem internet.</li>
+          <li><b>Estatísticas</b>: tempo, distância, velocidade média e máxima.</li>
+          <li><b>Modo Rally</b>: roadbook, CAP e hodômetro na tela (veja abaixo).</li>
+          <li><b>Ir ao menu</b>: vai para a tela inicial <b>sem parar a navegação</b>. Uma faixa verde embaixo mostra que o GPS continua gravando; toque nela para voltar.</li>
+          <li><b>Dia / noite</b>: troca entre Auto, Dia e Noite.</li>
+        </ul>
+      </li>
     </ul>
+    <div class="tip">Em tela pequena, com o painel do Rally aberto, a coluna fica só com <b>SOS</b> e <b>Mais</b> — "Trocar o mapa" e "Marcar local" passam para dentro do Mais. Assim nenhum botão fica escondido atrás do painel.</div>
     <h3>Saindo de casa (asfalto até a trilha)</h3>
     <p>Pode iniciar a navegação ainda em casa. Até chegar na trilha o app mostra só a distância, sem alarme de "fora da rota", e tem o botão <span class="k">Abrir no Waze</span> para ir pelo asfalto até a largada. Quando você entra na trilha, ele avisa <b>"Chegou na trilha"</b> e começa a gravar o passeio.</p>
-    <h3>Navegar Livre (sem rota)</h3>
-    <p>Na tela de escolher rota, <span class="k">🧭 Navegar Livre</span> grava por onde você passa. No fim, <span class="k">💾 Salvar Trajeto</span> transforma o caminho numa rota normal, que dá para editar e compartilhar.</p>
+    <h3>Navegar Livre e Modo Aventura (sem rota)</h3>
+    <p>Na tela de escolher rota, <span class="k">🧭 Navegar Livre</span> grava por onde você passa. O <b>Modo Aventura</b> (no painel) é o mesmo Navegar Livre, já com as <b>trilhas da região</b> ligadas no mapa. No fim, <span class="k">💾 Salvar Trajeto</span> transforma o caminho numa rota normal, que dá para editar e compartilhar.</p>
     <div class="tip"><b>Modo dia e noite:</b> no automático, o app fica claro de dia (fácil de ler no sol) e escuro à noite (não ofusca), trocando no nascer e no pôr do sol do lugar onde você está.</div>
   </section>
 
   <section id="offline">
     <h2><span class="n">4</span>Sem sinal (offline)</h2>
-    <p>O GPS do celular funciona sem internet. O que precisa de preparo é o <b>mapa de fundo</b>.</p>
+    <p>O GPS do celular funciona sem internet. O que precisa de preparo é o <b>mapa de fundo</b> — e o melhor é fazer isso <b>em casa, no Wi-Fi</b>.</p>
     <ol>
-      <li><b>Antes de sair, ainda com internet</b>, abra a rota em <span class="k">Navegar</span> e confirme. O app baixa o mapa da região da rota.</li>
-      <li>Tudo o que você já viu no mapa fica guardado no aparelho. A tela inicial mostra quantos <b>blocos de mapa offline</b> você tem.</li>
-      <li>Na trilha, a navegação, os alertas, o Modo Rally e a Tomada de Tempo funcionam normalmente sem sinal.</li>
+      <li>Em <b>Rotas Salvas</b>, toque em <span class="k">⬇ Baixar mapa para usar sem sinal</span> no cartão da rota. O app baixa o <b>satélite e o topográfico</b> em volta da rota (e dos caminhos alternativos). Quando termina, o cartão mostra <b>✔ mapa offline</b>.</li>
+      <li>Se o sinal estiver fraco, o app tenta de novo e diz quanto faltou (ex.: "180 de 240"). O cartão fica <b>⚠ incompleto</b> até você baixar de novo.</li>
+      <li>Também dá para baixar na hora de navegar: a confirmação avisa se o mapa daquela rota já está no aparelho.</li>
+      <li>Na trilha, a navegação, os alertas, o Modo Rally e a Tomada de Tempo funcionam normalmente sem sinal. Saiu do corredor baixado? O app amplia o mapa de zoom menor que já está guardado, para o fundo não ficar cinza.</li>
     </ol>
-    <div class="tip">O mapa offline usa o satélite <b>Esri</b>. O satélite Google só funciona com internet, porque as regras do Google não permitem guardar o mapa no aparelho.</div>
+    <div class="tip">O satélite <b>Google</b> só funciona com internet, porque as regras do Google não permitem guardar o mapa no aparelho. Sem sinal, o app usa sozinho o mapa offline (Esri ou topográfico).</div>
   </section>
 
   <section id="rally">
@@ -210,13 +226,16 @@ details p { margin: 6px 0 0; color: var(--ink2); }
     <h2>Dúvidas comuns</h2>
     <details><summary>Precisa pagar alguma coisa?</summary><p>Não. O app é gratuito.</p></details>
     <details><summary>O app gasta muita bateria?</summary><p>O GPS ligado o tempo todo gasta bateria em qualquer app de navegação. Na trilha, use o carregador do carro. No modo noite a tela escura também ajuda a economizar.</p></details>
-    <details><summary>O mapa ficou cinza na trilha. E agora?</summary><p>Aquela região não foi baixada antes. O GPS e a rota continuam funcionando (a linha laranja e a sua posição aparecem). Da próxima vez, abra a rota em Navegar com internet antes de sair.</p></details>
+    <details><summary>O mapa ficou cinza na trilha. E agora?</summary><p>Aquela região não foi baixada antes. O GPS e a rota continuam funcionando (a linha laranja e a sua posição aparecem). Da próxima vez, use <b>⬇ Baixar mapa para usar sem sinal</b> no cartão da rota, em casa, e confira o selo <b>✔ mapa offline</b>.</p></details>
     <details><summary>A tela apaga sozinha durante a navegação.</summary><p>O app pede para a tela ficar acesa enquanto navega. Se o seu celular estiver em modo de economia de bateria, ele pode ignorar o pedido. Desligue a economia durante a trilha.</p></details>
     <details><summary>Desviei de um atoleiro. Como guardo o desvio?</summary><p>No fim da navegação aparece <b>"Você saiu da rota em N lugares"</b> (também em Rotas Salvas › Passeios feitos › <b>↪ Desvios</b>). Para cada desvio, escolha <b>🟤 Atoleiro: guardar como caminho molhado</b>. A rota passa a ter os dois caminhos: o trecho principal (seco) com o atoleiro marcado e o desvio (molhado) em roxo. Na próxima vez, antes de navegar, o app pergunta <b>☀️ Seco ou 🌧️ Molhado</b> e sugere pela chuva dos últimos dias. Perto do atoleiro, ele avisa por voz.</p></details>
     <details><summary>Onde fica o passeio que eu fiz?</summary><p>Toda navegação fica guardada sozinha em <b>Rotas Salvas › 🕘 Passeios feitos</b>, com o caminho que você fez de verdade, o tempo e a velocidade. Dali dá para <b>salvar como rota</b> (para repetir ou compartilhar) ou exportar o GPX. No fim da navegação também aparece o botão <span class="k">💾 Salvar como rota</span>. O histórico fica no aparelho.</p></details>
     <details><summary>Saí do app (ou a tela apagou) e o trajeto parou de marcar.</summary><p>Pelo navegador, o Android pausa o GPS de sites em segundo plano. Use o <a href="#instalar">app Android (APK)</a>: nele o GPS continua marcando. Se mesmo assim o celular fechar o app, ao abrir de novo aparece <b>"Continuar a navegação?"</b> e ela volta de onde parou. Em alguns celulares (Xiaomi, Samsung, Motorola) vale também tirar o Fora de Estrada da economia de bateria: Configurações › Apps › Fora de Estrada › Bateria › <b>Sem restrições</b>.</p></details>
     <details><summary>Não recebi o e-mail de confirmação.</summary><p>Olhe na caixa de spam ou lixo eletrônico. O remetente é foradeestrada@sansoliveira.com.br.</p></details>
-    <details><summary>Troquei de celular. Perdi minhas rotas?</summary><p>Se você tinha conta, é só entrar com ela no celular novo e as rotas voltam. Sem conta, as rotas ficam só no aparelho antigo. Exporte em .gpx ou ligue o backup no Google Drive antes de trocar.</p></details>
+    <details><summary>Apaguei uma rota sem querer. Dá para recuperar?</summary><p>Com a conta conectada, sim: a rota fica <b>30 dias na lixeira</b>. Vá em <b>Rotas Salvas</b> e toque em <b>🗑 Rotas apagadas</b>, no fim da lista. Sem conta, a exclusão é definitiva.</p></details>
+    <details><summary>O celular fechou o app no meio da trilha. Perdi o trajeto?</summary><p>Não. O app grava o caminho no aparelho a cada poucos segundos. Ao abrir de novo, aparece "Continuar a navegação?". Se passar de 24 h, o trajeto vira um <b>passeio recuperado</b> em Rotas Salvas › Passeios feitos.</p></details>
+    <details><summary>O app diz que está sem permissão de localização.</summary><p>Sem ela não dá para navegar. <b>Android:</b> toque no cadeado ao lado do endereço (ou Configurações › Apps › Fora de Estrada) › Permissões › Localização › Permitir. <b>iPhone:</b> Ajustes › Privacidade › Serviços de Localização › Safari (ou o app) › Ao Usar o App.</p></details>
+    <details><summary>Troquei de celular. Perdi minhas rotas?</summary><p>Se você tinha conta, é só entrar com ela no celular novo e as rotas voltam (os passeios feitos ficam só no aparelho por enquanto — exporte em GPX os que quiser guardar). Sem conta, as rotas ficam só no aparelho antigo. Exporte em .gpx ou ligue o backup no Google Drive antes de trocar.</p></details>
     <details><summary>O app está com a versão antiga.</summary><p>Feche e abra o app de novo (ou recarregue a página). A versão aparece no rodapé da tela inicial.</p></details>
     <details><summary>Já uso Wikiloc, OsmAnd ou Gaia GPS. Vale a pena?</summary><p>Dá para usar junto: importe o GPX da trilha e navegue com os recursos de off-road. Veja a <a href="comparar.html">comparação entre os apps</a>.</p></details>
     <details><summary>Encontrei um erro ou tenho uma ideia.</summary><p>Escreva para <a href="mailto:foradeestrada@sansoliveira.com.br">foradeestrada@sansoliveira.com.br</a>. Um print da tela ajuda muito.</p></details>

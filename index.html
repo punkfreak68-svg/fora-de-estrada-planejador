@@ -2578,6 +2578,22 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 .v85-gps-card { position: absolute; left: 10px; right: 10px; top: 76px; z-index: 1150; padding: 14px; border-radius: 16px; background: var(--surf); color: var(--ink); border: 2px solid #d6362a; box-shadow: var(--shadow); font: 15px/1.4 system-ui, sans-serif; }
 .v85-gps-card p { margin: 6px 0; }
 .v85-gps-card button { width: 100%; min-height: 48px; margin-top: 8px; }
+
+/* ===================== v8.6 ===================== */
+.v86-dialog { z-index: 200000 !important; }
+.v86-dialog .v86-msg { white-space: pre-line; font-size: 1.02rem; line-height: 1.45; margin: 4px 0 12px; }
+.v86-dialog .v86-input { width: 100%; box-sizing: border-box; min-height: 46px; margin-bottom: 8px; font-size: 1rem; }
+.v86-dialog .modal-actions button { min-height: 48px; flex: 1 1 0; }
+.v86-dialog .modal-btn-primary.v86-danger { background: #c62828 !important; border-color: #c62828 !important; color: #fff !important; }
+.saved-screen-card-buttons { display: flex; gap: 8px; }
+.saved-screen-card-buttons .nav-btn { flex: 2 1 0; min-height: 48px; font-size: 1rem; }
+.saved-screen-card-buttons .load-btn { flex: 1 1 0; min-height: 48px; }
+.saved-screen-card-buttons .v86-card-more { flex: 0 0 56px; font-size: 1.4rem; line-height: 1; }
+.saved-screen-card .v86-off-row { display: block; width: 100%; margin-top: 8px; min-height: 44px; }
+.v86-card-menu { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; padding: 6px; border-radius: 12px; border: 1px solid var(--line); background: var(--surf); }
+.v86-card-menu.hidden { display: none; }
+.v86-card-menu button { min-height: 48px; text-align: left; padding: 10px 14px; }
+.v86-card-menu .delete-btn { margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -3592,8 +3608,17 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "8.5";
+  var APP_VERSION = "8.6";
   var CHANGELOG = [
+    {
+      version: "8.6",
+      date: "05/11/2026",
+      changes: [
+        "Avisos e perguntas com o visual do app (antes: caixinha branca do navegador, com letra pequena e \"localhost diz…\"); botões com o nome da ação (Excluir, Simplificar, Juntar…) e Excluir em vermelho",
+        "Rotas Salvas mais limpas: ▶ Navegar, ✎ Editar e ⋯ (Compartilhar, Publicar, Excluir); o botão de baixar o mapa offline aparece só enquanto falta baixar",
+        "Página de Ajuda atualizada: botões novos da navegação, baixar mapa offline, lixeira, trajeto que não se perde e GPS sem permissão"
+      ]
+    },
     {
       version: "8.5",
       date: "05/11/2026",
@@ -5035,11 +5060,11 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         return p.role === role;
       });
       if (existingIdx !== -1) {
-        if (window.confirm('Já existe um ponto marcado como "' + roleLabel + '". Substituir pelo novo ponto?')) {
-          delete state.points[existingIdx].role;
-        } else {
-          role = null;
-        }
+        fdeConfirm('Já existe um ponto marcado como "' + roleLabel + '". Usar este novo ponto como ' + roleLabel + '?', { ok: "Substituir", cancel: "Manter o atual" }).then(function (ok) {
+          if (ok) delete state.points[existingIdx].role;
+          addPoint(lat, lng, ok ? role : null);
+        });
+        return;
       }
       if (role) point.role = role;
     }
@@ -6012,7 +6037,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       var renameBtn = document.createElement("button");
       renameBtn.textContent = "✎ Renomear";
       renameBtn.addEventListener("click", function () {
-        var newName = window.prompt('Renomear pasta "' + folder + '" para:', folder);
+        return fdePrompt('Novo nome da pasta "' + folder + '":', folder, { ok: "Renomear" }).then(function (newName) {
         if (newName == null) return;
         newName = newName.trim();
         if (!newName || newName === folder) return;
@@ -6029,12 +6054,13 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         refreshSavedRoutesUI();
         showToast('Pasta renomeada para "' + newName + '".');
       });
+});
       buttons.appendChild(renameBtn);
 
       var deleteBtn = document.createElement("button");
       deleteBtn.textContent = "🗑 Excluir";
       deleteBtn.addEventListener("click", function () {
-        if (!window.confirm('Excluir a pasta "' + folder + '"? As rotas dentro dela não serão apagadas, só ficarão sem pasta.')) return;
+        var v86Go1 = function () {
         var all = loadSavedRoutes();
         all.forEach(function (r) {
           if ((r.folder || "").trim() === folder) r.folder = "";
@@ -6047,7 +6073,9 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         }
         refreshSavedRoutesUI();
         showToast('Pasta "' + folder + '" excluída.');
-      });
+      };
+    return fdeConfirm('Excluir a pasta "' + folder + '"? As rotas dentro dela não serão apagadas, só ficarão sem pasta.').then(function (ok) { if (ok) return v86Go1(); });
+});
       buttons.appendChild(deleteBtn);
 
       li.appendChild(buttons);
@@ -6060,14 +6088,20 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       showToast("Não há pontos para limpar.");
       return;
     }
-    if (!window.confirm("Tem certeza que deseja limpar todos os pontos da rota atual?")) return;
+    var v86Go2 = function () {
     clearPointsOnly();
     showToast("Pontos removidos.");
-  });
+  };
+    return fdeConfirm("Apagar todos os pontos da rota que está no mapa?", { ok: "Apagar pontos", danger: true }).then(function (ok) { if (ok) return v86Go2(); });
+});
 
   el.btnNew.addEventListener("click", function () {
-    if (state.points.length > 0) {
-      if (!window.confirm("Começar uma nova rota? Os pontos não salvos serão perdidos.")) return;
+    if (state.points.length > 0 && !el.btnNew._v86ok) {
+      return fdeConfirm("Começar uma nova rota? O que não foi salvo da rota atual se perde.", { ok: "Começar nova" }).then(function (ok) {
+        if (!ok) return;
+        el.btnNew._v86ok = true;
+        try { el.btnNew.click(); } finally { el.btnNew._v86ok = false; }
+      });
     }
     clearRoute();
     try {
@@ -6358,9 +6392,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     var count = state.points.filter(function (p) {
       return p.blockId === block.id;
     }).length;
-    if (!window.confirm('Excluir o bloco "' + block.label + '" e seus ' + count + " pontos? Os outros blocos não são afetados.")) {
-      return;
-    }
+    var v86Go3 = function () {
 
     var keptPoints = [];
     var keptMarkers = [];
@@ -6383,7 +6415,9 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     renderBlockList();
     saveDraft();
     showToast('Bloco "' + block.label + '" excluído.');
-  }
+  };
+    return fdeConfirm('Excluir o bloco "' + block.label + '" e seus ' + count + " pontos? Os outros blocos não são afetados.").then(function (ok) { if (ok) return v86Go3(); });
+}
 
   // Rebuilds state.points/markers so blocks sit contiguously in state.blocks
   // order (each block's own internal point order is preserved). Points with
@@ -6524,10 +6558,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
   }
 
   function applyImportedRoute(points, suggestedName) {
-    if (state.points.length > 0) {
-      if (!window.confirm("Importar essa rota vai substituir a rota atual não salva. Continuar?")) return;
-    }
-    clearRoute();
+    clearRoute();   // v8.6: quem chama já perguntou ("Trocar pela nova" / "Abrir a rota recebida")
     v84BigRoute(points.length);
     points.forEach(function (p) {
       state.points.push({ lat: p.lat, lng: p.lng });
@@ -6603,12 +6634,9 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
             saveDraft();
           }
         } else {
-          // v8.4: trilha com muitos pontos (GPX de relógio/Wikiloc): oferece simplificar
-          if (points.length > 1500) {
-            var simp = simplifyRoute(points, 3);
-            if (simp.length < points.length * 0.8 &&
-                window.confirm("Esta trilha tem " + points.length + " pontos. Simplificar para " + simp.length + " pontos (recomendado)? O traçado muda menos de 3 m e o app fica bem mais leve.")) points = simp;
-          }
+          // v8.4/v8.6: trilha com muitos pontos (GPX de relógio/Wikiloc): oferece simplificar
+          var v86DoReplace = function (points) {
+            try {
           var before = state.points.length;
           applyImportedRoute(points, suggestedName);
           if (state.points.length === points.length && (before === 0 || state.points[0].lat === points[0].lat)) {
@@ -6631,7 +6659,19 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
                 (nAlts ? ", " + nAlts + (nAlts > 1 ? " desvios" : " desvio") : "") + "). Toque em 🧭 Navegar para ir.");
             }
           }
-        }
+                    } catch (e) {
+              showToast("Erro ao importar o arquivo. Verifique se é um .gpx ou .kml válido.");
+            }
+          };
+          var v86Simp = points.length > 1500 ? simplifyRoute(points, 3) : null;
+          if (v86Simp && v86Simp.length < points.length * 0.8) {
+            var v86All = points;
+            fdeConfirm("Esta trilha tem " + points.length + " pontos. Simplificar para " + v86Simp.length + " pontos (recomendado)? O traçado muda menos de 3 m e o app fica bem mais leve.", { ok: "Simplificar", cancel: "Manter todos" })
+              .then(function (ok) { v86DoReplace(ok ? v86Simp : v86All); });
+          } else {
+            v86DoReplace(points);
+          }
+}
       } catch (e) {
         showToast("Erro ao importar o arquivo. Verifique se é um .gpx ou .kml válido.");
       }
@@ -7126,7 +7166,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
         var navBtn = document.createElement("button");
         navBtn.className = "nav-btn";
-        navBtn.textContent = "Iniciar Navegação";
+        navBtn.textContent = "▶ Navegar";
         navBtn.addEventListener("click", function () {
           showScreen("navigation");
           showNavSubview("picker");
@@ -7136,7 +7176,8 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
         var openBtn = document.createElement("button");
         openBtn.className = "load-btn";
-        openBtn.textContent = "Abrir";
+        openBtn.textContent = "✎ Editar";
+        openBtn.title = "Abrir no mapa do planejamento para editar";
         openBtn.addEventListener("click", function () {
           goToPlanningScreen(function () {
             openSavedRoute(route);
@@ -7146,7 +7187,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
         var offBtn = document.createElement("button");
         offBtn.className = "load-btn v82-off-btn";
-        offBtn.textContent = v82IsReady(route) ? "✔ Offline" : "⬇ Baixar para offline";
+        offBtn.textContent = v82IsReady(route) ? "🔄 Baixar o mapa offline de novo" : "⬇ Baixar mapa para usar sem sinal";
         offBtn.title = "Baixa o mapa (satélite + topográfico) em volta da rota para usar sem sinal";
         offBtn.addEventListener("click", function () {
           v82DownloadRoute(route);
@@ -7155,7 +7196,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
         var shareBtn = document.createElement("button");
         shareBtn.className = "load-btn";
-        shareBtn.textContent = "Compartilhar";
+        shareBtn.textContent = "🔗 Compartilhar";
         shareBtn.addEventListener("click", function () {
           openShareModal({ id: route.id, name: route.name, points: route.points, meta: route.meta, waypoints: route.waypoints });
         });
@@ -7163,7 +7204,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
         var pubBtn = document.createElement("button");
         pubBtn.className = "load-btn";
-        pubBtn.textContent = "📤 Publicar";
+        pubBtn.textContent = "📤 Publicar na Comunidade";
         pubBtn.addEventListener("click", function () {
           openPublishModal(route);
         });
@@ -7171,9 +7212,9 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
         var deleteBtn = document.createElement("button");
         deleteBtn.className = "delete-btn";
-        deleteBtn.textContent = "Excluir";
+        deleteBtn.textContent = "🗑 Excluir";
         deleteBtn.addEventListener("click", function () {
-          if (!window.confirm('Excluir a rota "' + (route.name || "(sem nome)") + '"?')) return;
+          var v86Go4 = function () {
           var all = loadSavedRoutes();
           var target = all.find(function (r) {
             return r.id === route.id;
@@ -7185,10 +7226,45 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
           persistSavedRoutes(all);
           renderSavedRoutesScreen();
           showToast("Rota excluída.");
-        });
+        };
+    return fdeConfirm('Excluir a rota "' + (route.name || "(sem nome)") + '"? Com a conta conectada, ela fica 30 dias na lixeira.').then(function (ok) { if (ok) return v86Go4(); });
+});
         buttons.appendChild(deleteBtn);
 
+        // v8.6: no cartão ficam só Navegar, Editar e ⋯; o resto vai para o menu
+        // (antes eram 6 botões iguais, com Excluir ao lado de Publicar)
+        var cardMenu = document.createElement("div");
+        cardMenu.className = "v86-card-menu hidden";
+        var moreBtn = document.createElement("button");
+        moreBtn.type = "button";
+        moreBtn.className = "load-btn v86-card-more";
+        moreBtn.textContent = "⋯";
+        moreBtn.title = "Mais opções desta rota";
+        moreBtn.setAttribute("aria-label", "Mais opções desta rota");
+        moreBtn.setAttribute("aria-expanded", "false");
+        moreBtn.addEventListener("click", function () {
+          var open = cardMenu.classList.contains("hidden");
+          document.querySelectorAll(".v86-card-menu").forEach(function (m) { m.classList.add("hidden"); });
+          document.querySelectorAll(".v86-card-more").forEach(function (b) { b.setAttribute("aria-expanded", "false"); });
+          cardMenu.classList.toggle("hidden", !open);
+          moreBtn.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+        buttons.innerHTML = "";
+        buttons.appendChild(navBtn);
+        buttons.appendChild(openBtn);
+        buttons.appendChild(moreBtn);
+        var offReady = v82IsReady(route);
+        if (offReady) cardMenu.appendChild(offBtn);
+        cardMenu.appendChild(shareBtn);
+        cardMenu.appendChild(pubBtn);
+        cardMenu.appendChild(deleteBtn);
+        cardMenu.addEventListener("click", function (ev) { if (ev.target.tagName === "BUTTON") cardMenu.classList.add("hidden"); });
         card.appendChild(buttons);
+        if (!offReady) {
+          offBtn.classList.add("v86-off-row");
+          card.appendChild(offBtn);
+        }
+        card.appendChild(cardMenu);
         el.savedRoutesScreenList.appendChild(card);
       });
     });
@@ -7367,6 +7443,85 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
 
 
+
+
+  // ===================== v8.6 — avisos do próprio app =====================
+  // Substitui confirm()/prompt() do navegador (diálogo branco, letra pequena, "localhost diz…"
+  // no Android) por um modal com o visual do app. Devolve uma Promise.
+  // Em navegador controlado por automação (testes) usa o diálogo nativo, para os testes antigos.
+  var V86_DANGER = /^(Excluir|Apagar|Zerar|Descartar|Desconectar|Sair|Encerrar)\b/;
+  function v86UseNative() {
+    return !!(navigator.webdriver && !window.__fdeNoNative);
+  }
+  function v86Dialog(msg, opts, withInput) {
+    opts = opts || {};
+    return new Promise(function (resolve) {
+      var m = String(msg || "").match(V86_DANGER);
+      var danger = opts.danger != null ? !!opts.danger : !!m;
+      var okLabel = opts.ok || (m ? m[1] : withInput ? "OK" : "Continuar");
+      var ov = document.createElement("div");
+      ov.className = "modal-overlay open v86-dialog";
+      ov.setAttribute("role", "dialog");
+      ov.setAttribute("aria-modal", "true");
+      var box = document.createElement("div");
+      box.className = "modal-box modal-box-small";
+      var p = document.createElement("p");
+      p.className = "v86-msg";
+      p.textContent = msg;
+      box.appendChild(p);
+      var input = null;
+      if (withInput) {
+        input = document.createElement("input");
+        input.type = "text";
+        input.className = "folder-input v86-input";
+        input.value = opts.def != null ? String(opts.def) : "";
+        box.appendChild(input);
+      }
+      var acts = document.createElement("div");
+      acts.className = "modal-actions";
+      var no = document.createElement("button");
+      no.type = "button";
+      no.className = "modal-btn-secondary";
+      no.textContent = opts.cancel || "Cancelar";
+      var yes = document.createElement("button");
+      yes.type = "button";
+      yes.className = "modal-btn-primary" + (danger ? " v86-danger" : "");
+      yes.textContent = okLabel;
+      acts.appendChild(no);
+      acts.appendChild(yes);
+      box.appendChild(acts);
+      ov.appendChild(box);
+      var done = false;
+      function finish(v) {
+        if (done) return;
+        done = true;
+        document.removeEventListener("keydown", onKey, true);
+        ov.remove();
+        resolve(v);
+      }
+      function onKey(ev) {
+        if (ev.key === "Escape") { ev.preventDefault(); finish(withInput ? null : false); }
+        else if (ev.key === "Enter" && (withInput || document.activeElement === yes)) { ev.preventDefault(); finish(withInput ? input.value : true); }
+      }
+      no.addEventListener("click", function () { finish(withInput ? null : false); });
+      yes.addEventListener("click", function () { finish(withInput ? input.value : true); });
+      ov.addEventListener("click", function (ev) { if (ev.target === ov) finish(withInput ? null : false); });
+      document.addEventListener("keydown", onKey, true);
+      document.body.appendChild(ov);
+      setTimeout(function () {
+        if (input) { input.focus(); input.select(); } else yes.focus();
+      }, 30);
+    });
+  }
+  function fdeConfirm(msg, opts) {
+    if (v86UseNative()) return Promise.resolve(window.confirm(msg));
+    return v86Dialog(msg, opts, false);
+  }
+  function fdePrompt(msg, def, opts) {
+    if (v86UseNative()) return Promise.resolve(window.prompt(msg, def == null ? "" : def));
+    var o = Object.assign({}, opts || {}, { def: def });
+    return v86Dialog(msg, o, true);
+  }
 
   // ===================== v8.5 — iniciante e visual =====================
   function v85UpdateHint() {
@@ -8809,7 +8964,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       return;
     }
     if (driveConnected) {
-      if (!window.confirm("Desconectar do Google Drive? Suas rotas continuam salvas neste aparelho.")) return;
+      var v86Go5 = function () {
       if (driveServerActive()) {
         comApi("drive.php?action=unlink", {}).catch(function () {
           /* sem rede: o servidor esquece na próxima */
@@ -8829,7 +8984,9 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       }
       showToast("Desconectado do Google Drive.");
       return;
-    }
+    };
+    return fdeConfirm("Desconectar do Google Drive? Suas rotas continuam salvas neste aparelho.").then(function (ok) { if (ok) return v86Go5(); });
+}
     if (com && com.user && com.driveServer) {
       // ligado à conta: o servidor guarda a permissão e renova sozinho (funciona no app instalado também)
       window.location.href = "api/drive.php?action=start";
@@ -10230,13 +10387,15 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
   x.btnWaypointDelete.addEventListener("click", function () {
     if (!wpEditor || !wpEditor.onDelete) return;
-    if (!window.confirm("Excluir esta marcação?")) return;
+    var v86Go6 = function () {
     var cb = wpEditor.onDelete;
     closeModal(x.waypointModal);
     setWaypointPreview(null);
     wpEditor = null;
     cb();
-  });
+  };
+    return fdeConfirm("Excluir esta marcação?").then(function (ok) { if (ok) return v86Go6(); });
+});
 
   x.btnWaypointSave.addEventListener("click", function () {
     if (!wpEditor) return;
@@ -10344,10 +10503,8 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
               editPlanningWaypoint(wp);
             },
             onDelete: function () {
-              if (window.confirm("Excluir esta marcação?")) {
-                map.closePopup();
-                deletePlanningWaypoint(wp.id);
-              }
+              map.closePopup();
+              deletePlanningWaypoint(wp.id);
             }
           });
         });
@@ -10390,7 +10547,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       rb.textContent = "✕";
       rb.title = "Excluir";
       rb.addEventListener("click", function () {
-        if (window.confirm("Excluir esta marcação?")) deletePlanningWaypoint(wp.id);
+        fdeConfirm("Excluir esta marcação?").then(function (ok) { if (ok) deletePlanningWaypoint(wp.id); });
       });
       li.appendChild(rb);
       x.waypointList.appendChild(li);
@@ -10905,9 +11062,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       .then(function (route) {
         if (!route.points.length) throw new Error("vazia");
         goToPlanningScreen(function () {
-          if (state.points.length > 0 && !window.confirm('Abrir a rota recebida "' + (route.name || "sem nome") + '"? Ela substitui a rota aberta no planejamento (rotas salvas não são afetadas).')) {
-            return;
-          }
+          var v86Go22 = function () {
           state.points = []; // evita a segunda confirmação do importador
           applyImportedRoute(route.points, route.name);
           state.meta = route.meta;
@@ -10915,7 +11070,10 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
           renderRouteExtras();
           saveDraft();
           showToast('Rota recebida: "' + (route.name || "sem nome") + '". Toque em Salvar para guardar.');
-        });
+        };
+    if (state.points.length > 0) { return fdeConfirm('Abrir a rota recebida "' + (route.name || "sem nome") + '"? Ela substitui a rota aberta no planejamento (rotas salvas não são afetadas).', { ok: "Abrir" }).then(function (ok) { if (ok) return v86Go22(); }); }
+    return v86Go22();
+});
       })
       .catch(function () {
         showToast("Link de rota inválido ou incompleto.");
@@ -11964,11 +12122,13 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     showToast("Hodômetro ajustado para a casa " + cur.n + ": " + fmtKm(cur.km) + " km");
   });
   rx.btnRallyZero.addEventListener("click", function () {
-    if (!window.confirm("Zerar o hodômetro do rally?")) return;
+    var v86Go7 = function () {
     rallyOdo = 0;
     rallySaveOdo();
     if (rally) renderRallyPanel();
-  });
+  };
+    return fdeConfirm("Zerar o hodômetro do rally?").then(function (ok) { if (ok) return v86Go7(); });
+});
 
 
   // ================= v4.3 TOMADA DE TEMPO (Specs #029–#031) =================
@@ -12341,10 +12501,12 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       del.className = "delete-btn";
       del.textContent = "Excluir";
       del.addEventListener("click", function () {
-        if (!window.confirm("Excluir esta tomada de tempo?")) return;
+        var v86Go8 = function () {
         deleteTimingRun(route.id, run.id);
         renderTimingHistory(route);
-      });
+      };
+    return fdeConfirm("Excluir esta tomada de tempo?").then(function (ok) { if (ok) return v86Go8(); });
+});
       buttons.appendChild(del);
       card.appendChild(buttons);
       tx.historyList.appendChild(card);
@@ -13051,19 +13213,25 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       exitTiming();
       return;
     }
-    if (T.running && !window.confirm(T.circuit ? "Encerrar e salvar as voltas completas?" : "Encerrar antes da chegada? Esta tomada não será salva.")) return;
+    var v86Go9 = function () {
     finishTiming(gpsNow(), false);
-  });
+  };
+    if (T.running) { return fdeConfirm((T.circuit ? "Encerrar e salvar as voltas completas?" : "Encerrar antes da chegada? Esta tomada não será salva.")).then(function (ok) { if (ok) return v86Go9(); }); }
+    return v86Go9();
+});
 
   tx.btnReset.addEventListener("click", function () {
     if (!T) return;
-    if (T.running && !T.finished && !window.confirm("Descartar a tomada atual e começar de novo?")) return;
+    var v86Go10 = function () {
     var route = T.route,
       cfg = T.cfg;
     T.finished = true;
     startTiming(route, cfg);
     speak("Nova tentativa. Vá até a largada.");
-  });
+  };
+    if (T.running && !T.finished) { return fdeConfirm("Descartar a tomada atual e começar de novo?").then(function (ok) { if (ok) return v86Go10(); }); }
+    return v86Go10();
+});
 
   function exitTiming() {
     stopTimingGps();
@@ -13076,9 +13244,12 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
   }
 
   tx.btnExit.addEventListener("click", function () {
-    if (T && T.running && !T.finished && !window.confirm("Sair? A tomada em andamento será descartada.")) return;
+    var v86Go11 = function () {
     exitTiming();
-  });
+  };
+    if (T && T.running && !T.finished) { return fdeConfirm("Sair? A tomada em andamento será descartada.").then(function (ok) { if (ok) return v86Go11(); }); }
+    return v86Go11();
+});
 
   tx.btnVoice.addEventListener("click", function () {
     voiceEnabled = !voiceEnabled;
@@ -13538,7 +13709,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
   comSubmit(cx.deleteForm, function (d) {
     if (!d.confirm) throw new Error(com.user && com.user.has_password ? "Digite sua senha." : "Digite EXCLUIR.");
-    if (!window.confirm("Excluir sua conta da comunidade? Isso não pode ser desfeito.")) return;
+    var v86Go12 = function () {
     var body = com.user && com.user.has_password ? { password: d.confirm } : { confirm: d.confirm };
     return comApi("profile.php?action=delete", body).then(function () {
       cx.deleteForm.closest("details").open = false;
@@ -13546,7 +13717,9 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       comShowPane("login");
       comMsg("Conta excluída. Seus dados da comunidade foram apagados.", "ok");
     });
-  });
+  };
+    return fdeConfirm("Excluir sua conta da comunidade? Isso não pode ser desfeito.").then(function (ok) { if (ok) return v86Go12(); });
+});
 
   cx.btnResend.addEventListener("click", function () {
     cx.btnResend.disabled = true;
@@ -13776,19 +13949,26 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       return !r.deleted;
     });
     acc.blocked = false;
-    if (owner && owner !== String(user.id) && hasLocal) {
-      if (!window.confirm("As rotas salvas neste aparelho já foram sincronizadas com outra conta. Juntar essas rotas à conta @" + user.username + "?")) {
-        acc.blocked = true;
-        renderAccountSync();
-        return;
+    var v86Own = function () {
+      try {
+        localStorage.setItem(ACC_OWNER_KEY, String(user.id));
+      } catch (e) {
+        /* ignore */
       }
+      accountSync();
+    };
+    if (owner && owner !== String(user.id) && hasLocal) {
+      fdeConfirm("As rotas salvas neste aparelho já foram sincronizadas com outra conta. Juntar essas rotas à conta @" + user.username + "?", { ok: "Juntar", cancel: "Não juntar" }).then(function (ok) {
+        if (!ok) {
+          acc.blocked = true;
+          renderAccountSync();
+          return;
+        }
+        v86Own();
+      });
+      return;
     }
-    try {
-      localStorage.setItem(ACC_OWNER_KEY, String(user.id));
-    } catch (e) {
-      /* ignore */
-    }
-    accountSync();
+    v86Own();
   }
 
   ax.loginBtn.addEventListener("click", openCommunityScreen);
@@ -14554,9 +14734,13 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         break;
       case "del-day":
         if (e.days.length === 1) return showToast("A expedição precisa de pelo menos 1 dia.");
-        if (!window.confirm("Excluir o " + expDayLabel(e, i) + "?")) return;
-        e.days.splice(i, 1);
-        break;
+        fdeConfirm("Excluir o " + expDayLabel(e, i) + "?").then(function (ok) {
+          if (!ok) return;
+          e.days.splice(i, 1);
+          saveCurExpedition();
+          renderExpeditionPanel();
+        });
+        return;
       case "up-day":
       case "down-day":
         var j = act === "up-day" ? i - 1 : i + 1;
@@ -14715,7 +14899,8 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
   });
   ex.btnDelete.addEventListener("click", function () {
     var e = exp.cur;
-    if (!e || !window.confirm('Excluir a expedição "' + (e.name || "") + '"? As rotas salvas não são apagadas.')) return;
+    if (!e) return;
+    var v86Go13 = function () {
     clearTimeout(exp.saveTimer);
     var list = loadExpeditions().map(function (x) {
       return x.id === e.id ? { id: e.id, deleted: true, deletedAt: Date.now(), savedAt: e.savedAt || Date.now() } : x;
@@ -14723,7 +14908,9 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     persistExpeditions(list);
     showToast("Expedição excluída.");
     openExpeditionsScreen();
-  });
+  };
+    return fdeConfirm('Excluir a expedição "' + (e.name || "") + '"? As rotas salvas não são apagadas.').then(function (ok) { if (ok) return v86Go13(); });
+});
   ex.tabs.addEventListener("click", function (ev) {
     var b = ev.target.closest("button[data-tab]");
     if (!b) return;
@@ -15168,7 +15355,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       return;
     }
     if (a === "delete") {
-      if (!window.confirm("Apagar esta publicação? As fotos e os comentários também somem.")) return;
+      var v86Go14 = function () {
       comApi("feed.php?action=delete", { id: id })
         .then(function () {
           fd.posts = fd.posts.filter(function (p) { return p.id !== id; });
@@ -15177,29 +15364,37 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         })
         .catch(function (err) { comMsg(err.message, "error"); });
       return;
-    }
+    };
+    return fdeConfirm("Apagar esta publicação? As fotos e os comentários também somem.").then(function (ok) { if (ok) return v86Go14(); });
+}
     if (a === "report" || a === "creport") {
-      var reason = window.prompt("Por que você está denunciando? (ex.: ofensivo, propaganda, perigoso)");
+      return fdePrompt("Por que você está denunciando? (ex.: ofensivo, propaganda, perigoso)", "", { ok: "Denunciar" }).then(function (reason) {
       if (reason == null) return;
       comApi("feed.php?action=report", { kind: a === "report" ? "post" : "comment", id: id, reason: reason.slice(0, 200) })
         .then(function () { comMsg("Obrigado! A denúncia foi registrada e vai ser revisada.", "ok"); })
         .catch(function (err) { comMsg(err.message, "error"); });
       return;
-    }
+    });
+}
     if (a === "cdel") {
-      if (!window.confirm("Apagar este comentário?")) return;
+      var v86Go15 = function () {
       comApi("feed.php?action=comment_delete", { id: id })
         .then(function () { fdOpenPost(fd.cur.id); })
         .catch(function (err) { comMsg(err.message, "error"); });
       return;
-    }
+    };
+    return fdeConfirm("Apagar este comentário?").then(function (ok) { if (ok) return v86Go15(); });
+}
     if (a === "mod") {
       var what = act.getAttribute("data-do");
-      if (what === "delete" && !window.confirm("Apagar definitivamente?")) return;
+      var v86Go16 = function () {
       comApi("feed.php?action=mod", { kind: act.getAttribute("data-kind"), id: id, do: what })
         .then(function () { fdShowMod(); })
         .catch(function (err) { comMsg(err.message, "error"); });
-    }
+    };
+    if (what === "delete") { return fdeConfirm("Apagar definitivamente?").then(function (ok) { if (ok) return v86Go16(); }); }
+    return v86Go16();
+}
   });
 
   fx.feed.addEventListener("submit", function (ev) {
@@ -15328,7 +15523,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     if (title.length < 3) return showToast("Dê um título para a trilha.");
     var pts = r.points.map(function (p) { return { lat: p.lat, lng: wrapLng(p.lng) }; });
     var wps = normalizeWaypoints(r.waypoints).map(function (w) { return { lat: w.lat, lng: wrapLng(w.lng), type: w.type, note: w.note }; });
-    var hide = null;
+    var hide = null, v86AskShort = false;
     if (px.form.elements.trim.checked) {
       var start = pts[0], end = pts[pts.length - 1];
       // v8.3: corte aleatório entre 300 e 600 m em cada ponta (com 300 m fixos dava para "medir" de volta até a casa)
@@ -15339,7 +15534,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         cut = trimRouteEnds(pts, 300, 300);
       }
       if (!cut) {
-        if (!window.confirm("A trilha é curta demais para esconder 300 m de cada ponta. Publicar o traçado inteiro?")) return;
+        v86AskShort = true;
       } else {
         pts = cut;
         hide = { start: start, end: end, rA: Math.max(cutA, 300) + 50, rB: Math.max(cutB, 300) + 50 };
@@ -15348,6 +15543,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         });
       }
     }
+    var v86Send = function () {
     px.send.disabled = true;
     px.msg.textContent = "Preparando as fotos…";
     var chosen = pub.photos.filter(function (p) { return p.on; }).slice(0, 4);
@@ -15372,7 +15568,13 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         px.msg.textContent = err.message || "Não foi possível publicar.";
         px.send.disabled = false;
       });
-  });
+      };
+    if (v86AskShort) {
+      fdeConfirm("A trilha é curta demais para esconder 300 m de cada ponta. Publicar o traçado inteiro?", { ok: "Publicar inteiro" }).then(function (ok) { if (ok) v86Send(); });
+      return;
+    }
+    v86Send();
+});
 
   // ===================== v5.5 — visual novo (tela inicial + tema dia/noite) =====================
   function v55Pad(n) {
@@ -16403,9 +16605,9 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
           if (err) {
             if (err.code === "NOT_AUTHORIZED") {
               if (onErr) onErr({ code: 1, message: "permissão de localização negada" });
-              if (window.confirm("O Fora de Estrada precisa da sua localização para navegar.\n\nAbrir as configurações do app agora?")) {
-                try { bg.openSettings(); } catch (e) {}
-              }
+              fdeConfirm("O Fora de Estrada precisa da sua localização para navegar.\n\nAbrir as configurações do app agora?", { ok: "Abrir configurações", cancel: "Agora não" }).then(function (ok) {
+                if (ok) { try { bg.openSettings(); } catch (e) {} }
+              });
             } else if (onErr) {
               onErr({ code: 2, message: err.message || "sinal indisponível" });
             }
@@ -16917,7 +17119,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       saveB.textContent = t.savedRouteId ? "✅ Salvo como rota" : "💾 Salvar como rota";
       saveB.disabled = !!t.savedRouteId;
       saveB.addEventListener("click", function () {
-        var name = window.prompt("Nome da rota:", v62DefaultTripName(t.mode === "free" ? "" : t.routeName, t.startedAt));
+        return fdePrompt("Nome da rota:", v62DefaultTripName(t.mode === "free" ? "" : t.routeName, t.startedAt), { ok: "Salvar" }).then(function (name) {
         if (name == null) return;
         name = name.trim() || v62DefaultTripName("", t.startedAt);
         var rec = v62TripToRoute(t, name, t.folder);
@@ -16931,6 +17133,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         showToast('Salvo em Rotas como "' + name + '".');
         v62RenderTrips();
       });
+});
       btns.appendChild(saveB);
       var gpxB = document.createElement("button");
       gpxB.className = "load-btn";
@@ -16956,10 +17159,12 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       delB.className = "delete-btn";
       delB.textContent = "Excluir";
       delB.addEventListener("click", function () {
-        if (!window.confirm("Excluir este passeio do histórico? (as rotas salvas não são apagadas)")) return;
+        var v86Go17 = function () {
         v62StoreTrips(v62LoadTrips().filter(function (x) { return x.id !== t.id; }));
         v62RenderTrips();
-      });
+      };
+    return fdeConfirm("Excluir este passeio do histórico? (as rotas salvas não são apagadas)").then(function (ok) { if (ok) return v86Go17(); });
+});
       btns.appendChild(delB);
       card.appendChild(btns);
       list.appendChild(card);
@@ -18277,7 +18482,9 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       var span = fs.spans.filter(function (s) { return s.at === f.at; })[0];
       garRow(sec, garDate(f.at) + " · " + fmtNum(f.liters, 2) + " L · " + garMoney(f.total),
         garKm(f.km) + (f.price ? " · " + garMoney(f.price) + "/L" : "") + (f.full ? " · tanque cheio" : " · parcial") + (span ? " · " + fmtNum(span.kml, 1) + " km/l" : "") + (f.station ? " · " + f.station : ""), null,
-        [["Excluir", function () { if (!window.confirm("Excluir este abastecimento?")) return; v.fuel = v.fuel.filter(function (x) { return x.id !== f.id; }); garSave(v); garRender(); }]]);
+        [["Excluir", function () { var v86Go18 = function () { v.fuel = v.fuel.filter(function (x) { return x.id !== f.id; }); garSave(v); garRender(); };
+    return fdeConfirm("Excluir este abastecimento?").then(function (ok) { if (ok) return v86Go18(); });
+}]]);
     });
   }
 
@@ -18312,7 +18519,9 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       var total = (s.parts || []).reduce(function (t, p) { return t + (p.price || 0); }, 0) + (s.labor || 0);
       var kindIcon = { preventiva: "🗓️", corretiva: "🛠️", preditiva: "📏" }[s.kind] || "🛠️";
       garRow(sec, kindIcon + " " + (s.title || "Serviço") + " — " + garDate(s.at), garKm(s.km) + " · " + s.kind + (s.shop ? " · " + s.shop : "") + (total ? " · " + garMoney(total) : "") + (parts.length ? "\nPeças: " + parts.join("; ") : "") + (s.note ? "\n" + s.note : ""), null,
-        [["Excluir", function () { if (!window.confirm("Excluir este serviço?")) return; v.services = v.services.filter(function (x) { return x.id !== s.id; }); garSave(v); garRender(); }]]);
+        [["Excluir", function () { var v86Go19 = function () { v.services = v.services.filter(function (x) { return x.id !== s.id; }); garSave(v); garRender(); };
+    return fdeConfirm("Excluir este serviço?").then(function (ok) { if (ok) return v86Go19(); });
+}]]);
     });
   }
 
@@ -18359,12 +18568,14 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     });
     var del = garSec(body, "Excluir");
     garRow(del, "Excluir este veículo", "Apaga o veículo e todo o histórico dele.", null, [["Excluir", function () {
-      if (!window.confirm('Excluir "' + v.name + '" e todo o histórico?')) return;
+      var v86Go20 = function () {
       var all = garLoad();
       all.forEach(function (x) { if (x.id === v.id) { Object.keys(x).forEach(function (k) { if (k !== "id") delete x[k]; }); x.deleted = true; x.deletedAt = Date.now(); x.savedAt = Date.now(); } });
       garPersist(all);
       garShowList();
-    }]]);
+    };
+    return fdeConfirm('Excluir "' + v.name + '" e todo o histórico?').then(function (ok) { if (ok) return v86Go20(); });
+}]]);
   }
 
   // ================= formulários =================
@@ -18530,7 +18741,9 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       if (!isNew) {
         var del = garEl("button", "exp-btn exp-btn-small exp-f-wide", "Excluir este item");
         del.type = "button";
-        del.addEventListener("click", function () { if (!window.confirm("Excluir \"" + it.name + "\" do plano?")) return; v.plan = v.plan.filter(function (x) { return x.id !== it.id; }); garSave(v); closeModal(document.getElementById("gar-modal")); garRender(); });
+        del.addEventListener("click", function () { var v86Go21 = function () { v.plan = v.plan.filter(function (x) { return x.id !== it.id; }); garSave(v); closeModal(document.getElementById("gar-modal")); garRender(); };
+    return fdeConfirm("Excluir \"" + it.name + "\" do plano?").then(function (ok) { if (ok) return v86Go21(); });
+});
         g.appendChild(del);
       }
     }, function () {

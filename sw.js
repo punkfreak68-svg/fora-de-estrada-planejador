@@ -12,7 +12,7 @@
 //  * Fontes num cache de nome fixo (não precisam ser baixadas de novo a cada versão).
 // Blocos de mapa, API, Drive e login Google continuam fora daqui (têm tratamento próprio).
 
-var CACHE_NAME = "fora-de-estrada-shell-v52";
+var CACHE_NAME = "fora-de-estrada-shell-v53";
 var FONT_CACHE = "fde-fonts-v1";
 
 // sem estes o app não funciona: se um falhar, a instalação inteira falha
