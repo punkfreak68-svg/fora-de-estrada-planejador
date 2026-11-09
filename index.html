@@ -3617,8 +3617,16 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "8.7";
+  var APP_VERSION = "8.8";
   var CHANGELOG = [
+    {
+      version: "8.8",
+      date: "09/11/2026",
+      changes: [
+        "App Android abre sem internet: leva uma cópia do app dentro dele e, se não conseguir falar com o site, abre essa cópia, com as mesmas rotas salvas e os mesmos mapas baixados",
+        "Quando a internet volta, aparece um botão para abrir a versão mais nova (sem interromper uma navegação)"
+      ]
+    },
     {
       version: "8.7",
       date: "05/11/2026",
@@ -7461,6 +7469,49 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
 
 
+  // ===================== v8.8 — app Android abre sem internet =====================
+  // O APK leva uma cópia completa do app (android-app/www/offline.html, gerada por
+  // android-app/build-offline.js). Quando o celular não consegue abrir o site, o Android
+  // abre essa cópia NO MESMO ENDEREÇO do site — então enxerga as mesmas rotas salvas,
+  // trajetos e mapas baixados. Aqui só avisamos o usuário e oferecemos voltar ao site.
+  function initV88OfflineCopy() {
+    if (!window.__fdeOfflineCopy) return;
+    var SITE = "https://foradeestrada.sansoliveira.com.br/";
+    setTimeout(function () {
+      showToast("Sem internet: abrindo o app guardado no celular. Rotas salvas e mapas baixados funcionam normalmente.");
+    }, 900);
+    var bar = null;
+    function offerOnline() {
+      if (bar || navigator.onLine === false) return;
+      bar = document.createElement("button");
+      bar.type = "button";
+      bar.id = "v88-online-bar";
+      bar.textContent = "📶 Internet voltou — toque para abrir a versão atualizada";
+      bar.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:100000;min-height:48px;padding:12px 18px;border:0;border-radius:24px;background:#f2c230;color:#111;font:700 15px/1.2 system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.4);max-width:calc(100% - 32px)";
+      bar.addEventListener("click", function () {
+        var go = function () { location.href = SITE; };
+        // no meio de uma navegação, pergunta antes (o trajeto gravado não se perde, mas a tela recarrega)
+        if (typeof v62NavRunning === "function" && v62NavRunning()) {
+          fdeConfirm("Abrir a versão atualizada agora? A navegação continua de onde parou.", { ok: "Abrir" }).then(function (ok) { if (ok) go(); });
+        } else go();
+      });
+      document.body.appendChild(bar);
+    }
+    // só oferece quando o site responde de verdade (Wi-Fi "conectado sem internet" não conta)
+    var probing = false;
+    function probe() {
+      if (bar || probing || navigator.onLine === false) return;
+      probing = true;
+      fetch(SITE + "manifest.json?v88=" + Date.now(), { cache: "no-store" })
+        .then(function (r) { if (r && r.ok) offerOnline(); })
+        .catch(function () {})
+        .then(function () { probing = false; });
+    }
+    window.addEventListener("online", function () { setTimeout(probe, 2000); });
+    setInterval(probe, 30000);
+    setTimeout(probe, 8000);
+  }
+
   // ===================== v8.7 — satélite no fundo da última rota =====================
   // O cartão da tela inicial era só um desenho (linha + 2 curvas de enfeite). Agora monta
   // os blocos de satélite atrás da rota: primeiro os guardados no aparelho (mapa offline),
@@ -10996,6 +11047,8 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
   }
 
   function appBaseUrl() {
+    // v8.8: na cópia do app Android (offline.html) os links continuam apontando para o site
+    if (window.__fdeOfflineCopy) return window.location.origin + "/";
     return window.location.origin + window.location.pathname;
   }
 
@@ -16818,7 +16871,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       app.addListener("backButton", function (ev) {
         var modals = document.querySelectorAll(".modal-overlay.open");
         var modal = modals.length ? modals[modals.length - 1] : null;
-        var onHome = location.pathname === "/" || /\/index\.html$/.test(location.pathname);
+        var onHome = location.pathname === "/" || /\/(index|offline)\.html$/.test(location.pathname);
         if (!onHome && ev && ev.canGoBack) {
           history.back();
           return;
@@ -19543,6 +19596,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     safeInit(initV79Adventure, "modo aventura (v7.9)");
     safeInit(initV84NavMore, "coluna da navegação (v8.4)");
     safeInit(initV85, "iniciante e visual (v8.5)");
+    safeInit(initV88OfflineCopy, "cópia do app sem internet (v8.8)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
@@ -19551,7 +19605,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
   // Register the service worker so the app shell (this page + Leaflet +
   // leaflet-rotate) is available offline, independent of any CDN/network
   // being reachable. Registration itself never blocks page rendering.
-  if ("serviceWorker" in navigator) {
+  if ("serviceWorker" in navigator && !window.__fdeOfflineCopy) {
     window.addEventListener("load", function () {
       navigator.serviceWorker.register("sw.js").catch(function () {
         /* offline-shell caching just won't be available this session; app still works online */

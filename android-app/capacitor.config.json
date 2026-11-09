@@ -6,7 +6,8 @@
   "url": "https://foradeestrada.sansoliveira.com.br/",
   "androidScheme": "https",
   "cleartext": false,
-  "errorPath": "offline.html"
+  "errorPath": "offline.html",
+  "hostname": "foradeestrada.sansoliveira.com.br"
  },
  "android": {
   "useLegacyBridge": true,
