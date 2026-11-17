@@ -7708,9 +7708,21 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       }
     }
     if (offline) { fromCache("Sem internet."); return; }
-    function run(radius) {
-      var osm = v66Overpass(v89OsmQuery(cat, text, c, radius), 30000).then(function (d) { return v89FromOsm(d, cat); }, function (e) { return { err: e }; });
+    // servidores do OpenStreetMap às vezes ficam lotados: o que chegar primeiro já aparece
+    function run(radius, skipOsm) {
+      var osmDone = false;
+      var osm = skipOsm ? Promise.resolve({ err: new Error("skip") }) : v66Overpass(v89OsmQuery(cat, text, c, radius), 12000).then(function (d) { return v89FromOsm(d, cat); }, function (e) { return { err: e }; });
+      osm.then(function () { osmDone = true; });
       var g = v89Google(cat, text, c, radius).catch(function (e) { return { err: e }; });
+      g.then(function (gl) {
+        if (osmDone || skipOsm || token !== v89.busy || !Array.isArray(gl) || !gl.length) return;
+        var part = v89Merge([gl], c, radius);
+        if (!part.length) return;
+        v89.results = part;
+        v89RenderList(part);
+        v89RenderMarkers(part);
+        v89SetStatus(part.length + (part.length === 1 ? " lugar" : " lugares") + " do Google — ainda procurando no OpenStreetMap (cachoeiras, trilhas, mirantes)…", true);
+      });
       return Promise.all([osm, g]).then(function (r) {
         var errs = r.filter(function (x) { return x && x.err; });
         var lists = r.filter(function (x) { return Array.isArray(x); });
@@ -7720,16 +7732,21 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     run(15000).then(function (res) {
       if (token !== v89.busy) return;
       if (!res.allFailed && res.list.length < 4) {
-        v89SetStatus("Pouca coisa por perto — procurando mais longe (até 40 km)…", true);
-        return run(40000).then(function (r2) { return r2.list.length >= res.list.length ? r2 : res; });
+        if (!v89.results.length) v89SetStatus("Pouca coisa por perto — procurando mais longe (até 40 km)…", true);
+        // se o OpenStreetMap estava lotado, não insiste nele de novo (só o Google vai mais longe)
+        return run(40000, res.osmFailed).then(function (r2) {
+          if (res.osmFailed) r2.osmFailed = true;
+          return r2.list.length >= res.list.length ? r2 : res;
+        });
       }
       return res;
     }).then(function (res) {
       if (!res || token !== v89.busy) return;
       if (res.allFailed) { fromCache("Não consegui buscar agora."); return; }
-      v89CacheSave({ q: qKey, c: c, t: Date.now(), r: res.list.map(function (r) { return { id: r.id, gid: r.gid, src: r.src, name: r.name, named: r.named, lat: r.lat, lng: r.lng, cat: r.cat, extra: r.extra }; }) });
+      if (res.osmFailed && !res.list.length) { fromCache("Os servidores do OpenStreetMap estão lotados agora."); return; }
+      if (!(res.osmFailed && v89CacheFind(qKey, c))) v89CacheSave({ q: qKey, c: c, t: Date.now(), r: res.list.map(function (r) { return { id: r.id, gid: r.gid, src: r.src, name: r.name, named: r.named, lat: r.lat, lng: r.lng, cat: r.cat, extra: r.extra }; }) });
       var note = res.list.length ? "" : "Nada encontrado num raio de 40 km. Tente outra palavra (ex.: \"cachoeira\", \"salto\", \"mirante\").";
-      if (res.osmFailed && res.list.length) note = "O OpenStreetMap não respondeu; mostrando só o Google.";
+      if (res.osmFailed && res.list.length) note = "Os servidores do OpenStreetMap estão lotados agora — mostrando só o Google. Tente de novo daqui a pouco para ver cachoeiras e trilhas sem cadastro no Google.";
       v89Show(res.list, note);
     });
   }
