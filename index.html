@@ -2781,6 +2781,36 @@ button, input, select, textarea { font-family: var(--font); }
 .v92-tag { font: 700 11.5px/1 var(--mono); padding: 5px 7px; border-radius: 999px; background: var(--surf2); color: var(--ink2); }
 .v92-near { display: inline-block; margin: 2px 0; font: 800 12.5px var(--font); color: var(--acc); }
 .v92-near.hidden { display: none; }
+/* ===================== v9.3 — próximo aviso, modo luva, modo sol ===================== */
+.v93-next { position: absolute; left: 12px; right: 84px; top: calc(78px + env(safe-area-inset-top, 0px)); z-index: 895; display: flex; align-items: center; gap: 12px; max-width: 520px; padding: 10px 14px; border-radius: 16px; background: var(--warnBg); color: var(--warnInk); border: 2px solid rgba(138,75,0,.25); box-shadow: var(--shadow); }
+.v93-next.hidden { display: none; }
+.v93-next.v93-near { background: #C0261B; color: #fff; border-color: #C0261B; animation: v93pulse 1.2s ease-in-out infinite; }
+@keyframes v93pulse { 50% { box-shadow: 0 0 0 6px rgba(192,38,27,.25); } }
+@media (prefers-reduced-motion: reduce) { .v93-next.v93-near { animation: none; } }
+.v93-ic { flex: 0 0 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.65); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.v93-tx { display: grid; gap: 1px; min-width: 0; }
+.v93-d { font: 800 22px/1 var(--mono); font-variant-numeric: tabular-nums; }
+.v93-t { font: 800 15px/1.2 var(--font); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v93-s { font: 600 13px/1.2 var(--font); opacity: .9; }
+.v93-s:empty { display: none; }
+#btn-nav-luva .v89-ico, #btn-nav-sol .v89-ico { font-size: 20px; line-height: 1; }
+/* modo luva: alvos maiores e números grandes */
+#nav-active-view.v93-luva #nav-side-tools > .nav-tool-btn { width: 64px; height: 64px; border-radius: 18px; }
+#nav-active-view.v93-luva #nav-side-tools > .nav-tool-btn .svg-ico { width: 30px; height: 30px; }
+#nav-active-view.v93-luva .nav-stat-value { font-size: clamp(1.8rem, 8vw, 2.6rem); }
+#nav-active-view.v93-luva .nav-action-btn { min-height: 64px; font-size: 1.15rem; }
+#nav-active-view.v93-luva .v93-next { right: 98px; }
+#nav-active-view.v93-luva .v93-d { font-size: 28px; }
+#nav-active-view.v93-luva .v93-t { font-size: 17px; }
+/* modo sol: contraste máximo */
+#nav-active-view.v93-sol #nav-map .leaflet-tile-pane { filter: contrast(1.18) saturate(1.15) brightness(1.05); }
+#nav-active-view.v93-sol #nav-hud-bottom, #nav-active-view.v93-sol .nav-stat-tile { background: #fff !important; color: #000 !important; border-color: #000 !important; }
+#nav-active-view.v93-sol .nav-stat-value, #nav-active-view.v93-sol .nav-stat-label, #nav-active-view.v93-sol .nav-unit { color: #000 !important; font-weight: 900; }
+#nav-active-view.v93-sol #nav-side-tools > .nav-tool-btn { background: #fff; color: #000; border: 2px solid #000; box-shadow: 0 2px 0 #000; }
+#nav-active-view.v93-sol .nav-deviation-pill, #nav-active-view.v93-sol .nav-threshold-btn { border: 2px solid #000; font-weight: 900; }
+#nav-active-view.v93-sol .v93-next { background: #fff; color: #000; border: 3px solid #000; }
+#nav-active-view.v93-sol .v93-next.v93-near { background: #C0261B; color: #fff; border-color: #000; }
+#nav-active-view.v93-sol #nav-side-tools > .nav-tool-btn[data-cap]::after { color: #000; font-weight: 900; text-shadow: 0 0 3px #fff, 0 0 3px #fff; }
 </style>
 </head>
 <body>
@@ -3796,8 +3826,17 @@ button, input, select, textarea { font-family: var(--font); }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "9.2";
+  var APP_VERSION = "9.3";
   var CHANGELOG = [
+    {
+      version: "9.3",
+      date: "17/11/2026",
+      changes: [
+        "Navegação: \"próximo aviso\" fixo no topo — o próximo atoleiro, perigo, água ou porteira à frente na rota, com a distância pela rota em contagem regressiva e o que fazer (desvio molhado, fechar a porteira…); fica vermelho nos últimos 250 m",
+        "Modo luva (Mais → Modo luva): botões de 64 px e números maiores; no automático liga sozinho acima de 20 km/h e volta depois de 20 s devagar",
+        "Modo sol (Mais → Modo sol): contraste máximo para a tela no sol do meio-dia — fundo branco, letra preta, bordas grossas e mapa mais vivo"
+      ]
+    },
     {
       version: "9.2",
       date: "17/11/2026",
@@ -7686,6 +7725,148 @@ button, input, select, textarea { font-family: var(--font); }
 
 
 
+
+  // ===================== v9.3 — navegação: próximo aviso, modo luva e modo sol =====================
+  // * Próximo aviso: cartão fixo no topo com o próximo atoleiro/perigo/água/porteira À FRENTE na rota,
+  //   com a distância pela rota (contagem regressiva) e o que fazer (desvio molhado etc.).
+  // * Modo luva: botões e números maiores. Automático (liga acima de 20 km/h), sempre ou desligado.
+  // * Modo sol: contraste máximo (fundo branco, letra preta, mapa mais vivo) para tela no sol.
+  var V93_LUVA_KEY = "fde_v93_luva";   // "auto" | "on" | "off"
+  var V93_SOL_KEY = "fde_v93_sol";     // "1" | "0"
+  var v93 = { routeKey: null, hz: [], luvaFast: false, slowSince: 0, lastId: null };
+
+  function v93HazardsAlong(r) {
+    var key = r.id + ":" + r.points.length + ":" + (r.waypoints || []).length;
+    if (v93.routeKey === key) return v93.hz;
+    v93.routeKey = key;
+    v93.hz = (r.waypoints || []).filter(function (w) { return V64_HAZARD_TYPES[w.type] && !w.resolved; }).map(function (w) {
+      return { w: w, at: v91Along(r.points, w.lat, w.lng), off: nearestPointOnRoute({ lat: w.lat, lng: w.lng }, r.points).distance };
+    }).sort(function (a, b) { return a.at - b.at; });
+    return v93.hz;
+  }
+  function v93Card() { return document.getElementById("v93-next"); }
+  function v93Hide() { var c = v93Card(); if (c) c.classList.add("hidden"); v93.lastId = null; }
+  function v93Update(p, remaining) {
+    var c = v93Card();
+    var r = navCurrentRoute;
+    if (!c || !r || navMode !== "route" || !r.points || r.points.length < 2) { v93Hide(); return; }
+    // não disputa o lugar com "a caminho da largada" e com o "voltar pelo caminho" do SOS
+    var busy = ["nav-approach-box", "goal-card"].some(function (id) { var e = document.getElementById(id); return e && !e.classList.contains("hidden"); });
+    if (busy) { c.classList.add("hidden"); return; }
+    var hz = v93HazardsAlong(r);
+    if (!hz.length) { v93Hide(); return; }
+    var total = polylineLengthMeters(r.points);
+    var me = remaining != null ? total - remaining : v91Along(r.points, p.lat, p.lng);
+    var next = null;
+    for (var i = 0; i < hz.length; i++) if (hz[i].at > me - 30) { next = hz[i]; break; }
+    if (!next) { v93Hide(); return; }
+    var ahead = Math.max(0, next.at - me);
+    if (ahead > 3000) { v93Hide(); return; }
+    var w = next.w, t = waypointType(w.type);
+    var tip = "";
+    var hasAlt = w.altId && (r.alts || []).some(function (a) { return a.id === w.altId; });
+    if (hasAlt) tip = navWetMode === "molhado" ? "pegue o desvio molhado" : navWetMode === "seco" ? "no seco dá para passar" : "tem desvio para chuva";
+    else if (w.type === "porteira") tip = "feche depois de passar";
+    else if (w.type === "agua") tip = "veja a profundidade antes";
+    else if (w.type === "perigo") tip = "devagar";
+    var note = (w.note || "").trim();
+    var title = note && note.toLowerCase() !== t.label.toLowerCase() ? t.label.split(" /")[0] + " · " + note : t.label.split(" /")[0];
+    var distTxt = ahead < 40 ? "agora" : ahead < 1000 ? Math.round(ahead / 10) * 10 + " m" : (ahead / 1000).toFixed(1).replace(".", ",") + " km";
+    c.querySelector(".v93-ic").textContent = t.emoji;
+    c.querySelector(".v93-d").textContent = distTxt;
+    c.querySelector(".v93-t").textContent = title;
+    c.querySelector(".v93-s").textContent = tip;
+    c.classList.toggle("v93-near", ahead < 250);
+    c.classList.remove("hidden");
+    v93.lastId = w.id;
+  }
+
+  // ---- modo luva / modo sol ----
+  function v93LuvaMode() { var v = lsGet(V93_LUVA_KEY, "auto"); return v === "on" || v === "off" ? v : "auto"; }
+  function v93Apply() {
+    var view = document.getElementById("nav-active-view");
+    if (!view) return;
+    var m = v93LuvaMode();
+    var luva = m === "on" || (m === "auto" && v93.luvaFast);
+    view.classList.toggle("v93-luva", luva);
+    var sol = lsGet(V93_SOL_KEY, "0") === "1";
+    view.classList.toggle("v93-sol", sol);
+    var bl = document.getElementById("btn-nav-luva");
+    if (bl) bl.querySelector(".v84-lbl").textContent = "Modo luva: " + (m === "on" ? "sempre" : m === "off" ? "desligado" : "automático");
+    var bs = document.getElementById("btn-nav-sol");
+    if (bs) { bs.querySelector(".v84-lbl").textContent = "Modo sol: " + (sol ? "ligado" : "desligado"); bs.classList.toggle("off", !sol); }
+    if (typeof v84Fit === "function") try { v84Fit(); } catch (e) {}
+  }
+  function v93Speed(kmh) {
+    if (kmh == null || isNaN(kmh)) return;
+    var now = Date.now();
+    if (kmh >= 20) { v93.slowSince = 0; if (!v93.luvaFast) { v93.luvaFast = true; v93Apply(); } }
+    else if (v93.luvaFast) {
+      // só volta ao normal depois de 20 s devagar (sem ficar piscando no trânsito da trilha)
+      if (!v93.slowSince) v93.slowSince = now;
+      else if (now - v93.slowSince > 20000) { v93.luvaFast = false; v93.slowSince = 0; v93Apply(); }
+    }
+  }
+
+  function initV93() {
+    var view = document.getElementById("nav-active-view");
+    var top = document.getElementById("nav-hud-top");
+    if (view && !v93Card()) {
+      var c = document.createElement("div");
+      c.id = "v93-next";
+      c.className = "v93-next hidden";
+      c.setAttribute("role", "status");
+      c.setAttribute("aria-live", "polite");
+      c.innerHTML = '<span class="v93-ic" aria-hidden="true"></span><span class="v93-tx"><b class="v93-d"></b><span class="v93-t"></span><small class="v93-s"></small></span>';
+      if (top && top.parentNode === view) view.insertBefore(c, top.nextSibling); else view.appendChild(c);
+    }
+    // painel "Mais" da navegação: luva e sol
+    var sheet = document.getElementById("nav-more-sheet");
+    if (sheet && !document.getElementById("btn-nav-luva")) {
+      var mk = function (id, ico, fn) {
+        var b = document.createElement("button");
+        b.id = id; b.type = "button"; b.className = "nav-tool-btn";
+        b.innerHTML = '<span class="v89-ico" aria-hidden="true">' + ico + '</span><span class="v84-lbl"></span>';
+        b.addEventListener("click", fn);
+        sheet.appendChild(b);
+      };
+      mk("btn-nav-luva", "🧤", function () {
+        var m = v93LuvaMode();
+        var nx = m === "auto" ? "on" : m === "on" ? "off" : "auto";
+        lsSet(V93_LUVA_KEY, nx);
+        v93Apply();
+        showToast(nx === "on" ? "🧤 Modo luva sempre ligado: botões e números maiores." : nx === "off" ? "Modo luva desligado." : "🧤 Modo luva automático: liga sozinho acima de 20 km/h.");
+      });
+      mk("btn-nav-sol", "☀️", function () {
+        var on = lsGet(V93_SOL_KEY, "0") !== "1";
+        lsSet(V93_SOL_KEY, on ? "1" : "0");
+        v93Apply();
+        showToast(on ? "☀️ Modo sol: contraste máximo para a tela no sol." : "Modo sol desligado.");
+      });
+    }
+    v93Apply();
+    // a cada posição do GPS: próximo aviso e velocidade (modo luva automático)
+    var orig = v64HazardAlerts;
+    v64HazardAlerts = function (p) {
+      var out = orig.apply(this, arguments);
+      try {
+        var rem = null;
+        if (navCurrentRoute && navCurrentRoute.points && navCurrentRoute.points.length > 1) rem = remainingDistanceMeters(navCurrentRoute.points, nearestPointOnRoute(p, navCurrentRoute.points));
+        v93Update(p, rem);
+      } catch (e) {}
+      return out;
+    };
+    var origPos = onNavPosition;
+    onNavPosition = function (pos) {
+      var out = origPos.apply(this, arguments);
+      try {
+        var sp = pos && pos.coords && pos.coords.speed;
+        if (sp != null && !isNaN(sp)) v93Speed(sp * 3.6);
+        if (navMode !== "route") v93Hide();
+      } catch (e) {}
+      return out;
+    };
+  }
 
   // ===================== v9.2 — Rotas com foto, busca e filtros =====================
   // Cada cartão de Rotas ganha uma faixa de satélite com o desenho da rota (carrega só quando
@@ -21152,6 +21333,7 @@ button, input, select, textarea { font-family: var(--font); }
     safeInit(initV90Visual, "visual e abas (v9.0)");
     safeInit(initV91, "página da rota e checklist (v9.1)");
     safeInit(initV92, "rotas com foto e filtros (v9.2)");
+    safeInit(initV93, "próximo aviso, luva e sol (v9.3)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
