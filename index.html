@@ -2603,6 +2603,47 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 .dsh-hero-map.v87-on .v87-contour { display: none; }
 .dsh-hero-map .v87-sat { opacity: 0; transition: opacity .35s; }
 .dsh-hero-map.v87-on .v87-sat { opacity: 1; filter: brightness(1.08) saturate(.9); }
+/* ===================== v8.9 — Lugares ===================== */
+#v89-places { position: fixed; left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 1300; max-height: 64vh; display: flex; flex-direction: column; padding: 10px 12px 8px; border-radius: 18px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(0,0,0,.45); }
+#v89-places.hidden { display: none; }
+@media (min-width: 769px) { #v89-places { left: auto; right: 16px; width: 420px; max-height: 72vh; } }
+.v89-head { display: flex; align-items: center; gap: 8px; font: 800 17px/1.2 system-ui, sans-serif; }
+.v89-head b { flex: 1 1 auto; }
+.v89-x { min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; background: rgba(127,127,127,.18); color: inherit; font: 700 18px system-ui; }
+.v89-clear { min-height: 36px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink2); font: 700 13px system-ui, sans-serif; }
+.v89-clear.hidden { display: none; }
+.v89-form { display: flex; gap: 6px; margin-top: 8px; }
+.v89-form input { flex: 1 1 auto; min-width: 0; min-height: 46px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surf2, var(--surf)); color: var(--ink); font: 600 16px system-ui, sans-serif; }
+.v89-form button { min-height: 46px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--acc); color: var(--onAcc); font: 800 15px system-ui, sans-serif; }
+.v89-chips { display: flex; gap: 6px; overflow-x: auto; padding: 8px 0 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.v89-chips::-webkit-scrollbar { display: none; }
+.v89-chip { flex: 0 0 auto; min-height: 40px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 20px; background: transparent; color: var(--ink); font: 700 14px system-ui, sans-serif; white-space: nowrap; }
+.v89-chip.on { background: var(--acc); color: var(--onAcc); border-color: var(--acc); }
+.v89-hint { margin: 6px 2px 0; color: var(--ink2); font: 500 12.5px/1.35 system-ui, sans-serif; }
+.v89-src { margin-top: 4px; }
+.v89-status { margin: 6px 2px 2px; font: 700 13.5px/1.35 system-ui, sans-serif; }
+.v89-status:empty { display: none; }
+.v89-status.v89-busy::before { content: ""; display: inline-block; width: 12px; height: 12px; margin-right: 8px; vertical-align: -1px; border: 2px solid var(--acc); border-right-color: transparent; border-radius: 50%; animation: v89spin .8s linear infinite; }
+@keyframes v89spin { to { transform: rotate(360deg); } }
+.v89-list { list-style: none; margin: 4px 0 0; padding: 0; overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+.v89-item { padding: 8px 0; border-top: 1px solid var(--line); }
+.v89-item-main { display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 2px; border: 0; background: transparent; color: inherit; text-align: left; }
+.v89-item-ic { flex: 0 0 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(127,127,127,.15); font-size: 18px; }
+.v89-item-tx { display: flex; flex-direction: column; min-width: 0; }
+.v89-item-tx b { font: 800 15px/1.25 system-ui, sans-serif; }
+.v89-item-tx small { color: var(--ink2); font: 500 12.5px/1.3 system-ui, sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.v89-acts { display: flex; gap: 6px; margin: 6px 0 0 44px; }
+.v89-acts .v89-act { flex: 1 1 0; min-width: 0; padding: 6px 4px; }
+@media (max-width: 400px) { .v89-acts { margin-left: 0; } }
+.v89-acts-pop { margin: 8px 0 0; }
+.v89-act { flex: 1 1 auto; min-height: 40px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink); font: 700 13.5px system-ui, sans-serif; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
+.leaflet-popup-content a.v89-act, .v89-act.v89-go { color: #1A73E8; }
+.v89-pop-name { font: 800 15px/1.25 system-ui, sans-serif; }
+.v89-pop-sub { margin-top: 2px; color: #555; font: 500 12.5px/1.3 system-ui, sans-serif; }
+.leaflet-popup-content .v89-act { color: #222; border-color: #ccc; }
+.v89-pin-w { background: transparent; border: 0; }
+.v89-pin { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #fff; border: 2px solid #1f5c38; box-shadow: 0 2px 6px rgba(0,0,0,.45); font-size: 18px; }
+#btn-nav-places .v89-ico { font-size: 20px; line-height: 1; }
 </style>
 </head>
 <body>
@@ -2773,6 +2814,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         <input type="checkbox" id="toggle-poi" />
         Mostrar restaurantes, lazer/turismo e postos de combustível
       </label>
+      <p class="hint">Para procurar cachoeiras, mirantes, camping e outros lugares (ou digitar um nome), use o botão 🔎 Lugares na barra de cima.</p>
     </section>
 
     <section class="panel-section hidden" id="blocks-section">
@@ -3617,8 +3659,17 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "8.8";
+  var APP_VERSION = "8.9";
   var CHANGELOG = [
+    {
+      version: "8.9",
+      date: "17/11/2026",
+      changes: [
+        "🔎 Lugares: procure cachoeiras, mirantes, camping, trilhas e picos, pesqueiros, lazer, restaurantes e postos — ou digite o que quiser (\"salto\", \"pousada\"…). No planejamento busca perto do centro do mapa; na navegação, perto de você (Mais → Lugares perto)",
+        "Cada lugar vira marcação (já com nome e tipo), ponto da rota ou \"Como chegar\"; busca no OpenStreetMap (bom para coisas do mato) e no Google (comércio)",
+        "As buscas ficam guardadas no celular: sem sinal na trilha, mostra o que você buscou antes naquela região"
+      ]
+    },
     {
       version: "8.8",
       date: "09/11/2026",
@@ -7468,6 +7519,468 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
 
 
+
+  // ===================== v8.9 — 🔎 Lugares: cachoeiras, mirantes, camping… =====================
+  // Busca lugares perto do mapa (planejamento) ou de você (navegação) em duas fontes:
+  //  * OpenStreetMap (Overpass, grátis) — bom para coisas do mato: cachoeira, mirante, trilha, camping;
+  //  * Google Places (busca por texto, cota grátis mensal) — bom para comércio: restaurante, posto.
+  // Cada resultado pode virar marcação, ponto da rota (no planejamento) ou "Como chegar".
+  // Os resultados ficam guardados no aparelho para ver de novo sem sinal.
+  var V89_CATS = [
+    { id: "cachoeira", label: "Cachoeiras", icon: "💧", wp: "agua",
+      osm: ['nwr["natural"="waterfall"]', 'nwr["waterway"="waterfall"]'], g: "cachoeira" },
+    { id: "mirante", label: "Mirantes", icon: "🏞️", wp: "mirante",
+      osm: ['nwr["tourism"="viewpoint"]'], g: "mirante" },
+    { id: "camping", label: "Camping", icon: "⛺", wp: "camping",
+      osm: ['nwr["tourism"~"^(camp_site|caravan_site)$"]'], g: "camping", gType: "campground" },
+    { id: "trilha", label: "Trilhas e picos", icon: "⛰️", wp: "outro",
+      osm: ['nwr["highway"="trailhead"]', 'node["natural"="peak"]["name"]', 'relation["route"="hiking"]["name"]'], g: null },
+    { id: "pesca", label: "Pesqueiros", icon: "🎣", wp: "outro",
+      osm: ['nwr["leisure"="fishing"]', 'nwr["sport"="fishing"]["name"]'], g: "pesqueiro" },
+    { id: "lazer", label: "Lazer e turismo", icon: "🎡", wp: "outro",
+      osm: ['nwr["tourism"~"^(attraction|theme_park|museum|zoo)$"]["name"]', 'nwr["leisure"~"^(park|nature_reserve|water_park)$"]["name"]'], g: "pontos turísticos", gType: "tourist_attraction" },
+    { id: "comida", label: "Restaurantes", icon: "🍽️", wp: "outro",
+      osm: ['nwr["amenity"~"^(restaurant|cafe|fast_food)$"]["name"]'], g: "restaurante", gType: "restaurant" },
+    { id: "posto", label: "Postos", icon: "⛽", wp: "apoio",
+      osm: ['nwr["amenity"="fuel"]'], g: "posto de combustível", gType: "gas_station" }
+  ];
+  var V89_CACHE_KEY = "fde_places_cache_v1";
+  var v89 = { ctx: null, sheet: null, results: [], layer: null, layerMap: null, busy: 0, label: "" };
+
+  function v89Cat(id) {
+    for (var i = 0; i < V89_CATS.length; i++) if (V89_CATS[i].id === id) return V89_CATS[i];
+    return null;
+  }
+  function v89GoogleOn() {
+    return !!GOOGLE_PLACES_API_KEY && GOOGLE_PLACES_API_KEY.indexOf("__") !== 0 && !window.__fdeOfflineCopy;
+  }
+  // de onde buscar: navegação = sua posição (ou o centro do mapa); planejamento = centro do mapa
+  function v89Context() {
+    var navOn = false;
+    try {
+      var sn = document.getElementById("screen-navigation"), av = document.getElementById("nav-active-view");
+      navOn = !!(sn && !sn.classList.contains("hidden") && av && !av.classList.contains("hidden") && navMap);
+    } catch (e) {}
+    if (navOn && navMap) {
+      var c = navLastFix ? { lat: navLastFix.lat, lng: navLastFix.lng } : navMap.getCenter();
+      return { mode: "nav", map: navMap, center: { lat: c.lat, lng: c.lng }, where: navLastFix ? "perto de você" : "perto do centro do mapa" };
+    }
+    if (map) {
+      var m = map.getCenter();
+      return { mode: "plan", map: map, center: { lat: m.lat, lng: wrapLng(m.lng) }, where: "perto do centro do mapa" };
+    }
+    return null;
+  }
+
+  // ---- busca no OpenStreetMap ----
+  function v89EscRe(t) { return t.replace(/[\\^$.*+?()[\]{}|"]/g, "\\$&"); }
+  function v89OsmQuery(cat, text, c, radius) {
+    var around = "(around:" + Math.round(radius) + "," + c.lat.toFixed(5) + "," + c.lng.toFixed(5) + ")";
+    var parts = [];
+    if (cat) cat.osm.forEach(function (q) { parts.push(q + around + ";"); });
+    if (text) parts.push('nwr["name"~"' + v89EscRe(text) + '",i]' + around + ";");
+    return "[out:json][timeout:25];(" + parts.join("") + ");out center tags 80;";
+  }
+  function v89OsmKind(tags) {
+    for (var i = 0; i < V89_CATS.length; i++) {
+      var ok = V89_CATS[i].osm.some(function (q) {
+        var m = q.match(/\["([^"]+)"(=|~)"([^"]+)"\]/);
+        if (!m || tags[m[1]] == null) return false;
+        return m[2] === "=" ? tags[m[1]] === m[3] : new RegExp(m[3]).test(tags[m[1]]);
+      });
+      if (ok) return V89_CATS[i];
+    }
+    return null;
+  }
+  var V89_OSM_NAMES = { waterfall: "Cachoeira", viewpoint: "Mirante", camp_site: "Camping", caravan_site: "Camping", trailhead: "Início de trilha", peak: "Pico", fuel: "Posto", fishing: "Pesca" };
+  function v89FromOsm(data, cat) {
+    var out = [];
+    ((data && data.elements) || []).forEach(function (e) {
+      var lat = e.lat != null ? e.lat : e.center && e.center.lat;
+      var lng = e.lon != null ? e.lon : e.center && e.center.lon;
+      if (lat == null || lng == null) return;
+      var t = e.tags || {};
+      var kind = v89OsmKind(t) || cat;
+      var generic = V89_OSM_NAMES[t.natural] || V89_OSM_NAMES[t.waterway] || V89_OSM_NAMES[t.tourism] || V89_OSM_NAMES[t.highway] || V89_OSM_NAMES[t.amenity] || V89_OSM_NAMES[t.leisure] || (kind ? kind.label.replace(/s$/, "") : "Lugar");
+      var name = t.name || t["name:pt"] || generic + " sem nome";
+      var extra = [];
+      if (t.ele && t.natural === "peak") extra.push(Math.round(+t.ele) + " m");
+      if (t.height && (t.natural === "waterfall" || t.waterway === "waterfall")) extra.push("queda de " + t.height + " m");
+      if (t.fee === "yes") extra.push("pago");
+      else if (t.fee === "no") extra.push("gratuito");
+      out.push({ id: "osm:" + e.type + e.id, src: "OpenStreetMap", name: name, named: !!t.name, lat: lat, lng: lng, cat: kind ? kind.id : cat ? cat.id : null, extra: extra.join(" · ") });
+    });
+    return out;
+  }
+
+  // ---- busca no Google ----
+  function v89Google(cat, text, c, radius) {
+    if (!v89GoogleOn()) return Promise.resolve([]);
+    var q = text || (cat && cat.g);
+    if (!q) return Promise.resolve([]);
+    return loadPlacesLibrary().then(function (places) {
+      var req = {
+        textQuery: q,
+        fields: ["id", "displayName", "location", "formattedAddress", "rating", "types"],
+        locationBias: { center: { lat: c.lat, lng: c.lng }, radius: Math.min(50000, radius) },
+        maxResultCount: 20,
+        language: "pt-BR",
+        region: "br"
+      };
+      if (!text && cat && cat.gType) req.includedType = cat.gType;
+      return places.Place.searchByText(req);
+    }).then(function (res) {
+      return ((res && res.places) || []).map(function (p) {
+        var lat = p.location ? (typeof p.location.lat === "function" ? p.location.lat() : p.location.lat) : null;
+        var lng = p.location ? (typeof p.location.lng === "function" ? p.location.lng() : p.location.lng) : null;
+        var gcat = cat;
+        if (!gcat) for (var i = 0; i < V89_CATS.length; i++) if (V89_CATS[i].gType && (p.types || []).indexOf(V89_CATS[i].gType) !== -1) { gcat = V89_CATS[i]; break; }
+        return { id: "g:" + p.id, gid: p.id, src: "Google", name: poiFieldText(p.displayName) || "Lugar", named: true, lat: lat, lng: lng, cat: gcat ? gcat.id : null, extra: [p.rating ? "⭐ " + p.rating : "", poiFieldText(p.formattedAddress)].filter(Boolean).join(" · ") };
+      }).filter(function (r) { return r.lat != null && r.lng != null; });
+    });
+  }
+
+  function v89Merge(lists, c, radius) {
+    var all = [];
+    lists.forEach(function (l) { all = all.concat(l || []); });
+    all.forEach(function (r) { r.dist = haversineMeters(c.lat, c.lng, r.lat, r.lng); });
+    all = all.filter(function (r) { return r.dist <= radius * 1.6; });
+    // mesmo lugar nas duas fontes (até 150 m e nomes parecidos): fica um só
+    var norm = function (s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, ""); };
+    var out = [];
+    all.sort(function (a, b) { return (b.named ? 1 : 0) - (a.named ? 1 : 0) || a.dist - b.dist; });
+    all.forEach(function (r) {
+      var dup = out.some(function (o) {
+        if (haversineMeters(o.lat, o.lng, r.lat, r.lng) > 150) return false;
+        var a = norm(o.name), b = norm(r.name);
+        return !r.named || a === b || (a && b && (a.indexOf(b) !== -1 || b.indexOf(a) !== -1));
+      });
+      if (!dup) out.push(r);
+    });
+    out.sort(function (a, b) { return a.dist - b.dist; });
+    return out.slice(0, 60);
+  }
+
+  // ---- guardado no aparelho (para ver sem sinal) ----
+  function v89CacheLoad() { try { return JSON.parse(localStorage.getItem(V89_CACHE_KEY) || "[]"); } catch (e) { return []; } }
+  function v89CacheSave(entry) {
+    var list = v89CacheLoad().filter(function (x) { return !(x.q === entry.q && haversineMeters(x.c.lat, x.c.lng, entry.c.lat, entry.c.lng) < 3000); });
+    list.unshift(entry);
+    list = list.slice(0, 25);
+    for (var n = list.length; n > 0; n--) {
+      try { localStorage.setItem(V89_CACHE_KEY, JSON.stringify(list.slice(0, n))); return; } catch (e) {}
+    }
+  }
+  function v89CacheFind(q, c) {
+    var best = null;
+    v89CacheLoad().forEach(function (x) {
+      if (x.q !== q) return;
+      var d = haversineMeters(x.c.lat, x.c.lng, c.lat, c.lng);
+      if (d < 25000 && (!best || d < best.d)) best = { d: d, e: x };
+    });
+    return best ? best.e : null;
+  }
+
+  // ---- pesquisar ----
+  function v89Search(catId, text) {
+    var ctx = v89Context();
+    if (!ctx) return;
+    v89.ctx = ctx;
+    var cat = catId ? v89Cat(catId) : null;
+    text = (text || "").trim();
+    if (!cat && !text) return;
+    var qKey = cat ? "cat:" + cat.id : "txt:" + text.toLowerCase();
+    v89.label = cat ? cat.icon + " " + cat.label : '"' + text + '"';
+    var token = ++v89.busy;
+    v89SetStatus("Procurando " + v89.label + " " + ctx.where + "…", true);
+    v89RenderList([]);
+    var c = ctx.center;
+    var offline = navigator.onLine === false;
+    function fromCache(why) {
+      var hit = v89CacheFind(qKey, c);
+      if (hit) {
+        var d = new Date(hit.t);
+        hit.r.forEach(function (r) { r.dist = haversineMeters(c.lat, c.lng, r.lat, r.lng); });
+        hit.r.sort(function (a, b) { return a.dist - b.dist; });
+        v89Show(hit.r, why + " Mostrando o que foi guardado em " + v55Pad(d.getDate()) + "/" + v55Pad(d.getMonth() + 1) + ".");
+      } else {
+        v89Show([], why + (offline ? " Sem internet e nada guardado para esta busca aqui. Faça a busca antes de sair, com sinal: ela fica guardada no celular." : " Tente de novo em instantes."));
+      }
+    }
+    if (offline) { fromCache("Sem internet."); return; }
+    function run(radius) {
+      var osm = v66Overpass(v89OsmQuery(cat, text, c, radius), 30000).then(function (d) { return v89FromOsm(d, cat); }, function (e) { return { err: e }; });
+      var g = v89Google(cat, text, c, radius).catch(function (e) { return { err: e }; });
+      return Promise.all([osm, g]).then(function (r) {
+        var errs = r.filter(function (x) { return x && x.err; });
+        var lists = r.filter(function (x) { return Array.isArray(x); });
+        return { list: v89Merge(lists, c, radius), allFailed: errs.length === r.length || (errs.length && !lists.some(function (l) { return l.length; }) && !v89GoogleOn()) , osmFailed: !!(r[0] && r[0].err) };
+      });
+    }
+    run(15000).then(function (res) {
+      if (token !== v89.busy) return;
+      if (!res.allFailed && res.list.length < 4) {
+        v89SetStatus("Pouca coisa por perto — procurando mais longe (até 40 km)…", true);
+        return run(40000).then(function (r2) { return r2.list.length >= res.list.length ? r2 : res; });
+      }
+      return res;
+    }).then(function (res) {
+      if (!res || token !== v89.busy) return;
+      if (res.allFailed) { fromCache("Não consegui buscar agora."); return; }
+      v89CacheSave({ q: qKey, c: c, t: Date.now(), r: res.list.map(function (r) { return { id: r.id, gid: r.gid, src: r.src, name: r.name, named: r.named, lat: r.lat, lng: r.lng, cat: r.cat, extra: r.extra }; }) });
+      var note = res.list.length ? "" : "Nada encontrado num raio de 40 km. Tente outra palavra (ex.: \"cachoeira\", \"salto\", \"mirante\").";
+      if (res.osmFailed && res.list.length) note = "O OpenStreetMap não respondeu; mostrando só o Google.";
+      v89Show(res.list, note);
+    });
+  }
+
+  function v89Show(list, note) {
+    v89.results = list;
+    var n = list.length;
+    v89SetStatus((n ? n + (n === 1 ? " lugar" : " lugares") + " — " + v89.label + " " + (v89.ctx ? v89.ctx.where : "") : "") + (note ? (n ? ". " : "") + note : ""), false);
+    v89RenderList(list);
+    v89RenderMarkers(list);
+  }
+
+  // ---- ações em cada lugar ----
+  function v89DirUrl(r) {
+    return "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(r.lat.toFixed(6) + "," + r.lng.toFixed(6)) + (r.gid ? "&destination_place_id=" + encodeURIComponent(r.gid) : "");
+  }
+  function v89Mark(r) {
+    var cat = v89Cat(r.cat);
+    v89Open(false);
+    if (v89.ctx && v89.ctx.mode === "nav") {
+      navOpenWaypointAt(r.lat, r.lng);
+    } else {
+      openWaypointEditor({ lat: r.lat, lng: wrapLng(r.lng), onSave: upsertPlanningWaypoint });
+    }
+    // já vem com o tipo e o nome preenchidos
+    if (wpEditor) {
+      wpEditor.type = cat ? cat.wp : "outro";
+      x.waypointNote.value = r.name;
+      renderWaypointTypeChips();
+    }
+  }
+  function v89AddToRoute(r) {
+    addPoint(r.lat, r.lng);
+    showToast("\"" + r.name + "\" entrou como ponto da rota.");
+  }
+  function v89Actions(r, small) {
+    var box = document.createElement("div");
+    box.className = "v89-acts" + (small ? " v89-acts-pop" : "");
+    function btn(txt, fn, cls) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "v89-act" + (cls ? " " + cls : "");
+      b.textContent = txt;
+      b.addEventListener("click", function (ev) { ev.stopPropagation(); fn(); });
+      box.appendChild(b);
+    }
+    btn("📌 Marcar", function () { v89Mark(r); });
+    if (v89.ctx && v89.ctx.mode === "plan") btn("➕ Na rota", function () { v89AddToRoute(r); });
+    var a = document.createElement("a");
+    a.className = "v89-act v89-go";
+    a.href = v89DirUrl(r);
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = "🧭 Como chegar";
+    box.appendChild(a);
+    return box;
+  }
+
+  // ---- mapa ----
+  function v89ClearMarkers() {
+    if (v89.layer && v89.layerMap) { try { v89.layerMap.removeLayer(v89.layer); } catch (e) {} }
+    v89.layer = null;
+    v89.layerMap = null;
+    var cl = document.getElementById("v89-clear");
+    if (cl) cl.classList.add("hidden");
+  }
+  function v89RenderMarkers(list) {
+    v89ClearMarkers();
+    if (!list.length || !v89.ctx) return;
+    var m = v89.ctx.map;
+    var layer = L.layerGroup();
+    list.forEach(function (r) {
+      var cat = v89Cat(r.cat);
+      var icon = L.divIcon({ className: "v89-pin-w", html: '<div class="v89-pin">' + (cat ? cat.icon : "📍") + "</div>", iconSize: [34, 34], iconAnchor: [17, 17] });
+      var mk = L.marker([r.lat, r.lng], { icon: icon, title: r.name });
+      mk.bindPopup(function () {
+        var d = document.createElement("div");
+        var h = document.createElement("div");
+        h.className = "v89-pop-name";
+        h.textContent = r.name;
+        d.appendChild(h);
+        var s = document.createElement("div");
+        s.className = "v89-pop-sub";
+        s.textContent = [cat ? cat.label.replace(/s$/, "") : "", formatDistance(r.dist || 0), r.extra].filter(Boolean).join(" · ");
+        d.appendChild(s);
+        d.appendChild(v89Actions(r, true));
+        return d;
+      }, { maxWidth: 260 });
+      r._mk = mk;
+      layer.addLayer(mk);
+    });
+    layer.addTo(m);
+    v89.layer = layer;
+    v89.layerMap = m;
+    var cl = document.getElementById("v89-clear");
+    if (cl) cl.classList.remove("hidden");
+  }
+  function v89Focus(r) {
+    if (!v89.ctx) return;
+    v89Open(false);
+    var m = v89.ctx.map;
+    if (v89.ctx.mode === "nav") {
+      // na navegação o mapa segue o GPS: solta o "seguir" para conseguir olhar o lugar
+      setNavFollowMode(false); // aparece o botão de voltar a seguir o GPS
+    }
+    m.setView([r.lat, r.lng], Math.max(m.getZoom(), 15));
+    setTimeout(function () { if (r._mk) r._mk.openPopup(); }, 350);
+  }
+
+  // ---- painel ----
+  function v89SetStatus(t, busy) {
+    var s = document.getElementById("v89-status");
+    if (!s) return;
+    s.textContent = t;
+    s.classList.toggle("v89-busy", !!busy);
+  }
+  function v89RenderList(list) {
+    var ul = document.getElementById("v89-list");
+    if (!ul) return;
+    ul.innerHTML = "";
+    list.forEach(function (r) {
+      var cat = v89Cat(r.cat);
+      var li = document.createElement("li");
+      li.className = "v89-item";
+      var main = document.createElement("button");
+      main.type = "button";
+      main.className = "v89-item-main";
+      main.title = "Ver no mapa";
+      var ic = document.createElement("span");
+      ic.className = "v89-item-ic";
+      ic.textContent = cat ? cat.icon : "📍";
+      var tx = document.createElement("span");
+      tx.className = "v89-item-tx";
+      var nm = document.createElement("b");
+      nm.textContent = r.name;
+      var sb = document.createElement("small");
+      sb.textContent = [formatDistance(r.dist || 0), r.extra, r.src].filter(Boolean).join(" · ");
+      tx.appendChild(nm);
+      tx.appendChild(sb);
+      main.appendChild(ic);
+      main.appendChild(tx);
+      main.addEventListener("click", function () { v89Focus(r); });
+      li.appendChild(main);
+      li.appendChild(v89Actions(r, false));
+      ul.appendChild(li);
+    });
+  }
+  function v89Open(open) {
+    var sh = v89BuildSheet();
+    if (open) {
+      v89.ctx = v89Context() || v89.ctx;
+      var w = document.getElementById("v89-where");
+      if (w && v89.ctx) w.textContent = v89.ctx.mode === "nav" ? "Busca " + v89.ctx.where + "." : "Busca perto do centro do mapa — arraste o mapa até a região antes de buscar.";
+      var g = document.getElementById("v89-src");
+      if (g) g.textContent = v89GoogleOn() ? "Fontes: OpenStreetMap (cachoeiras, mirantes, trilhas) e Google (comércio)." : "Fonte: OpenStreetMap.";
+    }
+    sh.classList.toggle("hidden", !open);
+    if (open) {
+      var inp = document.getElementById("v89-q");
+      if (inp && !("ontouchstart" in window)) setTimeout(function () { inp.focus(); }, 50);
+    }
+  }
+  function v89BuildSheet() {
+    if (v89.sheet) return v89.sheet;
+    var sh = document.createElement("div");
+    sh.id = "v89-places";
+    sh.className = "hidden";
+    sh.setAttribute("role", "dialog");
+    sh.setAttribute("aria-label", "Procurar lugares");
+    sh.innerHTML =
+      '<div class="v89-head"><b>🔎 Lugares</b><button type="button" id="v89-clear" class="v89-clear hidden">Limpar do mapa</button><button type="button" class="v89-x" aria-label="Fechar">✕</button></div>' +
+      '<form class="v89-form" autocomplete="off"><input id="v89-q" type="search" enterkeyhint="search" placeholder="Ex.: cachoeira, camping, Salto…" aria-label="O que procurar"><button type="submit">Buscar</button></form>' +
+      '<div class="v89-chips"></div>' +
+      '<p id="v89-where" class="v89-hint"></p>' +
+      '<p id="v89-status" class="v89-status" aria-live="polite"></p>' +
+      '<ul id="v89-list" class="v89-list"></ul>' +
+      '<p id="v89-src" class="v89-hint v89-src"></p>';
+    var chips = sh.querySelector(".v89-chips");
+    V89_CATS.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "v89-chip";
+      b.setAttribute("data-cat", c.id);
+      b.textContent = c.icon + " " + c.label;
+      b.addEventListener("click", function () {
+        chips.querySelectorAll(".v89-chip").forEach(function (o) { o.classList.toggle("on", o === b); });
+        document.getElementById("v89-q").value = "";
+        v89Search(c.id, "");
+      });
+      chips.appendChild(b);
+    });
+    sh.querySelector(".v89-form").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var q = document.getElementById("v89-q");
+      chips.querySelectorAll(".v89-chip").forEach(function (o) { o.classList.remove("on"); });
+      if (q.value.trim().length < 2) { v89SetStatus("Digite pelo menos 2 letras.", false); return; }
+      q.blur();
+      v89Search(null, q.value);
+    });
+    sh.querySelector(".v89-x").addEventListener("click", function () { v89Open(false); });
+    sh.querySelector("#v89-clear").addEventListener("click", function () {
+      v89ClearMarkers();
+      v89.results = [];
+      v89RenderList([]);
+      v89SetStatus("", false);
+      chips.querySelectorAll(".v89-chip").forEach(function (o) { o.classList.remove("on"); });
+    });
+    document.body.appendChild(sh);
+    v89.sheet = sh;
+    return sh;
+  }
+
+  function initV89Places() {
+    // planejamento: botão "Lugares" na barra
+    var nav = document.getElementById("btn-nav-mode");
+    if (nav && !document.getElementById("btn-places")) {
+      var b = document.createElement("button");
+      b.id = "btn-places";
+      b.type = "button";
+      b.title = "Procurar lugares: cachoeiras, mirantes, camping, restaurantes, postos";
+      b.innerHTML = '🔎 <span class="btn-label">Lugares</span>';
+      b.addEventListener("click", function () { v89Open(true); });
+      nav.parentNode.insertBefore(b, nav);
+    }
+    // navegação: opção no painel "Mais"
+    var sheet = document.getElementById("nav-more-sheet");
+    if (sheet && !document.getElementById("btn-nav-places")) {
+      var nb = document.createElement("button");
+      nb.id = "btn-nav-places";
+      nb.type = "button";
+      nb.className = "nav-tool-btn";
+      nb.title = "Procurar lugares perto de você";
+      nb.innerHTML = '<span class="v89-ico" aria-hidden="true">🔎</span><span class="v84-lbl">Lugares perto</span>';
+      nb.addEventListener("click", function () {
+        v84MoreOpen(false);
+        setTimeout(function () { v89Open(true); }, 0);
+      });
+      var head = sheet.querySelector(".v84-more-head");
+      sheet.insertBefore(nb, head ? head.nextSibling : sheet.firstChild);
+    }
+    // trocou de tela: fecha o painel e tira os alfinetes (eles são do mapa da tela anterior)
+    var origShow = showScreen;
+    showScreen = function () {
+      if (v89.sheet && !v89.sheet.classList.contains("hidden")) v89Open(false);
+      v89ClearMarkers();
+      return origShow.apply(this, arguments);
+    };
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape" && v89.sheet && !v89.sheet.classList.contains("hidden")) v89Open(false);
+    });
+  }
 
   // ===================== v8.8 — app Android abre sem internet =====================
   // O APK leva uma cópia completa do app (android-app/www/offline.html, gerada por
@@ -19597,6 +20110,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     safeInit(initV84NavMore, "coluna da navegação (v8.4)");
     safeInit(initV85, "iniciante e visual (v8.5)");
     safeInit(initV88OfflineCopy, "cópia do app sem internet (v8.8)");
+    safeInit(initV89Places, "lugares (v8.9)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
