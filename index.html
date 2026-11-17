@@ -2606,7 +2606,10 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 /* ===================== v8.9 — Lugares ===================== */
 #v89-places { position: fixed; left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 1300; max-height: 64vh; display: flex; flex-direction: column; padding: 10px 12px 8px; border-radius: 18px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(0,0,0,.45); }
 #v89-places.hidden { display: none; }
-@media (min-width: 769px) { #v89-places { left: auto; right: 16px; width: 420px; max-height: 72vh; } }
+#v89-places > * { flex-shrink: 0; }
+#v89-places > .v89-list { flex: 1 1 auto; min-height: 120px; }
+#v89-places { overflow-y: auto; }
+@media (min-width: 769px) { #v89-places { left: auto; right: 16px; width: 480px; max-height: 84vh; } .v89-chips { flex-wrap: wrap; overflow: visible; gap: 5px; } #v89-places .v89-chip { min-height: 30px; padding: 3px 9px; font-size: 12.5px; } }
 .v89-head { display: flex; align-items: center; gap: 8px; font: 800 17px/1.2 system-ui, sans-serif; }
 .v89-head b { flex: 1 1 auto; }
 .v89-x { min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; background: rgba(127,127,127,.18); color: inherit; font: 700 18px system-ui; }
@@ -7766,7 +7769,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       var osmDone = false;
       var osm = skipOsm ? Promise.resolve({ err: new Error("skip"), skipped: true }) : v89OsmTimed(v89OsmQuery(osmCat, osmText, c, radius)).then(function (d) { return v89FromOsm(d, osmCat); }, function (e) { return { err: e }; });
       osm.then(function () { osmDone = true; });
-      var g = v89Google(cat, text, c, radius, area).catch(function (e) { return { err: e }; });
+      var g = v89Google(cat || osmCat, text, c, radius, area).catch(function (e) { return { err: e }; });
       g.then(function (gl) {
         if (osmDone || skipOsm || token !== v89.busy || !Array.isArray(gl) || !gl.length) return;
         var part = v89Merge([gl], c, radius, area);
