@@ -2018,17 +2018,17 @@ html, body {
 .welcome-body a { color: var(--acc); }
 /* v8.4: coluna da navegação com legenda + painel "Mais opções" */
 #nav-side-tools > .nav-tool-btn[data-cap] { position: relative; margin-bottom: 12px; }
-#nav-side-tools > .nav-tool-btn[data-cap]::after { content: attr(data-cap); position: absolute; top: calc(100% + 1px); left: 50%; transform: translateX(-50%); font: 800 11px/1 system-ui, sans-serif; color: #fff; text-shadow: 0 0 3px #000, 0 0 3px #000, 0 1px 2px #000; white-space: nowrap; pointer-events: none; }
+#nav-side-tools > .nav-tool-btn[data-cap]::after { content: attr(data-cap); position: absolute; top: calc(100% + 1px); left: 50%; transform: translateX(-50%); font: 800 11px/1 var(--font); color: #fff; text-shadow: 0 0 3px #000, 0 0 3px #000, 0 1px 2px #000; white-space: nowrap; pointer-events: none; }
 #nav-more-sheet { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 1100; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; border-radius: 18px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(0,0,0,.45); max-height: 70%; overflow-y: auto; }
 #nav-more-sheet.hidden { display: none; }
 #nav-more-sheet .nav-tool-btn.v84-proxy { display: none; }
 #nav-active-view.v84-compact #nav-more-sheet .nav-tool-btn.v84-proxy { display: flex; }
 #nav-active-view.v84-compact #nav-side-tools > #btn-nav-layers, #nav-active-view.v84-compact #nav-side-tools > #btn-nav-waypoint { display: none; }
-#nav-more-sheet .v84-more-head { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; font: 800 16px/1.2 system-ui, sans-serif; padding: 2px 2px 4px 6px; }
-#nav-more-sheet .v84-more-close { min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; background: rgba(127,127,127,.18); color: inherit; font: 700 18px system-ui; }
+#nav-more-sheet .v84-more-head { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; font: 800 16px/1.2 var(--font); padding: 2px 2px 4px 6px; }
+#nav-more-sheet .v84-more-close { min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; background: rgba(127,127,127,.18); color: inherit; font: 700 18px var(--font); }
 #nav-more-sheet .nav-tool-btn { width: auto; height: auto; min-height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding: 8px 12px; }
 #nav-more-sheet .nav-tool-btn .svg-ico { flex: 0 0 auto; }
-#nav-more-sheet .v84-lbl { font: 700 14px/1.2 system-ui, sans-serif; text-align: left; }
+#nav-more-sheet .v84-lbl { font: 700 14px/1.2 var(--font); text-align: left; }
 .v84-tips { margin: 8px 0 4px 18px; padding: 0; line-height: 1.45; }
 .v84-tips li { margin-bottom: 6px; }
 .v84-list-more { width: 100%; min-height: 44px; margin: 6px 0; }
@@ -2549,13 +2549,13 @@ html.fde-native .native-only { display: block; }
 .v85-start-sub { margin-top: 2px; }
 .v85-or { text-align: center; font-weight: 700; margin: 22px 0 6px; color: var(--ink2); }
 #screen-welcome .welcome-list { margin-top: 18px; }
-.v85-plan-hint { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 850; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 120px); padding: 8px 8px 8px 14px; border-radius: 22px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: var(--shadow); font: 700 14px/1.25 system-ui, sans-serif; }
+.v85-plan-hint { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 850; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 120px); padding: 8px 8px 8px 14px; border-radius: 22px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: var(--shadow); font: 700 14px/1.25 var(--font); }
 .v85-plan-hint span { white-space: nowrap; }
 .v85-plan-hint.v85-plan-hint-start { background: var(--acc); color: var(--onAcc); border-color: transparent; padding: 10px 16px; }
-.v85-plan-hint button { flex: 0 0 auto; min-height: 40px; padding: 6px 14px; border: 0; border-radius: 18px; background: var(--acc); color: var(--onAcc); font: 800 14px system-ui, sans-serif; }
+.v85-plan-hint button { flex: 0 0 auto; min-height: 40px; padding: 6px 14px; border: 0; border-radius: 18px; background: var(--acc); color: var(--onAcc); font: 800 14px var(--font); }
 #v85-plan-menu { position: fixed; right: 8px; top: 60px; z-index: 1200; display: flex; flex-direction: column; gap: 4px; min-width: 240px; padding: 6px; border-radius: 14px; background: var(--surf); border: 1px solid var(--line); box-shadow: var(--shadow); }
 #v85-plan-menu.hidden { display: none; }
-#v85-plan-menu button { min-height: 48px; text-align: left; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 700 15px system-ui, sans-serif; }
+#v85-plan-menu button { min-height: 48px; text-align: left; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 700 15px var(--font); }
 #v85-plan-menu button.v85-danger { color: #d6362a; }
 #btn-plan-more { display: none; }
 @media (max-width: 768px) {
@@ -2575,7 +2575,7 @@ html.fde-native .native-only { display: block; }
 .saved-screen-card-buttons button, .nav-route-card-btn { min-height: 44px; }
 input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 .saved-screen-card-buttons .nav-btn, .saved-list .nav-btn, .nav-route-card-btn, .com-btn-primary { background: var(--acc) !important; border-color: var(--acc) !important; color: var(--onAcc) !important; font-weight: 800; }
-.v85-gps-card { position: absolute; left: 10px; right: 10px; top: 76px; z-index: 1150; padding: 14px; border-radius: 16px; background: var(--surf); color: var(--ink); border: 2px solid #d6362a; box-shadow: var(--shadow); font: 15px/1.4 system-ui, sans-serif; }
+.v85-gps-card { position: absolute; left: 10px; right: 10px; top: 76px; z-index: 1150; padding: 14px; border-radius: 16px; background: var(--surf); color: var(--ink); border: 2px solid #d6362a; box-shadow: var(--shadow); font: 15px/1.4 var(--font); }
 .v85-gps-card p { margin: 6px 0; }
 .v85-gps-card button { width: 100%; min-height: 48px; margin-top: 8px; }
 
@@ -2610,21 +2610,21 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 #v89-places > .v89-list { flex: 1 1 auto; min-height: 120px; }
 #v89-places { overflow-y: auto; }
 @media (min-width: 769px) { #v89-places { left: auto; right: 16px; width: 480px; max-height: 84vh; } .v89-chips { flex-wrap: wrap; overflow: visible; gap: 5px; } #v89-places .v89-chip { min-height: 30px; padding: 3px 9px; font-size: 12.5px; } }
-.v89-head { display: flex; align-items: center; gap: 8px; font: 800 17px/1.2 system-ui, sans-serif; }
+.v89-head { display: flex; align-items: center; gap: 8px; font: 800 17px/1.2 var(--font); }
 .v89-head b { flex: 1 1 auto; }
-.v89-x { min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; background: rgba(127,127,127,.18); color: inherit; font: 700 18px system-ui; }
-.v89-clear { min-height: 36px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink2); font: 700 13px system-ui, sans-serif; }
+.v89-x { min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; background: rgba(127,127,127,.18); color: inherit; font: 700 18px var(--font); }
+.v89-clear { min-height: 36px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink2); font: 700 13px var(--font); }
 .v89-clear.hidden { display: none; }
 .v89-form { display: flex; gap: 6px; margin-top: 8px; }
-.v89-form input { flex: 1 1 auto; min-width: 0; min-height: 46px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surf2, var(--surf)); color: var(--ink); font: 600 16px system-ui, sans-serif; }
-.v89-form button { min-height: 46px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--acc); color: var(--onAcc); font: 800 15px system-ui, sans-serif; }
+.v89-form input { flex: 1 1 auto; min-width: 0; min-height: 46px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surf2, var(--surf)); color: var(--ink); font: 600 16px var(--font); }
+.v89-form button { min-height: 46px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--acc); color: var(--onAcc); font: 800 15px var(--font); }
 .v89-chips { display: flex; gap: 6px; overflow-x: auto; padding: 8px 0 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .v89-chips::-webkit-scrollbar { display: none; }
-.v89-chip { flex: 0 0 auto; min-height: 40px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 20px; background: transparent; color: var(--ink); font: 700 14px system-ui, sans-serif; white-space: nowrap; }
+.v89-chip { flex: 0 0 auto; min-height: 40px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 20px; background: transparent; color: var(--ink); font: 700 14px var(--font); white-space: nowrap; }
 .v89-chip.on { background: var(--acc); color: var(--onAcc); border-color: var(--acc); }
-.v89-hint { margin: 6px 2px 0; color: var(--ink2); font: 500 12.5px/1.35 system-ui, sans-serif; }
+.v89-hint { margin: 6px 2px 0; color: var(--ink2); font: 500 12.5px/1.35 var(--font); }
 .v89-src { margin-top: 4px; }
-.v89-status { margin: 6px 2px 2px; font: 700 13.5px/1.35 system-ui, sans-serif; }
+.v89-status { margin: 6px 2px 2px; font: 700 13.5px/1.35 var(--font); }
 .v89-status:empty { display: none; }
 .v89-status.v89-busy::before { content: ""; display: inline-block; width: 12px; height: 12px; margin-right: 8px; vertical-align: -1px; border: 2px solid var(--acc); border-right-color: transparent; border-radius: 50%; animation: v89spin .8s linear infinite; }
 @keyframes v89spin { to { transform: rotate(360deg); } }
@@ -2633,22 +2633,55 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 .v89-item-main { display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 2px; border: 0; background: transparent; color: inherit; text-align: left; }
 .v89-item-ic { flex: 0 0 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(127,127,127,.15); font-size: 18px; }
 .v89-item-tx { display: flex; flex-direction: column; min-width: 0; }
-.v89-item-tx b { font: 800 15px/1.25 system-ui, sans-serif; }
-.v89-item-tx small { color: var(--ink2); font: 500 12.5px/1.3 system-ui, sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.v89-item-tx b { font: 800 15px/1.25 var(--font); }
+.v89-item-tx small { color: var(--ink2); font: 500 12.5px/1.3 var(--font); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .v89-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 0 0 44px; }
 .v89-acts .v89-act { min-width: 0; padding: 6px 4px; overflow: hidden; text-overflow: ellipsis; }
 .v89-acts > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 @media (max-width: 400px) { .v89-acts { margin-left: 0; } }
 .v89-acts-pop { margin: 8px 0 0; }
-.v89-act { flex: 1 1 auto; min-height: 40px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink); font: 700 13.5px system-ui, sans-serif; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
+.v89-act { flex: 1 1 auto; min-height: 40px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink); font: 700 13.5px var(--font); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
 .leaflet-popup-content a.v89-act, .v89-act.v89-go, .v89-act.v89-page { color: #1A73E8; }
-.v89-pop-name { font: 800 15px/1.25 system-ui, sans-serif; }
-.v89-pop-sub { margin-top: 2px; color: #555; font: 500 12.5px/1.3 system-ui, sans-serif; }
+.v89-pop-name { font: 800 15px/1.25 var(--font); }
+.v89-pop-sub { margin-top: 2px; color: #555; font: 500 12.5px/1.3 var(--font); }
 .leaflet-popup-content .v89-act { color: #222; border-color: #ccc; }
 .leaflet-popup-content a.v89-act.v89-go, .leaflet-popup-content a.v89-act.v89-page { color: #1A73E8; }
 .v89-pin-w { background: transparent; border: 0; }
 .v89-pin { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #fff; border: 2px solid #1f5c38; box-shadow: 0 2px 6px rgba(0,0,0,.45); font-size: 18px; }
 #btn-nav-places .v89-ico { font-size: 20px; line-height: 1; }
+/* ===================== v9.0 — um visual só + barra de abas ===================== */
+/* uma fonte em tudo (botões e campos herdavam a do sistema) */
+button, input, select, textarea { font-family: var(--font); }
+#app-header .header-actions button .v90-ico { width: 20px; height: 20px; }
+#app-header .header-actions button { gap: 6px; }
+#btn-home .v90-ico, #btn-menu .v90-ico { width: 24px; height: 24px; }
+#v85-plan-menu button { display: flex; align-items: center; gap: 10px; }
+#v85-plan-menu button .v90-ico { width: 20px; height: 20px; }
+@media (max-width: 768px) {
+  #app-header .header-actions button { gap: 2px; }
+  #app-header .header-actions button .v90-ico { width: 22px; height: 22px; }
+}
+#v90-tabs { display: none; }
+@media (max-width: 768px) {
+  #v90-tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 2400; display: grid; grid-template-columns: repeat(5, 1fr); align-items: end; padding: 6px max(6px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px)); background: var(--surf); border-top: 1px solid var(--line); box-shadow: 0 -4px 16px rgba(23,32,27,.08); }
+  #v90-tabs.hidden { display: none; }
+  .v90-tab { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; min-height: 52px; padding: 4px 2px; border: 0; background: transparent; color: var(--muted); font: 700 11.5px/1.1 var(--font); cursor: pointer; }
+  .v90-tab .v90-ico { width: 24px; height: 24px; }
+  .v90-tab.on { color: var(--acc); }
+  .v90-tab.on .v90-tab-lbl { font-weight: 800; }
+  .v90-go { color: var(--ink); }
+  .v90-go-ring { width: 56px; height: 56px; margin-top: -26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--acc); color: var(--onAcc); border: 4px solid var(--surf); box-shadow: 0 4px 12px rgba(194,65,12,.4); }
+  .v90-go-ring .v90-ico { width: 24px; height: 24px; }
+  .v90-go.on { color: var(--acc); }
+  body.v90-tabs-on { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+  body.v90-tabs-on .nav-running-bar { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+  /* o que virou aba sai da grade da tela inicial; "Planejar" vira o atalho principal */
+  body.v90-tabs-on #btn-dash-navigate, body.v90-tabs-on #btn-dash-saved, body.v90-tabs-on #btn-dash-community, body.v90-tabs-on #btn-dash-garage { display: none; }
+  body.v90-tabs-on #btn-dash-plan { grid-column: 1 / -1; background: var(--acc); color: var(--onAcc); border-color: var(--acc); }
+  body.v90-tabs-on #btn-dash-plan .dashboard-tile-icon { color: var(--onAcc); background: rgba(255,255,255,.18); }
+  body.v90-tabs-on #btn-dash-plan .dashboard-tile-label, body.v90-tabs-on #btn-dash-plan .dashboard-tile-icon .svg-ico { color: var(--onAcc); }
+  body.v90-tabs-on #btn-dash-plan .dashboard-tile-label { font-weight: 800; font-size: 1.05rem; }
+}
 </style>
 </head>
 <body>
@@ -3664,8 +3697,18 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "8.9";
+  var APP_VERSION = "9.0";
   var CHANGELOG = [
+    {
+      version: "9.0",
+      date: "17/11/2026",
+      changes: [
+        "Celular: barra de abas embaixo — Início · Rotas · ▶ Navegar · Comunidade · Garagem — nas telas de menu (some no planejamento e na navegação, para o mapa ficar com a tela toda)",
+        "Tela inicial mais limpa no celular: o que virou aba saiu da grade e \"Planejar Nova Rota\" ficou em destaque",
+        "Um visual só: ícones de linha no lugar dos emoji na barra do planejamento e a mesma fonte (Archivo) em todos os botões, avisos e no painel de Lugares",
+        "No PC nada muda de lugar"
+      ]
+    },
     {
       version: "8.9",
       date: "17/11/2026",
@@ -7526,6 +7569,129 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
 
 
+
+  // ===================== v9.0 — um visual só + barra de abas (celular) =====================
+  // Proposta "Fora de Estrada 9.0" (aprovada em 17/11/2026):
+  //  * ícones de linha no lugar dos emoji da barra do planejamento;
+  //  * no celular, barra de abas embaixo nas telas de menu: Início · Rotas · ▶ Navegar · Comunidade · Garagem
+  //    (some no planejamento e na navegação, onde o mapa precisa da tela toda). No PC nada muda.
+  var V90_ICONS = {
+    save: '<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/>',
+    import: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/>',
+    export: '<path d="M12 15V3M7 8l5-5 5 5"/><path d="M4 17v3h16v-3"/>',
+    share: '<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/>',
+    clear: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
+    compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11z"/>',
+    more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+    home: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/>',
+    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+    route: '<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5"/>',
+    users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 4 6"/>',
+    wrench: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',
+    play: '<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>'
+  };
+  function v90Svg(name) {
+    return '<svg class="svg-ico v90-ico" viewBox="0 0 24 24" aria-hidden="true">' + (V90_ICONS[name] || "") + "</svg>";
+  }
+  // troca o emoji do começo do botão pelo ícone (o texto/rótulo continua)
+  function v90SetIcon(btn, name) {
+    if (!btn || btn.querySelector(".v90-ico")) return;
+    var first = btn.firstChild;
+    if (first && first.nodeType === 3) {
+      var rest = first.nodeValue.replace(/^\s*[^\s\wÀ-ɏ]+\s*/, "");
+      if (rest.trim()) first.nodeValue = " " + rest;
+      else btn.removeChild(first);
+    }
+    btn.insertAdjacentHTML("afterbegin", v90Svg(name));
+  }
+  var V90_TAB_SCREENS = ["dashboard", "saved-routes", "community", "garage", "timing", "expeditions", "compass"];
+  var V90_TABS = [
+    { id: "home", label: "Início", icon: "home", screens: ["dashboard", "compass"] },
+    { id: "routes", label: "Rotas", icon: "route", screens: ["saved-routes", "timing", "expeditions"] },
+    { id: "nav", label: "Navegar", icon: "play", screens: ["navigation"], go: true },
+    { id: "community", label: "Comunidade", icon: "users", screens: ["community"] },
+    { id: "garage", label: "Garagem", icon: "wrench", screens: ["garage"] }
+  ];
+  function v90CurrentScreen() {
+    var all = ["dashboard", "planning", "navigation", "saved-routes", "timing", "community", "welcome", "expeditions", "garage", "compass"];
+    for (var i = 0; i < all.length; i++) {
+      var s = document.getElementById("screen-" + all[i]);
+      if (s && !s.classList.contains("hidden")) return all[i];
+    }
+    return "";
+  }
+  function v90UpdateTabs() {
+    var bar = document.getElementById("v90-tabs");
+    if (!bar) return;
+    var cur = v90CurrentScreen();
+    var pickerOpen = cur === "navigation" && el.navPickerView && !el.navPickerView.classList.contains("hidden");
+    var show = V90_TAB_SCREENS.indexOf(cur) !== -1 || pickerOpen;
+    document.body.classList.toggle("v90-tabs-on", show);
+    bar.classList.toggle("hidden", !show);
+    bar.querySelectorAll(".v90-tab").forEach(function (b) {
+      var t = V90_TABS.filter(function (x) { return x.id === b.getAttribute("data-tab"); })[0];
+      var on = !!t && t.screens.indexOf(cur) !== -1;
+      b.classList.toggle("on", on);
+      if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+    });
+  }
+  function v90Go(id) {
+    if (id === "home") showScreen("dashboard");
+    else if (id === "routes") showScreen("saved-routes");
+    else if (id === "nav") {
+      if (v62NavRunning()) v62GoToActiveNav();
+      else el.btnDashNavigate.click();
+    } else if (id === "community") document.getElementById("btn-dash-community").click();
+    else if (id === "garage") document.getElementById("btn-dash-garage").click();
+    try { window.scrollTo(0, 0); } catch (e) {}
+    setTimeout(v90UpdateTabs, 0);
+  }
+
+  function initV90Visual() {
+    // 1) ícones de linha na barra do planejamento (e no topo dela)
+    [["btn-save", "save"], ["btn-import", "import"], ["btn-export", "export"], ["btn-share-route", "share"], ["btn-clear-points", "clear"],
+     ["btn-new", "plus"], ["btn-places", "search"], ["btn-nav-mode", "compass"], ["btn-plan-more", "more"]].forEach(function (p) {
+      v90SetIcon(document.getElementById(p[0]), p[1]);
+    });
+    var hb = document.getElementById("btn-home");
+    if (hb && !hb.querySelector(".v90-ico")) hb.innerHTML = v90Svg("home");
+    var mb = document.getElementById("btn-menu");
+    if (mb && !mb.querySelector(".v90-ico")) mb.innerHTML = v90Svg("menu");
+    // menu "Mais" do planejamento: mesmos ícones
+    document.querySelectorAll("#v85-plan-menu button[data-v85]").forEach(function (b) {
+      var map = { "btn-export": "export", "btn-share-route": "share", "btn-new": "plus", "btn-clear-points": "clear" };
+      var ic = map[b.getAttribute("data-v85")];
+      if (ic) v90SetIcon(b, ic);
+    });
+
+    // 2) barra de abas (só aparece no celular, pelo CSS)
+    if (!document.getElementById("v90-tabs")) {
+      var bar = document.createElement("nav");
+      bar.id = "v90-tabs";
+      bar.className = "hidden";
+      bar.setAttribute("aria-label", "Seções do app");
+      V90_TABS.forEach(function (t) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "v90-tab" + (t.go ? " v90-go" : "");
+        b.setAttribute("data-tab", t.id);
+        b.innerHTML = (t.go ? '<span class="v90-go-ring">' + v90Svg(t.icon) + "</span>" : v90Svg(t.icon)) + '<span class="v90-tab-lbl">' + t.label + "</span>";
+        b.addEventListener("click", function () { v90Go(t.id); });
+        bar.appendChild(b);
+      });
+      document.body.appendChild(bar);
+    }
+    // atualiza quando qualquer tela abre/fecha (inclusive a escolha de rota da navegação)
+    var obs = new MutationObserver(function () { v90UpdateTabs(); });
+    ["dashboard", "planning", "navigation", "saved-routes", "timing", "community", "welcome", "expeditions", "garage", "compass"].forEach(function (n) {
+      var s = document.getElementById("screen-" + n);
+      if (s) obs.observe(s, { attributes: true, attributeFilter: ["class"] });
+    });
+    if (el.navPickerView) obs.observe(el.navPickerView, { attributes: true, attributeFilter: ["class"] });
+    v90UpdateTabs();
+  }
 
   // ===================== v8.9 — 🔎 Lugares: cachoeiras, mirantes, camping… =====================
   // Busca lugares perto do mapa (planejamento) ou de você (navegação) em duas fontes:
@@ -20200,6 +20366,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     safeInit(initV85, "iniciante e visual (v8.5)");
     safeInit(initV88OfflineCopy, "cópia do app sem internet (v8.8)");
     safeInit(initV89Places, "lugares (v8.9)");
+    safeInit(initV90Visual, "visual e abas (v9.0)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
