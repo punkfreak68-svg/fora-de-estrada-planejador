@@ -3670,7 +3670,8 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         "🔎 Lugares: procure cachoeiras, mirantes, camping, trilhas e picos, pesqueiros, lazer, restaurantes e postos — ou digite o que quiser (\"salto\", \"pousada\"…). No planejamento busca perto do centro do mapa; na navegação, perto de você (Mais → Lugares perto)",
         "Cada lugar vira marcação (já com nome e tipo), ponto da rota ou \"Como chegar\"; busca no OpenStreetMap (bom para coisas do mato) e no Google (comércio)",
         "As buscas ficam guardadas no celular: sem sinal na trilha, mostra o que você buscou antes naquela região",
-        "📷 Ver fotos: abre a página do lugar no Google Maps (fotos, avaliações, horário)"
+        "📷 Ver fotos: abre a página do lugar no Google Maps (fotos, avaliações, horário)",
+        "No planejamento, a busca cobre a área que aparece no mapa (abra o mapa da região inteira e busque); digitar \"cachoeira\", \"mirante\", \"pesqueiro\"… funciona como o atalho; se o OpenStreetMap não responder em ~15 s, mostra o que já achou"
       ]
     },
     {
@@ -7570,9 +7571,36 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     }
     if (map) {
       var m = map.getCenter();
-      return { mode: "plan", map: map, center: { lat: m.lat, lng: wrapLng(m.lng) }, where: "perto do centro do mapa" };
+      var b = map.getBounds();
+      var ne = b.getNorthEast();
+      var half = haversineMeters(m.lat, m.lng, ne.lat, ne.lng);
+      return { mode: "plan", map: map, center: { lat: m.lat, lng: wrapLng(m.lng) }, half: half,
+        bounds: { north: b.getNorth(), south: b.getSouth(), east: wrapLng(b.getEast()), west: wrapLng(b.getWest()) },
+        where: half > 15000 ? "na área do mapa" : "perto do centro do mapa" };
     }
     return null;
+  }
+
+  var V89_WORDS = [
+    [/^(cachoeiras?|saltos?|quedas? d.?[aá]gua|cascatas?)$/, "cachoeira"],
+    [/^(mirantes?|vistas?)$/, "mirante"],
+    [/^(campings?|acampamentos?|[aá]reas? de camping)$/, "camping"],
+    [/^(trilhas?|picos?|morros?)$/, "trilha"],
+    [/^(pesqueiros?|pesca|pesque.?pague)$/, "pesca"],
+    [/^(restaurantes?|lanchonetes?|comida)$/, "comida"],
+    [/^(postos?|postos? de combust[ií]vel|gasolina|combust[ií]vel)$/, "posto"]
+  ];
+  function v89TextCat(text) {
+    var t = String(text || "").trim().toLowerCase();
+    for (var i = 0; i < V89_WORDS.length; i++) if (V89_WORDS[i][0].test(t)) return v89Cat(V89_WORDS[i][1]);
+    return null;
+  }
+  // os servidores gratuitos do OpenStreetMap às vezes ficam lotados: no máximo ~16 s de espera
+  function v89OsmTimed(q) {
+    return Promise.race([
+      v66Overpass(q, 10000),
+      new Promise(function (res, rej) { setTimeout(function () { rej(new Error("tempo")); }, 16000); })
+    ]);
   }
 
   // ---- busca no OpenStreetMap ----
@@ -7617,7 +7645,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
   }
 
   // ---- busca no Google ----
-  function v89Google(cat, text, c, radius) {
+  function v89Google(cat, text, c, radius, bounds) {
     if (!v89GoogleOn()) return Promise.resolve([]);
     var q = text || (cat && cat.g);
     if (!q) return Promise.resolve([]);
@@ -7631,6 +7659,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         region: "br"
       };
       if (!text && cat && cat.gType) req.includedType = cat.gType;
+      if (bounds) { delete req.locationBias; req.locationRestriction = bounds; }
       return places.Place.searchByText(req);
     }).then(function (res) {
       return ((res && res.places) || []).map(function (p) {
@@ -7643,11 +7672,14 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     });
   }
 
-  function v89Merge(lists, c, radius) {
+  function v89Merge(lists, c, radius, bounds) {
     var all = [];
     lists.forEach(function (l) { all = all.concat(l || []); });
     all.forEach(function (r) { r.dist = haversineMeters(c.lat, c.lng, r.lat, r.lng); });
-    all = all.filter(function (r) { return r.dist <= radius * 1.6; });
+    if (bounds) {
+      var pl = (bounds.north - bounds.south) * 0.05, pg = Math.abs(bounds.east - bounds.west) * 0.05;
+      all = all.filter(function (r) { return r.lat <= bounds.north + pl && r.lat >= bounds.south - pl && r.lng <= bounds.east + pg && r.lng >= bounds.west - pg; });
+    } else all = all.filter(function (r) { return r.dist <= radius * 1.6; });
     // mesmo lugar nas duas fontes (até 150 m e nomes parecidos): fica um só
     var norm = function (s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, ""); };
     var out = [];
@@ -7720,30 +7752,39 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       }
     }
     if (offline) { fromCache("Sem internet."); return; }
-    // servidores do OpenStreetMap às vezes ficam lotados: o que chegar primeiro já aparece
+    // área: no planejamento é o que aparece na tela (até 60 km do centro para o OpenStreetMap);
+    // na navegação, 15 km em volta de você (e até 40 km se achar pouco)
+    var half = ctx.half || 0;
+    var area = ctx.mode === "plan" && half > 15000 ? ctx.bounds : null;
+    var R0 = area ? Math.min(60000, half) : 15000;
+    var osmSkip = !!area && half > 60000;
+    // "cachoeira", "mirante", "pesqueiro"… digitados viram a categoria no OpenStreetMap
+    var osmCat = cat || v89TextCat(text);
+    var osmText = osmCat ? "" : text;
+    // o que chegar primeiro já aparece
     function run(radius, skipOsm) {
       var osmDone = false;
-      var osm = skipOsm ? Promise.resolve({ err: new Error("skip") }) : v66Overpass(v89OsmQuery(cat, text, c, radius), 12000).then(function (d) { return v89FromOsm(d, cat); }, function (e) { return { err: e }; });
+      var osm = skipOsm ? Promise.resolve({ err: new Error("skip"), skipped: true }) : v89OsmTimed(v89OsmQuery(osmCat, osmText, c, radius)).then(function (d) { return v89FromOsm(d, osmCat); }, function (e) { return { err: e }; });
       osm.then(function () { osmDone = true; });
-      var g = v89Google(cat, text, c, radius).catch(function (e) { return { err: e }; });
+      var g = v89Google(cat, text, c, radius, area).catch(function (e) { return { err: e }; });
       g.then(function (gl) {
         if (osmDone || skipOsm || token !== v89.busy || !Array.isArray(gl) || !gl.length) return;
-        var part = v89Merge([gl], c, radius);
+        var part = v89Merge([gl], c, radius, area);
         if (!part.length) return;
         v89.results = part;
         v89RenderList(part);
         v89RenderMarkers(part);
-        v89SetStatus(part.length + (part.length === 1 ? " lugar" : " lugares") + " do Google — ainda procurando no OpenStreetMap (cachoeiras, trilhas, mirantes)…", true);
+        v89SetStatus(part.length + (part.length === 1 ? " lugar" : " lugares") + " do Google — procurando também no OpenStreetMap (até 15 s)…", true);
       });
       return Promise.all([osm, g]).then(function (r) {
         var errs = r.filter(function (x) { return x && x.err; });
         var lists = r.filter(function (x) { return Array.isArray(x); });
-        return { list: v89Merge(lists, c, radius), allFailed: errs.length === r.length || (errs.length && !lists.some(function (l) { return l.length; }) && !v89GoogleOn()) , osmFailed: !!(r[0] && r[0].err) };
+        return { list: v89Merge(lists, c, radius, area), allFailed: errs.length === r.length || (errs.length && !lists.some(function (l) { return l.length; }) && !v89GoogleOn()), osmFailed: !!(r[0] && r[0].err && !r[0].skipped), osmSkipped: !!(r[0] && r[0].skipped), gFull: Array.isArray(r[1]) && r[1].length >= 20 };
       });
     }
-    run(15000).then(function (res) {
+    run(R0, osmSkip).then(function (res) {
       if (token !== v89.busy) return;
-      if (!res.allFailed && res.list.length < 4) {
+      if (!area && !res.allFailed && res.list.length < 4) {
         if (!v89.results.length) v89SetStatus("Pouca coisa por perto — procurando mais longe (até 40 km)…", true);
         // se o OpenStreetMap estava lotado, não insiste nele de novo (só o Google vai mais longe)
         return run(40000, res.osmFailed).then(function (r2) {
@@ -7756,9 +7797,15 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       if (!res || token !== v89.busy) return;
       if (res.allFailed) { fromCache("Não consegui buscar agora."); return; }
       if (res.osmFailed && !res.list.length) { fromCache("Os servidores do OpenStreetMap estão lotados agora."); return; }
-      if (!(res.osmFailed && v89CacheFind(qKey, c))) v89CacheSave({ q: qKey, c: c, t: Date.now(), r: res.list.map(function (r) { return { id: r.id, gid: r.gid, gname: r.gname, src: r.src, name: r.name, named: r.named, lat: r.lat, lng: r.lng, cat: r.cat, extra: r.extra }; }) });
-      var note = res.list.length ? "" : "Nada encontrado num raio de 40 km. Tente outra palavra (ex.: \"cachoeira\", \"salto\", \"mirante\").";
+      // busca incompleta (OpenStreetMap lotado ou de fora) não apaga uma busca guardada mais completa
+      var prev = v89CacheFind(qKey, c);
+      if (!((res.osmFailed || res.osmSkipped) && prev && prev.r.length >= res.list.length)) v89CacheSave({ q: qKey, c: c, t: Date.now(), r: res.list.map(function (r) { return { id: r.id, gid: r.gid, gname: r.gname, src: r.src, name: r.name, named: r.named, lat: r.lat, lng: r.lng, cat: r.cat, extra: r.extra }; }) });
+      var note = res.list.length ? "" : (area ? "Nada encontrado na área do mapa." : "Nada encontrado num raio de 40 km.") + " Tente outra palavra (ex.: \"cachoeira\", \"salto\", \"mirante\").";
       if (res.osmFailed && res.list.length) note = "Os servidores do OpenStreetMap estão lotados agora — mostrando só o Google. Tente de novo daqui a pouco para ver cachoeiras e trilhas sem cadastro no Google.";
+      var tips = [];
+      if (res.osmSkipped) tips.push("Mapa muito aberto: aproxime um pouco para incluir o OpenStreetMap (cachoeiras e trilhas sem cadastro no Google)");
+      if (res.gFull) tips.push("O Google manda no máximo 20 por busca — aproxime o mapa para ver mais");
+      if (tips.length) note = (note ? note + " " : "") + tips.join(". ") + ".";
       v89Show(res.list, note);
     });
   }
@@ -7921,7 +7968,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     if (open) {
       v89.ctx = v89Context() || v89.ctx;
       var w = document.getElementById("v89-where");
-      if (w && v89.ctx) w.textContent = v89.ctx.mode === "nav" ? "Busca " + v89.ctx.where + "." : "Busca perto do centro do mapa — arraste o mapa até a região antes de buscar.";
+      if (w && v89.ctx) w.textContent = v89.ctx.mode === "nav" ? "Busca " + v89.ctx.where + "." : "Busca na área que aparece no mapa — arraste e dê zoom até a região antes de buscar.";
       var g = document.getElementById("v89-src");
       if (g) g.textContent = v89GoogleOn() ? "Fontes: OpenStreetMap (cachoeiras, mirantes, trilhas) e Google (comércio)." : "Fonte: OpenStreetMap.";
     }
