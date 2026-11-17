@@ -2756,6 +2756,31 @@ button, input, select, textarea { font-family: var(--font); }
 .v91-gone { display: none !important; }
 #btn-nav-confirm-ok .v90-ico { width: 16px; height: 16px; }
 #btn-nav-confirm-ok { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+/* ===================== v9.2 — Rotas com foto, busca e filtros ===================== */
+.v92-bar { display: grid; gap: 8px; padding: 10px 12px 4px; }
+.v92-bar.hidden { display: none; }
+.v92-search { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surf); color: var(--muted); }
+.v92-search .svg-ico { width: 18px; height: 18px; }
+.v92-search input { flex: 1 1 auto; min-width: 0; border: 0; background: transparent; color: var(--ink); font: 600 16px var(--font); outline: none; min-height: 44px; }
+.v92-row { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; align-items: center; }
+.v92-row::-webkit-scrollbar { display: none; }
+@media (min-width: 769px) { .v92-row { flex-wrap: wrap; overflow: visible; } }
+.v92-sort span { flex: 0 0 auto; color: var(--muted); font: 700 13px var(--font); }
+.v92-chip { flex: 0 0 auto; min-height: 36px; padding: 4px 12px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink2); font: 700 13.5px var(--font); white-space: nowrap; }
+.v92-chip.on { background: var(--acc); border-color: var(--acc); color: var(--onAcc); }
+.v92-count { margin: 0; color: var(--muted); font: 700 13px var(--font); }
+.v92-count:empty { display: none; }
+.v92-count.v92-none { color: var(--warnInk); background: var(--warnBg); padding: 10px 12px; border-radius: 10px; }
+#saved-routes-screen-list { display: flex; flex-direction: column; }
+#saved-routes-screen-list.v92-flat { gap: 0; }
+.v92-hidden { display: none !important; }
+.v92-thumb { margin: -14px -14px 10px; border-radius: 9px 9px 0 0; overflow: hidden; cursor: pointer; }
+.v92-thumb .v92-map.dsh-hero-map, .v92-thumb .v92-map.dsh-hero-map.v87-on { height: 84px; margin: 0; width: 100%; }
+@media (min-width: 769px) { .v92-thumb .v92-map.dsh-hero-map, .v92-thumb .v92-map.dsh-hero-map.v87-on { height: 110px; } }
+.v92-tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 2px; }
+.v92-tag { font: 700 11.5px/1 var(--mono); padding: 5px 7px; border-radius: 999px; background: var(--surf2); color: var(--ink2); }
+.v92-near { display: inline-block; margin: 2px 0; font: 800 12.5px var(--font); color: var(--acc); }
+.v92-near.hidden { display: none; }
 </style>
 </head>
 <body>
@@ -3771,8 +3796,17 @@ button, input, select, textarea { font-family: var(--font); }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "9.1";
+  var APP_VERSION = "9.2";
   var CHANGELOG = [
+    {
+      version: "9.2",
+      date: "17/11/2026",
+      changes: [
+        "Rotas com foto: cada rota mostra uma faixa de satélite com o desenho dela (carrega só quando aparece na tela e usa o mapa offline quando não há sinal)",
+        "Busca pelo nome ou pasta, filtros por pasta, ✔ offline e 🌧️ desvio molhado, e ordem por Recentes, 📍 Perto de mim (mostra a distância até cada rota) ou A–Z",
+        "Selos em cada rota: subida, desvio molhado e tomadas de tempo"
+      ]
+    },
     {
       version: "9.1",
       date: "17/11/2026",
@@ -7652,6 +7686,248 @@ button, input, select, textarea { font-family: var(--font); }
 
 
 
+
+  // ===================== v9.2 — Rotas com foto, busca e filtros =====================
+  // Cada cartão de Rotas ganha uma faixa de satélite com o desenho da rota (carrega só quando
+  // aparece na tela; usa primeiro os blocos guardados no aparelho). Em cima da lista: busca,
+  // filtros (pasta, ✔ offline, 🌧️ desvio) e ordem (recentes, perto de mim, A–Z).
+  var v92 = { q: "", folder: "", offline: false, wet: false, sort: "recent", pos: null, busy: false, io: null };
+
+  // satélite atrás de um SVG qualquer (cada SVG com a sua própria "vez", ao contrário do cartão da tela inicial)
+  function v92Sat(svg, xf) {
+    if (!svg || !xf) return;
+    if (navigator.webdriver && !window.__fdeHeroSat) return;
+    var token = (svg.__v92tok = (svg.__v92tok || 0) + 1);
+    var z = Math.max(3, Math.min(17, Math.round(Math.log(xf.s / 0.6) / Math.LN2)));
+    var n = Math.pow(2, z), t = 256 / n, size = t * xf.s;
+    // cobre a largura real da faixa (no PC ela é bem mais larga que 600x170)
+    var bb = svg.getBoundingClientRect();
+    var halfW = Math.max(380, (bb.height ? 85 * bb.width / bb.height : 300) + 40);
+    var X0 = (300 - halfW - xf.ox) / xf.s, X1 = (300 + halfW - xf.ox) / xf.s, Y0 = (-30 - xf.oy) / xf.s, Y1 = (200 - xf.oy) / xf.s;
+    var tx0 = Math.floor(X0 / t), tx1 = Math.floor(X1 / t), ty0 = Math.max(0, Math.floor(Y0 / t)), ty1 = Math.min(n - 1, Math.floor(Y1 / t));
+    var jobs = [];
+    for (var ty = ty0; ty <= ty1; ty++) for (var tx = tx0; tx <= tx1; tx++) jobs.push([tx, ty]);
+    if (!jobs.length || jobs.length > 48) return;
+    var NS = "http://www.w3.org/2000/svg";
+    var g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "v87-sat");
+    svg.insertBefore(g, svg.firstChild);
+    var ok = 0, done = 0;
+    function fin() {
+      if (token !== svg.__v92tok) return;
+      if (ok < jobs.length / 2) { if (g.parentNode) g.parentNode.removeChild(g); return; }
+      svg.classList.add("v87-on");
+    }
+    jobs.forEach(function (j) {
+      var x = ((j[0] % n) + n) % n, y = j[1];
+      var put = function (href, blobUrl) {
+        var im = new Image();
+        im.onload = function () {
+          if (token !== svg.__v92tok) return;
+          var e = document.createElementNS(NS, "image");
+          e.setAttribute("x", (xf.ox + j[0] * size).toFixed(2));
+          e.setAttribute("y", (xf.oy + j[1] * size).toFixed(2));
+          e.setAttribute("width", (size + 0.6).toFixed(2));
+          e.setAttribute("height", (size + 0.6).toFixed(2));
+          e.setAttribute("preserveAspectRatio", "none");
+          e.setAttribute("href", href);
+          g.appendChild(e);
+          ok++; if (++done === jobs.length) fin();
+        };
+        im.onerror = function () { if (blobUrl) URL.revokeObjectURL(blobUrl); if (++done === jobs.length) fin(); };
+        im.src = href;
+      };
+      var net = function () {
+        if (navigator.onLine !== false) put(TILE_URL_TEMPLATE.replace("{z}", z).replace("{x}", x).replace("{y}", y));
+        else if (++done === jobs.length) fin();
+      };
+      getTile(z + "/" + x + "/" + y).then(function (blob) {
+        if (blob) { var u = URL.createObjectURL(blob); put(u, u); } else net();
+      }, net);
+    });
+  }
+
+  function v92Route(id) { return loadSavedRoutes().filter(function (r) { return r.id === id; })[0] || null; }
+  function v92Norm(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function v92DistTo(r) {
+    if (!v92.pos || !r.points || !r.points.length) return null;
+    var best = Infinity, step = Math.max(1, Math.floor(r.points.length / 60));
+    for (var i = 0; i < r.points.length; i += step) best = Math.min(best, haversineMeters(v92.pos.lat, v92.pos.lng, r.points[i].lat, r.points[i].lng));
+    return best;
+  }
+
+  // faixa de satélite + selos em cada cartão
+  function v92DecorateCard(c) {
+    if (c.dataset.v92) return;
+    var id = c.getAttribute("data-route-id");
+    var r = v92Route(id);
+    if (!r || !r.points || r.points.length < 2) { c.dataset.v92 = "1"; return; }
+    c.dataset.v92 = "1";
+    var svgWrap = document.createElement("div");
+    svgWrap.className = "v92-thumb";
+    svgWrap.innerHTML = '<svg class="dsh-hero-map v92-map" viewBox="0 0 600 170" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>';
+    var svg = svgWrap.firstChild;
+    svg.innerHTML = v55RouteSvg(r.points);
+    svg.__xf = v87HeroXf;
+    svgWrap.addEventListener("click", function () { if (typeof v91Open === "function") v91Open(id); });
+    c.insertBefore(svgWrap, c.firstChild);
+    if (v92.io) v92.io.observe(svgWrap); else v92Sat(svg, svg.__xf);
+    // selos de estado
+    var tags = [];
+    var wets = (r.alts || []).filter(function (a) { return a.kind === "molhado"; }).length;
+    if (wets) tags.push("🌧️ desvio molhado");
+    var runs = 0; try { runs = (timingRunsFor(r.id) || []).length; } catch (e) {}
+    if (runs) tags.push("⏱️ " + runs + (runs === 1 ? " tomada" : " tomadas"));
+    var ev = r.elevation && r.elevation.stats;
+    if (ev && ev.gain != null) tags.unshift("↑ " + ev.gain + " m");
+    if (tags.length) {
+      var tg = document.createElement("div");
+      tg.className = "v92-tags";
+      tg.innerHTML = tags.map(function (t) { return '<span class="v92-tag">' + v55Esc(t) + "</span>"; }).join("");
+      var nm = c.querySelector(".nav-route-card-name");
+      var after = c.querySelector(".saved-screen-card-buttons");
+      c.insertBefore(tg, after || null);
+    }
+    var dist = document.createElement("span");
+    dist.className = "v92-near hidden";
+    var nm2 = c.querySelector(".nav-route-card-name");
+    if (nm2) nm2.parentNode.insertBefore(dist, nm2.nextSibling);
+  }
+
+  function v92Toolbar() {
+    var pane = document.getElementById("saved-routes-pane");
+    if (!pane) return null;
+    var tb = document.getElementById("v92-bar");
+    if (tb) return tb;
+    tb = document.createElement("div");
+    tb.id = "v92-bar";
+    tb.className = "v92-bar";
+    tb.innerHTML =
+      '<div class="v92-search"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m20 20-4.2-4.2"></path></svg>' +
+      '<input id="v92-q" type="search" placeholder="Buscar rota pelo nome ou pasta" aria-label="Buscar rota" autocomplete="off"></div>' +
+      '<div class="v92-row" id="v92-filters"></div>' +
+      '<div class="v92-row v92-sort"><span>Ordem:</span>' +
+      '<button type="button" class="v92-chip on" data-sort="recent">Recentes</button>' +
+      '<button type="button" class="v92-chip" data-sort="near">📍 Perto de mim</button>' +
+      '<button type="button" class="v92-chip" data-sort="az">A–Z</button></div>' +
+      '<p class="v92-count" id="v92-count" aria-live="polite"></p>';
+    pane.insertBefore(tb, pane.firstChild);
+    var q = tb.querySelector("#v92-q");
+    q.addEventListener("input", function () { v92.q = q.value; v92Apply(); });
+    tb.querySelectorAll("[data-sort]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var s = b.getAttribute("data-sort");
+        if (s === "near" && !v92.pos) {
+          b.textContent = "📍 Buscando…";
+          if (!navigator.geolocation) { b.textContent = "📍 Perto de mim"; showToast("Sem GPS neste aparelho."); return; }
+          navigator.geolocation.getCurrentPosition(function (p) {
+            v92.pos = { lat: p.coords.latitude, lng: p.coords.longitude };
+            b.textContent = "📍 Perto de mim";
+            v92.sort = "near"; v92Apply();
+          }, function () { b.textContent = "📍 Perto de mim"; showToast("Não consegui a sua posição. Ligue o GPS e tente de novo."); }, { timeout: 10000, maximumAge: 120000 });
+          return;
+        }
+        v92.sort = s; v92Apply();
+      });
+    });
+    return tb;
+  }
+  function v92Filters(routes) {
+    var box = document.getElementById("v92-filters");
+    if (!box) return;
+    var folders = {};
+    routes.forEach(function (r) { var f = (r.folder || "").trim(); if (f) folders[f] = (folders[f] || 0) + 1; });
+    var hasOff = routes.some(function (r) { return v82IsReady(r); });
+    var hasWet = routes.some(function (r) { return (r.alts || []).some(function (a) { return a.kind === "molhado"; }); });
+    var chips = [["", "Todas " + routes.length]];
+    Object.keys(folders).sort().forEach(function (f) { chips.push(["f:" + f, f + " " + folders[f]]); });
+    var h = chips.map(function (c) {
+      var on = c[0] === "" ? !v92.folder : v92.folder === c[0].slice(2);
+      return '<button type="button" class="v92-chip' + (on ? " on" : "") + '" data-folder="' + v55Esc(c[0]) + '">' + v55Esc(c[1]) + "</button>";
+    }).join("");
+    if (hasOff) h += '<button type="button" class="v92-chip v92-tog' + (v92.offline ? " on" : "") + '" data-tog="offline">✔ offline</button>';
+    if (hasWet) h += '<button type="button" class="v92-chip v92-tog' + (v92.wet ? " on" : "") + '" data-tog="wet">🌧️ desvio</button>';
+    box.innerHTML = h;
+    box.querySelectorAll("[data-folder]").forEach(function (b) {
+      b.addEventListener("click", function () { var v = b.getAttribute("data-folder"); v92.folder = v ? v.slice(2) : ""; v92Apply(); });
+    });
+    box.querySelectorAll("[data-tog]").forEach(function (b) {
+      b.addEventListener("click", function () { var k = b.getAttribute("data-tog"); v92[k] = !v92[k]; v92Apply(); });
+    });
+  }
+
+  function v92Apply() {
+    var list = el.savedRoutesScreenList;
+    if (!list || v92.busy) return;
+    v92.busy = true;
+    try {
+      var routes = loadSavedRoutes().filter(function (r) { return !r.deleted; });
+      var tb = v92Toolbar();
+      if (tb) tb.classList.toggle("hidden", routes.length < 2);
+      v92Filters(routes);
+      var tbs = document.querySelectorAll("#v92-bar [data-sort]");
+      tbs.forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-sort") === v92.sort); });
+      var cards = Array.prototype.slice.call(list.querySelectorAll(".saved-screen-card[data-route-id]"));
+      cards.forEach(v92DecorateCard);
+      var q = v92Norm(v92.q).trim();
+      var shown = 0;
+      var info = [];
+      cards.forEach(function (c) {
+        var r = v92Route(c.getAttribute("data-route-id"));
+        var ok = !!r;
+        if (ok && q) ok = v92Norm((r.name || "") + " " + (r.folder || "")).indexOf(q) !== -1;
+        if (ok && v92.folder) ok = (r.folder || "").trim() === v92.folder;
+        if (ok && v92.offline) ok = v82IsReady(r);
+        if (ok && v92.wet) ok = (r.alts || []).some(function (a) { return a.kind === "molhado"; });
+        c.classList.toggle("v92-hidden", !ok);
+        var near = c.querySelector(".v92-near");
+        var d = v92.sort === "near" && r ? v92DistTo(r) : null;
+        if (near) { near.classList.toggle("hidden", d == null); if (d != null) near.textContent = d < 300 ? "📍 você está nela" : "📍 a " + formatDistance(d); }
+        if (ok) { shown++; info.push({ c: c, r: r, d: d }); }
+      });
+      // ordem: recentes mantém as pastas; perto e A–Z viram uma lista só
+      var flat = v92.sort !== "recent";
+      list.classList.toggle("v92-flat", flat);
+      if (flat) {
+        info.sort(function (a, b) {
+          if (v92.sort === "near") return (a.d == null ? 1e12 : a.d) - (b.d == null ? 1e12 : b.d);
+          return String(a.r.name || "").localeCompare(String(b.r.name || ""), "pt-BR");
+        });
+        info.forEach(function (it, i) { it.c.style.order = String(i + 1); });
+      } else cards.forEach(function (c) { c.style.order = ""; });
+      // títulos de pasta sem cartão visível somem
+      var head = null, any = false;
+      Array.prototype.forEach.call(list.children, function (n) {
+        if (n.classList.contains("nav-folder-heading")) { if (head) head.classList.toggle("v92-hidden", !any || flat); head = n; any = false; }
+        else if (n.classList.contains("saved-screen-card") && !n.classList.contains("v92-hidden")) any = true;
+      });
+      if (head) head.classList.toggle("v92-hidden", !any || flat);
+      var cnt = document.getElementById("v92-count");
+      if (cnt) {
+        var filtering = q || v92.folder || v92.offline || v92.wet;
+        cnt.textContent = filtering ? (shown ? shown + (shown === 1 ? " rota" : " rotas") : "Nenhuma rota com esse filtro.") : "";
+        cnt.classList.toggle("v92-none", filtering && !shown);
+      }
+    } finally {
+      v92.busy = false;
+    }
+  }
+
+  function initV92() {
+    if ("IntersectionObserver" in window) {
+      v92.io = new IntersectionObserver(function (ents) {
+        ents.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          v92.io.unobserve(e.target);
+          var svg = e.target.querySelector("svg");
+          if (svg && svg.__xf) v92Sat(svg, svg.__xf);
+        });
+      }, { rootMargin: "200px" });
+    }
+    var list = el.savedRoutesScreenList;
+    if (list && window.MutationObserver) new MutationObserver(function () { if (!v92.busy) setTimeout(v92Apply, 0); }).observe(list, { childList: true });
+    v92Apply();
+  }
 
   // ===================== v9.1 — página da rota + "Pronto para sair?" =====================
   // Página da rota: tudo da trilha num lugar só (mapa, números, marcações, passeios, tempos)
@@ -20875,6 +21151,7 @@ button, input, select, textarea { font-family: var(--font); }
     safeInit(initV89Places, "lugares (v8.9)");
     safeInit(initV90Visual, "visual e abas (v9.0)");
     safeInit(initV91, "página da rota e checklist (v9.1)");
+    safeInit(initV92, "rotas com foto e filtros (v9.2)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
