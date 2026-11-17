@@ -2682,6 +2682,80 @@ button, input, select, textarea { font-family: var(--font); }
   body.v90-tabs-on #btn-dash-plan .dashboard-tile-label, body.v90-tabs-on #btn-dash-plan .dashboard-tile-icon .svg-ico { color: var(--onAcc); }
   body.v90-tabs-on #btn-dash-plan .dashboard-tile-label { font-weight: 800; font-size: 1.05rem; }
 }
+/* ===================== v9.1 — página da rota + "Pronto para sair?" ===================== */
+.modal-overlay.v91-page { background: var(--bg); z-index: 2600; }
+.modal-overlay.v91-page.open { display: flex; align-items: stretch; justify-content: center; }
+.v91-wrap { width: 100%; max-width: 760px; height: 100%; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); }
+.v91-top { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: calc(6px + env(safe-area-inset-top, 0px)) 10px 6px; background: var(--surf); border-bottom: 1px solid var(--line); }
+.v91-back { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 10px 0 4px; border: 0; background: transparent; color: var(--ink); font: 700 15px var(--font); }
+.v91-back .v90-ico { width: 22px; height: 22px; }
+.v91-top-t { font: 800 16px var(--font); }
+.v91-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0 0 16px; }
+.v91-map.dsh-hero-map, .v91-map.dsh-hero-map.v87-on { height: 200px; margin: 0; }
+@media (min-width: 769px) { .v91-map.dsh-hero-map, .v91-map.dsh-hero-map.v87-on { height: 280px; } }
+.v91-head { display: grid; gap: 4px; padding: 12px 16px 6px; }
+.v91-k { font: 700 11px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.v91-name { margin: 0; font: 900 24px/1.12 var(--font); font-stretch: 105%; }
+.v91-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.v91-chip { font: 700 12px/1 var(--mono); padding: 6px 9px; border-radius: 999px; background: var(--surf2); color: var(--ink2); }
+.v91-chip.v91-ok { background: rgba(30,122,70,.14); color: var(--ok); }
+.v91-chip.v91-warn { background: var(--warnBg); color: var(--warnInk); }
+.v91-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 8px 16px; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.v91-tabs::-webkit-scrollbar { display: none; }
+.v91-tab { flex: 0 0 auto; min-height: 40px; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink2); font: 700 14px var(--font); }
+.v91-tab.on { background: var(--acc); border-color: var(--acc); color: var(--onAcc); }
+.v91-pane { padding: 12px 16px; display: grid; gap: 10px; }
+.v91-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 560px) { .v91-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.v91-stats div { background: var(--surf); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; display: grid; gap: 2px; }
+.v91-stats span { font: 700 11px var(--font); color: var(--muted); }
+.v91-stats b { font: 700 17px var(--mono); font-variant-numeric: tabular-nums; }
+.v91-notes { margin: 0; padding: 10px 12px; background: var(--surf); border-radius: 12px; border: 1px solid var(--line); white-space: pre-wrap; }
+.v91-line { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surf); color: var(--ink); font: 600 14px var(--font); text-align: left; }
+.v91-line b { font-weight: 800; text-align: right; }
+.v91-line-warn { background: var(--warnBg); color: var(--warnInk); border-color: transparent; }
+.v91-hint, .v91-empty { margin: 0; color: var(--muted); font-size: 14px; }
+.v91-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.v91-list li { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.v91-list li:first-child { border-top: 0; }
+.v91-ic { flex: 0 0 36px; height: 36px; border-radius: 50%; background: var(--surf2); display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; }
+.v91-tx { display: grid; gap: 2px; min-width: 0; }
+.v91-tx b { font-weight: 800; }
+.v91-tx small { color: var(--muted); font-size: 13px; }
+.v91-mono { font-family: var(--mono); }
+.v91-actions { flex: 0 0 auto; display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--surf); border-top: 1px solid var(--line); }
+.v91-actions button { min-height: 52px; border-radius: 14px; font: 800 16px var(--font); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.v91-go { flex: 2 1 0; border: 0; background: var(--acc); color: var(--onAcc); }
+.v91-go .v90-ico { width: 20px; height: 20px; }
+.v91-sec { flex: 1 1 0; border: 1px solid var(--line); background: var(--btn); color: var(--ink); }
+.v91-dots { flex: 0 0 56px; font-size: 22px !important; }
+.v91-more { flex: 0 0 auto; display: grid; gap: 4px; padding: 6px 12px; background: var(--surf); border-top: 1px solid var(--line); }
+.v91-more.hidden { display: none; }
+.v91-more-it { min-height: 46px; text-align: left; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 700 15px var(--font); }
+.v91-more-it.v91-danger { color: var(--danger); }
+.nav-route-card-name.v91-open { cursor: pointer; }
+.nav-route-card-name.v91-open::after { content: " ›"; color: var(--acc); font-weight: 900; }
+.v91-open-meta { cursor: pointer; }
+#dash-hero .dsh-hero-name, #dash-hero .dsh-hero-map { cursor: pointer; }
+/* Pronto para sair? */
+.v91-ck-box { max-width: 460px; }
+.v91-ck-route { margin: -4px 0 8px; color: var(--muted); font-weight: 700; }
+.v91-ck { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 2px; }
+.v91-ck-row { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px solid var(--line); }
+.v91-ck-row:first-child { border-top: 0; }
+.v91-ck-row.hidden { display: none; }
+.v91-ck-i { flex: 0 0 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 900 13px var(--font); font-style: normal; background: var(--surf2); color: var(--ink2); }
+.v91-ok .v91-ck-i { background: var(--ok); color: #fff; }
+.v91-warn .v91-ck-i { background: var(--warnBg); color: var(--warnInk); }
+.v91-bad .v91-ck-i { background: var(--danger); color: #fff; }
+.v91-ck-tx { flex: 1 1 auto; display: grid; gap: 1px; min-width: 0; }
+.v91-ck-tx b { font-weight: 800; line-height: 1.25; }
+.v91-ck-tx small { color: var(--muted); font-size: 13px; line-height: 1.3; }
+.v91-ck-act { flex: 0 0 auto; align-self: center; min-height: 40px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--btn); color: var(--ink); font: 800 14px var(--font); text-decoration: none; display: inline-flex; align-items: center; }
+.v91-ck-extra { margin-top: 4px; }
+.v91-gone { display: none !important; }
+#btn-nav-confirm-ok .v90-ico { width: 16px; height: 16px; }
+#btn-nav-confirm-ok { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 </style>
 </head>
 <body>
@@ -3697,8 +3771,16 @@ button, input, select, textarea { font-family: var(--font); }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "9.0";
+  var APP_VERSION = "9.1";
   var CHANGELOG = [
+    {
+      version: "9.1",
+      date: "17/11/2026",
+      changes: [
+        "Página da rota: toque no nome da rota (em Rotas ou na tela inicial) e veja tudo dela num lugar só — mapa de satélite, números, Marcações (em ordem, com o km), Passeios feitos e Tempos do rally — com Navegar, Editar e ⋯ fixos embaixo",
+        "\"Pronto para sair?\": antes de navegar, uma lista de verificação no lugar do texto — mapa offline, chuva dos últimos dias, bateria, distância até a largada (com Waze) e \"Avisar alguém\" (manda a rota e a hora de volta prevista pelo WhatsApp)"
+      ]
+    },
     {
       version: "9.0",
       date: "17/11/2026",
@@ -7260,6 +7342,7 @@ button, input, select, textarea { font-family: var(--font); }
       grouped.groups[folder].forEach(function (route) {
         var card = document.createElement("div");
         card.className = "saved-screen-card";
+        card.setAttribute("data-route-id", route.id);
 
         var name = document.createElement("div");
         name.className = "nav-route-card-name";
@@ -7570,6 +7653,427 @@ button, input, select, textarea { font-family: var(--font); }
 
 
 
+  // ===================== v9.1 — página da rota + "Pronto para sair?" =====================
+  // Página da rota: tudo da trilha num lugar só (mapa, números, marcações, passeios, tempos)
+  // com Navegar / Editar / ⋯ fixos embaixo. Abre tocando no nome da rota (Rotas Salvas e tela inicial).
+  // "Pronto para sair?": o aviso antes de navegar vira uma lista de verificação.
+  var v91 = { id: null, tab: "resumo", moreOpen: false };
+  var renderSavedRoutesScreenRaw = function () {};
+  function v91Route(id) {
+    return loadSavedRoutes().filter(function (r) { return r && r.id === id && !r.deleted; })[0] || null;
+  }
+  function v91Esc(s) { return v55Esc(s == null ? "" : String(s)); }
+  function v91Date(ts) { var d = new Date(ts); return v55Pad(d.getDate()) + "/" + v55Pad(d.getMonth() + 1) + "/" + d.getFullYear(); }
+  // distância ao longo da rota até o ponto mais perto de (lat,lng)
+  function v91Along(points, lat, lng) {
+    var best = null, acc = 0, at = 0;
+    for (var i = 0; i < points.length - 1; i++) {
+      var seg = haversineMeters(points[i].lat, points[i].lng, points[i + 1].lat, points[i + 1].lng);
+      var r = distanceToSegmentMeters({ lat: lat, lng: lng }, points[i], points[i + 1]);
+      if (!best || r.distance < best) { best = r.distance; at = acc + seg * r.t; }
+      acc += seg;
+    }
+    return at;
+  }
+  function v91Card(id) {
+    var list = el.savedRoutesScreenList;
+    var c = list && list.querySelector('.saved-screen-card[data-route-id="' + id + '"]');
+    if (!c) { renderSavedRoutesScreenRaw(); c = list && list.querySelector('.saved-screen-card[data-route-id="' + id + '"]'); }
+    return c;
+  }
+  function v91CardBtn(id, test) {
+    var c = v91Card(id);
+    if (!c) return null;
+    var bs = c.querySelectorAll("button");
+    for (var i = 0; i < bs.length; i++) if (test(bs[i])) return bs[i];
+    return null;
+  }
+
+  function v91BuildPage() {
+    var pg = document.getElementById("v91-route");
+    if (pg) return pg;
+    pg = document.createElement("div");
+    pg.id = "v91-route";
+    pg.className = "modal-overlay v91-page";
+    pg.setAttribute("role", "dialog");
+    pg.setAttribute("aria-label", "Rota");
+    pg.innerHTML =
+      '<div class="v91-wrap">' +
+      '<header class="v91-top"><button type="button" class="v91-back">' + v90Svg("back") + 'Voltar</button><span class="v91-top-t">Rota</span></header>' +
+      '<div class="v91-scroll">' +
+      '<svg class="dsh-hero-map v91-map" viewBox="0 0 600 170" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>' +
+      '<div class="v91-head"><span class="v91-k" id="v91-k"></span><h2 class="v91-name" id="v91-name"></h2><div class="v91-chips" id="v91-chips"></div></div>' +
+      '<div class="v91-tabs" role="tablist" id="v91-tabs"></div>' +
+      '<div class="v91-pane" id="v91-pane"></div>' +
+      "</div>" +
+      '<div class="v91-more hidden" id="v91-more"></div>' +
+      '<div class="v91-actions"><button type="button" class="v91-go" id="v91-go">' + v90Svg("play") + 'Navegar</button><button type="button" class="v91-sec" id="v91-edit">Editar</button><button type="button" class="v91-sec v91-dots" id="v91-dots" aria-label="Mais opções" aria-expanded="false">⋯</button></div>' +
+      "</div>";
+    document.body.appendChild(pg);
+    pg.querySelector(".v91-back").addEventListener("click", v91Close);
+    pg.querySelector("#v91-go").addEventListener("click", function () {
+      var r = v91Route(v91.id); if (!r) return;
+      v91Close();
+      showScreen("navigation");
+      showNavSubview("picker");
+      openNavConfirm(r, "saved-routes");
+    });
+    pg.querySelector("#v91-edit").addEventListener("click", function () {
+      var r = v91Route(v91.id); if (!r) return;
+      v91Close();
+      goToPlanningScreen(function () { openSavedRoute(r); });
+    });
+    pg.querySelector("#v91-dots").addEventListener("click", function () { v91More(!v91.moreOpen); });
+    return pg;
+  }
+  function v91More(open) {
+    v91.moreOpen = open;
+    var m = document.getElementById("v91-more");
+    var d = document.getElementById("v91-dots");
+    m.classList.toggle("hidden", !open);
+    d.setAttribute("aria-expanded", open ? "true" : "false");
+    if (!open) return;
+    var r = v91Route(v91.id);
+    m.innerHTML = "";
+    var id = v91.id;
+    function item(txt, fn, cls) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "v91-more-it" + (cls ? " " + cls : "");
+      b.textContent = txt;
+      b.addEventListener("click", function () { v91More(false); fn(); });
+      m.appendChild(b);
+    }
+    item(v82IsReady(r) ? "🔄 Baixar o mapa offline de novo" : "⬇ Baixar mapa para usar sem sinal", function () {
+      var b = v91CardBtn(id, function (x) { return x.classList.contains("v82-off-btn"); });
+      if (b) b.click();
+    });
+    item("🔗 Compartilhar", function () {
+      var b = v91CardBtn(id, function (x) { return /Compartilhar/.test(x.textContent); });
+      if (b) b.click();
+    });
+    item("📤 Publicar na Comunidade", function () {
+      var b = v91CardBtn(id, function (x) { return /Publicar/.test(x.textContent); });
+      if (b) b.click();
+    });
+    item("🗑 Excluir", function () {
+      var b = v91CardBtn(id, function (x) { return /Excluir/.test(x.textContent); });
+      if (!b) return;
+      b.click();
+      // fecha a página se a rota foi excluída (o aviso de confirmação fica por cima)
+      var tries = 0;
+      var t = setInterval(function () {
+        tries++;
+        if (!v91Route(id)) { clearInterval(t); v91Close(); }
+        else if (tries > 600) clearInterval(t);
+      }, 250);
+    }, "v91-danger");
+  }
+  function v91Close() {
+    var pg = document.getElementById("v91-route");
+    if (pg) pg.classList.remove("open");
+    v91.id = null;
+    v91More(false);
+    if (el.screenSavedRoutes && !el.screenSavedRoutes.classList.contains("hidden")) renderSavedRoutesScreen();
+  }
+
+  function v91Open(id, tab) {
+    var r = v91Route(id);
+    if (!r) return;
+    var pg = v91BuildPage();
+    v91.id = id;
+    v91.tab = tab || "resumo";
+    v91More(false);
+    pg.classList.add("open");
+    var svg = pg.querySelector(".v91-map");
+    svg.classList.remove("v87-on");
+    svg.innerHTML = v55RouteSvg(r.points);
+    v87HeroSatellite(svg);
+    var meta = normalizeMeta(r.meta);
+    var k = [];
+    if (r.folder) k.push(r.folder);
+    var ms = ""; try { ms = routeMetaSummary(r.meta) || ""; } catch (e) {}
+    if (ms) k.push(ms);
+    document.getElementById("v91-k").textContent = k.join(" · ") || "Rota salva";
+    document.getElementById("v91-name").textContent = r.name || "(sem nome)";
+    var chips = [];
+    var meters = r.points.length >= 2 ? polylineLengthMeters(r.points) : 0;
+    if (meters) chips.push(["", formatDistance(meters)]);
+    var ev = r.elevation && r.elevation.stats;
+    if (ev && ev.gain != null) chips.push(["", "↑ " + ev.gain + " m"]);
+    var wps = normalizeWaypoints(r.waypoints);
+    if (wps.length) chips.push(["", wps.length + (wps.length === 1 ? " marcação" : " marcações")]);
+    var wets = (r.alts || []).filter(function (a) { return a.kind === "molhado"; }).length;
+    if (wets) chips.push(["", "🌧️ " + wets + (wets === 1 ? " desvio molhado" : " desvios molhados")]);
+    chips.push(v82IsReady(r) ? ["ok", "✔ mapa offline"] : v82Status(r) ? ["warn", "⚠ mapa offline incompleto"] : ["", "sem mapa offline"]);
+    var ch = document.getElementById("v91-chips");
+    ch.innerHTML = chips.map(function (c) { return '<span class="v91-chip' + (c[0] ? " v91-" + c[0] : "") + '">' + v91Esc(c[1]) + "</span>"; }).join("");
+    v91RenderTabs(r);
+    var sc = pg.querySelector(".v91-scroll"); if (sc) sc.scrollTop = 0;
+  }
+
+  function v91Trips(r) {
+    try { return v62LoadTrips().filter(function (t) { return t.mode === "route" && t.routeId === r.id; }); } catch (e) { return []; }
+  }
+  function v91Runs(r) { try { return timingRunsFor(r.id) || []; } catch (e) { return []; } }
+
+  function v91RenderTabs(r) {
+    var wps = normalizeWaypoints(r.waypoints), trips = v91Trips(r), runs = v91Runs(r);
+    var tabs = [["resumo", "Resumo"], ["marcacoes", "Marcações " + wps.length], ["passeios", "Passeios " + trips.length], ["tempos", "Tempos" + (runs.length ? " " + runs.length : "")]];
+    var tb = document.getElementById("v91-tabs");
+    tb.innerHTML = "";
+    tabs.forEach(function (t) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("role", "tab");
+      b.className = "v91-tab" + (v91.tab === t[0] ? " on" : "");
+      b.setAttribute("aria-selected", v91.tab === t[0] ? "true" : "false");
+      b.textContent = t[1];
+      b.addEventListener("click", function () { v91.tab = t[0]; v91RenderTabs(r); });
+      tb.appendChild(b);
+    });
+    var pane = document.getElementById("v91-pane");
+    var h = "";
+    if (v91.tab === "resumo") {
+      var meters = r.points.length >= 2 ? polylineLengthMeters(r.points) : 0;
+      var ev = r.elevation && r.elevation.stats;
+      var stats = [["Distância", meters ? formatDistance(meters) : "—"], ["Marcações", String(wps.length)]];
+      if (ev) { stats.push(["Subida", "↑ " + ev.gain + " m"]); stats.push(["Alt. máxima", ev.max + " m"]); }
+      else { stats.push(["Pontos", String(r.points.length)]); stats.push(["Salva em", v91Date(r.savedAt || Date.now())]); }
+      h += '<div class="v91-stats">' + stats.map(function (s) { return '<div><span>' + v91Esc(s[0]) + "</span><b>" + v91Esc(s[1]) + "</b></div>"; }).join("") + "</div>";
+      var meta = normalizeMeta(r.meta);
+      if (meta.notes) h += '<p class="v91-notes">' + v91Esc(meta.notes) + "</p>";
+      if (trips[0] && trips[0].stats) {
+        var t = trips[0];
+        h += '<button type="button" class="v91-line" data-go="passeios"><span>🧭 Último passeio</span><b>' + v91Esc(v91Date(t.startedAt) + " · " + fmtDuration(t.stats.totalMs || 0) + " · " + formatDistance(t.distance || 0)) + "</b></button>";
+      }
+      if (runs.length) {
+        var best = bestOf(runs);
+        h += '<button type="button" class="v91-line" data-go="tempos"><span>⏱️ Melhor tempo</span><b>' + v91Esc(best ? fmtTime(best.time) : "sem tempo completo") + "</b></button>";
+      }
+      if (!v82IsReady(r)) h += '<button type="button" class="v91-line v91-line-warn" data-act="offline"><span>⬇ Baixar mapa para usar sem sinal</span><b>›</b></button>';
+      if (!ev) h += '<p class="v91-hint">Para ver a subida e a altitude, abra em Editar › Altimetria e calcule o perfil.</p>';
+    } else if (v91.tab === "marcacoes") {
+      if (!wps.length) h += '<p class="v91-empty">Nenhuma marcação nesta rota. Na navegação, toque em Marcar (ou segure o dedo no mapa) para anotar atoleiro, porteira, perigo…</p>';
+      else {
+        var items = wps.map(function (w) { return { w: w, at: r.points.length > 1 ? v91Along(r.points, w.lat, w.lng) : 0 }; }).sort(function (a, b) { return a.at - b.at; });
+        h += '<ul class="v91-list">' + items.map(function (it) {
+          var ty = waypointType(it.w.type);
+          var sub = ["km " + (it.at / 1000).toFixed(1).replace(".", ",")];
+          if (it.w.at || it.w.createdAt) sub.push("visto em " + v91Date(it.w.at || it.w.createdAt));
+          if (it.w.resolved) sub.push("resolvido");
+          return '<li><span class="v91-ic">' + ty.emoji + '</span><span class="v91-tx"><b>' + v91Esc(it.w.note || ty.label) + "</b><small>" + v91Esc(ty.label + " · " + sub.join(" · ")) + "</small></span></li>";
+        }).join("") + "</ul>";
+      }
+    } else if (v91.tab === "passeios") {
+      if (!trips.length) h += '<p class="v91-empty">Você ainda não fez esta rota com o app. Cada vez que navegar por ela, o passeio fica guardado aqui.</p>';
+      else h += '<ul class="v91-list">' + trips.map(function (t) {
+        var s = t.stats || {};
+        return '<li><span class="v91-ic">🧭</span><span class="v91-tx"><b>' + v91Esc(v91Date(t.startedAt)) + "</b><small>" +
+          v91Esc([fmtDuration(s.totalMs || 0) + (s.movingMs ? " (" + fmtDuration(s.movingMs) + " andando)" : ""), formatDistance(t.distance || 0)].join(" · ")) + "</small></span></li>";
+      }).join("") + "</ul>";
+    } else if (v91.tab === "tempos") {
+      if (!runs.length) h += '<p class="v91-empty">Nenhuma tomada de tempo nesta rota ainda.</p>';
+      else {
+        var scored = runs.map(function (x) { return { run: x, sc: runScore(x) }; }).filter(function (x) { return x.sc != null; }).sort(function (a, b) { return a.sc - b.sc; });
+        var bestT = scored[0] ? scored[0].sc : null;
+        h += '<ul class="v91-list">' + scored.slice(0, 8).map(function (x, i) {
+          return '<li><span class="v91-ic">' + (["🥇", "🥈", "🥉"][i] || (i + 1) + "º") + '</span><span class="v91-tx"><b class="v91-mono">' + v91Esc(fmtTime(x.sc)) + "</b><small>" +
+            v91Esc(v91Date(x.run.at) + (i ? " · +" + fmtDelta(x.sc - bestT) + " s" : " · recorde")) + "</small></span></li>";
+        }).join("") + "</ul>";
+      }
+      h += '<button type="button" class="v91-line" data-act="timing"><span>⏱️ Tomada de Tempo</span><b>abrir o ranking completo ›</b></button>';
+    }
+    pane.innerHTML = h;
+    pane.querySelectorAll("[data-go]").forEach(function (b) { b.addEventListener("click", function () { v91.tab = b.getAttribute("data-go"); v91RenderTabs(r); }); });
+    pane.querySelectorAll("[data-act]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var a = b.getAttribute("data-act");
+        if (a === "offline") { var ob = v91CardBtn(r.id, function (x) { return x.classList.contains("v82-off-btn"); }); if (ob) ob.click(); }
+        if (a === "timing") { v91Close(); showScreen("timing"); renderTimingHistory(r); }
+      });
+    });
+  }
+
+  // cartões de Rotas Salvas e da tela inicial: tocar no nome abre a página da rota
+  function v91DecorateCards() {
+    var list = el.savedRoutesScreenList;
+    if (!list) return;
+    list.querySelectorAll(".saved-screen-card[data-route-id]").forEach(function (c) {
+      if (c.dataset.v91) return;
+      c.dataset.v91 = "1";
+      var id = c.getAttribute("data-route-id");
+      var nm = c.querySelector(".nav-route-card-name");
+      if (nm) {
+        nm.classList.add("v91-open");
+        nm.setAttribute("role", "button");
+        nm.setAttribute("tabindex", "0");
+        nm.title = "Abrir a página da rota";
+        nm.addEventListener("click", function () { v91Open(id); });
+        nm.addEventListener("keydown", function (e) { if (e.key === "Enter") v91Open(id); });
+      }
+      c.querySelectorAll(":scope > .nav-route-card-meta").forEach(function (m) {
+        m.classList.add("v91-open-meta");
+        m.addEventListener("click", function () { v91Open(id); });
+      });
+    });
+  }
+
+  // ---------- "Pronto para sair?" ----------
+  var v91Ck = { route: null, token: 0, told: false };
+  function v91Row(id, state, title, sub, actionHtml) {
+    var li = document.getElementById(id);
+    if (!li) return;
+    li.className = "v91-ck-row v91-" + state;
+    li.classList.remove("hidden");
+    var icon = state === "ok" ? "✓" : state === "warn" ? "!" : state === "bad" ? "✕" : "i";
+    li.innerHTML = '<i class="v91-ck-i">' + icon + '</i><span class="v91-ck-tx"><b>' + v91Esc(title) + "</b>" + (sub ? "<small>" + v91Esc(sub) + "</small>" : "") + "</span>" + (actionHtml || "");
+  }
+  function v91Hide(id) { var li = document.getElementById(id); if (li) li.classList.add("hidden"); }
+  function v91ReturnTime(r) {
+    var ms = 0;
+    var t = v91Trips(r)[0];
+    if (t && t.stats && t.stats.totalMs) ms = t.stats.totalMs;
+    else { var m = r.points.length >= 2 ? polylineLengthMeters(r.points) : 0; ms = (m / 1000 / 18) * 3600000 + 30 * 60000; }
+    var d = new Date(Date.now() + ms + 20 * 60000);
+    d.setMinutes(Math.ceil(d.getMinutes() / 15) * 15, 0, 0);
+    return v55Pad(d.getHours()) + "h" + (d.getMinutes() ? v55Pad(d.getMinutes()) : "");
+  }
+  function v91Tell(r) {
+    var now = new Date();
+    var p0 = r.points[0];
+    var km = r.points.length >= 2 ? formatDistance(polylineLengthMeters(r.points)) : "";
+    var text = "🚙 Vou fazer a trilha \"" + (r.name || "sem nome") + "\"" + (km ? " (" + km + ")" : "") + " agora, saindo às " + v55Pad(now.getHours()) + "h" + v55Pad(now.getMinutes()) +
+      ". Volta prevista: por volta das " + v91ReturnTime(r) + ". Largada: https://www.google.com/maps/search/?api=1&query=" + p0.lat.toFixed(5) + "," + p0.lng.toFixed(5) +
+      " — se eu não der notícia, me liga. (enviado pelo Fora de Estrada)";
+    var sh = typeof fdePlugin === "function" ? fdePlugin("Share") : null;
+    var done = function () { v91Ck.told = true; v91Row("v91-ck-tell", "ok", "Avisado", "Você mandou a rota e a hora de volta prevista (" + v91ReturnTime(r) + ")."); };
+    if (sh && sh.share) { sh.share({ text: text, dialogTitle: "Avisar alguém" }).then(done, function () {}); return; }
+    if (navigator.share) { navigator.share({ text: text }).then(done, function () {}); return; }
+    var a = document.createElement("a");
+    a.href = "https://wa.me/?text=" + encodeURIComponent(text);
+    a.target = "_blank";
+    a.rel = "noopener";
+    document.body.appendChild(a); a.click(); a.remove();
+    done();
+  }
+  function v91FillChecklist(route) {
+    var box = document.querySelector("#nav-confirm-modal .modal-box");
+    if (!box || !route) return;
+    var token = ++v91Ck.token;
+    v91Ck.route = route; v91Ck.told = false;
+    document.getElementById("nav-confirm-title").textContent = "Pronto para sair?";
+    var sub = document.getElementById("v91-ck-route");
+    var km = route.points.length >= 2 ? formatDistance(polylineLengthMeters(route.points)) : "";
+    sub.textContent = (route.name || "(sem nome)") + (km ? " · " + km : "");
+    // 1) mapa offline
+    var st = v82Status(route), online = navigator.onLine !== false;
+    if (v82IsReady(route)) v91Row("v91-ck-map", "ok", "Mapa offline no aparelho", (st.layers || []).map(v82LayerName).join(" + ") + " — funciona sem sinal");
+    else if (!online) v91Row("v91-ck-map", "bad", "Sem internet e sem mapa baixado", "o mapa pode ficar cinza na trilha; a rota, o GPS e os avisos funcionam");
+    else v91Row("v91-ck-map", "warn", st ? "Mapa offline incompleto" : "O mapa será baixado ao começar", "satélite + topográfico; melhor no Wi-Fi, antes de sair");
+    // 2) bateria
+    v91Hide("v91-ck-bat");
+    if (navigator.getBattery) navigator.getBattery().then(function (b) {
+      if (token !== v91Ck.token) return;
+      var pct = Math.round(b.level * 100);
+      if (b.charging) v91Row("v91-ck-bat", "ok", "Bateria em " + pct + "% (carregando)", "");
+      else if (pct >= 60) v91Row("v91-ck-bat", "ok", "Bateria em " + pct + "%", "o GPS gasta perto de 10% por hora");
+      else v91Row("v91-ck-bat", "warn", "Bateria em " + pct + "%", "leve o carregador — o GPS gasta perto de 10% por hora");
+    }).catch(function () {});
+    // 3) largada
+    v91Row("v91-ck-start", "info", "Vendo onde você está…", "");
+    var p0 = route.points[0];
+    var wz = ' <a href="#" class="v91-ck-act" id="v91-ck-waze">🚗 Waze</a>';
+    var showStart = function (lat, lng) {
+      if (token !== v91Ck.token) return;
+      var d = haversineMeters(lat, lng, p0.lat, p0.lng);
+      if (d < 500) v91Row("v91-ck-start", "ok", "Você está na largada", "a gravação começa assim que você andar");
+      else v91Row("v91-ck-start", "info", "A largada fica a " + formatDistance(d), "pode começar daqui: até chegar, o app só mostra a distância e começa a gravar quando você entrar na trilha", wz);
+      var w = document.getElementById("v91-ck-waze");
+      if (w) w.addEventListener("click", function (e) { e.preventDefault(); v66OpenWaze(route); });
+    };
+    if (navLastFix && Date.now() - (navLastFix.ts || 0) < 120000) showStart(navLastFix.lat, navLastFix.lng);
+    else if (navigator.geolocation) navigator.geolocation.getCurrentPosition(function (pos) { showStart(pos.coords.latitude, pos.coords.longitude); }, function () {
+      if (token === v91Ck.token) v91Row("v91-ck-start", "info", "Sem a sua posição agora", "se estiver longe da trilha, vá pelo Waze até a largada", wz);
+      var w = document.getElementById("v91-ck-waze");
+      if (w) w.addEventListener("click", function (e) { e.preventDefault(); v66OpenWaze(route); });
+    }, { timeout: 6000, maximumAge: 60000 });
+    // 4) chuva (quando a rota não tem desvio molhado; com desvio, a escolha Seco/Molhado já mostra)
+    var wetBox = document.getElementById("nav-wet-box");
+    v91Hide("v91-ck-rain");
+    if (wetBox && wetBox.classList.contains("hidden") && online) {
+      fetch("https://api.open-meteo.com/v1/forecast?latitude=" + p0.lat.toFixed(3) + "&longitude=" + p0.lng.toFixed(3) + "&daily=precipitation_sum&past_days=3&forecast_days=1&timezone=auto")
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (token !== v91Ck.token) return;
+          var arr = (j.daily && j.daily.precipitation_sum) || [];
+          var mm = Math.round(arr.slice(0, 4).reduce(function (s, v) { return s + (v || 0); }, 0));
+          if (mm >= 10) v91Row("v91-ck-rain", "warn", "Choveu cerca de " + mm + " mm em 3 dias", "espere barro e atoleiro");
+          else v91Row("v91-ck-rain", "ok", mm > 0 ? "Pouca chuva nos últimos dias (" + mm + " mm)" : "Sem chuva nos últimos 3 dias", "");
+        }).catch(function () {});
+    }
+    // 5) avisar alguém
+    v91Row("v91-ck-tell", "warn", "Avise alguém que você vai sair", "manda a rota e a volta prevista (" + v91ReturnTime(route) + ") pelo WhatsApp", '<button type="button" class="v91-ck-act" id="v91-ck-tell-btn">Avisar</button>');
+    document.getElementById("v91-ck-tell-btn").addEventListener("click", function () { v91Tell(route); });
+  }
+
+  function initV91() {
+    // página da rota: marca os cartões com o id da rota (para abrir a página e reusar os botões do cartão)
+    var origRender = renderSavedRoutesScreen;
+    renderSavedRoutesScreenRaw = function () { return origRender.apply(this, arguments); };
+    renderSavedRoutesScreen = function () {
+      var out = origRender.apply(this, arguments);
+      v91DecorateCards();
+      setTimeout(v91DecorateCards, 0);
+      return out;
+    };
+    // os cartões podem ser desenhados antes desta função: decora agora e sempre que a lista mudar
+    v91DecorateCards();
+    if (el.savedRoutesScreenList && window.MutationObserver) new MutationObserver(v91DecorateCards).observe(el.savedRoutesScreenList, { childList: true, subtree: true });
+    // tela inicial: tocar no nome ou no mapa da última rota abre a página dela
+    var hero = document.getElementById("dash-hero");
+    if (hero) hero.addEventListener("click", function (e) {
+      var t = e.target.closest ? e.target.closest(".dsh-hero-name, .dsh-hero-map, .dsh-hero-meta") : null;
+      var id = hero.getAttribute("data-route-id");
+      if (t && id) v91Open(id);
+    });
+    // "Pronto para sair?": reorganiza o aviso antes de navegar numa lista de verificação
+    var modal = document.getElementById("nav-confirm-modal");
+    var box = modal && modal.querySelector(".modal-box");
+    if (box && !document.getElementById("v91-ck")) {
+      box.classList.add("v91-ck-box");
+      var title = document.getElementById("nav-confirm-title");
+      var sub = document.createElement("p");
+      sub.id = "v91-ck-route";
+      sub.className = "v91-ck-route";
+      title.parentNode.insertBefore(sub, title.nextSibling);
+      var ul = document.createElement("ul");
+      ul.id = "v91-ck";
+      ul.className = "v91-ck";
+      ["v91-ck-map", "v91-ck-rain", "v91-ck-bat", "v91-ck-start", "v91-ck-tell"].forEach(function (id) {
+        var li = document.createElement("li"); li.id = id; li.className = "v91-ck-row hidden"; ul.appendChild(li);
+      });
+      sub.parentNode.insertBefore(ul, sub.nextSibling);
+      // veículo e seco/molhado continuam (mesma lógica), agora dentro da lista
+      ["nav-wet-box", "nav-vehicle-box"].forEach(function (id) {
+        var b = document.getElementById(id);
+        if (b) { b.classList.add("v91-ck-extra"); ul.parentNode.insertBefore(b, ul.nextSibling); }
+      });
+      var off = document.getElementById("nav-confirm-offline");
+      if (off) off.classList.add("v91-gone");
+      var wz = document.getElementById("btn-confirm-waze");
+      if (wz && wz.parentNode) wz.parentNode.classList.add("v91-gone");
+      var ok = document.getElementById("btn-nav-confirm-ok");
+      if (ok) ok.innerHTML = v90Svg("play") + "Começar";
+    }
+    var origOpen = openNavConfirm;
+    openNavConfirm = function (route) {
+      var out = origOpen.apply(this, arguments);
+      if (document.getElementById("nav-confirm-modal").classList.contains("open")) v91FillChecklist(route);
+      return out;
+    };
+  }
+
   // ===================== v9.0 — um visual só + barra de abas (celular) =====================
   // Proposta "Fora de Estrada 9.0" (aprovada em 17/11/2026):
   //  * ícones de linha no lugar dos emoji da barra do planejamento;
@@ -7590,7 +8094,8 @@ button, input, select, textarea { font-family: var(--font); }
     route: '<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5"/>',
     users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 4 6"/>',
     wrench: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',
-    play: '<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>'
+    play: '<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>',
+    back: '<path d="M15 5l-7 7 7 7"/>'
   };
   function v90Svg(name) {
     return '<svg class="svg-ico v90-ico" viewBox="0 0 24 24" aria-hidden="true">' + (V90_ICONS[name] || "") + "</svg>";
@@ -16604,6 +17109,7 @@ button, input, select, textarea { font-family: var(--font); }
     v55UpdateThemeButtons();
 
     if (!routes.length) {
+      hero.removeAttribute("data-route-id");
       hero.innerHTML =
         '<div class="dsh-empty"><div class="dsh-kicker">Comece por aqui</div>' +
         '<h2 class="dsh-hero-name" style="padding:4px 0 0;margin:0">Planeje sua trilha off-road</h2>' +
@@ -16639,6 +17145,7 @@ button, input, select, textarea { font-family: var(--font); }
       var d = new Date(r.savedAt);
       metaBits.push("salva em " + v55Pad(d.getDate()) + "/" + v55Pad(d.getMonth() + 1));
     }
+    hero.setAttribute("data-route-id", r.id);
     hero.innerHTML =
       '<div class="dsh-hero-head"><span class="dsh-kicker">Última rota</span><span class="dsh-ready">● Pronta para navegar</span></div>' +
       '<div class="dsh-hero-name">' + v55Esc(r.name || "(sem nome)") + "</div>" +
@@ -20367,6 +20874,7 @@ button, input, select, textarea { font-family: var(--font); }
     safeInit(initV88OfflineCopy, "cópia do app sem internet (v8.8)");
     safeInit(initV89Places, "lugares (v8.9)");
     safeInit(initV90Visual, "visual e abas (v9.0)");
+    safeInit(initV91, "página da rota e checklist (v9.1)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
