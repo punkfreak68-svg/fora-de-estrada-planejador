@@ -4977,17 +4977,17 @@ html, body {
 .welcome-body a { color: var(--acc); }
 /* v8.4: coluna da navegação com legenda + painel "Mais opções" */
 #nav-side-tools > .nav-tool-btn[data-cap] { position: relative; margin-bottom: 12px; }
-#nav-side-tools > .nav-tool-btn[data-cap]::after { content: attr(data-cap); position: absolute; top: calc(100% + 1px); left: 50%; transform: translateX(-50%); font: 800 11px/1 system-ui, sans-serif; color: #fff; text-shadow: 0 0 3px #000, 0 0 3px #000, 0 1px 2px #000; white-space: nowrap; pointer-events: none; }
+#nav-side-tools > .nav-tool-btn[data-cap]::after { content: attr(data-cap); position: absolute; top: calc(100% + 1px); left: 50%; transform: translateX(-50%); font: 800 11px/1 var(--font); color: #fff; text-shadow: 0 0 3px #000, 0 0 3px #000, 0 1px 2px #000; white-space: nowrap; pointer-events: none; }
 #nav-more-sheet { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 1100; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; border-radius: 18px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(0,0,0,.45); max-height: 70%; overflow-y: auto; }
 #nav-more-sheet.hidden { display: none; }
 #nav-more-sheet .nav-tool-btn.v84-proxy { display: none; }
 #nav-active-view.v84-compact #nav-more-sheet .nav-tool-btn.v84-proxy { display: flex; }
 #nav-active-view.v84-compact #nav-side-tools > #btn-nav-layers, #nav-active-view.v84-compact #nav-side-tools > #btn-nav-waypoint { display: none; }
-#nav-more-sheet .v84-more-head { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; font: 800 16px/1.2 system-ui, sans-serif; padding: 2px 2px 4px 6px; }
-#nav-more-sheet .v84-more-close { min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; background: rgba(127,127,127,.18); color: inherit; font: 700 18px system-ui; }
+#nav-more-sheet .v84-more-head { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; font: 800 16px/1.2 var(--font); padding: 2px 2px 4px 6px; }
+#nav-more-sheet .v84-more-close { min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; background: rgba(127,127,127,.18); color: inherit; font: 700 18px var(--font); }
 #nav-more-sheet .nav-tool-btn { width: auto; height: auto; min-height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding: 8px 12px; }
 #nav-more-sheet .nav-tool-btn .svg-ico { flex: 0 0 auto; }
-#nav-more-sheet .v84-lbl { font: 700 14px/1.2 system-ui, sans-serif; text-align: left; }
+#nav-more-sheet .v84-lbl { font: 700 14px/1.2 var(--font); text-align: left; }
 .v84-tips { margin: 8px 0 4px 18px; padding: 0; line-height: 1.45; }
 .v84-tips li { margin-bottom: 6px; }
 .v84-list-more { width: 100%; min-height: 44px; margin: 6px 0; }
@@ -5508,13 +5508,13 @@ html.fde-native .native-only { display: block; }
 .v85-start-sub { margin-top: 2px; }
 .v85-or { text-align: center; font-weight: 700; margin: 22px 0 6px; color: var(--ink2); }
 #screen-welcome .welcome-list { margin-top: 18px; }
-.v85-plan-hint { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 850; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 120px); padding: 8px 8px 8px 14px; border-radius: 22px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: var(--shadow); font: 700 14px/1.25 system-ui, sans-serif; }
+.v85-plan-hint { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 850; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 120px); padding: 8px 8px 8px 14px; border-radius: 22px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: var(--shadow); font: 700 14px/1.25 var(--font); }
 .v85-plan-hint span { white-space: nowrap; }
 .v85-plan-hint.v85-plan-hint-start { background: var(--acc); color: var(--onAcc); border-color: transparent; padding: 10px 16px; }
-.v85-plan-hint button { flex: 0 0 auto; min-height: 40px; padding: 6px 14px; border: 0; border-radius: 18px; background: var(--acc); color: var(--onAcc); font: 800 14px system-ui, sans-serif; }
+.v85-plan-hint button { flex: 0 0 auto; min-height: 40px; padding: 6px 14px; border: 0; border-radius: 18px; background: var(--acc); color: var(--onAcc); font: 800 14px var(--font); }
 #v85-plan-menu { position: fixed; right: 8px; top: 60px; z-index: 1200; display: flex; flex-direction: column; gap: 4px; min-width: 240px; padding: 6px; border-radius: 14px; background: var(--surf); border: 1px solid var(--line); box-shadow: var(--shadow); }
 #v85-plan-menu.hidden { display: none; }
-#v85-plan-menu button { min-height: 48px; text-align: left; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 700 15px system-ui, sans-serif; }
+#v85-plan-menu button { min-height: 48px; text-align: left; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 700 15px var(--font); }
 #v85-plan-menu button.v85-danger { color: #d6362a; }
 #btn-plan-more { display: none; }
 @media (max-width: 768px) {
@@ -5534,7 +5534,7 @@ html.fde-native .native-only { display: block; }
 .saved-screen-card-buttons button, .nav-route-card-btn { min-height: 44px; }
 input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 .saved-screen-card-buttons .nav-btn, .saved-list .nav-btn, .nav-route-card-btn, .com-btn-primary { background: var(--acc) !important; border-color: var(--acc) !important; color: var(--onAcc) !important; font-weight: 800; }
-.v85-gps-card { position: absolute; left: 10px; right: 10px; top: 76px; z-index: 1150; padding: 14px; border-radius: 16px; background: var(--surf); color: var(--ink); border: 2px solid #d6362a; box-shadow: var(--shadow); font: 15px/1.4 system-ui, sans-serif; }
+.v85-gps-card { position: absolute; left: 10px; right: 10px; top: 76px; z-index: 1150; padding: 14px; border-radius: 16px; background: var(--surf); color: var(--ink); border: 2px solid #d6362a; box-shadow: var(--shadow); font: 15px/1.4 var(--font); }
 .v85-gps-card p { margin: 6px 0; }
 .v85-gps-card button { width: 100%; min-height: 48px; margin-top: 8px; }
 
@@ -5562,6 +5562,251 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 .dsh-hero-map.v87-on .v87-contour { display: none; }
 .dsh-hero-map .v87-sat { opacity: 0; transition: opacity .35s; }
 .dsh-hero-map.v87-on .v87-sat { opacity: 1; filter: brightness(1.08) saturate(.9); }
+/* ===================== v8.9 — Lugares ===================== */
+#v89-places { position: fixed; left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 1300; max-height: 64vh; display: flex; flex-direction: column; padding: 10px 12px 8px; border-radius: 18px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(0,0,0,.45); }
+#v89-places.hidden { display: none; }
+#v89-places > * { flex-shrink: 0; }
+#v89-places > .v89-list { flex: 1 1 auto; min-height: 120px; }
+#v89-places { overflow-y: auto; }
+@media (min-width: 769px) { #v89-places { left: auto; right: 16px; width: 480px; max-height: 84vh; } .v89-chips { flex-wrap: wrap; overflow: visible; gap: 5px; } #v89-places .v89-chip { min-height: 30px; padding: 3px 9px; font-size: 12.5px; } }
+.v89-head { display: flex; align-items: center; gap: 8px; font: 800 17px/1.2 var(--font); }
+.v89-head b { flex: 1 1 auto; }
+.v89-x { min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; background: rgba(127,127,127,.18); color: inherit; font: 700 18px var(--font); }
+.v89-clear { min-height: 36px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink2); font: 700 13px var(--font); }
+.v89-clear.hidden { display: none; }
+.v89-form { display: flex; gap: 6px; margin-top: 8px; }
+.v89-form input { flex: 1 1 auto; min-width: 0; min-height: 46px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surf2, var(--surf)); color: var(--ink); font: 600 16px var(--font); }
+.v89-form button { min-height: 46px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--acc); color: var(--onAcc); font: 800 15px var(--font); }
+.v89-chips { display: flex; gap: 6px; overflow-x: auto; padding: 8px 0 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.v89-chips::-webkit-scrollbar { display: none; }
+.v89-chip { flex: 0 0 auto; min-height: 40px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 20px; background: transparent; color: var(--ink); font: 700 14px var(--font); white-space: nowrap; }
+.v89-chip.on { background: var(--acc); color: var(--onAcc); border-color: var(--acc); }
+.v89-hint { margin: 6px 2px 0; color: var(--ink2); font: 500 12.5px/1.35 var(--font); }
+.v89-src { margin-top: 4px; }
+.v89-status { margin: 6px 2px 2px; font: 700 13.5px/1.35 var(--font); }
+.v89-status:empty { display: none; }
+.v89-status.v89-busy::before { content: ""; display: inline-block; width: 12px; height: 12px; margin-right: 8px; vertical-align: -1px; border: 2px solid var(--acc); border-right-color: transparent; border-radius: 50%; animation: v89spin .8s linear infinite; }
+@keyframes v89spin { to { transform: rotate(360deg); } }
+.v89-list { list-style: none; margin: 4px 0 0; padding: 0; overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+.v89-item { padding: 8px 0; border-top: 1px solid var(--line); }
+.v89-item-main { display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 2px; border: 0; background: transparent; color: inherit; text-align: left; }
+.v89-item-ic { flex: 0 0 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(127,127,127,.15); font-size: 18px; }
+.v89-item-tx { display: flex; flex-direction: column; min-width: 0; }
+.v89-item-tx b { font: 800 15px/1.25 var(--font); }
+.v89-item-tx small { color: var(--ink2); font: 500 12.5px/1.3 var(--font); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.v89-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 0 0 44px; }
+.v89-acts .v89-act { min-width: 0; padding: 6px 4px; overflow: hidden; text-overflow: ellipsis; }
+.v89-acts > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+@media (max-width: 400px) { .v89-acts { margin-left: 0; } }
+.v89-acts-pop { margin: 8px 0 0; }
+.v89-act { flex: 1 1 auto; min-height: 40px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink); font: 700 13.5px var(--font); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
+.leaflet-popup-content a.v89-act, .v89-act.v89-go, .v89-act.v89-page { color: #1A73E8; }
+.v89-pop-name { font: 800 15px/1.25 var(--font); }
+.v89-pop-sub { margin-top: 2px; color: #555; font: 500 12.5px/1.3 var(--font); }
+.leaflet-popup-content .v89-act { color: #222; border-color: #ccc; }
+.leaflet-popup-content a.v89-act.v89-go, .leaflet-popup-content a.v89-act.v89-page { color: #1A73E8; }
+.v89-pin-w { background: transparent; border: 0; }
+.v89-pin { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #fff; border: 2px solid #1f5c38; box-shadow: 0 2px 6px rgba(0,0,0,.45); font-size: 18px; }
+#btn-nav-places .v89-ico { font-size: 20px; line-height: 1; }
+/* ===================== v9.0 — um visual só + barra de abas ===================== */
+/* uma fonte em tudo (botões e campos herdavam a do sistema) */
+button, input, select, textarea { font-family: var(--font); }
+#app-header .header-actions button .v90-ico { width: 20px; height: 20px; }
+#app-header .header-actions button { gap: 6px; }
+#btn-home .v90-ico, #btn-menu .v90-ico { width: 24px; height: 24px; }
+#v85-plan-menu button { display: flex; align-items: center; gap: 10px; }
+#v85-plan-menu button .v90-ico { width: 20px; height: 20px; }
+@media (max-width: 768px) {
+  #app-header .header-actions button { gap: 2px; }
+  #app-header .header-actions button .v90-ico { width: 22px; height: 22px; }
+}
+#v90-tabs { display: none; }
+@media (max-width: 768px) {
+  #v90-tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 2400; display: grid; grid-template-columns: repeat(5, 1fr); align-items: end; padding: 6px max(6px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px)); background: var(--surf); border-top: 1px solid var(--line); box-shadow: 0 -4px 16px rgba(23,32,27,.08); }
+  #v90-tabs.hidden { display: none; }
+  .v90-tab { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; min-height: 52px; padding: 4px 2px; border: 0; background: transparent; color: var(--muted); font: 700 11.5px/1.1 var(--font); cursor: pointer; }
+  .v90-tab .v90-ico { width: 24px; height: 24px; }
+  .v90-tab.on { color: var(--acc); }
+  .v90-tab.on .v90-tab-lbl { font-weight: 800; }
+  .v90-go { color: var(--ink); }
+  .v90-go-ring { width: 56px; height: 56px; margin-top: -26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--acc); color: var(--onAcc); border: 4px solid var(--surf); box-shadow: 0 4px 12px rgba(194,65,12,.4); }
+  .v90-go-ring .v90-ico { width: 24px; height: 24px; }
+  .v90-go.on { color: var(--acc); }
+  body.v90-tabs-on { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+  body.v90-tabs-on .nav-running-bar { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+  /* o que virou aba sai da grade da tela inicial; "Planejar" vira o atalho principal */
+  body.v90-tabs-on #btn-dash-navigate, body.v90-tabs-on #btn-dash-saved, body.v90-tabs-on #btn-dash-community, body.v90-tabs-on #btn-dash-garage { display: none; }
+  body.v90-tabs-on #btn-dash-plan { grid-column: 1 / -1; background: var(--acc); color: var(--onAcc); border-color: var(--acc); }
+  body.v90-tabs-on #btn-dash-plan .dashboard-tile-icon { color: var(--onAcc); background: rgba(255,255,255,.18); }
+  body.v90-tabs-on #btn-dash-plan .dashboard-tile-label, body.v90-tabs-on #btn-dash-plan .dashboard-tile-icon .svg-ico { color: var(--onAcc); }
+  body.v90-tabs-on #btn-dash-plan .dashboard-tile-label { font-weight: 800; font-size: 1.05rem; }
+}
+/* ===================== v9.1 — página da rota + "Pronto para sair?" ===================== */
+.modal-overlay.v91-page { background: var(--bg); z-index: 2600; }
+.modal-overlay.v91-page.open { display: flex; align-items: stretch; justify-content: center; }
+.v91-wrap { width: 100%; max-width: 760px; height: 100%; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); }
+.v91-top { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: calc(6px + env(safe-area-inset-top, 0px)) 10px 6px; background: var(--surf); border-bottom: 1px solid var(--line); }
+.v91-back { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 10px 0 4px; border: 0; background: transparent; color: var(--ink); font: 700 15px var(--font); }
+.v91-back .v90-ico { width: 22px; height: 22px; }
+.v91-top-t { font: 800 16px var(--font); }
+.v91-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0 0 16px; }
+.v91-map.dsh-hero-map, .v91-map.dsh-hero-map.v87-on { height: 200px; margin: 0; }
+@media (min-width: 769px) { .v91-map.dsh-hero-map, .v91-map.dsh-hero-map.v87-on { height: 280px; } }
+.v91-head { display: grid; gap: 4px; padding: 12px 16px 6px; }
+.v91-k { font: 700 11px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.v91-name { margin: 0; font: 900 24px/1.12 var(--font); font-stretch: 105%; }
+.v91-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.v91-chip { font: 700 12px/1 var(--mono); padding: 6px 9px; border-radius: 999px; background: var(--surf2); color: var(--ink2); }
+.v91-chip.v91-ok { background: rgba(30,122,70,.14); color: var(--ok); }
+.v91-chip.v91-warn { background: var(--warnBg); color: var(--warnInk); }
+.v91-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 8px 16px; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.v91-tabs::-webkit-scrollbar { display: none; }
+.v91-tab { flex: 0 0 auto; min-height: 40px; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink2); font: 700 14px var(--font); }
+.v91-tab.on { background: var(--acc); border-color: var(--acc); color: var(--onAcc); }
+.v91-pane { padding: 12px 16px; display: grid; gap: 10px; }
+.v91-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 560px) { .v91-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.v91-stats div { background: var(--surf); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; display: grid; gap: 2px; }
+.v91-stats span { font: 700 11px var(--font); color: var(--muted); }
+.v91-stats b { font: 700 17px var(--mono); font-variant-numeric: tabular-nums; }
+.v91-notes { margin: 0; padding: 10px 12px; background: var(--surf); border-radius: 12px; border: 1px solid var(--line); white-space: pre-wrap; }
+.v91-line { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surf); color: var(--ink); font: 600 14px var(--font); text-align: left; }
+.v91-line b { font-weight: 800; text-align: right; }
+.v91-line-warn { background: var(--warnBg); color: var(--warnInk); border-color: transparent; }
+.v91-hint, .v91-empty { margin: 0; color: var(--muted); font-size: 14px; }
+.v91-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.v91-list li { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.v91-list li:first-child { border-top: 0; }
+.v91-ic { flex: 0 0 36px; height: 36px; border-radius: 50%; background: var(--surf2); display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; }
+.v91-tx { display: grid; gap: 2px; min-width: 0; }
+.v91-tx b { font-weight: 800; }
+.v91-tx small { color: var(--muted); font-size: 13px; }
+.v91-mono { font-family: var(--mono); }
+.v91-actions { flex: 0 0 auto; display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--surf); border-top: 1px solid var(--line); }
+.v91-actions button { min-height: 52px; border-radius: 14px; font: 800 16px var(--font); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.v91-go { flex: 2 1 0; border: 0; background: var(--acc); color: var(--onAcc); }
+.v91-go .v90-ico { width: 20px; height: 20px; }
+.v91-sec { flex: 1 1 0; border: 1px solid var(--line); background: var(--btn); color: var(--ink); }
+.v91-dots { flex: 0 0 56px; font-size: 22px !important; }
+.v91-more { flex: 0 0 auto; display: grid; gap: 4px; padding: 6px 12px; background: var(--surf); border-top: 1px solid var(--line); }
+.v91-more.hidden { display: none; }
+.v91-more-it { min-height: 46px; text-align: left; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 700 15px var(--font); }
+.v91-more-it.v91-danger { color: var(--danger); }
+.nav-route-card-name.v91-open { cursor: pointer; }
+.nav-route-card-name.v91-open::after { content: " ›"; color: var(--acc); font-weight: 900; }
+.v91-open-meta { cursor: pointer; }
+#dash-hero .dsh-hero-name, #dash-hero .dsh-hero-map { cursor: pointer; }
+/* Pronto para sair? */
+.v91-ck-box { max-width: 460px; }
+.v91-ck-route { margin: -4px 0 8px; color: var(--muted); font-weight: 700; }
+.v91-ck { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 2px; }
+.v91-ck-row { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px solid var(--line); }
+.v91-ck-row:first-child { border-top: 0; }
+.v91-ck-row.hidden { display: none; }
+.v91-ck-i { flex: 0 0 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 900 13px var(--font); font-style: normal; background: var(--surf2); color: var(--ink2); }
+.v91-ok .v91-ck-i { background: var(--ok); color: #fff; }
+.v91-warn .v91-ck-i { background: var(--warnBg); color: var(--warnInk); }
+.v91-bad .v91-ck-i { background: var(--danger); color: #fff; }
+.v91-ck-tx { flex: 1 1 auto; display: grid; gap: 1px; min-width: 0; }
+.v91-ck-tx b { font-weight: 800; line-height: 1.25; }
+.v91-ck-tx small { color: var(--muted); font-size: 13px; line-height: 1.3; }
+.v91-ck-act { flex: 0 0 auto; align-self: center; min-height: 40px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--btn); color: var(--ink); font: 800 14px var(--font); text-decoration: none; display: inline-flex; align-items: center; }
+.v91-ck-extra { margin-top: 4px; }
+.v91-gone { display: none !important; }
+#btn-nav-confirm-ok .v90-ico { width: 16px; height: 16px; }
+#btn-nav-confirm-ok { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+/* ===================== v9.2 — Rotas com foto, busca e filtros ===================== */
+.v92-bar { display: grid; gap: 8px; padding: 10px 12px 4px; }
+.v92-bar.hidden { display: none; }
+.v92-search { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surf); color: var(--muted); }
+.v92-search .svg-ico { width: 18px; height: 18px; }
+.v92-search input { flex: 1 1 auto; min-width: 0; border: 0; background: transparent; color: var(--ink); font: 600 16px var(--font); outline: none; min-height: 44px; }
+.v92-row { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; align-items: center; }
+.v92-row::-webkit-scrollbar { display: none; }
+@media (min-width: 769px) { .v92-row { flex-wrap: wrap; overflow: visible; } }
+.v92-sort span { flex: 0 0 auto; color: var(--muted); font: 700 13px var(--font); }
+.v92-chip { flex: 0 0 auto; min-height: 36px; padding: 4px 12px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink2); font: 700 13.5px var(--font); white-space: nowrap; }
+.v92-chip.on { background: var(--acc); border-color: var(--acc); color: var(--onAcc); }
+.v92-count { margin: 0; color: var(--muted); font: 700 13px var(--font); }
+.v92-count:empty { display: none; }
+.v92-count.v92-none { color: var(--warnInk); background: var(--warnBg); padding: 10px 12px; border-radius: 10px; }
+#saved-routes-screen-list { display: flex; flex-direction: column; }
+#saved-routes-screen-list.v92-flat { gap: 0; }
+.v92-hidden { display: none !important; }
+.v92-thumb { margin: -14px -14px 10px; border-radius: 9px 9px 0 0; overflow: hidden; cursor: pointer; }
+.v92-thumb .v92-map.dsh-hero-map, .v92-thumb .v92-map.dsh-hero-map.v87-on { height: 84px; margin: 0; width: 100%; }
+@media (min-width: 769px) { .v92-thumb .v92-map.dsh-hero-map, .v92-thumb .v92-map.dsh-hero-map.v87-on { height: 110px; } }
+.v92-tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 2px; }
+.v92-tag { font: 700 11.5px/1 var(--mono); padding: 5px 7px; border-radius: 999px; background: var(--surf2); color: var(--ink2); }
+.v92-near { display: inline-block; margin: 2px 0; font: 800 12.5px var(--font); color: var(--acc); }
+.v92-near.hidden { display: none; }
+/* ===================== v9.3 — próximo aviso, modo luva, modo sol ===================== */
+.v93-next { position: absolute; left: 12px; right: 84px; top: calc(78px + env(safe-area-inset-top, 0px)); z-index: 895; display: flex; align-items: center; gap: 12px; max-width: 520px; padding: 10px 14px; border-radius: 16px; background: var(--warnBg); color: var(--warnInk); border: 2px solid rgba(138,75,0,.25); box-shadow: var(--shadow); }
+.v93-next.hidden { display: none; }
+.v93-next.v93-near { background: #C0261B; color: #fff; border-color: #C0261B; animation: v93pulse 1.2s ease-in-out infinite; }
+@keyframes v93pulse { 50% { box-shadow: 0 0 0 6px rgba(192,38,27,.25); } }
+@media (prefers-reduced-motion: reduce) { .v93-next.v93-near { animation: none; } }
+.v93-ic { flex: 0 0 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.65); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.v93-tx { display: grid; gap: 1px; min-width: 0; }
+.v93-d { font: 800 22px/1 var(--mono); font-variant-numeric: tabular-nums; }
+.v93-t { font: 800 15px/1.2 var(--font); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v93-s { font: 600 13px/1.2 var(--font); opacity: .9; }
+.v93-s:empty { display: none; }
+#btn-nav-luva .v89-ico, #btn-nav-sol .v89-ico { font-size: 20px; line-height: 1; }
+/* modo luva: alvos maiores e números grandes */
+#nav-active-view.v93-luva #nav-side-tools > .nav-tool-btn { width: 64px; height: 64px; border-radius: 18px; }
+#nav-active-view.v93-luva #nav-side-tools > .nav-tool-btn .svg-ico { width: 30px; height: 30px; }
+#nav-active-view.v93-luva .nav-stat-value { font-size: clamp(1.8rem, 8vw, 2.6rem); }
+#nav-active-view.v93-luva .nav-action-btn { min-height: 64px; font-size: 1.15rem; }
+#nav-active-view.v93-luva .v93-next { right: 98px; }
+#nav-active-view.v93-luva .v93-d { font-size: 28px; }
+#nav-active-view.v93-luva .v93-t { font-size: 17px; }
+/* modo sol: contraste máximo */
+#nav-active-view.v93-sol #nav-map .leaflet-tile-pane { filter: contrast(1.18) saturate(1.15) brightness(1.05); }
+#nav-active-view.v93-sol #nav-hud-bottom, #nav-active-view.v93-sol .nav-stat-tile { background: #fff !important; color: #000 !important; border-color: #000 !important; }
+#nav-active-view.v93-sol .nav-stat-value, #nav-active-view.v93-sol .nav-stat-label, #nav-active-view.v93-sol .nav-unit { color: #000 !important; font-weight: 900; }
+#nav-active-view.v93-sol #nav-side-tools > .nav-tool-btn { background: #fff; color: #000; border: 2px solid #000; box-shadow: 0 2px 0 #000; }
+#nav-active-view.v93-sol .nav-deviation-pill, #nav-active-view.v93-sol .nav-threshold-btn { border: 2px solid #000; font-weight: 900; }
+#nav-active-view.v93-sol .v93-next { background: #fff; color: #000; border: 3px solid #000; }
+#nav-active-view.v93-sol .v93-next.v93-near { background: #C0261B; color: #fff; border-color: #000; }
+#nav-active-view.v93-sol #nav-side-tools > .nav-tool-btn[data-cap]::after { color: #000; font-weight: 900; text-shadow: 0 0 3px #fff, 0 0 3px #fff; }
+/* ===================== v9.4 — planejamento mapa primeiro (celular) + cartão do passeio ===================== */
+#v94-planbar { display: none; }
+.v94-only-m { display: none !important; }
+@media (max-width: 768px) {
+  #app-header .header-actions { display: none !important; }
+  #app-header { flex-wrap: nowrap; }
+  #v85-plan-menu { top: auto; bottom: calc(126px + env(safe-area-inset-bottom, 0px)); right: 8px; }
+  .v94-only-m { display: flex !important; }
+  #v94-planbar { display: grid; gap: 6px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 1150; padding: 8px max(8px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); background: var(--surf); border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; box-shadow: 0 -6px 20px rgba(23,32,27,.18); }
+  .v94-stats { font: 800 15px/1.2 var(--mono); font-variant-numeric: tabular-nums; color: var(--ink); text-align: center; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .v94-btns { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5px; }
+  .v94-pb { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 54px; padding: 4px 2px; border: 1px solid var(--line); border-radius: 12px; background: var(--btn); color: var(--ink); font: 700 11px/1.1 var(--font); }
+  .v94-pb .v90-ico { width: 22px; height: 22px; }
+  .v94-pb:disabled { opacity: .4; }
+  .v94-pb.v94-pri { background: var(--acc); border-color: var(--acc); color: var(--onAcc); }
+  #screen-planning #map .leaflet-bottom { bottom: calc(118px + env(safe-area-inset-bottom, 0px)); }
+  #screen-planning .v85-plan-hint:not(.v85-plan-hint-start) { display: none; }
+}
+/* cartão do passeio */
+.modal-overlay.v94-modal { z-index: 3100; }
+.v94-box { max-width: 520px; width: calc(100% - 24px); display: grid; gap: 10px; max-height: calc(100vh - 32px); overflow-y: auto; }
+.v94-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font: 800 17px var(--font); }
+.v94-x { min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink); font: 700 14px var(--font); }
+.v94-prev { position: relative; display: flex; justify-content: center; background: #0F1311; border-radius: 12px; min-height: 220px; overflow: hidden; }
+.v94-prev img { display: block; max-width: 100%; max-height: 52vh; object-fit: contain; }
+.v94-prev img.v94-dim { opacity: .35; }
+.v94-wait { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #EEF1EC; font: 700 15px var(--font); }
+.v94-wait.hidden { display: none; }
+.v94-opts { display: flex; gap: 6px; }
+.v94-fmt { flex: 1 1 0; min-height: 42px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink2); font: 700 14px var(--font); }
+.v94-fmt.on { background: var(--acc); border-color: var(--acc); color: var(--onAcc); }
+.v94-hide { display: flex; gap: 8px; align-items: flex-start; font: 600 14px/1.35 var(--font); color: var(--ink2); }
+.v94-hide input { width: 20px; height: 20px; margin-top: 1px; flex: 0 0 auto; }
+.v94-share { min-height: 52px; border: 0; border-radius: 14px; background: var(--acc); color: var(--onAcc); font: 800 17px var(--font); }
+.v94-share:disabled { opacity: .5; }
+.v94-summary-card { margin-top: 6px; }
+.v91-mini { flex: 0 0 auto; margin-left: auto; min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--btn); color: var(--ink); font: 700 14px var(--font); }
 </style>
 </head>
 <body>
@@ -5732,6 +5977,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
         <input type="checkbox" id="toggle-poi" />
         Mostrar restaurantes, lazer/turismo e postos de combustível
       </label>
+      <p class="hint">Para procurar cachoeiras, mirantes, camping e outros lugares (ou digitar um nome), use o botão 🔎 Lugares na barra de cima.</p>
     </section>
 
     <section class="panel-section hidden" id="blocks-section">
@@ -6586,8 +6832,64 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "8.8";
+  var APP_VERSION = "9.4";
   var CHANGELOG = [
+    {
+      version: "9.4",
+      date: "17/11/2026",
+      changes: [
+        "Celular: planejamento com o mapa em tela quase cheia — a fileira de botões do topo saiu e, embaixo, uma barra mostra km, subida e pontos com Desfazer · Lugares · Marcar · Navegar · Salvar · Mais (Importar e o painel de pontos/altimetria ficam no Mais). No PC nada muda",
+        "Desfazer: tira o último ponto colocado no mapa (um de cada vez)",
+        "📸 Cartão do passeio: imagem pronta com o satélite, o caminho feito, km, tempo e subida, para mandar no WhatsApp, Instagram ou status — em quadrado ou vertical, escondendo os 300 m do começo e do fim (não mostra onde você mora). Em Passeios feitos, no fim da navegação e na página da rota"
+      ]
+    },
+    {
+      version: "9.3",
+      date: "17/11/2026",
+      changes: [
+        "Navegação: \"próximo aviso\" fixo no topo — o próximo atoleiro, perigo, água ou porteira à frente na rota, com a distância pela rota em contagem regressiva e o que fazer (desvio molhado, fechar a porteira…); fica vermelho nos últimos 250 m",
+        "Modo luva (Mais → Modo luva): botões de 64 px e números maiores; no automático liga sozinho acima de 20 km/h e volta depois de 20 s devagar",
+        "Modo sol (Mais → Modo sol): contraste máximo para a tela no sol do meio-dia — fundo branco, letra preta, bordas grossas e mapa mais vivo"
+      ]
+    },
+    {
+      version: "9.2",
+      date: "17/11/2026",
+      changes: [
+        "Rotas com foto: cada rota mostra uma faixa de satélite com o desenho dela (carrega só quando aparece na tela e usa o mapa offline quando não há sinal)",
+        "Busca pelo nome ou pasta, filtros por pasta, ✔ offline e 🌧️ desvio molhado, e ordem por Recentes, 📍 Perto de mim (mostra a distância até cada rota) ou A–Z",
+        "Selos em cada rota: subida, desvio molhado e tomadas de tempo"
+      ]
+    },
+    {
+      version: "9.1",
+      date: "17/11/2026",
+      changes: [
+        "Página da rota: toque no nome da rota (em Rotas ou na tela inicial) e veja tudo dela num lugar só — mapa de satélite, números, Marcações (em ordem, com o km), Passeios feitos e Tempos do rally — com Navegar, Editar e ⋯ fixos embaixo",
+        "\"Pronto para sair?\": antes de navegar, uma lista de verificação no lugar do texto — mapa offline, chuva dos últimos dias, bateria, distância até a largada (com Waze) e \"Avisar alguém\" (manda a rota e a hora de volta prevista pelo WhatsApp)"
+      ]
+    },
+    {
+      version: "9.0",
+      date: "17/11/2026",
+      changes: [
+        "Celular: barra de abas embaixo — Início · Rotas · ▶ Navegar · Comunidade · Garagem — nas telas de menu (some no planejamento e na navegação, para o mapa ficar com a tela toda)",
+        "Tela inicial mais limpa no celular: o que virou aba saiu da grade e \"Planejar Nova Rota\" ficou em destaque",
+        "Um visual só: ícones de linha no lugar dos emoji na barra do planejamento e a mesma fonte (Archivo) em todos os botões, avisos e no painel de Lugares",
+        "No PC nada muda de lugar"
+      ]
+    },
+    {
+      version: "8.9",
+      date: "17/11/2026",
+      changes: [
+        "🔎 Lugares: procure cachoeiras, mirantes, camping, trilhas e picos, pesqueiros, lazer, restaurantes e postos — ou digite o que quiser (\"salto\", \"pousada\"…). No planejamento busca perto do centro do mapa; na navegação, perto de você (Mais → Lugares perto)",
+        "Cada lugar vira marcação (já com nome e tipo), ponto da rota ou \"Como chegar\"; busca no OpenStreetMap (bom para coisas do mato) e no Google (comércio)",
+        "As buscas ficam guardadas no celular: sem sinal na trilha, mostra o que você buscou antes naquela região",
+        "📷 Ver fotos: abre a página do lugar no Google Maps (fotos, avaliações, horário)",
+        "No planejamento, a busca cobre a área que aparece no mapa (abra o mapa da região inteira e busque); digitar \"cachoeira\", \"mirante\", \"pesqueiro\"… funciona como o atalho; se o OpenStreetMap não responder em ~15 s, mostra o que já achou"
+      ]
+    },
     {
       version: "8.8",
       date: "09/11/2026",
@@ -10128,6 +10430,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       grouped.groups[folder].forEach(function (route) {
         var card = document.createElement("div");
         card.className = "saved-screen-card";
+        card.setAttribute("data-route-id", route.id);
 
         var name = document.createElement("div");
         name.className = "nav-route-card-name";
@@ -10437,6 +10740,1803 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
 
 
 
+
+  // ===================== v9.4 — planejamento "mapa primeiro" (celular) + cartão do passeio =====================
+  // Celular: a fileira de botões do topo sai; embaixo do mapa fica uma barra com km, subida e pontos
+  // e os botões Desfazer · Lugares · Marcar · Navegar · Salvar · ⋯. No PC nada muda.
+  // Cartão do passeio: imagem pronta (satélite + caminho feito + números + marca) para mandar no grupo.
+  var v94 = { undo: [], card: null };
+
+  function v94PlanStats() {
+    var n = state.points.length;
+    var parts = [];
+    if (n >= 2) parts.push(formatDistance(polylineLengthMeters(state.points)));
+    var ev = state.elevation && state.elevation.stats;
+    if (ev && state.elevation.sig === routeSignature(state.points)) parts.push("↑ " + ev.gain + " m");
+    parts.push(n + (n === 1 ? " ponto" : " pontos"));
+    return n ? parts.join(" · ") : "Toque no mapa onde a trilha começa";
+  }
+  function v94UpdateBar() {
+    var s = document.getElementById("v94-stats");
+    if (s) s.textContent = v94PlanStats();
+    var u = document.getElementById("v94-undo");
+    if (u) {
+      while (v94.undo.length && state.points.indexOf(v94.undo[v94.undo.length - 1]) === -1) v94.undo.pop();
+      u.disabled = !v94.undo.length;
+    }
+  }
+  function v94Undo() {
+    while (v94.undo.length) {
+      var pt = v94.undo.pop();
+      var i = state.points.indexOf(pt);
+      if (i !== -1) { removePoint(i); showToast("Último ponto desfeito."); v94UpdateBar(); if (typeof v85UpdateHint === "function") v85UpdateHint(); return; }
+    }
+    v94UpdateBar();
+  }
+
+  function initV94Plan() {
+    var scr = document.getElementById("screen-planning");
+    if (!scr || document.getElementById("v94-planbar")) return;
+    var bar = document.createElement("div");
+    bar.id = "v94-planbar";
+    var btn = function (id, icon, label, fn, cls) {
+      return { id: id, html: '<button type="button" id="' + id + '" class="v94-pb' + (cls ? " " + cls : "") + '">' + v90Svg(icon) + '<span>' + label + "</span></button>", fn: fn };
+    };
+    var items = [
+      btn("v94-undo", "undo", "Desfazer", v94Undo),
+      btn("v94-places", "search", "Lugares", function () { var b = document.getElementById("btn-places"); if (b) b.click(); }),
+      btn("v94-mark", "pin", "Marcar", function () { if (x && x.btnWaypointMode) x.btnWaypointMode.click(); }),
+      btn("v94-nav", "compass", "Navegar", function () { el.btnNavMode.click(); }),
+      btn("v94-save", "save", "Salvar", function () { el.btnSave.click(); }, "v94-pri"),
+      btn("v94-more", "more", "Mais", function (ev) {
+        // abre o mesmo menu ⋯ (o toque não pode "vazar" para o documento, que fecha o menu)
+        if (ev) ev.stopPropagation();
+        var m = document.getElementById("v85-plan-menu"), pm = document.getElementById("btn-plan-more");
+        if (!m) return;
+        var open = m.classList.contains("hidden");
+        m.classList.toggle("hidden", !open);
+        if (pm) pm.setAttribute("aria-expanded", open ? "true" : "false");
+      })
+    ];
+    bar.innerHTML = '<div class="v94-stats" id="v94-stats"></div><div class="v94-btns">' + items.map(function (i) { return i.html; }).join("") + "</div>";
+    scr.appendChild(bar);
+    items.forEach(function (i) { document.getElementById(i.id).addEventListener("click", i.fn); });
+    // "Importar" e "Pontos e altimetria" no menu ⋯ (no celular a fileira do topo some)
+    var menu = document.getElementById("v85-plan-menu");
+    if (menu && !document.getElementById("v94-menu-import")) {
+      var mk = function (id, icon, txt, fn) {
+        var b = document.createElement("button");
+        b.type = "button"; b.id = id; b.className = "v94-only-m";
+        b.innerHTML = v90Svg(icon) + txt;
+        b.addEventListener("click", function () { menu.classList.add("hidden"); var pm = document.getElementById("btn-plan-more"); if (pm) pm.setAttribute("aria-expanded", "false"); fn(); });
+        menu.insertBefore(b, menu.firstChild);
+      };
+      mk("v94-menu-panel", "menu", "Pontos, altimetria e roadbook", function () { var b = document.getElementById("btn-menu"); if (b) b.click(); });
+      mk("v94-menu-import", "import", "Importar GPX/KML", function () { var b = document.getElementById("btn-import"); if (b) b.click(); });
+    }
+    // desfazer: guarda cada ponto colocado
+    var origAdd = addPoint;
+    addPoint = function () {
+      var before = state.points.slice();
+      var out = origAdd.apply(this, arguments);
+      state.points.forEach(function (p) { if (before.indexOf(p) === -1) v94.undo.push(p); });
+      if (v94.undo.length > 100) v94.undo.splice(0, v94.undo.length - 100);
+      v94UpdateBar();
+      return out;
+    };
+    var origHint = v85UpdateHint;
+    v85UpdateHint = function () { var o = origHint.apply(this, arguments); v94UpdateBar(); return o; };
+    v94UpdateBar();
+  }
+
+  // ---------- cartão do passeio ----------
+  function v94TrimTrack(pts, m) {
+    if (pts.length < 3 || !m) return pts;
+    var total = polylineLengthMeters(pts);
+    if (total < m * 3) return pts;
+    var acc = 0, a = 0, b = pts.length - 1;
+    for (var i = 1; i < pts.length; i++) { acc += haversineMeters(pts[i - 1].lat, pts[i - 1].lng, pts[i].lat, pts[i].lng); if (acc >= m) { a = i; break; } }
+    acc = 0;
+    for (var j = pts.length - 2; j >= 0; j--) { acc += haversineMeters(pts[j + 1].lat, pts[j + 1].lng, pts[j].lat, pts[j].lng); if (acc >= m) { b = j; break; } }
+    return b > a ? pts.slice(a, b + 1) : pts;
+  }
+  function v94LoadTile(z, x, y) {
+    var key = z + "/" + x + "/" + y;
+    var fromBlob = function (blob) {
+      return new Promise(function (res, rej) {
+        var u = URL.createObjectURL(blob);
+        var im = new Image();
+        im.onload = function () { res(im); setTimeout(function () { URL.revokeObjectURL(u); }, 2000); };
+        im.onerror = function () { URL.revokeObjectURL(u); rej(new Error("img")); };
+        im.src = u;
+      });
+    };
+    var net = function () {
+      if (navigator.onLine === false || (navigator.webdriver && !window.__fdeHeroSat)) return Promise.reject(new Error("offline"));
+      var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+      var t = setTimeout(function () { if (ctrl) ctrl.abort(); }, 8000);
+      return fetch(TILE_URL_TEMPLATE.replace("{z}", z).replace("{x}", x).replace("{y}", y), { signal: ctrl ? ctrl.signal : undefined })
+        .then(function (r) { clearTimeout(t); if (!r.ok) throw new Error("http"); return r.blob(); })
+        .then(fromBlob);
+    };
+    return getTile(key).then(function (blob) { return blob ? fromBlob(blob) : net(); }, net);
+  }
+  function v94RoundRect(c, x, y, w, h, r) {
+    c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+  }
+  function v94Draw(trip, opts) {
+    var W = 1080, H = opts.vertical ? 1920 : 1080;
+    var MH = opts.vertical ? 1260 : 590; // altura do mapa
+    var cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    var c = cv.getContext("2d");
+    c.fillStyle = "#0F1311"; c.fillRect(0, 0, W, H);
+    var all = decodePolyline(trip.track || "");
+    var pts = opts.hide ? v94TrimTrack(all, 300) : all;
+    if (pts.length < 2) pts = all;
+    var mx = pts.map(function (p) { return v87MercX(p.lng); }), my = pts.map(function (p) { return v87MercY(p.lat); });
+    var x0 = Math.min.apply(null, mx), x1 = Math.max.apply(null, mx), y0 = Math.min.apply(null, my), y1 = Math.max.apply(null, my);
+    var PAD = 110;
+    var s = Math.min((W - 2 * PAD) / Math.max(x1 - x0, 1e-9), (MH - 2 * PAD) / Math.max(y1 - y0, 1e-9));
+    var ox = (W - (x1 - x0) * s) / 2 - x0 * s, oy = (MH - (y1 - y0) * s) / 2 - y0 * s;
+    var z = Math.max(3, Math.min(17, Math.round(Math.log(s) / Math.LN2)));
+    var n = Math.pow(2, z), t = 256 / n, size = t * s;
+    var tx0 = Math.floor((0 - ox) / s / t), tx1 = Math.floor((W - ox) / s / t), ty0 = Math.max(0, Math.floor((0 - oy) / s / t)), ty1 = Math.min(n - 1, Math.floor((MH - oy) / s / t));
+    var jobs = [];
+    for (var ty = ty0; ty <= ty1; ty++) for (var tx = tx0; tx <= tx1; tx++) jobs.push([tx, ty]);
+    if (jobs.length > 80) jobs = [];
+    // fundo de reserva (sem satélite): verde-escuro com curvas suaves
+    var grd = c.createLinearGradient(0, 0, 0, MH); grd.addColorStop(0, "#2B3A2C"); grd.addColorStop(1, "#1C2620");
+    c.fillStyle = grd; c.fillRect(0, 0, W, MH);
+    c.save(); c.beginPath(); c.rect(0, 0, W, MH); c.clip();
+    c.strokeStyle = "rgba(255,255,255,.06)"; c.lineWidth = 3;
+    for (var k = 0; k < Math.ceil(MH / 80) + 1; k++) { c.beginPath(); c.moveTo(-50, 80 + k * 80); c.bezierCurveTo(300, 20 + k * 80, 700, 160 + k * 80, 1130, 70 + k * 80); c.stroke(); }
+    c.restore();
+    var loads = jobs.map(function (j) {
+      var xx = ((j[0] % n) + n) % n;
+      return v94LoadTile(z, xx, j[1]).then(function (im) { return { im: im, j: j }; }, function () { return null; });
+    });
+    return Promise.all(loads).then(function (res) {
+      var got = res.filter(Boolean);
+      if (got.length >= jobs.length / 2 && jobs.length) {
+        c.save(); c.beginPath(); c.rect(0, 0, W, MH); c.clip();
+        got.forEach(function (g) { c.drawImage(g.im, ox + g.j[0] * size, oy + g.j[1] * size, size + 1, size + 1); });
+        c.restore();
+        var sh = c.createLinearGradient(0, MH - 260, 0, MH); sh.addColorStop(0, "rgba(15,19,17,0)"); sh.addColorStop(1, "rgba(15,19,17,.85)");
+        c.fillStyle = sh; c.fillRect(0, MH - 260, W, 260);
+      }
+      // caminho feito
+      var P = pts.map(function (p, i) { return [ox + mx[i] * s, oy + my[i] * s]; });
+      c.lineJoin = "round"; c.lineCap = "round";
+      c.strokeStyle = "rgba(255,255,255,.95)"; c.lineWidth = 20; c.beginPath(); P.forEach(function (q, i) { if (i) c.lineTo(q[0], q[1]); else c.moveTo(q[0], q[1]); }); c.stroke();
+      c.strokeStyle = "#F0702F"; c.lineWidth = 11; c.stroke();
+      [[P[0], "#1E9E5A"], [P[P.length - 1], "#D3342A"]].forEach(function (d) { c.beginPath(); c.arc(d[0][0], d[0][1], 17, 0, Math.PI * 2); c.fillStyle = d[1]; c.fill(); c.lineWidth = 7; c.strokeStyle = "#fff"; c.stroke(); });
+      // textos
+      var st = trip.stats || {};
+      var d = new Date(trip.startedAt || Date.now());
+      var months = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+      var y = MH + (opts.vertical ? 120 : 72);
+      c.fillStyle = "#9AA39A"; c.font = "700 30px 'JetBrains Mono', monospace";
+      c.fillText((d.getDate() + " de " + months[d.getMonth()] + " de " + d.getFullYear()).toUpperCase(), 72, y);
+      var name = trip.mode === "free" ? "Passeio livre" : (trip.routeName || "Passeio");
+      c.fillStyle = "#EEF1EC"; c.font = "900 " + (opts.vertical ? 92 : 78) + "px Archivo, 'Arial Narrow', sans-serif";
+      var maxW = W - 144;
+      while (c.measureText(name).width > maxW && name.length > 4) name = name.slice(0, -2) + "…";
+      y += opts.vertical ? 110 : 88;
+      c.fillText(name, 72, y);
+      var nums = [[fmtKm(trip.distance || st.distance || 0, 1), "km"], [st.totalMs != null ? fmtDuration(st.totalMs) : "—", "tempo"]];
+      if (st.gain) nums.push(["↑ " + Math.round(st.gain) + " m", "subida"]);
+      else if (st.maxAlt != null) nums.push([Math.round(st.maxAlt) + " m", "alt. máx."]);
+      else if (st.maxSpeed) nums.push([Math.round(st.maxSpeed) + " km/h", "vel. máx."]);
+      y += opts.vertical ? 170 : 120;
+      var colW = (W - 144) / nums.length;
+      nums.forEach(function (nm, i) {
+        c.fillStyle = "#F0702F"; c.font = "800 " + (opts.vertical ? 74 : 62) + "px 'JetBrains Mono', monospace";
+        c.fillText(nm[0], 72 + i * colW, y);
+        c.fillStyle = "#9AA39A"; c.font = "700 26px Archivo, sans-serif";
+        c.fillText(nm[1].toUpperCase(), 72 + i * colW, y + 44);
+      });
+      // rodapé
+      var fy = H - 70;
+      c.fillStyle = "#2C342F"; c.fillRect(72, fy - 60, W - 144, 2);
+      c.fillStyle = "#EEF1EC"; c.font = "900 30px Archivo, sans-serif";
+      c.fillText("FORA DE ESTRADA", 72, fy);
+      c.fillStyle = "#9AA39A"; c.font = "600 24px Archivo, sans-serif";
+      var site = "foradeestrada.sansoliveira.com.br";
+      c.fillText(site, W - 72 - c.measureText(site).width, fy);
+      return cv;
+    });
+  }
+  function v94Modal() {
+    var m = document.getElementById("v94-modal");
+    if (m) return m;
+    m = document.createElement("div");
+    m.id = "v94-modal";
+    m.className = "modal-overlay v94-modal";
+    m.setAttribute("role", "dialog");
+    m.setAttribute("aria-label", "Cartão do passeio");
+    m.innerHTML = '<div class="modal-box v94-box">' +
+      '<div class="v94-head"><b>📸 Cartão do passeio</b><button type="button" class="v94-x" aria-label="Fechar">Fechar</button></div>' +
+      '<div class="v94-prev"><img id="v94-img" alt="Prévia do cartão do passeio"><span id="v94-wait" class="v94-wait">Montando o cartão…</span></div>' +
+      '<div class="v94-opts"><button type="button" class="v94-fmt on" data-v="0">Quadrado (feed)</button><button type="button" class="v94-fmt" data-v="1">Vertical (status)</button></div>' +
+      '<label class="v94-hide"><input type="checkbox" id="v94-hidechk" checked> Esconder começo e fim (300 m) — não mostra onde você mora</label>' +
+      '<button type="button" class="v94-share" id="v94-share">Compartilhar</button>' +
+      "</div>";
+    document.body.appendChild(m);
+    m.querySelector(".v94-x").addEventListener("click", function () { m.classList.remove("open"); });
+    m.addEventListener("click", function (e) { if (e.target === m) m.classList.remove("open"); });
+    m.querySelectorAll(".v94-fmt").forEach(function (b) {
+      b.addEventListener("click", function () {
+        m.querySelectorAll(".v94-fmt").forEach(function (o) { o.classList.toggle("on", o === b); });
+        v94.card.vertical = b.getAttribute("data-v") === "1"; v94Render();
+      });
+    });
+    m.querySelector("#v94-hidechk").addEventListener("change", function () { v94.card.hide = this.checked; v94Render(); });
+    m.querySelector("#v94-share").addEventListener("click", v94Share);
+    return m;
+  }
+  function v94Render() {
+    var c = v94.card; if (!c) return;
+    var tok = (c.tok = (c.tok || 0) + 1);
+    var img = document.getElementById("v94-img"), wait = document.getElementById("v94-wait");
+    wait.classList.remove("hidden"); img.classList.add("v94-dim");
+    document.getElementById("v94-share").disabled = true;
+    var fontsReady = document.fonts && document.fonts.load ? Promise.all([document.fonts.load("900 40px Archivo"), document.fonts.load("800 40px 'JetBrains Mono'")]).catch(function () {}) : Promise.resolve();
+    fontsReady.then(function () { return v94Draw(c.trip, c); }).then(function (cv) {
+      if (tok !== c.tok) return;
+      c.canvas = cv;
+      img.src = cv.toDataURL("image/jpeg", 0.88);
+      wait.classList.add("hidden"); img.classList.remove("v94-dim");
+      document.getElementById("v94-share").disabled = false;
+    });
+  }
+  function v94Open(tripId) {
+    var trip = v62LoadTrips().filter(function (t) { return t.id === tripId; })[0];
+    if (!trip || !trip.track) { showToast("Esse passeio não tem o caminho guardado."); return; }
+    var m = v94Modal();
+    v94.card = { trip: trip, vertical: false, hide: true };
+    m.querySelectorAll(".v94-fmt").forEach(function (o) { o.classList.toggle("on", o.getAttribute("data-v") === "0"); });
+    document.getElementById("v94-hidechk").checked = true;
+    m.classList.add("open");
+    v94Render();
+  }
+  function v94Share() {
+    var c = v94.card; if (!c || !c.canvas) return;
+    var d = new Date(c.trip.startedAt || Date.now());
+    var fname = "fora-de-estrada-" + d.getFullYear() + v55Pad(d.getMonth() + 1) + v55Pad(d.getDate()) + ".jpg";
+    var text = (c.trip.routeName ? c.trip.routeName + " — " : "") + "feito com o Fora de Estrada: https://foradeestrada.sansoliveira.com.br/";
+    var fs = typeof fdePlugin === "function" ? fdePlugin("Filesystem") : null, sh = typeof fdePlugin === "function" ? fdePlugin("Share") : null;
+    if (FDE_NATIVE && fs && sh) {
+      var b64 = c.canvas.toDataURL("image/jpeg", 0.9).split(",")[1];
+      fs.writeFile({ path: fname, data: b64, directory: "CACHE" }).then(function (r) {
+        return sh.share({ title: "Meu passeio", text: text, dialogTitle: "Mandar o cartão", files: [r.uri] });
+      }).catch(function (e) { if (!(e && /cancel/i.test(String(e.message || e)))) showToast("Não foi possível compartilhar a imagem."); });
+      return;
+    }
+    c.canvas.toBlob(function (blob) {
+      var file = null;
+      try { file = new File([blob], fname, { type: "image/jpeg" }); } catch (e) {}
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], text: text }).catch(function () {});
+        return;
+      }
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = fname;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+      showToast("Imagem salva: " + fname);
+    }, "image/jpeg", 0.9);
+  }
+  // botões "📸 Cartão": em cada passeio (Rotas › Passeios feitos), no resumo do fim da navegação e na página da rota
+  function v94DecorateTrips() {
+    document.querySelectorAll(".trip-card[data-trip-id]").forEach(function (card) {
+      if (card.querySelector(".v94-card-btn")) return;
+      var btns = card.querySelector(".saved-screen-card-buttons");
+      if (!btns) return;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "load-btn v94-card-btn";
+      b.textContent = "📸 Cartão";
+      b.title = "Imagem do passeio para mandar no grupo";
+      var id = card.getAttribute("data-trip-id");
+      b.addEventListener("click", function () { v94Open(id); });
+      btns.appendChild(b);
+    });
+  }
+  function initV94Card() {
+    var list = document.getElementById("trips-list");
+    if (list && window.MutationObserver) new MutationObserver(v94DecorateTrips).observe(list, { childList: true });
+    v94DecorateTrips();
+    var save = document.getElementById("btn-summary-save-route");
+    if (save && !document.getElementById("v94-summary-card")) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.id = "v94-summary-card";
+      b.className = "nav-summary-save v94-summary-card";
+      b.textContent = "📸 Cartão para compartilhar";
+      b.addEventListener("click", function () { if (v62LastTripId) v94Open(v62LastTripId); else showToast("O passeio ainda não foi guardado."); });
+      save.parentNode.insertBefore(b, save.nextSibling);
+    }
+  }
+  function initV94() { initV94Plan(); initV94Card(); }
+
+  // ===================== v9.3 — navegação: próximo aviso, modo luva e modo sol =====================
+  // * Próximo aviso: cartão fixo no topo com o próximo atoleiro/perigo/água/porteira À FRENTE na rota,
+  //   com a distância pela rota (contagem regressiva) e o que fazer (desvio molhado etc.).
+  // * Modo luva: botões e números maiores. Automático (liga acima de 20 km/h), sempre ou desligado.
+  // * Modo sol: contraste máximo (fundo branco, letra preta, mapa mais vivo) para tela no sol.
+  var V93_LUVA_KEY = "fde_v93_luva";   // "auto" | "on" | "off"
+  var V93_SOL_KEY = "fde_v93_sol";     // "1" | "0"
+  var v93 = { routeKey: null, hz: [], luvaFast: false, slowSince: 0, lastId: null };
+
+  function v93HazardsAlong(r) {
+    var key = r.id + ":" + r.points.length + ":" + (r.waypoints || []).length;
+    if (v93.routeKey === key) return v93.hz;
+    v93.routeKey = key;
+    v93.hz = (r.waypoints || []).filter(function (w) { return V64_HAZARD_TYPES[w.type] && !w.resolved; }).map(function (w) {
+      return { w: w, at: v91Along(r.points, w.lat, w.lng), off: nearestPointOnRoute({ lat: w.lat, lng: w.lng }, r.points).distance };
+    }).sort(function (a, b) { return a.at - b.at; });
+    return v93.hz;
+  }
+  function v93Card() { return document.getElementById("v93-next"); }
+  function v93Hide() { var c = v93Card(); if (c) c.classList.add("hidden"); v93.lastId = null; }
+  function v93Update(p, remaining) {
+    var c = v93Card();
+    var r = navCurrentRoute;
+    if (!c || !r || navMode !== "route" || !r.points || r.points.length < 2) { v93Hide(); return; }
+    // não disputa o lugar com "a caminho da largada" e com o "voltar pelo caminho" do SOS
+    var busy = ["nav-approach-box", "goal-card"].some(function (id) { var e = document.getElementById(id); return e && !e.classList.contains("hidden"); });
+    if (busy) { c.classList.add("hidden"); return; }
+    var hz = v93HazardsAlong(r);
+    if (!hz.length) { v93Hide(); return; }
+    var total = polylineLengthMeters(r.points);
+    var me = remaining != null ? total - remaining : v91Along(r.points, p.lat, p.lng);
+    var next = null;
+    for (var i = 0; i < hz.length; i++) if (hz[i].at > me - 30) { next = hz[i]; break; }
+    if (!next) { v93Hide(); return; }
+    var ahead = Math.max(0, next.at - me);
+    if (ahead > 3000) { v93Hide(); return; }
+    var w = next.w, t = waypointType(w.type);
+    var tip = "";
+    var hasAlt = w.altId && (r.alts || []).some(function (a) { return a.id === w.altId; });
+    if (hasAlt) tip = navWetMode === "molhado" ? "pegue o desvio molhado" : navWetMode === "seco" ? "no seco dá para passar" : "tem desvio para chuva";
+    else if (w.type === "porteira") tip = "feche depois de passar";
+    else if (w.type === "agua") tip = "veja a profundidade antes";
+    else if (w.type === "perigo") tip = "devagar";
+    var note = (w.note || "").trim();
+    var title = note && note.toLowerCase() !== t.label.toLowerCase() ? t.label.split(" /")[0] + " · " + note : t.label.split(" /")[0];
+    var distTxt = ahead < 40 ? "agora" : ahead < 1000 ? Math.round(ahead / 10) * 10 + " m" : (ahead / 1000).toFixed(1).replace(".", ",") + " km";
+    c.querySelector(".v93-ic").textContent = t.emoji;
+    c.querySelector(".v93-d").textContent = distTxt;
+    c.querySelector(".v93-t").textContent = title;
+    c.querySelector(".v93-s").textContent = tip;
+    c.classList.toggle("v93-near", ahead < 250);
+    c.classList.remove("hidden");
+    v93.lastId = w.id;
+  }
+
+  // ---- modo luva / modo sol ----
+  function v93LuvaMode() { var v = lsGet(V93_LUVA_KEY, "auto"); return v === "on" || v === "off" ? v : "auto"; }
+  function v93Apply() {
+    var view = document.getElementById("nav-active-view");
+    if (!view) return;
+    var m = v93LuvaMode();
+    var luva = m === "on" || (m === "auto" && v93.luvaFast);
+    view.classList.toggle("v93-luva", luva);
+    var sol = lsGet(V93_SOL_KEY, "0") === "1";
+    view.classList.toggle("v93-sol", sol);
+    var bl = document.getElementById("btn-nav-luva");
+    if (bl) bl.querySelector(".v84-lbl").textContent = "Modo luva: " + (m === "on" ? "sempre" : m === "off" ? "desligado" : "automático");
+    var bs = document.getElementById("btn-nav-sol");
+    if (bs) { bs.querySelector(".v84-lbl").textContent = "Modo sol: " + (sol ? "ligado" : "desligado"); bs.classList.toggle("off", !sol); }
+    if (typeof v84Fit === "function") try { v84Fit(); } catch (e) {}
+  }
+  function v93Speed(kmh) {
+    if (kmh == null || isNaN(kmh)) return;
+    var now = Date.now();
+    if (kmh >= 20) { v93.slowSince = 0; if (!v93.luvaFast) { v93.luvaFast = true; v93Apply(); } }
+    else if (v93.luvaFast) {
+      // só volta ao normal depois de 20 s devagar (sem ficar piscando no trânsito da trilha)
+      if (!v93.slowSince) v93.slowSince = now;
+      else if (now - v93.slowSince > 20000) { v93.luvaFast = false; v93.slowSince = 0; v93Apply(); }
+    }
+  }
+
+  function initV93() {
+    var view = document.getElementById("nav-active-view");
+    var top = document.getElementById("nav-hud-top");
+    if (view && !v93Card()) {
+      var c = document.createElement("div");
+      c.id = "v93-next";
+      c.className = "v93-next hidden";
+      c.setAttribute("role", "status");
+      c.setAttribute("aria-live", "polite");
+      c.innerHTML = '<span class="v93-ic" aria-hidden="true"></span><span class="v93-tx"><b class="v93-d"></b><span class="v93-t"></span><small class="v93-s"></small></span>';
+      if (top && top.parentNode === view) view.insertBefore(c, top.nextSibling); else view.appendChild(c);
+    }
+    // painel "Mais" da navegação: luva e sol
+    var sheet = document.getElementById("nav-more-sheet");
+    if (sheet && !document.getElementById("btn-nav-luva")) {
+      var mk = function (id, ico, fn) {
+        var b = document.createElement("button");
+        b.id = id; b.type = "button"; b.className = "nav-tool-btn";
+        b.innerHTML = '<span class="v89-ico" aria-hidden="true">' + ico + '</span><span class="v84-lbl"></span>';
+        b.addEventListener("click", fn);
+        sheet.appendChild(b);
+      };
+      mk("btn-nav-luva", "🧤", function () {
+        var m = v93LuvaMode();
+        var nx = m === "auto" ? "on" : m === "on" ? "off" : "auto";
+        lsSet(V93_LUVA_KEY, nx);
+        v93Apply();
+        showToast(nx === "on" ? "🧤 Modo luva sempre ligado: botões e números maiores." : nx === "off" ? "Modo luva desligado." : "🧤 Modo luva automático: liga sozinho acima de 20 km/h.");
+      });
+      mk("btn-nav-sol", "☀️", function () {
+        var on = lsGet(V93_SOL_KEY, "0") !== "1";
+        lsSet(V93_SOL_KEY, on ? "1" : "0");
+        v93Apply();
+        showToast(on ? "☀️ Modo sol: contraste máximo para a tela no sol." : "Modo sol desligado.");
+      });
+    }
+    v93Apply();
+    // a cada posição do GPS: próximo aviso e velocidade (modo luva automático)
+    var orig = v64HazardAlerts;
+    v64HazardAlerts = function (p) {
+      var out = orig.apply(this, arguments);
+      try {
+        var rem = null;
+        if (navCurrentRoute && navCurrentRoute.points && navCurrentRoute.points.length > 1) rem = remainingDistanceMeters(navCurrentRoute.points, nearestPointOnRoute(p, navCurrentRoute.points));
+        v93Update(p, rem);
+      } catch (e) {}
+      return out;
+    };
+    var origPos = onNavPosition;
+    onNavPosition = function (pos) {
+      var out = origPos.apply(this, arguments);
+      try {
+        var sp = pos && pos.coords && pos.coords.speed;
+        if (sp != null && !isNaN(sp)) v93Speed(sp * 3.6);
+        if (navMode !== "route") v93Hide();
+      } catch (e) {}
+      return out;
+    };
+  }
+
+  // ===================== v9.2 — Rotas com foto, busca e filtros =====================
+  // Cada cartão de Rotas ganha uma faixa de satélite com o desenho da rota (carrega só quando
+  // aparece na tela; usa primeiro os blocos guardados no aparelho). Em cima da lista: busca,
+  // filtros (pasta, ✔ offline, 🌧️ desvio) e ordem (recentes, perto de mim, A–Z).
+  var v92 = { q: "", folder: "", offline: false, wet: false, sort: "recent", pos: null, busy: false, io: null };
+
+  // satélite atrás de um SVG qualquer (cada SVG com a sua própria "vez", ao contrário do cartão da tela inicial)
+  function v92Sat(svg, xf) {
+    if (!svg || !xf) return;
+    if (navigator.webdriver && !window.__fdeHeroSat) return;
+    var token = (svg.__v92tok = (svg.__v92tok || 0) + 1);
+    var z = Math.max(3, Math.min(17, Math.round(Math.log(xf.s / 0.6) / Math.LN2)));
+    var n = Math.pow(2, z), t = 256 / n, size = t * xf.s;
+    // cobre a largura real da faixa (no PC ela é bem mais larga que 600x170)
+    var bb = svg.getBoundingClientRect();
+    var halfW = Math.max(380, (bb.height ? 85 * bb.width / bb.height : 300) + 40);
+    var X0 = (300 - halfW - xf.ox) / xf.s, X1 = (300 + halfW - xf.ox) / xf.s, Y0 = (-30 - xf.oy) / xf.s, Y1 = (200 - xf.oy) / xf.s;
+    var tx0 = Math.floor(X0 / t), tx1 = Math.floor(X1 / t), ty0 = Math.max(0, Math.floor(Y0 / t)), ty1 = Math.min(n - 1, Math.floor(Y1 / t));
+    var jobs = [];
+    for (var ty = ty0; ty <= ty1; ty++) for (var tx = tx0; tx <= tx1; tx++) jobs.push([tx, ty]);
+    if (!jobs.length || jobs.length > 48) return;
+    var NS = "http://www.w3.org/2000/svg";
+    var g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "v87-sat");
+    svg.insertBefore(g, svg.firstChild);
+    var ok = 0, done = 0;
+    function fin() {
+      if (token !== svg.__v92tok) return;
+      if (ok < jobs.length / 2) { if (g.parentNode) g.parentNode.removeChild(g); return; }
+      svg.classList.add("v87-on");
+    }
+    jobs.forEach(function (j) {
+      var x = ((j[0] % n) + n) % n, y = j[1];
+      var put = function (href, blobUrl) {
+        var im = new Image();
+        im.onload = function () {
+          if (token !== svg.__v92tok) return;
+          var e = document.createElementNS(NS, "image");
+          e.setAttribute("x", (xf.ox + j[0] * size).toFixed(2));
+          e.setAttribute("y", (xf.oy + j[1] * size).toFixed(2));
+          e.setAttribute("width", (size + 0.6).toFixed(2));
+          e.setAttribute("height", (size + 0.6).toFixed(2));
+          e.setAttribute("preserveAspectRatio", "none");
+          e.setAttribute("href", href);
+          g.appendChild(e);
+          ok++; if (++done === jobs.length) fin();
+        };
+        im.onerror = function () { if (blobUrl) URL.revokeObjectURL(blobUrl); if (++done === jobs.length) fin(); };
+        im.src = href;
+      };
+      var net = function () {
+        if (navigator.onLine !== false) put(TILE_URL_TEMPLATE.replace("{z}", z).replace("{x}", x).replace("{y}", y));
+        else if (++done === jobs.length) fin();
+      };
+      getTile(z + "/" + x + "/" + y).then(function (blob) {
+        if (blob) { var u = URL.createObjectURL(blob); put(u, u); } else net();
+      }, net);
+    });
+  }
+
+  function v92Route(id) { return loadSavedRoutes().filter(function (r) { return r.id === id; })[0] || null; }
+  function v92Norm(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function v92DistTo(r) {
+    if (!v92.pos || !r.points || !r.points.length) return null;
+    var best = Infinity, step = Math.max(1, Math.floor(r.points.length / 60));
+    for (var i = 0; i < r.points.length; i += step) best = Math.min(best, haversineMeters(v92.pos.lat, v92.pos.lng, r.points[i].lat, r.points[i].lng));
+    return best;
+  }
+
+  // faixa de satélite + selos em cada cartão
+  function v92DecorateCard(c) {
+    if (c.dataset.v92) return;
+    var id = c.getAttribute("data-route-id");
+    var r = v92Route(id);
+    if (!r || !r.points || r.points.length < 2) { c.dataset.v92 = "1"; return; }
+    c.dataset.v92 = "1";
+    var svgWrap = document.createElement("div");
+    svgWrap.className = "v92-thumb";
+    svgWrap.innerHTML = '<svg class="dsh-hero-map v92-map" viewBox="0 0 600 170" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>';
+    var svg = svgWrap.firstChild;
+    svg.innerHTML = v55RouteSvg(r.points);
+    svg.__xf = v87HeroXf;
+    svgWrap.addEventListener("click", function () { if (typeof v91Open === "function") v91Open(id); });
+    c.insertBefore(svgWrap, c.firstChild);
+    if (v92.io) v92.io.observe(svgWrap); else v92Sat(svg, svg.__xf);
+    // selos de estado
+    var tags = [];
+    var wets = (r.alts || []).filter(function (a) { return a.kind === "molhado"; }).length;
+    if (wets) tags.push("🌧️ desvio molhado");
+    var runs = 0; try { runs = (timingRunsFor(r.id) || []).length; } catch (e) {}
+    if (runs) tags.push("⏱️ " + runs + (runs === 1 ? " tomada" : " tomadas"));
+    var ev = r.elevation && r.elevation.stats;
+    if (ev && ev.gain != null) tags.unshift("↑ " + ev.gain + " m");
+    if (tags.length) {
+      var tg = document.createElement("div");
+      tg.className = "v92-tags";
+      tg.innerHTML = tags.map(function (t) { return '<span class="v92-tag">' + v55Esc(t) + "</span>"; }).join("");
+      var nm = c.querySelector(".nav-route-card-name");
+      var after = c.querySelector(".saved-screen-card-buttons");
+      c.insertBefore(tg, after || null);
+    }
+    var dist = document.createElement("span");
+    dist.className = "v92-near hidden";
+    var nm2 = c.querySelector(".nav-route-card-name");
+    if (nm2) nm2.parentNode.insertBefore(dist, nm2.nextSibling);
+  }
+
+  function v92Toolbar() {
+    var pane = document.getElementById("saved-routes-pane");
+    if (!pane) return null;
+    var tb = document.getElementById("v92-bar");
+    if (tb) return tb;
+    tb = document.createElement("div");
+    tb.id = "v92-bar";
+    tb.className = "v92-bar";
+    tb.innerHTML =
+      '<div class="v92-search"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m20 20-4.2-4.2"></path></svg>' +
+      '<input id="v92-q" type="search" placeholder="Buscar rota pelo nome ou pasta" aria-label="Buscar rota" autocomplete="off"></div>' +
+      '<div class="v92-row" id="v92-filters"></div>' +
+      '<div class="v92-row v92-sort"><span>Ordem:</span>' +
+      '<button type="button" class="v92-chip on" data-sort="recent">Recentes</button>' +
+      '<button type="button" class="v92-chip" data-sort="near">📍 Perto de mim</button>' +
+      '<button type="button" class="v92-chip" data-sort="az">A–Z</button></div>' +
+      '<p class="v92-count" id="v92-count" aria-live="polite"></p>';
+    pane.insertBefore(tb, pane.firstChild);
+    var q = tb.querySelector("#v92-q");
+    q.addEventListener("input", function () { v92.q = q.value; v92Apply(); });
+    tb.querySelectorAll("[data-sort]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var s = b.getAttribute("data-sort");
+        if (s === "near" && !v92.pos) {
+          b.textContent = "📍 Buscando…";
+          if (!navigator.geolocation) { b.textContent = "📍 Perto de mim"; showToast("Sem GPS neste aparelho."); return; }
+          navigator.geolocation.getCurrentPosition(function (p) {
+            v92.pos = { lat: p.coords.latitude, lng: p.coords.longitude };
+            b.textContent = "📍 Perto de mim";
+            v92.sort = "near"; v92Apply();
+          }, function () { b.textContent = "📍 Perto de mim"; showToast("Não consegui a sua posição. Ligue o GPS e tente de novo."); }, { timeout: 10000, maximumAge: 120000 });
+          return;
+        }
+        v92.sort = s; v92Apply();
+      });
+    });
+    return tb;
+  }
+  function v92Filters(routes) {
+    var box = document.getElementById("v92-filters");
+    if (!box) return;
+    var folders = {};
+    routes.forEach(function (r) { var f = (r.folder || "").trim(); if (f) folders[f] = (folders[f] || 0) + 1; });
+    var hasOff = routes.some(function (r) { return v82IsReady(r); });
+    var hasWet = routes.some(function (r) { return (r.alts || []).some(function (a) { return a.kind === "molhado"; }); });
+    var chips = [["", "Todas " + routes.length]];
+    Object.keys(folders).sort().forEach(function (f) { chips.push(["f:" + f, f + " " + folders[f]]); });
+    var h = chips.map(function (c) {
+      var on = c[0] === "" ? !v92.folder : v92.folder === c[0].slice(2);
+      return '<button type="button" class="v92-chip' + (on ? " on" : "") + '" data-folder="' + v55Esc(c[0]) + '">' + v55Esc(c[1]) + "</button>";
+    }).join("");
+    if (hasOff) h += '<button type="button" class="v92-chip v92-tog' + (v92.offline ? " on" : "") + '" data-tog="offline">✔ offline</button>';
+    if (hasWet) h += '<button type="button" class="v92-chip v92-tog' + (v92.wet ? " on" : "") + '" data-tog="wet">🌧️ desvio</button>';
+    box.innerHTML = h;
+    box.querySelectorAll("[data-folder]").forEach(function (b) {
+      b.addEventListener("click", function () { var v = b.getAttribute("data-folder"); v92.folder = v ? v.slice(2) : ""; v92Apply(); });
+    });
+    box.querySelectorAll("[data-tog]").forEach(function (b) {
+      b.addEventListener("click", function () { var k = b.getAttribute("data-tog"); v92[k] = !v92[k]; v92Apply(); });
+    });
+  }
+
+  function v92Apply() {
+    var list = el.savedRoutesScreenList;
+    if (!list || v92.busy) return;
+    v92.busy = true;
+    try {
+      var routes = loadSavedRoutes().filter(function (r) { return !r.deleted; });
+      var tb = v92Toolbar();
+      if (tb) tb.classList.toggle("hidden", routes.length < 2);
+      v92Filters(routes);
+      var tbs = document.querySelectorAll("#v92-bar [data-sort]");
+      tbs.forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-sort") === v92.sort); });
+      var cards = Array.prototype.slice.call(list.querySelectorAll(".saved-screen-card[data-route-id]"));
+      cards.forEach(v92DecorateCard);
+      var q = v92Norm(v92.q).trim();
+      var shown = 0;
+      var info = [];
+      cards.forEach(function (c) {
+        var r = v92Route(c.getAttribute("data-route-id"));
+        var ok = !!r;
+        if (ok && q) ok = v92Norm((r.name || "") + " " + (r.folder || "")).indexOf(q) !== -1;
+        if (ok && v92.folder) ok = (r.folder || "").trim() === v92.folder;
+        if (ok && v92.offline) ok = v82IsReady(r);
+        if (ok && v92.wet) ok = (r.alts || []).some(function (a) { return a.kind === "molhado"; });
+        c.classList.toggle("v92-hidden", !ok);
+        var near = c.querySelector(".v92-near");
+        var d = v92.sort === "near" && r ? v92DistTo(r) : null;
+        if (near) { near.classList.toggle("hidden", d == null); if (d != null) near.textContent = d < 300 ? "📍 você está nela" : "📍 a " + formatDistance(d); }
+        if (ok) { shown++; info.push({ c: c, r: r, d: d }); }
+      });
+      // ordem: recentes mantém as pastas; perto e A–Z viram uma lista só
+      var flat = v92.sort !== "recent";
+      list.classList.toggle("v92-flat", flat);
+      if (flat) {
+        info.sort(function (a, b) {
+          if (v92.sort === "near") return (a.d == null ? 1e12 : a.d) - (b.d == null ? 1e12 : b.d);
+          return String(a.r.name || "").localeCompare(String(b.r.name || ""), "pt-BR");
+        });
+        info.forEach(function (it, i) { it.c.style.order = String(i + 1); });
+      } else cards.forEach(function (c) { c.style.order = ""; });
+      // títulos de pasta sem cartão visível somem
+      var head = null, any = false;
+      Array.prototype.forEach.call(list.children, function (n) {
+        if (n.classList.contains("nav-folder-heading")) { if (head) head.classList.toggle("v92-hidden", !any || flat); head = n; any = false; }
+        else if (n.classList.contains("saved-screen-card") && !n.classList.contains("v92-hidden")) any = true;
+      });
+      if (head) head.classList.toggle("v92-hidden", !any || flat);
+      var cnt = document.getElementById("v92-count");
+      if (cnt) {
+        var filtering = q || v92.folder || v92.offline || v92.wet;
+        cnt.textContent = filtering ? (shown ? shown + (shown === 1 ? " rota" : " rotas") : "Nenhuma rota com esse filtro.") : "";
+        cnt.classList.toggle("v92-none", filtering && !shown);
+      }
+    } finally {
+      v92.busy = false;
+    }
+  }
+
+  function initV92() {
+    if ("IntersectionObserver" in window) {
+      v92.io = new IntersectionObserver(function (ents) {
+        ents.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          v92.io.unobserve(e.target);
+          var svg = e.target.querySelector("svg");
+          if (svg && svg.__xf) v92Sat(svg, svg.__xf);
+        });
+      }, { rootMargin: "200px" });
+    }
+    var list = el.savedRoutesScreenList;
+    if (list && window.MutationObserver) new MutationObserver(function () { if (!v92.busy) setTimeout(v92Apply, 0); }).observe(list, { childList: true });
+    v92Apply();
+  }
+
+  // ===================== v9.1 — página da rota + "Pronto para sair?" =====================
+  // Página da rota: tudo da trilha num lugar só (mapa, números, marcações, passeios, tempos)
+  // com Navegar / Editar / ⋯ fixos embaixo. Abre tocando no nome da rota (Rotas Salvas e tela inicial).
+  // "Pronto para sair?": o aviso antes de navegar vira uma lista de verificação.
+  var v91 = { id: null, tab: "resumo", moreOpen: false };
+  var renderSavedRoutesScreenRaw = function () {};
+  function v91Route(id) {
+    return loadSavedRoutes().filter(function (r) { return r && r.id === id && !r.deleted; })[0] || null;
+  }
+  function v91Esc(s) { return v55Esc(s == null ? "" : String(s)); }
+  function v91Date(ts) { var d = new Date(ts); return v55Pad(d.getDate()) + "/" + v55Pad(d.getMonth() + 1) + "/" + d.getFullYear(); }
+  // distância ao longo da rota até o ponto mais perto de (lat,lng)
+  function v91Along(points, lat, lng) {
+    var best = null, acc = 0, at = 0;
+    for (var i = 0; i < points.length - 1; i++) {
+      var seg = haversineMeters(points[i].lat, points[i].lng, points[i + 1].lat, points[i + 1].lng);
+      var r = distanceToSegmentMeters({ lat: lat, lng: lng }, points[i], points[i + 1]);
+      if (!best || r.distance < best) { best = r.distance; at = acc + seg * r.t; }
+      acc += seg;
+    }
+    return at;
+  }
+  function v91Card(id) {
+    var list = el.savedRoutesScreenList;
+    var c = list && list.querySelector('.saved-screen-card[data-route-id="' + id + '"]');
+    if (!c) { renderSavedRoutesScreenRaw(); c = list && list.querySelector('.saved-screen-card[data-route-id="' + id + '"]'); }
+    return c;
+  }
+  function v91CardBtn(id, test) {
+    var c = v91Card(id);
+    if (!c) return null;
+    var bs = c.querySelectorAll("button");
+    for (var i = 0; i < bs.length; i++) if (test(bs[i])) return bs[i];
+    return null;
+  }
+
+  function v91BuildPage() {
+    var pg = document.getElementById("v91-route");
+    if (pg) return pg;
+    pg = document.createElement("div");
+    pg.id = "v91-route";
+    pg.className = "modal-overlay v91-page";
+    pg.setAttribute("role", "dialog");
+    pg.setAttribute("aria-label", "Rota");
+    pg.innerHTML =
+      '<div class="v91-wrap">' +
+      '<header class="v91-top"><button type="button" class="v91-back">' + v90Svg("back") + 'Voltar</button><span class="v91-top-t">Rota</span></header>' +
+      '<div class="v91-scroll">' +
+      '<svg class="dsh-hero-map v91-map" viewBox="0 0 600 170" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>' +
+      '<div class="v91-head"><span class="v91-k" id="v91-k"></span><h2 class="v91-name" id="v91-name"></h2><div class="v91-chips" id="v91-chips"></div></div>' +
+      '<div class="v91-tabs" role="tablist" id="v91-tabs"></div>' +
+      '<div class="v91-pane" id="v91-pane"></div>' +
+      "</div>" +
+      '<div class="v91-more hidden" id="v91-more"></div>' +
+      '<div class="v91-actions"><button type="button" class="v91-go" id="v91-go">' + v90Svg("play") + 'Navegar</button><button type="button" class="v91-sec" id="v91-edit">Editar</button><button type="button" class="v91-sec v91-dots" id="v91-dots" aria-label="Mais opções" aria-expanded="false">⋯</button></div>' +
+      "</div>";
+    document.body.appendChild(pg);
+    pg.querySelector(".v91-back").addEventListener("click", v91Close);
+    pg.querySelector("#v91-go").addEventListener("click", function () {
+      var r = v91Route(v91.id); if (!r) return;
+      v91Close();
+      showScreen("navigation");
+      showNavSubview("picker");
+      openNavConfirm(r, "saved-routes");
+    });
+    pg.querySelector("#v91-edit").addEventListener("click", function () {
+      var r = v91Route(v91.id); if (!r) return;
+      v91Close();
+      goToPlanningScreen(function () { openSavedRoute(r); });
+    });
+    pg.querySelector("#v91-dots").addEventListener("click", function () { v91More(!v91.moreOpen); });
+    return pg;
+  }
+  function v91More(open) {
+    v91.moreOpen = open;
+    var m = document.getElementById("v91-more");
+    var d = document.getElementById("v91-dots");
+    m.classList.toggle("hidden", !open);
+    d.setAttribute("aria-expanded", open ? "true" : "false");
+    if (!open) return;
+    var r = v91Route(v91.id);
+    m.innerHTML = "";
+    var id = v91.id;
+    function item(txt, fn, cls) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "v91-more-it" + (cls ? " " + cls : "");
+      b.textContent = txt;
+      b.addEventListener("click", function () { v91More(false); fn(); });
+      m.appendChild(b);
+    }
+    item(v82IsReady(r) ? "🔄 Baixar o mapa offline de novo" : "⬇ Baixar mapa para usar sem sinal", function () {
+      var b = v91CardBtn(id, function (x) { return x.classList.contains("v82-off-btn"); });
+      if (b) b.click();
+    });
+    item("🔗 Compartilhar", function () {
+      var b = v91CardBtn(id, function (x) { return /Compartilhar/.test(x.textContent); });
+      if (b) b.click();
+    });
+    item("📤 Publicar na Comunidade", function () {
+      var b = v91CardBtn(id, function (x) { return /Publicar/.test(x.textContent); });
+      if (b) b.click();
+    });
+    item("🗑 Excluir", function () {
+      var b = v91CardBtn(id, function (x) { return /Excluir/.test(x.textContent); });
+      if (!b) return;
+      b.click();
+      // fecha a página se a rota foi excluída (o aviso de confirmação fica por cima)
+      var tries = 0;
+      var t = setInterval(function () {
+        tries++;
+        if (!v91Route(id)) { clearInterval(t); v91Close(); }
+        else if (tries > 600) clearInterval(t);
+      }, 250);
+    }, "v91-danger");
+  }
+  function v91Close() {
+    var pg = document.getElementById("v91-route");
+    if (pg) pg.classList.remove("open");
+    v91.id = null;
+    v91More(false);
+    if (el.screenSavedRoutes && !el.screenSavedRoutes.classList.contains("hidden")) renderSavedRoutesScreen();
+  }
+
+  function v91Open(id, tab) {
+    var r = v91Route(id);
+    if (!r) return;
+    var pg = v91BuildPage();
+    v91.id = id;
+    v91.tab = tab || "resumo";
+    v91More(false);
+    pg.classList.add("open");
+    var svg = pg.querySelector(".v91-map");
+    svg.classList.remove("v87-on");
+    svg.innerHTML = v55RouteSvg(r.points);
+    v87HeroSatellite(svg);
+    var meta = normalizeMeta(r.meta);
+    var k = [];
+    if (r.folder) k.push(r.folder);
+    var ms = ""; try { ms = routeMetaSummary(r.meta) || ""; } catch (e) {}
+    if (ms) k.push(ms);
+    document.getElementById("v91-k").textContent = k.join(" · ") || "Rota salva";
+    document.getElementById("v91-name").textContent = r.name || "(sem nome)";
+    var chips = [];
+    var meters = r.points.length >= 2 ? polylineLengthMeters(r.points) : 0;
+    if (meters) chips.push(["", formatDistance(meters)]);
+    var ev = r.elevation && r.elevation.stats;
+    if (ev && ev.gain != null) chips.push(["", "↑ " + ev.gain + " m"]);
+    var wps = normalizeWaypoints(r.waypoints);
+    if (wps.length) chips.push(["", wps.length + (wps.length === 1 ? " marcação" : " marcações")]);
+    var wets = (r.alts || []).filter(function (a) { return a.kind === "molhado"; }).length;
+    if (wets) chips.push(["", "🌧️ " + wets + (wets === 1 ? " desvio molhado" : " desvios molhados")]);
+    chips.push(v82IsReady(r) ? ["ok", "✔ mapa offline"] : v82Status(r) ? ["warn", "⚠ mapa offline incompleto"] : ["", "sem mapa offline"]);
+    var ch = document.getElementById("v91-chips");
+    ch.innerHTML = chips.map(function (c) { return '<span class="v91-chip' + (c[0] ? " v91-" + c[0] : "") + '">' + v91Esc(c[1]) + "</span>"; }).join("");
+    v91RenderTabs(r);
+    var sc = pg.querySelector(".v91-scroll"); if (sc) sc.scrollTop = 0;
+  }
+
+  function v91Trips(r) {
+    try { return v62LoadTrips().filter(function (t) { return t.mode === "route" && t.routeId === r.id; }); } catch (e) { return []; }
+  }
+  function v91Runs(r) { try { return timingRunsFor(r.id) || []; } catch (e) { return []; } }
+
+  function v91RenderTabs(r) {
+    var wps = normalizeWaypoints(r.waypoints), trips = v91Trips(r), runs = v91Runs(r);
+    var tabs = [["resumo", "Resumo"], ["marcacoes", "Marcações " + wps.length], ["passeios", "Passeios " + trips.length], ["tempos", "Tempos" + (runs.length ? " " + runs.length : "")]];
+    var tb = document.getElementById("v91-tabs");
+    tb.innerHTML = "";
+    tabs.forEach(function (t) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("role", "tab");
+      b.className = "v91-tab" + (v91.tab === t[0] ? " on" : "");
+      b.setAttribute("aria-selected", v91.tab === t[0] ? "true" : "false");
+      b.textContent = t[1];
+      b.addEventListener("click", function () { v91.tab = t[0]; v91RenderTabs(r); });
+      tb.appendChild(b);
+    });
+    var pane = document.getElementById("v91-pane");
+    var h = "";
+    if (v91.tab === "resumo") {
+      var meters = r.points.length >= 2 ? polylineLengthMeters(r.points) : 0;
+      var ev = r.elevation && r.elevation.stats;
+      var stats = [["Distância", meters ? formatDistance(meters) : "—"], ["Marcações", String(wps.length)]];
+      if (ev) { stats.push(["Subida", "↑ " + ev.gain + " m"]); stats.push(["Alt. máxima", ev.max + " m"]); }
+      else { stats.push(["Pontos", String(r.points.length)]); stats.push(["Salva em", v91Date(r.savedAt || Date.now())]); }
+      h += '<div class="v91-stats">' + stats.map(function (s) { return '<div><span>' + v91Esc(s[0]) + "</span><b>" + v91Esc(s[1]) + "</b></div>"; }).join("") + "</div>";
+      var meta = normalizeMeta(r.meta);
+      if (meta.notes) h += '<p class="v91-notes">' + v91Esc(meta.notes) + "</p>";
+      if (trips[0] && trips[0].stats) {
+        var t = trips[0];
+        h += '<button type="button" class="v91-line" data-go="passeios"><span>🧭 Último passeio</span><b>' + v91Esc(v91Date(t.startedAt) + " · " + fmtDuration(t.stats.totalMs || 0) + " · " + formatDistance(t.distance || 0)) + "</b></button>";
+      }
+      if (runs.length) {
+        var best = bestOf(runs);
+        h += '<button type="button" class="v91-line" data-go="tempos"><span>⏱️ Melhor tempo</span><b>' + v91Esc(best ? fmtTime(best.time) : "sem tempo completo") + "</b></button>";
+      }
+      if (!v82IsReady(r)) h += '<button type="button" class="v91-line v91-line-warn" data-act="offline"><span>⬇ Baixar mapa para usar sem sinal</span><b>›</b></button>';
+      if (!ev) h += '<p class="v91-hint">Para ver a subida e a altitude, abra em Editar › Altimetria e calcule o perfil.</p>';
+    } else if (v91.tab === "marcacoes") {
+      if (!wps.length) h += '<p class="v91-empty">Nenhuma marcação nesta rota. Na navegação, toque em Marcar (ou segure o dedo no mapa) para anotar atoleiro, porteira, perigo…</p>';
+      else {
+        var items = wps.map(function (w) { return { w: w, at: r.points.length > 1 ? v91Along(r.points, w.lat, w.lng) : 0 }; }).sort(function (a, b) { return a.at - b.at; });
+        h += '<ul class="v91-list">' + items.map(function (it) {
+          var ty = waypointType(it.w.type);
+          var sub = ["km " + (it.at / 1000).toFixed(1).replace(".", ",")];
+          if (it.w.at || it.w.createdAt) sub.push("visto em " + v91Date(it.w.at || it.w.createdAt));
+          if (it.w.resolved) sub.push("resolvido");
+          return '<li><span class="v91-ic">' + ty.emoji + '</span><span class="v91-tx"><b>' + v91Esc(it.w.note || ty.label) + "</b><small>" + v91Esc(ty.label + " · " + sub.join(" · ")) + "</small></span></li>";
+        }).join("") + "</ul>";
+      }
+    } else if (v91.tab === "passeios") {
+      if (!trips.length) h += '<p class="v91-empty">Você ainda não fez esta rota com o app. Cada vez que navegar por ela, o passeio fica guardado aqui.</p>';
+      else h += '<ul class="v91-list">' + trips.map(function (t) {
+        var s = t.stats || {};
+        return '<li><span class="v91-ic">🧭</span><span class="v91-tx"><b>' + v91Esc(v91Date(t.startedAt)) + "</b><small>" +
+          v91Esc([fmtDuration(s.totalMs || 0) + (s.movingMs ? " (" + fmtDuration(s.movingMs) + " andando)" : ""), formatDistance(t.distance || 0)].join(" · ")) + "</small></span>" +
+          (t.track ? '<button type="button" class="v91-mini" data-card="' + v91Esc(t.id) + '" title="Cartão para compartilhar">📸</button>' : "") + "</li>";
+      }).join("") + "</ul>";
+    } else if (v91.tab === "tempos") {
+      if (!runs.length) h += '<p class="v91-empty">Nenhuma tomada de tempo nesta rota ainda.</p>';
+      else {
+        var scored = runs.map(function (x) { return { run: x, sc: runScore(x) }; }).filter(function (x) { return x.sc != null; }).sort(function (a, b) { return a.sc - b.sc; });
+        var bestT = scored[0] ? scored[0].sc : null;
+        h += '<ul class="v91-list">' + scored.slice(0, 8).map(function (x, i) {
+          return '<li><span class="v91-ic">' + (["🥇", "🥈", "🥉"][i] || (i + 1) + "º") + '</span><span class="v91-tx"><b class="v91-mono">' + v91Esc(fmtTime(x.sc)) + "</b><small>" +
+            v91Esc(v91Date(x.run.at) + (i ? " · +" + fmtDelta(x.sc - bestT) + " s" : " · recorde")) + "</small></span></li>";
+        }).join("") + "</ul>";
+      }
+      h += '<button type="button" class="v91-line" data-act="timing"><span>⏱️ Tomada de Tempo</span><b>abrir o ranking completo ›</b></button>';
+    }
+    pane.innerHTML = h;
+    pane.querySelectorAll("[data-go]").forEach(function (b) { b.addEventListener("click", function () { v91.tab = b.getAttribute("data-go"); v91RenderTabs(r); }); });
+    pane.querySelectorAll("[data-card]").forEach(function (b) { b.addEventListener("click", function () { if (typeof v94Open === "function") v94Open(b.getAttribute("data-card")); }); });
+    pane.querySelectorAll("[data-act]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var a = b.getAttribute("data-act");
+        if (a === "offline") { var ob = v91CardBtn(r.id, function (x) { return x.classList.contains("v82-off-btn"); }); if (ob) ob.click(); }
+        if (a === "timing") { v91Close(); showScreen("timing"); renderTimingHistory(r); }
+      });
+    });
+  }
+
+  // cartões de Rotas Salvas e da tela inicial: tocar no nome abre a página da rota
+  function v91DecorateCards() {
+    var list = el.savedRoutesScreenList;
+    if (!list) return;
+    list.querySelectorAll(".saved-screen-card[data-route-id]").forEach(function (c) {
+      if (c.dataset.v91) return;
+      c.dataset.v91 = "1";
+      var id = c.getAttribute("data-route-id");
+      var nm = c.querySelector(".nav-route-card-name");
+      if (nm) {
+        nm.classList.add("v91-open");
+        nm.setAttribute("role", "button");
+        nm.setAttribute("tabindex", "0");
+        nm.title = "Abrir a página da rota";
+        nm.addEventListener("click", function () { v91Open(id); });
+        nm.addEventListener("keydown", function (e) { if (e.key === "Enter") v91Open(id); });
+      }
+      c.querySelectorAll(":scope > .nav-route-card-meta").forEach(function (m) {
+        m.classList.add("v91-open-meta");
+        m.addEventListener("click", function () { v91Open(id); });
+      });
+    });
+  }
+
+  // ---------- "Pronto para sair?" ----------
+  var v91Ck = { route: null, token: 0, told: false };
+  function v91Row(id, state, title, sub, actionHtml) {
+    var li = document.getElementById(id);
+    if (!li) return;
+    li.className = "v91-ck-row v91-" + state;
+    li.classList.remove("hidden");
+    var icon = state === "ok" ? "✓" : state === "warn" ? "!" : state === "bad" ? "✕" : "i";
+    li.innerHTML = '<i class="v91-ck-i">' + icon + '</i><span class="v91-ck-tx"><b>' + v91Esc(title) + "</b>" + (sub ? "<small>" + v91Esc(sub) + "</small>" : "") + "</span>" + (actionHtml || "");
+  }
+  function v91Hide(id) { var li = document.getElementById(id); if (li) li.classList.add("hidden"); }
+  function v91ReturnTime(r) {
+    var ms = 0;
+    var t = v91Trips(r)[0];
+    if (t && t.stats && t.stats.totalMs) ms = t.stats.totalMs;
+    else { var m = r.points.length >= 2 ? polylineLengthMeters(r.points) : 0; ms = (m / 1000 / 18) * 3600000 + 30 * 60000; }
+    var d = new Date(Date.now() + ms + 20 * 60000);
+    d.setMinutes(Math.ceil(d.getMinutes() / 15) * 15, 0, 0);
+    return v55Pad(d.getHours()) + "h" + (d.getMinutes() ? v55Pad(d.getMinutes()) : "");
+  }
+  function v91Tell(r) {
+    var now = new Date();
+    var p0 = r.points[0];
+    var km = r.points.length >= 2 ? formatDistance(polylineLengthMeters(r.points)) : "";
+    var text = "🚙 Vou fazer a trilha \"" + (r.name || "sem nome") + "\"" + (km ? " (" + km + ")" : "") + " agora, saindo às " + v55Pad(now.getHours()) + "h" + v55Pad(now.getMinutes()) +
+      ". Volta prevista: por volta das " + v91ReturnTime(r) + ". Largada: https://www.google.com/maps/search/?api=1&query=" + p0.lat.toFixed(5) + "," + p0.lng.toFixed(5) +
+      " — se eu não der notícia, me liga. (enviado pelo Fora de Estrada)";
+    var sh = typeof fdePlugin === "function" ? fdePlugin("Share") : null;
+    var done = function () { v91Ck.told = true; v91Row("v91-ck-tell", "ok", "Avisado", "Você mandou a rota e a hora de volta prevista (" + v91ReturnTime(r) + ")."); };
+    if (sh && sh.share) { sh.share({ text: text, dialogTitle: "Avisar alguém" }).then(done, function () {}); return; }
+    if (navigator.share) { navigator.share({ text: text }).then(done, function () {}); return; }
+    var a = document.createElement("a");
+    a.href = "https://wa.me/?text=" + encodeURIComponent(text);
+    a.target = "_blank";
+    a.rel = "noopener";
+    document.body.appendChild(a); a.click(); a.remove();
+    done();
+  }
+  function v91FillChecklist(route) {
+    var box = document.querySelector("#nav-confirm-modal .modal-box");
+    if (!box || !route) return;
+    var token = ++v91Ck.token;
+    v91Ck.route = route; v91Ck.told = false;
+    document.getElementById("nav-confirm-title").textContent = "Pronto para sair?";
+    var sub = document.getElementById("v91-ck-route");
+    var km = route.points.length >= 2 ? formatDistance(polylineLengthMeters(route.points)) : "";
+    sub.textContent = (route.name || "(sem nome)") + (km ? " · " + km : "");
+    // 1) mapa offline
+    var st = v82Status(route), online = navigator.onLine !== false;
+    if (v82IsReady(route)) v91Row("v91-ck-map", "ok", "Mapa offline no aparelho", (st.layers || []).map(v82LayerName).join(" + ") + " — funciona sem sinal");
+    else if (!online) v91Row("v91-ck-map", "bad", "Sem internet e sem mapa baixado", "o mapa pode ficar cinza na trilha; a rota, o GPS e os avisos funcionam");
+    else v91Row("v91-ck-map", "warn", st ? "Mapa offline incompleto" : "O mapa será baixado ao começar", "satélite + topográfico; melhor no Wi-Fi, antes de sair");
+    // 2) bateria
+    v91Hide("v91-ck-bat");
+    if (navigator.getBattery) navigator.getBattery().then(function (b) {
+      if (token !== v91Ck.token) return;
+      var pct = Math.round(b.level * 100);
+      if (b.charging) v91Row("v91-ck-bat", "ok", "Bateria em " + pct + "% (carregando)", "");
+      else if (pct >= 60) v91Row("v91-ck-bat", "ok", "Bateria em " + pct + "%", "o GPS gasta perto de 10% por hora");
+      else v91Row("v91-ck-bat", "warn", "Bateria em " + pct + "%", "leve o carregador — o GPS gasta perto de 10% por hora");
+    }).catch(function () {});
+    // 3) largada
+    v91Row("v91-ck-start", "info", "Vendo onde você está…", "");
+    var p0 = route.points[0];
+    var wz = ' <a href="#" class="v91-ck-act" id="v91-ck-waze">🚗 Waze</a>';
+    var showStart = function (lat, lng) {
+      if (token !== v91Ck.token) return;
+      var d = haversineMeters(lat, lng, p0.lat, p0.lng);
+      if (d < 500) v91Row("v91-ck-start", "ok", "Você está na largada", "a gravação começa assim que você andar");
+      else v91Row("v91-ck-start", "info", "A largada fica a " + formatDistance(d), "pode começar daqui: até chegar, o app só mostra a distância e começa a gravar quando você entrar na trilha", wz);
+      var w = document.getElementById("v91-ck-waze");
+      if (w) w.addEventListener("click", function (e) { e.preventDefault(); v66OpenWaze(route); });
+    };
+    if (navLastFix && Date.now() - (navLastFix.ts || 0) < 120000) showStart(navLastFix.lat, navLastFix.lng);
+    else if (navigator.geolocation) navigator.geolocation.getCurrentPosition(function (pos) { showStart(pos.coords.latitude, pos.coords.longitude); }, function () {
+      if (token === v91Ck.token) v91Row("v91-ck-start", "info", "Sem a sua posição agora", "se estiver longe da trilha, vá pelo Waze até a largada", wz);
+      var w = document.getElementById("v91-ck-waze");
+      if (w) w.addEventListener("click", function (e) { e.preventDefault(); v66OpenWaze(route); });
+    }, { timeout: 6000, maximumAge: 60000 });
+    // 4) chuva (quando a rota não tem desvio molhado; com desvio, a escolha Seco/Molhado já mostra)
+    var wetBox = document.getElementById("nav-wet-box");
+    v91Hide("v91-ck-rain");
+    if (wetBox && wetBox.classList.contains("hidden") && online) {
+      fetch("https://api.open-meteo.com/v1/forecast?latitude=" + p0.lat.toFixed(3) + "&longitude=" + p0.lng.toFixed(3) + "&daily=precipitation_sum&past_days=3&forecast_days=1&timezone=auto")
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (token !== v91Ck.token) return;
+          var arr = (j.daily && j.daily.precipitation_sum) || [];
+          var mm = Math.round(arr.slice(0, 4).reduce(function (s, v) { return s + (v || 0); }, 0));
+          if (mm >= 10) v91Row("v91-ck-rain", "warn", "Choveu cerca de " + mm + " mm em 3 dias", "espere barro e atoleiro");
+          else v91Row("v91-ck-rain", "ok", mm > 0 ? "Pouca chuva nos últimos dias (" + mm + " mm)" : "Sem chuva nos últimos 3 dias", "");
+        }).catch(function () {});
+    }
+    // 5) avisar alguém
+    v91Row("v91-ck-tell", "warn", "Avise alguém que você vai sair", "manda a rota e a volta prevista (" + v91ReturnTime(route) + ") pelo WhatsApp", '<button type="button" class="v91-ck-act" id="v91-ck-tell-btn">Avisar</button>');
+    document.getElementById("v91-ck-tell-btn").addEventListener("click", function () { v91Tell(route); });
+  }
+
+  function initV91() {
+    // página da rota: marca os cartões com o id da rota (para abrir a página e reusar os botões do cartão)
+    var origRender = renderSavedRoutesScreen;
+    renderSavedRoutesScreenRaw = function () { return origRender.apply(this, arguments); };
+    renderSavedRoutesScreen = function () {
+      var out = origRender.apply(this, arguments);
+      v91DecorateCards();
+      setTimeout(v91DecorateCards, 0);
+      return out;
+    };
+    // os cartões podem ser desenhados antes desta função: decora agora e sempre que a lista mudar
+    v91DecorateCards();
+    if (el.savedRoutesScreenList && window.MutationObserver) new MutationObserver(v91DecorateCards).observe(el.savedRoutesScreenList, { childList: true, subtree: true });
+    // tela inicial: tocar no nome ou no mapa da última rota abre a página dela
+    var hero = document.getElementById("dash-hero");
+    if (hero) hero.addEventListener("click", function (e) {
+      var t = e.target.closest ? e.target.closest(".dsh-hero-name, .dsh-hero-map, .dsh-hero-meta") : null;
+      var id = hero.getAttribute("data-route-id");
+      if (t && id) v91Open(id);
+    });
+    // "Pronto para sair?": reorganiza o aviso antes de navegar numa lista de verificação
+    var modal = document.getElementById("nav-confirm-modal");
+    var box = modal && modal.querySelector(".modal-box");
+    if (box && !document.getElementById("v91-ck")) {
+      box.classList.add("v91-ck-box");
+      var title = document.getElementById("nav-confirm-title");
+      var sub = document.createElement("p");
+      sub.id = "v91-ck-route";
+      sub.className = "v91-ck-route";
+      title.parentNode.insertBefore(sub, title.nextSibling);
+      var ul = document.createElement("ul");
+      ul.id = "v91-ck";
+      ul.className = "v91-ck";
+      ["v91-ck-map", "v91-ck-rain", "v91-ck-bat", "v91-ck-start", "v91-ck-tell"].forEach(function (id) {
+        var li = document.createElement("li"); li.id = id; li.className = "v91-ck-row hidden"; ul.appendChild(li);
+      });
+      sub.parentNode.insertBefore(ul, sub.nextSibling);
+      // veículo e seco/molhado continuam (mesma lógica), agora dentro da lista
+      ["nav-wet-box", "nav-vehicle-box"].forEach(function (id) {
+        var b = document.getElementById(id);
+        if (b) { b.classList.add("v91-ck-extra"); ul.parentNode.insertBefore(b, ul.nextSibling); }
+      });
+      var off = document.getElementById("nav-confirm-offline");
+      if (off) off.classList.add("v91-gone");
+      var wz = document.getElementById("btn-confirm-waze");
+      if (wz && wz.parentNode) wz.parentNode.classList.add("v91-gone");
+      var ok = document.getElementById("btn-nav-confirm-ok");
+      if (ok) ok.innerHTML = v90Svg("play") + "Começar";
+    }
+    var origOpen = openNavConfirm;
+    openNavConfirm = function (route) {
+      var out = origOpen.apply(this, arguments);
+      if (document.getElementById("nav-confirm-modal").classList.contains("open")) v91FillChecklist(route);
+      return out;
+    };
+  }
+
+  // ===================== v9.0 — um visual só + barra de abas (celular) =====================
+  // Proposta "Fora de Estrada 9.0" (aprovada em 17/11/2026):
+  //  * ícones de linha no lugar dos emoji da barra do planejamento;
+  //  * no celular, barra de abas embaixo nas telas de menu: Início · Rotas · ▶ Navegar · Comunidade · Garagem
+  //    (some no planejamento e na navegação, onde o mapa precisa da tela toda). No PC nada muda.
+  var V90_ICONS = {
+    save: '<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/>',
+    import: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/>',
+    export: '<path d="M12 15V3M7 8l5-5 5 5"/><path d="M4 17v3h16v-3"/>',
+    share: '<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/>',
+    clear: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
+    compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11z"/>',
+    more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+    home: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/>',
+    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+    route: '<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5"/>',
+    users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 4 6"/>',
+    wrench: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',
+    play: '<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>',
+    back: '<path d="M15 5l-7 7 7 7"/>',
+    undo: '<path d="M9 7 4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12h-2"/>',
+    pin: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>'
+  };
+  function v90Svg(name) {
+    return '<svg class="svg-ico v90-ico" viewBox="0 0 24 24" aria-hidden="true">' + (V90_ICONS[name] || "") + "</svg>";
+  }
+  // troca o emoji do começo do botão pelo ícone (o texto/rótulo continua)
+  function v90SetIcon(btn, name) {
+    if (!btn || btn.querySelector(".v90-ico")) return;
+    var first = btn.firstChild;
+    if (first && first.nodeType === 3) {
+      var rest = first.nodeValue.replace(/^\s*[^\s\wÀ-ɏ]+\s*/, "");
+      if (rest.trim()) first.nodeValue = " " + rest;
+      else btn.removeChild(first);
+    }
+    btn.insertAdjacentHTML("afterbegin", v90Svg(name));
+  }
+  var V90_TAB_SCREENS = ["dashboard", "saved-routes", "community", "garage", "timing", "expeditions", "compass"];
+  var V90_TABS = [
+    { id: "home", label: "Início", icon: "home", screens: ["dashboard", "compass"] },
+    { id: "routes", label: "Rotas", icon: "route", screens: ["saved-routes", "timing", "expeditions"] },
+    { id: "nav", label: "Navegar", icon: "play", screens: ["navigation"], go: true },
+    { id: "community", label: "Comunidade", icon: "users", screens: ["community"] },
+    { id: "garage", label: "Garagem", icon: "wrench", screens: ["garage"] }
+  ];
+  function v90CurrentScreen() {
+    var all = ["dashboard", "planning", "navigation", "saved-routes", "timing", "community", "welcome", "expeditions", "garage", "compass"];
+    for (var i = 0; i < all.length; i++) {
+      var s = document.getElementById("screen-" + all[i]);
+      if (s && !s.classList.contains("hidden")) return all[i];
+    }
+    return "";
+  }
+  function v90UpdateTabs() {
+    var bar = document.getElementById("v90-tabs");
+    if (!bar) return;
+    var cur = v90CurrentScreen();
+    var pickerOpen = cur === "navigation" && el.navPickerView && !el.navPickerView.classList.contains("hidden");
+    var show = V90_TAB_SCREENS.indexOf(cur) !== -1 || pickerOpen;
+    document.body.classList.toggle("v90-tabs-on", show);
+    bar.classList.toggle("hidden", !show);
+    bar.querySelectorAll(".v90-tab").forEach(function (b) {
+      var t = V90_TABS.filter(function (x) { return x.id === b.getAttribute("data-tab"); })[0];
+      var on = !!t && t.screens.indexOf(cur) !== -1;
+      b.classList.toggle("on", on);
+      if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+    });
+  }
+  function v90Go(id) {
+    if (id === "home") showScreen("dashboard");
+    else if (id === "routes") showScreen("saved-routes");
+    else if (id === "nav") {
+      if (v62NavRunning()) v62GoToActiveNav();
+      else el.btnDashNavigate.click();
+    } else if (id === "community") document.getElementById("btn-dash-community").click();
+    else if (id === "garage") document.getElementById("btn-dash-garage").click();
+    try { window.scrollTo(0, 0); } catch (e) {}
+    setTimeout(v90UpdateTabs, 0);
+  }
+
+  function initV90Visual() {
+    // 1) ícones de linha na barra do planejamento (e no topo dela)
+    [["btn-save", "save"], ["btn-import", "import"], ["btn-export", "export"], ["btn-share-route", "share"], ["btn-clear-points", "clear"],
+     ["btn-new", "plus"], ["btn-places", "search"], ["btn-nav-mode", "compass"], ["btn-plan-more", "more"]].forEach(function (p) {
+      v90SetIcon(document.getElementById(p[0]), p[1]);
+    });
+    var hb = document.getElementById("btn-home");
+    if (hb && !hb.querySelector(".v90-ico")) hb.innerHTML = v90Svg("home");
+    var mb = document.getElementById("btn-menu");
+    if (mb && !mb.querySelector(".v90-ico")) mb.innerHTML = v90Svg("menu");
+    // menu "Mais" do planejamento: mesmos ícones
+    document.querySelectorAll("#v85-plan-menu button[data-v85]").forEach(function (b) {
+      var map = { "btn-export": "export", "btn-share-route": "share", "btn-new": "plus", "btn-clear-points": "clear" };
+      var ic = map[b.getAttribute("data-v85")];
+      if (ic) v90SetIcon(b, ic);
+    });
+
+    // 2) barra de abas (só aparece no celular, pelo CSS)
+    if (!document.getElementById("v90-tabs")) {
+      var bar = document.createElement("nav");
+      bar.id = "v90-tabs";
+      bar.className = "hidden";
+      bar.setAttribute("aria-label", "Seções do app");
+      V90_TABS.forEach(function (t) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "v90-tab" + (t.go ? " v90-go" : "");
+        b.setAttribute("data-tab", t.id);
+        b.innerHTML = (t.go ? '<span class="v90-go-ring">' + v90Svg(t.icon) + "</span>" : v90Svg(t.icon)) + '<span class="v90-tab-lbl">' + t.label + "</span>";
+        b.addEventListener("click", function () { v90Go(t.id); });
+        bar.appendChild(b);
+      });
+      document.body.appendChild(bar);
+    }
+    // atualiza quando qualquer tela abre/fecha (inclusive a escolha de rota da navegação)
+    var obs = new MutationObserver(function () { v90UpdateTabs(); });
+    ["dashboard", "planning", "navigation", "saved-routes", "timing", "community", "welcome", "expeditions", "garage", "compass"].forEach(function (n) {
+      var s = document.getElementById("screen-" + n);
+      if (s) obs.observe(s, { attributes: true, attributeFilter: ["class"] });
+    });
+    if (el.navPickerView) obs.observe(el.navPickerView, { attributes: true, attributeFilter: ["class"] });
+    v90UpdateTabs();
+  }
+
+  // ===================== v8.9 — 🔎 Lugares: cachoeiras, mirantes, camping… =====================
+  // Busca lugares perto do mapa (planejamento) ou de você (navegação) em duas fontes:
+  //  * OpenStreetMap (Overpass, grátis) — bom para coisas do mato: cachoeira, mirante, trilha, camping;
+  //  * Google Places (busca por texto, cota grátis mensal) — bom para comércio: restaurante, posto.
+  // Cada resultado pode virar marcação, ponto da rota (no planejamento) ou "Como chegar".
+  // Os resultados ficam guardados no aparelho para ver de novo sem sinal.
+  var V89_CATS = [
+    { id: "cachoeira", label: "Cachoeiras", icon: "💧", wp: "agua",
+      osm: ['nwr["natural"="waterfall"]', 'nwr["waterway"="waterfall"]'], g: "cachoeira" },
+    { id: "mirante", label: "Mirantes", icon: "🏞️", wp: "mirante",
+      osm: ['nwr["tourism"="viewpoint"]'], g: "mirante" },
+    { id: "camping", label: "Camping", icon: "⛺", wp: "camping",
+      osm: ['nwr["tourism"~"^(camp_site|caravan_site)$"]'], g: "camping", gType: "campground" },
+    { id: "trilha", label: "Trilhas e picos", icon: "⛰️", wp: "outro",
+      osm: ['nwr["highway"="trailhead"]', 'node["natural"="peak"]["name"]', 'relation["route"="hiking"]["name"]'], g: null },
+    { id: "pesca", label: "Pesqueiros", icon: "🎣", wp: "outro",
+      osm: ['nwr["leisure"="fishing"]', 'nwr["sport"="fishing"]["name"]'], g: "pesqueiro" },
+    { id: "lazer", label: "Lazer e turismo", icon: "🎡", wp: "outro",
+      osm: ['nwr["tourism"~"^(attraction|theme_park|museum|zoo)$"]["name"]', 'nwr["leisure"~"^(park|nature_reserve|water_park)$"]["name"]'], g: "pontos turísticos", gType: "tourist_attraction" },
+    { id: "comida", label: "Restaurantes", icon: "🍽️", wp: "outro",
+      osm: ['nwr["amenity"~"^(restaurant|cafe|fast_food)$"]["name"]'], g: "restaurante", gType: "restaurant" },
+    { id: "posto", label: "Postos", icon: "⛽", wp: "apoio",
+      osm: ['nwr["amenity"="fuel"]'], g: "posto de combustível", gType: "gas_station" }
+  ];
+  var V89_CACHE_KEY = "fde_places_cache_v1";
+  var v89 = { ctx: null, sheet: null, results: [], layer: null, layerMap: null, busy: 0, label: "" };
+
+  function v89Cat(id) {
+    for (var i = 0; i < V89_CATS.length; i++) if (V89_CATS[i].id === id) return V89_CATS[i];
+    return null;
+  }
+  function v89GoogleOn() {
+    return !!GOOGLE_PLACES_API_KEY && GOOGLE_PLACES_API_KEY.indexOf("__") !== 0 && !window.__fdeOfflineCopy;
+  }
+  // de onde buscar: navegação = sua posição (ou o centro do mapa); planejamento = centro do mapa
+  function v89Context() {
+    var navOn = false;
+    try {
+      var sn = document.getElementById("screen-navigation"), av = document.getElementById("nav-active-view");
+      navOn = !!(sn && !sn.classList.contains("hidden") && av && !av.classList.contains("hidden") && navMap);
+    } catch (e) {}
+    if (navOn && navMap) {
+      var c = navLastFix ? { lat: navLastFix.lat, lng: navLastFix.lng } : navMap.getCenter();
+      return { mode: "nav", map: navMap, center: { lat: c.lat, lng: c.lng }, where: navLastFix ? "perto de você" : "perto do centro do mapa" };
+    }
+    if (map) {
+      var m = map.getCenter();
+      var b = map.getBounds();
+      var ne = b.getNorthEast();
+      var half = haversineMeters(m.lat, m.lng, ne.lat, ne.lng);
+      return { mode: "plan", map: map, center: { lat: m.lat, lng: wrapLng(m.lng) }, half: half,
+        bounds: { north: b.getNorth(), south: b.getSouth(), east: wrapLng(b.getEast()), west: wrapLng(b.getWest()) },
+        where: half > 15000 ? "na área do mapa" : "perto do centro do mapa" };
+    }
+    return null;
+  }
+
+  var V89_WORDS = [
+    [/^(cachoeiras?|saltos?|quedas? d.?[aá]gua|cascatas?)$/, "cachoeira"],
+    [/^(mirantes?|vistas?)$/, "mirante"],
+    [/^(campings?|acampamentos?|[aá]reas? de camping)$/, "camping"],
+    [/^(trilhas?|picos?|morros?)$/, "trilha"],
+    [/^(pesqueiros?|pesca|pesque.?pague)$/, "pesca"],
+    [/^(restaurantes?|lanchonetes?|comida)$/, "comida"],
+    [/^(postos?|postos? de combust[ií]vel|gasolina|combust[ií]vel)$/, "posto"]
+  ];
+  function v89TextCat(text) {
+    var t = String(text || "").trim().toLowerCase();
+    for (var i = 0; i < V89_WORDS.length; i++) if (V89_WORDS[i][0].test(t)) return v89Cat(V89_WORDS[i][1]);
+    return null;
+  }
+  // os servidores gratuitos do OpenStreetMap às vezes ficam lotados: no máximo ~16 s de espera
+  function v89OsmTimed(q) {
+    return Promise.race([
+      v66Overpass(q, 10000),
+      new Promise(function (res, rej) { setTimeout(function () { rej(new Error("tempo")); }, 16000); })
+    ]);
+  }
+
+  // ---- busca no OpenStreetMap ----
+  function v89EscRe(t) { return t.replace(/[\\^$.*+?()[\]{}|"]/g, "\\$&"); }
+  function v89OsmQuery(cat, text, c, radius) {
+    var around = "(around:" + Math.round(radius) + "," + c.lat.toFixed(5) + "," + c.lng.toFixed(5) + ")";
+    var parts = [];
+    if (cat) cat.osm.forEach(function (q) { parts.push(q + around + ";"); });
+    if (text) parts.push('nwr["name"~"' + v89EscRe(text) + '",i]' + around + ";");
+    return "[out:json][timeout:25];(" + parts.join("") + ");out center tags 80;";
+  }
+  function v89OsmKind(tags) {
+    for (var i = 0; i < V89_CATS.length; i++) {
+      var ok = V89_CATS[i].osm.some(function (q) {
+        var m = q.match(/\["([^"]+)"(=|~)"([^"]+)"\]/);
+        if (!m || tags[m[1]] == null) return false;
+        return m[2] === "=" ? tags[m[1]] === m[3] : new RegExp(m[3]).test(tags[m[1]]);
+      });
+      if (ok) return V89_CATS[i];
+    }
+    return null;
+  }
+  var V89_OSM_NAMES = { waterfall: "Cachoeira", viewpoint: "Mirante", camp_site: "Camping", caravan_site: "Camping", trailhead: "Início de trilha", peak: "Pico", fuel: "Posto", fishing: "Pesca" };
+  function v89FromOsm(data, cat) {
+    var out = [];
+    ((data && data.elements) || []).forEach(function (e) {
+      var lat = e.lat != null ? e.lat : e.center && e.center.lat;
+      var lng = e.lon != null ? e.lon : e.center && e.center.lon;
+      if (lat == null || lng == null) return;
+      var t = e.tags || {};
+      var kind = v89OsmKind(t) || cat;
+      var generic = V89_OSM_NAMES[t.natural] || V89_OSM_NAMES[t.waterway] || V89_OSM_NAMES[t.tourism] || V89_OSM_NAMES[t.highway] || V89_OSM_NAMES[t.amenity] || V89_OSM_NAMES[t.leisure] || (kind ? kind.label.replace(/s$/, "") : "Lugar");
+      var name = t.name || t["name:pt"] || generic + " sem nome";
+      var extra = [];
+      if (t.ele && t.natural === "peak") extra.push(Math.round(+t.ele) + " m");
+      if (t.height && (t.natural === "waterfall" || t.waterway === "waterfall")) extra.push("queda de " + t.height + " m");
+      if (t.fee === "yes") extra.push("pago");
+      else if (t.fee === "no") extra.push("gratuito");
+      out.push({ id: "osm:" + e.type + e.id, src: "OpenStreetMap", name: name, named: !!t.name, lat: lat, lng: lng, cat: kind ? kind.id : cat ? cat.id : null, extra: extra.join(" · ") });
+    });
+    return out;
+  }
+
+  // ---- busca no Google ----
+  function v89Google(cat, text, c, radius, bounds) {
+    if (!v89GoogleOn()) return Promise.resolve([]);
+    var q = text || (cat && cat.g);
+    if (!q) return Promise.resolve([]);
+    return loadPlacesLibrary().then(function (places) {
+      var req = {
+        textQuery: q,
+        fields: ["id", "displayName", "location", "formattedAddress", "rating", "types"],
+        locationBias: { center: { lat: c.lat, lng: c.lng }, radius: Math.min(50000, radius) },
+        maxResultCount: 20,
+        language: "pt-BR",
+        region: "br"
+      };
+      if (!text && cat && cat.gType) req.includedType = cat.gType;
+      if (bounds) { delete req.locationBias; req.locationRestriction = bounds; }
+      return places.Place.searchByText(req);
+    }).then(function (res) {
+      return ((res && res.places) || []).map(function (p) {
+        var lat = p.location ? (typeof p.location.lat === "function" ? p.location.lat() : p.location.lat) : null;
+        var lng = p.location ? (typeof p.location.lng === "function" ? p.location.lng() : p.location.lng) : null;
+        var gcat = cat;
+        if (!gcat) for (var i = 0; i < V89_CATS.length; i++) if (V89_CATS[i].gType && (p.types || []).indexOf(V89_CATS[i].gType) !== -1) { gcat = V89_CATS[i]; break; }
+        return { id: "g:" + p.id, gid: p.id, src: "Google", name: poiFieldText(p.displayName) || "Lugar", named: true, lat: lat, lng: lng, cat: gcat ? gcat.id : null, extra: [p.rating ? "⭐ " + p.rating : "", poiFieldText(p.formattedAddress)].filter(Boolean).join(" · ") };
+      }).filter(function (r) { return r.lat != null && r.lng != null; });
+    });
+  }
+
+  function v89Merge(lists, c, radius, bounds) {
+    var all = [];
+    lists.forEach(function (l) { all = all.concat(l || []); });
+    all.forEach(function (r) { r.dist = haversineMeters(c.lat, c.lng, r.lat, r.lng); });
+    if (bounds) {
+      var pl = (bounds.north - bounds.south) * 0.05, pg = Math.abs(bounds.east - bounds.west) * 0.05;
+      all = all.filter(function (r) { return r.lat <= bounds.north + pl && r.lat >= bounds.south - pl && r.lng <= bounds.east + pg && r.lng >= bounds.west - pg; });
+    } else all = all.filter(function (r) { return r.dist <= radius * 1.6; });
+    // mesmo lugar nas duas fontes (até 150 m e nomes parecidos): fica um só
+    var norm = function (s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, ""); };
+    var out = [];
+    all.sort(function (a, b) { return (b.named ? 1 : 0) - (a.named ? 1 : 0) || a.dist - b.dist; });
+    all.forEach(function (r) {
+      var same = null;
+      out.some(function (o) {
+        if (haversineMeters(o.lat, o.lng, r.lat, r.lng) > 150) return false;
+        var a = norm(o.name), b = norm(r.name);
+        if (!r.named || a === b || (a && b && (a.indexOf(b) !== -1 || b.indexOf(a) !== -1))) { same = o; return true; }
+        return false;
+      });
+      if (!same) { out.push(r); return; }
+      // o mesmo lugar nas duas fontes: guarda o vínculo com a página do Google (fotos) e a nota
+      if (r.gid && !same.gid) {
+        same.gid = r.gid;
+        same.gname = r.name;
+        var star = (r.extra || "").match(/⭐ [\d.]+/);
+        if (star && (same.extra || "").indexOf("⭐") === -1) same.extra = [star[0], same.extra].filter(Boolean).join(" · ");
+      }
+    });
+    out.sort(function (a, b) { return a.dist - b.dist; });
+    return out.slice(0, 60);
+  }
+
+  // ---- guardado no aparelho (para ver sem sinal) ----
+  function v89CacheLoad() { try { return JSON.parse(localStorage.getItem(V89_CACHE_KEY) || "[]"); } catch (e) { return []; } }
+  function v89CacheSave(entry) {
+    var list = v89CacheLoad().filter(function (x) { return !(x.q === entry.q && haversineMeters(x.c.lat, x.c.lng, entry.c.lat, entry.c.lng) < 3000); });
+    list.unshift(entry);
+    list = list.slice(0, 25);
+    for (var n = list.length; n > 0; n--) {
+      try { localStorage.setItem(V89_CACHE_KEY, JSON.stringify(list.slice(0, n))); return; } catch (e) {}
+    }
+  }
+  function v89CacheFind(q, c) {
+    var best = null;
+    v89CacheLoad().forEach(function (x) {
+      if (x.q !== q) return;
+      var d = haversineMeters(x.c.lat, x.c.lng, c.lat, c.lng);
+      if (d < 25000 && (!best || d < best.d)) best = { d: d, e: x };
+    });
+    return best ? best.e : null;
+  }
+
+  // ---- pesquisar ----
+  function v89Search(catId, text) {
+    var ctx = v89Context();
+    if (!ctx) return;
+    v89.ctx = ctx;
+    var cat = catId ? v89Cat(catId) : null;
+    text = (text || "").trim();
+    if (!cat && !text) return;
+    var qKey = cat ? "cat:" + cat.id : "txt:" + text.toLowerCase();
+    v89.label = cat ? cat.icon + " " + cat.label : '"' + text + '"';
+    var token = ++v89.busy;
+    v89SetStatus("Procurando " + v89.label + " " + ctx.where + "…", true);
+    v89RenderList([]);
+    var c = ctx.center;
+    var offline = navigator.onLine === false;
+    function fromCache(why) {
+      var hit = v89CacheFind(qKey, c);
+      if (hit) {
+        var d = new Date(hit.t);
+        hit.r.forEach(function (r) { r.dist = haversineMeters(c.lat, c.lng, r.lat, r.lng); });
+        hit.r.sort(function (a, b) { return a.dist - b.dist; });
+        v89Show(hit.r, why + " Mostrando o que foi guardado em " + v55Pad(d.getDate()) + "/" + v55Pad(d.getMonth() + 1) + ".");
+      } else {
+        v89Show([], why + (offline ? " Sem internet e nada guardado para esta busca aqui. Faça a busca antes de sair, com sinal: ela fica guardada no celular." : " Tente de novo em instantes."));
+      }
+    }
+    if (offline) { fromCache("Sem internet."); return; }
+    // área: no planejamento é o que aparece na tela (até 60 km do centro para o OpenStreetMap);
+    // na navegação, 15 km em volta de você (e até 40 km se achar pouco)
+    var half = ctx.half || 0;
+    var area = ctx.mode === "plan" && half > 15000 ? ctx.bounds : null;
+    var R0 = area ? Math.min(60000, half) : 15000;
+    var osmSkip = !!area && half > 60000;
+    // "cachoeira", "mirante", "pesqueiro"… digitados viram a categoria no OpenStreetMap
+    var osmCat = cat || v89TextCat(text);
+    var osmText = osmCat ? "" : text;
+    // o que chegar primeiro já aparece
+    function run(radius, skipOsm) {
+      var osmDone = false;
+      var osm = skipOsm ? Promise.resolve({ err: new Error("skip"), skipped: true }) : v89OsmTimed(v89OsmQuery(osmCat, osmText, c, radius)).then(function (d) { return v89FromOsm(d, osmCat); }, function (e) { return { err: e }; });
+      osm.then(function () { osmDone = true; });
+      var g = v89Google(cat || osmCat, text, c, radius, area).catch(function (e) { return { err: e }; });
+      g.then(function (gl) {
+        if (osmDone || skipOsm || token !== v89.busy || !Array.isArray(gl) || !gl.length) return;
+        var part = v89Merge([gl], c, radius, area);
+        if (!part.length) return;
+        v89.results = part;
+        v89RenderList(part);
+        v89RenderMarkers(part);
+        v89SetStatus(part.length + (part.length === 1 ? " lugar" : " lugares") + " do Google — procurando também no OpenStreetMap (até 15 s)…", true);
+      });
+      return Promise.all([osm, g]).then(function (r) {
+        var errs = r.filter(function (x) { return x && x.err; });
+        var lists = r.filter(function (x) { return Array.isArray(x); });
+        return { list: v89Merge(lists, c, radius, area), allFailed: errs.length === r.length || (errs.length && !lists.some(function (l) { return l.length; }) && !v89GoogleOn()), osmFailed: !!(r[0] && r[0].err && !r[0].skipped), osmSkipped: !!(r[0] && r[0].skipped), gFull: Array.isArray(r[1]) && r[1].length >= 20 };
+      });
+    }
+    run(R0, osmSkip).then(function (res) {
+      if (token !== v89.busy) return;
+      if (!area && !res.allFailed && res.list.length < 4) {
+        if (!v89.results.length) v89SetStatus("Pouca coisa por perto — procurando mais longe (até 40 km)…", true);
+        // se o OpenStreetMap estava lotado, não insiste nele de novo (só o Google vai mais longe)
+        return run(40000, res.osmFailed).then(function (r2) {
+          if (res.osmFailed) r2.osmFailed = true;
+          return r2.list.length >= res.list.length ? r2 : res;
+        });
+      }
+      return res;
+    }).then(function (res) {
+      if (!res || token !== v89.busy) return;
+      if (res.allFailed) { fromCache("Não consegui buscar agora."); return; }
+      if (res.osmFailed && !res.list.length) { fromCache("Os servidores do OpenStreetMap estão lotados agora."); return; }
+      // busca incompleta (OpenStreetMap lotado ou de fora) não apaga uma busca guardada mais completa
+      var prev = v89CacheFind(qKey, c);
+      if (!((res.osmFailed || res.osmSkipped) && prev && prev.r.length >= res.list.length)) v89CacheSave({ q: qKey, c: c, t: Date.now(), r: res.list.map(function (r) { return { id: r.id, gid: r.gid, gname: r.gname, src: r.src, name: r.name, named: r.named, lat: r.lat, lng: r.lng, cat: r.cat, extra: r.extra }; }) });
+      var note = res.list.length ? "" : (area ? "Nada encontrado na área do mapa." : "Nada encontrado num raio de 40 km.") + " Tente outra palavra (ex.: \"cachoeira\", \"salto\", \"mirante\").";
+      if (res.osmFailed && res.list.length) note = "Os servidores do OpenStreetMap estão lotados agora — mostrando só o Google. Tente de novo daqui a pouco para ver cachoeiras e trilhas sem cadastro no Google.";
+      var tips = [];
+      if (res.osmSkipped) tips.push("Mapa muito aberto: aproxime um pouco para incluir o OpenStreetMap (cachoeiras e trilhas sem cadastro no Google)");
+      if (res.gFull) tips.push("O Google manda no máximo 20 por busca — aproxime o mapa para ver mais");
+      if (tips.length) note = (note ? note + " " : "") + tips.join(". ") + ".";
+      v89Show(res.list, note);
+    });
+  }
+
+  function v89Show(list, note) {
+    v89.results = list;
+    var n = list.length;
+    v89SetStatus((n ? n + (n === 1 ? " lugar" : " lugares") + " — " + v89.label + " " + (v89.ctx ? v89.ctx.where : "") : "") + (note ? (n ? ". " : "") + note : ""), false);
+    v89RenderList(list);
+    v89RenderMarkers(list);
+  }
+
+  // ---- ações em cada lugar ----
+  function v89DirUrl(r) {
+    return "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(r.lat.toFixed(6) + "," + r.lng.toFixed(6)) + (r.gid ? "&destination_place_id=" + encodeURIComponent(r.gid) : "");
+  }
+  // página do lugar no Google Maps (fotos, avaliações, horário); sem cadastro no Google, abre o ponto no mapa
+  function v89PageUrl(r) {
+    if (r.gid) return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(r.gname || r.name) + "&query_place_id=" + encodeURIComponent(r.gid);
+    return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(r.lat.toFixed(6) + "," + r.lng.toFixed(6));
+  }
+  function v89Mark(r) {
+    var cat = v89Cat(r.cat);
+    v89Open(false);
+    if (v89.ctx && v89.ctx.mode === "nav") {
+      navOpenWaypointAt(r.lat, r.lng);
+    } else {
+      openWaypointEditor({ lat: r.lat, lng: wrapLng(r.lng), onSave: upsertPlanningWaypoint });
+    }
+    // já vem com o tipo e o nome preenchidos
+    if (wpEditor) {
+      wpEditor.type = cat ? cat.wp : "outro";
+      x.waypointNote.value = r.name;
+      renderWaypointTypeChips();
+    }
+  }
+  function v89AddToRoute(r) {
+    addPoint(r.lat, r.lng);
+    showToast("\"" + r.name + "\" entrou como ponto da rota.");
+  }
+  function v89Actions(r, small) {
+    var box = document.createElement("div");
+    box.className = "v89-acts" + (small ? " v89-acts-pop" : "");
+    function btn(txt, fn, cls) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "v89-act" + (cls ? " " + cls : "");
+      b.textContent = txt;
+      b.addEventListener("click", function (ev) { ev.stopPropagation(); fn(); });
+      box.appendChild(b);
+    }
+    btn("📌 Marcar", function () { v89Mark(r); });
+    if (v89.ctx && v89.ctx.mode === "plan") btn("➕ Na rota", function () { v89AddToRoute(r); });
+    function link(txt, url, cls, title) {
+      var a = document.createElement("a");
+      a.className = "v89-act " + cls;
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = txt;
+      if (title) a.title = title;
+      box.appendChild(a);
+    }
+    link("📷 Ver fotos", v89PageUrl(r), "v89-page", r.gid ? "Abre a página do lugar no Google Maps: fotos, avaliações, horário" : "Abre este ponto no Google Maps (fotos de quem passou por perto)");
+    link("🧭 Como chegar", v89DirUrl(r), "v89-go");
+    return box;
+  }
+
+  // ---- mapa ----
+  function v89ClearMarkers() {
+    if (v89.layer && v89.layerMap) { try { v89.layerMap.removeLayer(v89.layer); } catch (e) {} }
+    v89.layer = null;
+    v89.layerMap = null;
+    var cl = document.getElementById("v89-clear");
+    if (cl) cl.classList.add("hidden");
+  }
+  function v89RenderMarkers(list) {
+    v89ClearMarkers();
+    if (!list.length || !v89.ctx) return;
+    var m = v89.ctx.map;
+    var layer = L.layerGroup();
+    list.forEach(function (r) {
+      var cat = v89Cat(r.cat);
+      var icon = L.divIcon({ className: "v89-pin-w", html: '<div class="v89-pin">' + (cat ? cat.icon : "📍") + "</div>", iconSize: [34, 34], iconAnchor: [17, 17] });
+      var mk = L.marker([r.lat, r.lng], { icon: icon, title: r.name });
+      mk.bindPopup(function () {
+        var d = document.createElement("div");
+        var h = document.createElement("div");
+        h.className = "v89-pop-name";
+        h.textContent = r.name;
+        d.appendChild(h);
+        var s = document.createElement("div");
+        s.className = "v89-pop-sub";
+        s.textContent = [cat ? cat.label.replace(/s$/, "") : "", formatDistance(r.dist || 0), r.extra].filter(Boolean).join(" · ");
+        d.appendChild(s);
+        d.appendChild(v89Actions(r, true));
+        return d;
+      }, { maxWidth: 260 });
+      r._mk = mk;
+      layer.addLayer(mk);
+    });
+    layer.addTo(m);
+    v89.layer = layer;
+    v89.layerMap = m;
+    var cl = document.getElementById("v89-clear");
+    if (cl) cl.classList.remove("hidden");
+  }
+  function v89Focus(r) {
+    if (!v89.ctx) return;
+    v89Open(false);
+    var m = v89.ctx.map;
+    if (v89.ctx.mode === "nav") {
+      // na navegação o mapa segue o GPS: solta o "seguir" para conseguir olhar o lugar
+      setNavFollowMode(false); // aparece o botão de voltar a seguir o GPS
+    }
+    m.setView([r.lat, r.lng], Math.max(m.getZoom(), 15));
+    setTimeout(function () { if (r._mk) r._mk.openPopup(); }, 350);
+  }
+
+  // ---- painel ----
+  function v89SetStatus(t, busy) {
+    var s = document.getElementById("v89-status");
+    if (!s) return;
+    s.textContent = t;
+    s.classList.toggle("v89-busy", !!busy);
+  }
+  function v89RenderList(list) {
+    var ul = document.getElementById("v89-list");
+    if (!ul) return;
+    ul.innerHTML = "";
+    list.forEach(function (r) {
+      var cat = v89Cat(r.cat);
+      var li = document.createElement("li");
+      li.className = "v89-item";
+      var main = document.createElement("button");
+      main.type = "button";
+      main.className = "v89-item-main";
+      main.title = "Ver no mapa";
+      var ic = document.createElement("span");
+      ic.className = "v89-item-ic";
+      ic.textContent = cat ? cat.icon : "📍";
+      var tx = document.createElement("span");
+      tx.className = "v89-item-tx";
+      var nm = document.createElement("b");
+      nm.textContent = r.name;
+      var sb = document.createElement("small");
+      sb.textContent = [formatDistance(r.dist || 0), r.extra, r.src].filter(Boolean).join(" · ");
+      tx.appendChild(nm);
+      tx.appendChild(sb);
+      main.appendChild(ic);
+      main.appendChild(tx);
+      main.addEventListener("click", function () { v89Focus(r); });
+      li.appendChild(main);
+      li.appendChild(v89Actions(r, false));
+      ul.appendChild(li);
+    });
+  }
+  function v89Open(open) {
+    var sh = v89BuildSheet();
+    if (open) {
+      v89.ctx = v89Context() || v89.ctx;
+      var w = document.getElementById("v89-where");
+      if (w && v89.ctx) w.textContent = v89.ctx.mode === "nav" ? "Busca " + v89.ctx.where + "." : "Busca na área que aparece no mapa — arraste e dê zoom até a região antes de buscar.";
+      var g = document.getElementById("v89-src");
+      if (g) g.textContent = v89GoogleOn() ? "Fontes: OpenStreetMap (cachoeiras, mirantes, trilhas) e Google (comércio)." : "Fonte: OpenStreetMap.";
+    }
+    sh.classList.toggle("hidden", !open);
+    if (open) {
+      var inp = document.getElementById("v89-q");
+      if (inp && !("ontouchstart" in window)) setTimeout(function () { inp.focus(); }, 50);
+    }
+  }
+  function v89BuildSheet() {
+    if (v89.sheet) return v89.sheet;
+    var sh = document.createElement("div");
+    sh.id = "v89-places";
+    sh.className = "hidden";
+    sh.setAttribute("role", "dialog");
+    sh.setAttribute("aria-label", "Procurar lugares");
+    sh.innerHTML =
+      '<div class="v89-head"><b>🔎 Lugares</b><button type="button" id="v89-clear" class="v89-clear hidden">Limpar do mapa</button><button type="button" class="v89-x" aria-label="Fechar">✕</button></div>' +
+      '<form class="v89-form" autocomplete="off"><input id="v89-q" type="search" enterkeyhint="search" placeholder="Ex.: cachoeira, camping, Salto…" aria-label="O que procurar"><button type="submit">Buscar</button></form>' +
+      '<div class="v89-chips"></div>' +
+      '<p id="v89-where" class="v89-hint"></p>' +
+      '<p id="v89-status" class="v89-status" aria-live="polite"></p>' +
+      '<ul id="v89-list" class="v89-list"></ul>' +
+      '<p id="v89-src" class="v89-hint v89-src"></p>';
+    var chips = sh.querySelector(".v89-chips");
+    V89_CATS.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "v89-chip";
+      b.setAttribute("data-cat", c.id);
+      b.textContent = c.icon + " " + c.label;
+      b.addEventListener("click", function () {
+        chips.querySelectorAll(".v89-chip").forEach(function (o) { o.classList.toggle("on", o === b); });
+        document.getElementById("v89-q").value = "";
+        v89Search(c.id, "");
+      });
+      chips.appendChild(b);
+    });
+    sh.querySelector(".v89-form").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var q = document.getElementById("v89-q");
+      chips.querySelectorAll(".v89-chip").forEach(function (o) { o.classList.remove("on"); });
+      if (q.value.trim().length < 2) { v89SetStatus("Digite pelo menos 2 letras.", false); return; }
+      q.blur();
+      v89Search(null, q.value);
+    });
+    sh.querySelector(".v89-x").addEventListener("click", function () { v89Open(false); });
+    sh.querySelector("#v89-clear").addEventListener("click", function () {
+      v89ClearMarkers();
+      v89.results = [];
+      v89RenderList([]);
+      v89SetStatus("", false);
+      chips.querySelectorAll(".v89-chip").forEach(function (o) { o.classList.remove("on"); });
+    });
+    document.body.appendChild(sh);
+    v89.sheet = sh;
+    return sh;
+  }
+
+  function initV89Places() {
+    // planejamento: botão "Lugares" na barra
+    var nav = document.getElementById("btn-nav-mode");
+    if (nav && !document.getElementById("btn-places")) {
+      var b = document.createElement("button");
+      b.id = "btn-places";
+      b.type = "button";
+      b.title = "Procurar lugares: cachoeiras, mirantes, camping, restaurantes, postos";
+      b.innerHTML = '🔎 <span class="btn-label">Lugares</span>';
+      b.addEventListener("click", function () { v89Open(true); });
+      nav.parentNode.insertBefore(b, nav);
+    }
+    // navegação: opção no painel "Mais"
+    var sheet = document.getElementById("nav-more-sheet");
+    if (sheet && !document.getElementById("btn-nav-places")) {
+      var nb = document.createElement("button");
+      nb.id = "btn-nav-places";
+      nb.type = "button";
+      nb.className = "nav-tool-btn";
+      nb.title = "Procurar lugares perto de você";
+      nb.innerHTML = '<span class="v89-ico" aria-hidden="true">🔎</span><span class="v84-lbl">Lugares perto</span>';
+      nb.addEventListener("click", function () {
+        v84MoreOpen(false);
+        setTimeout(function () { v89Open(true); }, 0);
+      });
+      var head = sheet.querySelector(".v84-more-head");
+      sheet.insertBefore(nb, head ? head.nextSibling : sheet.firstChild);
+    }
+    // trocou de tela: fecha o painel e tira os alfinetes (eles são do mapa da tela anterior)
+    var origShow = showScreen;
+    showScreen = function () {
+      if (v89.sheet && !v89.sheet.classList.contains("hidden")) v89Open(false);
+      v89ClearMarkers();
+      return origShow.apply(this, arguments);
+    };
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape" && v89.sheet && !v89.sheet.classList.contains("hidden")) v89Open(false);
+    });
+  }
 
   // ===================== v8.8 — app Android abre sem internet =====================
   // O APK leva uma cópia completa do app (android-app/www/offline.html, gerada por
@@ -18805,6 +20905,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     v55UpdateThemeButtons();
 
     if (!routes.length) {
+      hero.removeAttribute("data-route-id");
       hero.innerHTML =
         '<div class="dsh-empty"><div class="dsh-kicker">Comece por aqui</div>' +
         '<h2 class="dsh-hero-name" style="padding:4px 0 0;margin:0">Planeje sua trilha off-road</h2>' +
@@ -18840,6 +20941,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
       var d = new Date(r.savedAt);
       metaBits.push("salva em " + v55Pad(d.getDate()) + "/" + v55Pad(d.getMonth() + 1));
     }
+    hero.setAttribute("data-route-id", r.id);
     hero.innerHTML =
       '<div class="dsh-hero-head"><span class="dsh-kicker">Última rota</span><span class="dsh-ready">● Pronta para navegar</span></div>' +
       '<div class="dsh-hero-name">' + v55Esc(r.name || "(sem nome)") + "</div>" +
@@ -20178,6 +22280,7 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     trips.forEach(function (t) {
       var card = document.createElement("div");
       card.className = "saved-screen-card trip-card";
+      card.setAttribute("data-trip-id", t.id);
       var title = document.createElement("div");
       title.className = "nav-route-card-name";
       title.textContent = t.mode === "free" ? "🧭 Modo Livre" : (t.routeName || "(rota sem nome)");
@@ -22566,6 +24669,12 @@ input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--acc); }
     safeInit(initV84NavMore, "coluna da navegação (v8.4)");
     safeInit(initV85, "iniciante e visual (v8.5)");
     safeInit(initV88OfflineCopy, "cópia do app sem internet (v8.8)");
+    safeInit(initV89Places, "lugares (v8.9)");
+    safeInit(initV90Visual, "visual e abas (v9.0)");
+    safeInit(initV91, "página da rota e checklist (v9.1)");
+    safeInit(initV92, "rotas com foto e filtros (v9.2)");
+    safeInit(initV93, "próximo aviso, luva e sol (v9.3)");
+    safeInit(initV94, "planejamento no celular e cartão do passeio (v9.4)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
