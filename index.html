@@ -3863,8 +3863,15 @@ button, input, select, textarea { font-family: var(--font); }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "9.4";
+  var APP_VERSION = "9.4.1";
   var CHANGELOG = [
+    {
+      version: "9.4.1",
+      date: "20/11/2026",
+      changes: [
+        "Marcar local: novo tipo 🌊 Cachoeira (e as cachoeiras achadas em 🔎 Lugares agora entram como Cachoeira, não como Água / travessia)"
+      ]
+    },
     {
       version: "9.4",
       date: "17/11/2026",
@@ -9032,7 +9039,7 @@ button, input, select, textarea { font-family: var(--font); }
   // Cada resultado pode virar marcação, ponto da rota (no planejamento) ou "Como chegar".
   // Os resultados ficam guardados no aparelho para ver de novo sem sinal.
   var V89_CATS = [
-    { id: "cachoeira", label: "Cachoeiras", icon: "💧", wp: "agua",
+    { id: "cachoeira", label: "Cachoeiras", icon: "💧", wp: "cachoeira",
       osm: ['nwr["natural"="waterfall"]', 'nwr["waterway"="waterfall"]'], g: "cachoeira" },
     { id: "mirante", label: "Mirantes", icon: "🏞️", wp: "mirante",
       osm: ['nwr["tourism"="viewpoint"]'], g: "mirante" },
@@ -12449,6 +12456,7 @@ button, input, select, textarea { font-family: var(--font); }
     { id: "agua", label: "Água / travessia", emoji: "💧" },
     { id: "perigo", label: "Perigo", emoji: "⚠️" },
     { id: "mirante", label: "Mirante", emoji: "🏞️" },
+    { id: "cachoeira", label: "Cachoeira", emoji: "🌊" },
     { id: "camping", label: "Camping", emoji: "⛺" },
     { id: "apoio", label: "Apoio / borracharia", emoji: "🔧" },
     { id: "outro", label: "Outro", emoji: "📍" }
