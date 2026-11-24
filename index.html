@@ -3999,8 +3999,17 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "10.3";
+  var APP_VERSION = "10.4";
   var CHANGELOG = [
+    {
+      version: "10.4",
+      date: "24/11/2026",
+      changes: [
+        "Rota de ida e volta pelo mesmo caminho: a navegação agora lembra em que passada você está. O \"restante\" não pula mais, o \"Chegando ao destino\" é falado só no fim de verdade e o \"próximo aviso\" mostra o atoleiro do sentido em que você vai",
+        "Atoleiro/porteira num trecho de ida e volta aparece no \"próximo aviso\" nas duas passadas",
+        "Se você cortar caminho ou pular um trecho, a navegação acha de novo onde você está na rota"
+      ]
+    },
     {
       version: "10.3",
       date: "24/11/2026",
@@ -8296,9 +8305,14 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     var key = r.id + ":" + r.points.length + ":" + (r.waypoints || []).length;
     if (v93.routeKey === key) return v93.hz;
     v93.routeKey = key;
-    v93.hz = (r.waypoints || []).filter(function (w) { return V64_HAZARD_TYPES[w.type] && !w.resolved; }).map(function (w) {
-      return { w: w, at: v91Along(r.points, w.lat, w.lng), off: nearestPointOnRoute({ lat: w.lat, lng: w.lng }, r.points).distance };
-    }).sort(function (a, b) { return a.at - b.at; });
+    // v10.4: atoleiro num trecho de ida e volta aparece nas duas passadas
+    v93.hz = [];
+    (r.waypoints || []).filter(function (w) { return V64_HAZARD_TYPES[w.type] && !w.resolved; }).forEach(function (w) {
+      var all = v104AlongAll(r.points, w.lat, w.lng, 80);
+      if (!all.length) all = [{ at: v91Along(r.points, w.lat, w.lng), d: nearestPointOnRoute({ lat: w.lat, lng: w.lng }, r.points).distance }];
+      all.forEach(function (x) { v93.hz.push({ w: w, at: x.at, off: x.d }); });
+    });
+    v93.hz.sort(function (a, b) { return a.at - b.at; });
     return v93.hz;
   }
   function v93Card() { return document.getElementById("v93-next"); }
@@ -8408,7 +8422,10 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
       var out = orig.apply(this, arguments);
       try {
         var rem = null;
-        if (navCurrentRoute && navCurrentRoute.points && navCurrentRoute.points.length > 1) rem = remainingDistanceMeters(navCurrentRoute.points, nearestPointOnRoute(p, navCurrentRoute.points));
+        if (navCurrentRoute && navCurrentRoute.points && navCurrentRoute.points.length > 1) {
+          rem = v104Remaining(navCurrentRoute);   // v10.4: mesma posição na rota que o "restante"
+          if (rem == null) rem = remainingDistanceMeters(navCurrentRoute.points, nearestPointOnRoute(p, navCurrentRoute.points));
+        }
         v93Update(p, rem);
       } catch (e) {}
       return out;
@@ -10994,7 +11011,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     }
 
     if (navMode === "route" && navCurrentRoute && navCurrentRoute.points.length) {
-      var nearest = nearestPointOnRoute(current, navCurrentRoute.points);
+      var nearest = v104Nearest(current, navCurrentRoute);   // v10.4: lembra em que passada da rota você está
       var remaining = remainingDistanceMeters(navCurrentRoute.points, nearest);
       el.navDistanceRemaining.textContent = formatDistance(remaining);
 
@@ -23266,6 +23283,126 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     if (window.__fdeTest) window.__fdeV103 = { v: v103, parse: v103Parse, unzip: v103Unzip, open: v103Open, read: v103Read };
   }
 
+  // ===================== v10.4 — rota de ida e volta pelo mesmo caminho (item 13) =====================
+  // Antes: para saber "em que parte da rota estou", a navegação procurava o trecho mais perto na rota
+  // INTEIRA. Onde a ida e a volta passam pelo mesmo caminho, ela podia achar a volta estando na ida:
+  // o "restante" pulava, o "Chegando ao destino" era falado cedo (e não no fim) e o "próximo aviso"
+  // mostrava o atoleiro errado.
+  // Agora a navegação lembra onde você está ao longo da rota e só procura um pouco atrás (200 m) e
+  // à frente (2 km). Se você sair muito da rota ou cortar caminho, volta a procurar na rota inteira.
+  // "Chegando ao destino" só vale depois de percorrer boa parte da rota.
+  var V104_BACK = 200, V104_AHEAD = 2000;
+  var v104 = { key: null, cum: null, along: null, first: null, last: null };
+
+  function v104Prep(r) {
+    var key = r.id + ":" + r.points.length;
+    if (v104.key === key) return;
+    v104.key = key;
+    var cum = [0];
+    for (var i = 1; i < r.points.length; i++) cum.push(cum[i - 1] + haversineMeters(r.points[i - 1].lat, r.points[i - 1].lng, r.points[i].lat, r.points[i].lng));
+    v104.cum = cum;
+    v104.along = null; v104.first = null; v104.last = null;
+  }
+  function v104Reset() { v104.key = null; v104.along = null; v104.first = null; v104.last = null; }
+
+  // melhor ponto da rota, só entre "de" e "até" (metros ao longo da rota)
+  function v104Search(p, pts, from, to) {
+    var cum = v104.cum, best = null;
+    for (var i = 0; i < pts.length - 1; i++) {
+      if (cum[i + 1] < from || cum[i] > to) continue;
+      var res = distanceToSegmentMeters(p, pts[i], pts[i + 1]);
+      if (!best || res.distance < best.distance) best = { segmentIndex: i, t: res.t, distance: res.distance };
+    }
+    return best;
+  }
+  function v104Along(n) { var c = v104.cum; return c[n.segmentIndex] + (c[n.segmentIndex + 1] - c[n.segmentIndex]) * n.t; }
+
+  // primeira posição: entre os trechos quase igualmente perto, fica com o que vem antes na rota
+  function v104FirstPick(p, pts) {
+    var all = [];
+    for (var i = 0; i < pts.length - 1; i++) {
+      var res = distanceToSegmentMeters(p, pts[i], pts[i + 1]);
+      all.push({ segmentIndex: i, t: res.t, distance: res.distance });
+    }
+    var min = Infinity;
+    all.forEach(function (a) { if (a.distance < min) min = a.distance; });
+    for (var k = 0; k < all.length; k++) if (all[k].distance <= min + 30) return all[k];
+    return all[0];
+  }
+
+  function v104Step(p, r) {
+    var pts = r.points, n;
+    if (v104.along == null) {
+      n = v104FirstPick(p, pts);
+    } else {
+      n = v104Search(p, pts, v104.along - V104_BACK, v104.along + V104_AHEAD);
+      var lim = Math.max(deviationThreshold, 60);
+      if (!n || n.distance > lim) {
+        // saiu da janela (cortou caminho, pulou trecho, GPS voltou depois de muito tempo): procura na rota toda
+        var g = nearestPointOnRoute(p, pts);
+        if (!n || g.distance + 40 < n.distance) n = g;
+      }
+    }
+    var a = v104Along(n);
+    if (v104.first == null) v104.first = a;
+    v104.along = a;
+    v104.last = n;
+    return n;
+  }
+
+  // usado pela navegação a cada posição do GPS
+  function v104Nearest(p, r) {
+    if (!r || !r.points || r.points.length < 2) return nearestPointOnRoute(p, r.points);
+    v104Prep(r);
+    // navegação retomada (app fechado no meio): refaz o caminho já gravado para saber em que passada está
+    if (v104.along == null && navRecordedTrack && navRecordedTrack.length > 10) {
+      var step = Math.max(1, Math.floor(navRecordedTrack.length / 400));
+      for (var i = 0; i < navRecordedTrack.length; i += step) v104Step(navRecordedTrack[i], r);
+      v104.first = 0;
+    }
+    return v104Step(p, r);
+  }
+  function v104Remaining(r) {
+    if (!v104.last || !r || r.points.length < 2) return null;
+    return remainingDistanceMeters(r.points, v104.last);
+  }
+  // já andou o bastante para "Chegando ao destino" valer?
+  function v104CanArrive(total) {
+    if (v104.along == null || v104.first == null) return true;
+    return v104.along - v104.first >= Math.min(total * 0.3, 3000) || v104.along >= total * 0.85;
+  }
+
+  // posições de um ponto ao longo da rota — uma para cada passada perto dele (ida e volta)
+  function v104AlongAll(pts, lat, lng, maxOff) {
+    var cum = [0];
+    for (var i = 1; i < pts.length; i++) cum.push(cum[i - 1] + haversineMeters(pts[i - 1].lat, pts[i - 1].lng, pts[i].lat, pts[i].lng));
+    var hits = [];
+    for (var j = 0; j < pts.length - 1; j++) {
+      var res = distanceToSegmentMeters({ lat: lat, lng: lng }, pts[j], pts[j + 1]);
+      if (res.distance <= maxOff) hits.push({ at: cum[j] + (cum[j + 1] - cum[j]) * res.t, d: res.distance });
+    }
+    // junta os pedaços vizinhos (mesma passada) e fica com o mais perto de cada grupo
+    hits.sort(function (a, b) { return a.at - b.at; });
+    var out = [];
+    hits.forEach(function (h) {
+      var g = out[out.length - 1];
+      if (g && h.at - g.lastAt < 150) { g.lastAt = h.at; if (h.d < g.d) { g.d = h.d; g.at = h.at; } }
+      else out.push({ at: h.at, d: h.d, lastAt: h.at });
+    });
+    return out;
+  }
+
+  function initV104() {
+    var origReset = resetNavSession;
+    resetNavSession = function () { v104Reset(); return origReset.apply(this, arguments); };
+    var origArr = navAlertsOnRemaining;
+    navAlertsOnRemaining = function (remaining, routeLength) {
+      if (!v104CanArrive(routeLength)) return;
+      return origArr.apply(this, arguments);
+    };
+    if (window.__fdeTest) window.__fdeV104 = { v: v104, nearest: v104Nearest, alongAll: v104AlongAll, reset: v104Reset };
+  }
+
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -23321,6 +23458,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     safeInit(initV100, "o app abre no mapa (v10.0)");
     safeInit(initV102, "recortar trecho (v10.2)");
     safeInit(initV103, "importar trilhas (v10.3)");
+    safeInit(initV104, "ida e volta pelo mesmo caminho (v10.4)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
