@@ -5943,6 +5943,12 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
 .v103-seg { flex: 0 0 auto; display: flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 .v103-seg button { min-height: 36px; padding: 0 10px; border: 0; background: var(--btn); color: var(--muted); font: 700 12.5px var(--font); }
 .v103-seg button.on { background: var(--acc); color: var(--onAcc); }
+/* v10.5 — modo retorno */
+#v105-back { position: absolute; z-index: 1200; left: 10px; right: 72px; top: calc(118px + env(safe-area-inset-top, 0px)); display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 12px; border-radius: 14px; background: #1f7a4a; color: #fff; box-shadow: 0 6px 20px rgba(0,0,0,.35); font: 800 15px var(--font); }
+#v105-back.hidden { display: none; }
+#v105-back span { flex: 1 1 auto; }
+#v105-back .v105-go { flex: 1 1 100%; min-height: 48px; border: 0; border-radius: 12px; background: #fff; color: #1f7a4a; font: 800 16px var(--font); order: 3; }
+#v105-back .v105-x { width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(255,255,255,.2); color: #fff; font: 700 15px var(--font); }
 </style>
 </head>
 <body>
@@ -6968,8 +6974,17 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "10.4";
+  var APP_VERSION = "10.5";
   var CHANGELOG = [
+    {
+      version: "10.5",
+      date: "24/11/2026",
+      changes: [
+        "↩️ Modo retorno: na confirmação da navegação, escolha o sentido — ▶ Ida (normal) ou ↩️ Volta (do fim para o começo, pelo mesmo caminho), sem precisar salvar outra rota",
+        "Ao chegar no fim da rota aparece \"↩️ Voltar pelo mesmo caminho\": vira o sentido na hora e o passeio continua gravando (ida + volta num passeio só)",
+        "Na volta, restante, \"Chegando ao destino\" e próximo aviso (atoleiro, porteira) seguem o sentido da volta; marcações novas vão para a mesma rota"
+      ]
+    },
     {
       version: "10.4",
       date: "24/11/2026",
@@ -21773,6 +21788,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
       savedAt: Date.now(),
       mode: navMode,
       routeId: r && r.id ? r.id : null,
+      reverse: !!(r && r.reversed),   // v10.5: navegando no sentido da volta
       route: v81SessRoute(r),
       track: v81Ok ? [] : navRecordedTrack.map(v59Round),
       n: navRecordedTrack.length,
@@ -21876,6 +21892,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
         })[0] || null;
       }
       if (!route) route = sess.route;
+      if (route && sess.reverse && !route.reversed && route.points && route.points.length > 1) route = v105Rev(route);
       if (!route || !route.points || !route.points.length) {
         // não dá para retomar a rota, mas o caminho já percorrido é guardado como passeio
         if (!v81Rescue(sess)) showToast("Não foi possível recuperar a rota dessa navegação.");
@@ -26372,6 +26389,115 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     if (window.__fdeTest) window.__fdeV104 = { v: v104, nearest: v104Nearest, alongAll: v104AlongAll, reset: v104Reset };
   }
 
+  // ===================== v10.5 — modo retorno: navegar a mesma rota de volta (item 14) =====================
+  //  * Na confirmação "Navegar por…": escolher o sentido ▶ Ida (normal) ou ↩️ Volta (do fim para o começo),
+  //    sem salvar outra rota. Vale para qualquer caminho (cartão do mapa, página da rota, lista de navegar).
+  //  * Ao chegar no destino: botão "↩️ Voltar pelo mesmo caminho" — vira o sentido na hora, sem parar a
+  //    gravação (o passeio continua o mesmo, ida + volta).
+  //  * Na volta, o "restante", a chegada e o "próximo aviso" seguem o sentido da volta; marcações novas
+  //    continuam indo para a rota salva (mesma rota).
+  var v105 = { dir: "ida" };
+
+  function v105Rev(r) {
+    var o = {};
+    for (var k in r) o[k] = r[k];
+    o.points = r.points.slice().reverse();
+    o.reversed = !r.reversed;
+    o.baseName = r.baseName || r.name || "";
+    o.name = o.reversed ? o.baseName + " — volta" : o.baseName;
+    return o;
+  }
+
+  function v105Box() {
+    var b = document.getElementById("v105-dir");
+    if (b) return b;
+    b = document.createElement("div");
+    b.id = "v105-dir";
+    b.className = "nav-wet-box";
+    b.innerHTML = '<div class="nav-wet-q">Sentido</div><div class="nav-wet-opts">' +
+      '<button type="button" class="nav-wet-opt" data-dir="ida">▶ Ida</button>' +
+      '<button type="button" class="nav-wet-opt" data-dir="volta">↩️ Volta</button></div>' +
+      '<div class="hint" id="v105-hint"></div>';
+    var box = document.querySelector("#nav-confirm-modal .modal-box");
+    var title = document.getElementById("nav-confirm-title");
+    box.insertBefore(b, title.nextSibling);
+    b.querySelectorAll("[data-dir]").forEach(function (x) { x.addEventListener("click", function () { v105Set(x.getAttribute("data-dir")); }); });
+    return b;
+  }
+  function v105Set(d) {
+    v105.dir = d;
+    var b = v105Box(), r = pendingNavRoute;
+    b.querySelectorAll("[data-dir]").forEach(function (x) { x.classList.toggle("active", x.getAttribute("data-dir") === d); });
+    var h = document.getElementById("v105-hint");
+    if (h && r && r.points && r.points.length > 1) {
+      var a = r.points[0], z = r.points[r.points.length - 1];
+      var same = haversineMeters(a.lat, a.lng, z.lat, z.lng) < 200;
+      h.textContent = d === "volta" ? "Do fim da rota até a largada, pelo mesmo caminho." + (same ? " (Esta rota já termina perto de onde começa.)" : "")
+        : "Do começo ao fim, como foi desenhada.";
+      // a checagem "Pronto para sair?" (distância até a largada etc.) segue o sentido escolhido
+      try { if (document.getElementById("nav-confirm-modal").classList.contains("open")) v91FillChecklist(d === "volta" ? v105Rev(r) : r); } catch (e) {}
+    }
+  }
+
+  // banner "chegou": oferece voltar pelo mesmo caminho sem parar a gravação
+  function v105Arrived() {
+    var r = navCurrentRoute;
+    if (!r || navMode !== "route") return;
+    var v = document.getElementById("nav-active-view");
+    if (!v) return;
+    var bar = document.getElementById("v105-back");
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "v105-back";
+      bar.innerHTML = '<span>🏁 Chegou ao fim da rota</span><button type="button" class="v105-go">↩️ Voltar pelo mesmo caminho</button><button type="button" class="v105-x" aria-label="Fechar">✕</button>';
+      v.appendChild(bar);
+      bar.querySelector(".v105-go").addEventListener("click", function () { v105Flip(); });
+      bar.querySelector(".v105-x").addEventListener("click", function () { bar.classList.add("hidden"); });
+    }
+    bar.querySelector(".v105-go").textContent = r.reversed ? "↩️ Ir de novo (sentido da ida)" : "↩️ Voltar pelo mesmo caminho";
+    bar.classList.remove("hidden");
+  }
+  function v105Flip() {
+    var r = navCurrentRoute;
+    if (!r || navMode !== "route") return;
+    navCurrentRoute = v105Rev(r);
+    navPlannedPolyline.setLatLngs(navCurrentRoute.points.map(function (p) { return [p.lat, p.lng]; }));
+    v104Reset();
+    navArrivalAnnounced = false;
+    try { v93.routeKey = null; v93Hide(); } catch (e) {}
+    try { if (typeof v64Warned === "object") for (var k in v64Warned) delete v64Warned[k]; } catch (e) {}
+    var bar = document.getElementById("v105-back"); if (bar) bar.classList.add("hidden");
+    speak(navCurrentRoute.reversed ? "Voltando pelo mesmo caminho." : "Seguindo a rota de novo, no sentido da ida.");
+    showToast(navCurrentRoute.reversed ? "↩️ Agora no sentido da volta. O passeio continua gravando." : "▶ Sentido da ida de novo.");
+    try { v59SaveNow(); } catch (e) {}
+  }
+
+  function initV105() {
+    v105Box();
+    // toda confirmação começa em "Ida"
+    var origOpen = openNavConfirm;
+    openNavConfirm = function (route) {
+      var out = origOpen.apply(this, arguments);
+      if (document.getElementById("nav-confirm-modal").classList.contains("open")) v105Set("ida");
+      return out;
+    };
+    // antes do Confirmar original: troca a rota pela invertida se escolheu "Volta"
+    el.btnNavConfirmOk.addEventListener("click", function () {
+      if (v105.dir === "volta" && pendingNavRoute && !pendingNavRoute.reversed) pendingNavRoute = v105Rev(pendingNavRoute);
+    }, true);
+    // chegada: mostra o "voltar pelo mesmo caminho"
+    var origArr = navAlertsOnRemaining;
+    navAlertsOnRemaining = function () {
+      var before = navArrivalAnnounced;
+      var out = origArr.apply(this, arguments);
+      if (!before && navArrivalAnnounced) v105Arrived();
+      return out;
+    };
+    var origReset = resetNavSession;
+    resetNavSession = function () { var b = document.getElementById("v105-back"); if (b) b.classList.add("hidden"); return origReset.apply(this, arguments); };
+    if (window.__fdeTest) window.__fdeV105 = { v: v105, rev: v105Rev, flip: v105Flip };
+  }
+
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -26428,6 +26554,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     safeInit(initV102, "recortar trecho (v10.2)");
     safeInit(initV103, "importar trilhas (v10.3)");
     safeInit(initV104, "ida e volta pelo mesmo caminho (v10.4)");
+    safeInit(initV105, "modo retorno (v10.5)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
