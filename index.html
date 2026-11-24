@@ -2848,6 +2848,112 @@ button, input, select, textarea { font-family: var(--font); }
 .v94-share:disabled { opacity: .5; }
 .v94-summary-card { margin-top: 6px; }
 .v91-mini { flex: 0 0 auto; margin-left: auto; min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--btn); color: var(--ink); font: 700 14px var(--font); }
+/* ===================== v10.0 — o app abre no mapa (item 15a/15b/15g) ===================== */
+#v100-home { display: none; }
+body.v100:not(.v100-classic) #screen-dashboard > :not(#v100-home):not(#v100-back-map) { display: none !important; }
+body.v100:not(.v100-classic) #v100-home { display: block; position: fixed; inset: 0; z-index: 5; background: #1c2620; }
+body.v100.v100-classic #v100-back-map { display: flex; }
+#v100-back-map { display: none; position: fixed; right: 14px; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); z-index: 2300; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border: 0; border-radius: 22px; background: var(--acc); color: var(--onAcc); font: 800 14px var(--font); box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+#v100-map { position: absolute; inset: 0; }
+#v100-map .leaflet-control-attribution { font-size: 9px; }
+.v100-top { position: absolute; z-index: 1001; left: 10px; right: 10px; top: calc(10px + env(safe-area-inset-top, 0px)); display: flex; gap: 8px; pointer-events: none; }
+.v100-top > * { pointer-events: auto; }
+.v100-search span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v100-search { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 14px; border: 0; border-radius: 23px; background: var(--surf); color: var(--muted); font: 600 15px var(--font); text-align: left; box-shadow: 0 3px 12px rgba(0,0,0,.28); cursor: pointer; }
+.v100-search .v90-ico { width: 20px; height: 20px; color: var(--ink); }
+.v100-round { flex: 0 0 auto; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: var(--surf); color: var(--ink); box-shadow: 0 3px 12px rgba(0,0,0,.28); cursor: pointer; font: 700 18px var(--font); }
+.v100-round .v90-ico { width: 22px; height: 22px; }
+.v100-round.on { color: var(--acc); }
+.v100-side-btns { position: absolute; z-index: 1001; right: 10px; bottom: 18px; display: flex; flex-direction: column; gap: 10px; transition: bottom .15s; }
+body.nav-running-shown .v100-side-btns { bottom: 86px; }
+.v100-card-open .v100-side-btns { display: none; }
+.v100-legend { position: absolute; z-index: 1000; left: 10px; bottom: 24px; display: flex; gap: 10px; padding: 5px 10px; border-radius: 12px; background: rgba(20,26,22,.72); color: #fff; font: 700 11.5px var(--font); pointer-events: none; }
+.v100-legend i { display: inline-block; width: 16px; height: 0; margin-right: 4px; vertical-align: middle; border-top: 4px solid; border-radius: 2px; }
+.v100-card-open .v100-legend, body.nav-running-shown .v100-legend { display: none; }
+/* cartão de baixo (rota, passeio, trilha) */
+#v100-card { position: absolute; z-index: 1002; left: 8px; right: 8px; bottom: 8px; padding: 12px 14px 12px; border-radius: 18px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 8px 28px rgba(0,0,0,.4); }
+#v100-card.hidden { display: none; }
+body.nav-running-shown #v100-card { bottom: 78px; }
+.v100-c-k { font: 700 12px var(--font); color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.v100-c-name { margin: 2px 36px 4px 0; font: 800 19px/1.2 var(--font); overflow-wrap: anywhere; }
+.v100-c-x { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--btn); color: var(--ink); font: 700 16px var(--font); }
+.v100-c-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.v100-c-chips span { padding: 3px 9px; border-radius: 999px; background: var(--btn); font: 700 13px var(--font); }
+.v100-c-sub { margin: 0 0 8px; font: 500 13.5px/1.35 var(--font); color: var(--muted); }
+.v100-c-btns { display: flex; gap: 8px; }
+.v100-c-btns button { flex: 1 1 0; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; background: var(--btn); color: var(--ink); font: 800 15px var(--font); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 8px; }
+.v100-c-btns button.pri { flex: 1.6 1 0; background: var(--acc); color: var(--onAcc); border-color: var(--acc); }
+.v100-c-btns .v90-ico { width: 20px; height: 20px; }
+/* camadas */
+#v100-layers { position: absolute; z-index: 1003; right: 10px; top: calc(64px + env(safe-area-inset-top, 0px)); width: min(300px, calc(100% - 20px)); max-height: calc(100% - 90px); overflow-y: auto; padding: 10px 12px; border-radius: 16px; background: var(--surf); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 8px 28px rgba(0,0,0,.4); }
+#v100-layers.hidden { display: none; }
+#v100-layers h4 { margin: 4px 0 6px; font: 800 13px var(--font); color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+#v100-layers label { display: flex; align-items: center; gap: 10px; min-height: 42px; font: 600 15px var(--font); cursor: pointer; }
+#v100-layers label i { width: 22px; height: 0; border-top: 4px solid; border-radius: 2px; flex: 0 0 auto; }
+#v100-layers label small { margin-left: auto; color: var(--muted); font-weight: 600; }
+#v100-layers input { width: 20px; height: 20px; accent-color: var(--acc); }
+/* menu lateral */
+#v100-drawer { position: fixed; inset: 0; z-index: 2550; display: flex; }
+#v100-drawer.hidden { display: none; }
+.v100-dr-shade { position: absolute; inset: 0; background: rgba(0,0,0,.45); }
+.v100-dr-panel { position: relative; width: min(330px, 86vw); height: 100%; overflow-y: auto; display: flex; flex-direction: column; background: var(--surf); color: var(--ink); padding: calc(10px + env(safe-area-inset-top, 0px)) 0 calc(14px + env(safe-area-inset-bottom, 0px)); box-shadow: 6px 0 24px rgba(0,0,0,.35); animation: v100in .16s ease-out; }
+@keyframes v100in { from { transform: translateX(-30px); opacity: .4; } to { transform: none; opacity: 1; } }
+.v100-dr-head { display: flex; align-items: center; gap: 10px; padding: 4px 16px 12px; border-bottom: 1px solid var(--line); }
+.v100-dr-head img { width: 38px; height: 38px; border-radius: 10px; }
+.v100-dr-head b { display: block; font: 800 17px var(--font); }
+.v100-dr-head span { font: 600 12.5px var(--font); color: var(--muted); }
+.v100-dr-acc { margin: 10px 12px 4px; padding: 10px 12px; border-radius: 12px; background: var(--btn); font: 600 13.5px/1.35 var(--font); }
+.v100-dr-acc button { margin-top: 6px; min-height: 38px; padding: 0 12px; border: 0; border-radius: 10px; background: var(--acc); color: var(--onAcc); font: 800 14px var(--font); }
+.v100-dr-sec { margin: 12px 16px 2px; font: 800 11.5px var(--font); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.v100-dr-it { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 50px; padding: 0 18px; border: 0; background: transparent; color: var(--ink); font: 700 15.5px var(--font); text-align: left; cursor: pointer; text-decoration: none; }
+.v100-dr-it:active, .v100-dr-it:hover { background: var(--btn); }
+.v100-dr-it .v90-ico { width: 22px; height: 22px; color: var(--muted); flex: 0 0 auto; }
+.v100-dr-it small { display: block; font: 500 12.5px var(--font); color: var(--muted); }
+.v100-dr-foot { margin-top: auto; padding: 14px 18px 0; font: 600 12px var(--font); color: var(--muted); }
+/* barra de abas: 4 botões */
+@media (max-width: 768px) {
+  body.v100 #v90-tabs { grid-template-columns: repeat(4, 1fr); }
+  body.v100:not(.v100-classic) #v100-home { bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  body.v100 .v90-go-ring.v100-rec { background: #d32f2f; box-shadow: 0 4px 12px rgba(211,47,47,.45); }
+  body.v100.v90-tabs-on #v89-places { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); z-index: 2450; }
+  .v100-pc { display: none !important; }
+}
+/* PC: painel à esquerda + mapa */
+@media (min-width: 769px) {
+  .v100-mob { display: none !important; }
+  #v100-map { left: 360px; }
+  .v100-top { left: 372px; right: 12px; }
+  .v100-top .v100-search { flex: 0 1 420px; }
+  .v100-top .v100-spacer { flex: 1 1 auto; }
+  #v100-card { left: 372px; right: auto; width: 420px; bottom: 14px; }
+  .v100-legend { left: 372px; }
+  #v100-pc { position: absolute; z-index: 1004; left: 0; top: 0; bottom: 0; width: 360px; display: flex; flex-direction: column; background: var(--surf); color: var(--ink); border-right: 1px solid var(--line); box-shadow: 4px 0 18px rgba(0,0,0,.18); }
+  .v100-pc-head { display: flex; align-items: center; gap: 10px; padding: 14px 14px 10px; }
+  .v100-pc-head img { width: 40px; height: 40px; border-radius: 10px; }
+  .v100-pc-head b { display: block; font: 800 18px var(--font); }
+  .v100-pc-head span { font: 600 12.5px var(--font); color: var(--muted); }
+  .v100-pc-head .v100-round { margin-left: auto; box-shadow: none; background: var(--btn); width: 42px; height: 42px; }
+  .v100-pc-plan { margin: 0 14px 10px; min-height: 52px; border: 0; border-radius: 14px; background: var(--acc); color: var(--onAcc); font: 800 16px var(--font); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+  .v100-pc-plan .v90-ico { width: 22px; height: 22px; }
+  .v100-pc-tabs { display: flex; margin: 0 14px; border-bottom: 1px solid var(--line); }
+  .v100-pc-tabs button { flex: 1 1 0; min-height: 42px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--muted); font: 800 14px var(--font); cursor: pointer; }
+  .v100-pc-tabs button.on { color: var(--acc); border-bottom-color: var(--acc); }
+  .v100-pc-q { margin: 10px 14px 6px; min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: 600 14px var(--font); }
+  .v100-pc-list { flex: 1 1 auto; overflow-y: auto; padding: 0 6px 10px; }
+  .v100-pc-it { display: block; width: 100%; padding: 9px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+  .v100-pc-it:hover { background: var(--btn); }
+  .v100-pc-it.sel { background: var(--btn); box-shadow: inset 3px 0 0 var(--acc); }
+  .v100-pc-it b { display: block; font: 700 14.5px/1.25 var(--font); overflow-wrap: anywhere; }
+  .v100-pc-it span { font: 600 12.5px var(--font); color: var(--muted); }
+  .v100-pc-empty { padding: 18px 12px; font: 500 13.5px/1.4 var(--font); color: var(--muted); }
+  .v100-pc-foot { padding: 8px 14px 12px; border-top: 1px solid var(--line); font: 600 12px var(--font); color: var(--muted); display: flex; gap: 12px; align-items: center; }
+  .v100-pc-foot button { border: 0; background: transparent; color: var(--acc); font: 700 12.5px var(--font); cursor: pointer; padding: 0; }
+}
+@media (max-width: 768px) {
+  body.v90-tabs-on #toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 2450; }
+  body.v90-tabs-on.nav-running-shown #toast { bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (min-width: 769px) { #v100-back-map { bottom: 20px; } }
 </style>
 </head>
 <body>
@@ -3149,7 +3255,7 @@ button, input, select, textarea { font-family: var(--font); }
       <div id="nav-layers-menu" class="nav-layers-menu hidden" role="menu"></div>
       <button id="btn-nav-region" class="nav-tool-btn off" title="Trilhas da região (rotas, passeios, Comunidade, estradas de terra)" aria-label="Trilhas da região"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"></path><path d="M9 4v14M15 6v14"></path></svg></button>
       <div id="nav-region-panel" class="nav-layers-menu nav-region-panel hidden"></div>
-      <button id="btn-nav-home" class="nav-tool-btn" title="Ir ao menu (a navegação continua)" aria-label="Ir ao menu sem parar a navegação"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 10v10h13V10"></path><path d="M10 20v-5h4v5"></path></svg></button>
+      <button id="btn-nav-home" class="nav-tool-btn" title="Ir ao mapa inicial (a navegação continua)" aria-label="Ir ao mapa inicial sem parar a navegação"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 10v10h13V10"></path><path d="M10 20v-5h4v5"></path></svg></button>
       <button id="btn-nav-voice" class="nav-tool-btn" title="Alerta de desvio por voz e vibração" aria-label="Alerta por voz"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10z"></path><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"></path></svg></button>
       <button id="btn-nav-waypoint" class="nav-tool-btn" title="Marcar este local (foto e anotação)" aria-label="Marcar local"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg></button>
       <button id="btn-nav-sendpos" class="nav-tool-btn" title="Enviar minha posição" aria-label="Enviar posição"><svg class="svg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"></path></svg></button>
@@ -3863,8 +3969,21 @@ button, input, select, textarea { font-family: var(--font); }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "9.4.1";
+  var APP_VERSION = "10.0";
   var CHANGELOG = [
+    {
+      version: "10.0",
+      date: "24/11/2026",
+      changes: [
+        "O app abre no mapa: satélite em tela cheia com a sua posição, todas as rotas salvas (laranja) e todos os passeios já rodados (azul). Onde você passou várias vezes pelo mesmo caminho aparece uma faixa só",
+        "Toque numa linha do mapa: abre um cartão com nome, km, subida, último passeio e os botões Navegar · Abrir · Editar (rota) ou Salvar como rota · Cartão · Histórico (passeio). Também dá para tocar nas trilhas da Comunidade e nas estradas de terra",
+        "Celular: barra de baixo com Mapa · Rotas · ⏺️ Gravar · Menu. O Gravar começa o Modo Livre na hora; o Menu (lateral) tem Planejar, Navegar, Rally, Expedições, Comunidade, Garagem, Bússola, Enviar posição, Importar, conta, dia/noite e ajuda",
+        "🔎 Buscar lugar e camadas (tipo de mapa; rotas, passeios, Comunidade e estradas de terra) no topo do mapa",
+        "PC: o mesmo mapa, com um painel à esquerda (rotas, passeios feitos e Planejar nova rota). O planejamento continua igual",
+        "Passeios feitos agora sincronizam pela conta: o que você roda com o celular aparece no PC (e em outro celular)",
+        "O painel antigo continua no Menu › Painel antigo por algumas semanas"
+      ]
+    },
     {
       version: "9.4.1",
       date: "20/11/2026",
@@ -9077,12 +9196,15 @@ button, input, select, textarea { font-family: var(--font); }
       var c = navLastFix ? { lat: navLastFix.lat, lng: navLastFix.lng } : navMap.getCenter();
       return { mode: "nav", map: navMap, center: { lat: c.lat, lng: c.lng }, where: navLastFix ? "perto de você" : "perto do centro do mapa" };
     }
-    if (map) {
-      var m = map.getCenter();
-      var b = map.getBounds();
+    // v10.0: no mapa inicial, busca na área que aparece nele
+    var homeOn = typeof v100 !== "undefined" && v100.map && v100OnHome();
+    var pm = homeOn ? v100.map : map;
+    if (pm) {
+      var m = pm.getCenter();
+      var b = pm.getBounds();
       var ne = b.getNorthEast();
       var half = haversineMeters(m.lat, m.lng, ne.lat, ne.lng);
-      return { mode: "plan", map: map, center: { lat: m.lat, lng: wrapLng(m.lng) }, half: half,
+      return { mode: homeOn ? "home" : "plan", map: pm, center: { lat: m.lat, lng: wrapLng(m.lng) }, half: half,
         bounds: { north: b.getNorth(), south: b.getSouth(), east: wrapLng(b.getEast()), west: wrapLng(b.getWest()) },
         where: half > 15000 ? "na área do mapa" : "perto do centro do mapa" };
     }
@@ -9263,7 +9385,7 @@ button, input, select, textarea { font-family: var(--font); }
     // área: no planejamento é o que aparece na tela (até 60 km do centro para o OpenStreetMap);
     // na navegação, 15 km em volta de você (e até 40 km se achar pouco)
     var half = ctx.half || 0;
-    var area = ctx.mode === "plan" && half > 15000 ? ctx.bounds : null;
+    var area = (ctx.mode === "plan" || ctx.mode === "home") && half > 15000 ? ctx.bounds : null;
     var R0 = area ? Math.min(60000, half) : 15000;
     var osmSkip = !!area && half > 60000;
     // "cachoeira", "mirante", "pesqueiro"… digitados viram a categoria no OpenStreetMap
@@ -9862,7 +9984,7 @@ button, input, select, textarea { font-family: var(--font); }
     "btn-nav-sendpos": "Enviar posição",
     "btn-nav-stats": "Estatísticas",
     "btn-nav-rally": "Modo Rally",
-    "btn-nav-home": "Ir ao menu",
+    "btn-nav-home": "Ir ao mapa",
     "btn-nav-theme": "Dia / noite"
   };
   var V84_CAPS = { "btn-nav-sos": "SOS", "btn-nav-layers": "Mapa", "btn-nav-waypoint": "Marcar" };
@@ -16087,7 +16209,7 @@ button, input, select, textarea { font-family: var(--font); }
       ax.now.textContent = "Tentar agora";
     } else {
       var when = acc.lastOk ? new Date(acc.lastOk).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "";
-      ax.text.textContent = "✅ Rotas e expedições sincronizadas com @" + u.username + (when ? " (" + when + ")" : "");
+      ax.text.textContent = "✅ Rotas, passeios e expedições sincronizados com @" + u.username + (when ? " (" + when + ")" : "");
       ax.now.textContent = "Sincronizar agora";
     }
   }
@@ -18998,6 +19120,7 @@ button, input, select, textarea { font-family: var(--font); }
           modal.classList.remove("open");
           return;
         }
+        if (typeof v100Back === "function" && v100Back()) return;   // v10.0: menu, cartão, camadas, painel antigo
         if (v75Full) { v75SetFull(false); return; }   // tela cheia do mapa: voltar só sai dela
         if (v62NavRunning() && !v62OnNavScreen()) {
           v62GoToActiveNav(); // fora da tela de navegação: voltar leva de volta a ela
@@ -21663,6 +21786,799 @@ button, input, select, textarea { font-family: var(--font); }
     });
   }
 
+  // ===================== v10.0 — o app abre no mapa (item 15: a, b e g) =====================
+  // Pedido do Luiz (23–24/11/2026), no estilo do Maps.me:
+  //  * a tela inicial vira um mapa em tela cheia com a sua posição, todas as rotas salvas (laranja)
+  //    e todos os passeios já rodados (azul) — trajetos repetidos viram uma faixa só (15b);
+  //  * tocar numa linha abre um cartão embaixo (nome, km, Navegar…);
+  //  * no celular, barra com 4 botões: Mapa · Rotas · ⏺ Gravar · Menu (menu lateral com o resto);
+  //  * no PC, o mesmo mapa com um painel à esquerda (rotas, passeios e "Planejar nova rota");
+  //    a tela de planejamento continua igual;
+  //  * o painel antigo continua no menu ("Painel antigo") por algumas semanas;
+  //  * os passeios passam a sincronizar pela conta (para o PC mostrar o que foi rodado no celular).
+  var V100_LAYERS_KEY = "fde_v100_layers_v1";
+  var V100_VIEW_KEY = "fde_v100_view_v1";
+  var V100_TOMB_KEY = "fde_trips_tomb_v1";
+  var V100_DEFS = [
+    ["rotas", "Minhas rotas", "#e08a2c", ""],
+    ["passeios", "Meus passeios", "#3b9cff", ""],
+    ["comunidade", "Trilhas da Comunidade", "#1f9d55", "8,6"],
+    ["terra", "Estradas de terra", "#8a5a2b", "3,6"]
+  ];
+  var v100 = {
+    map: null, groups: {}, show: { rotas: true, passeios: true, comunidade: true, terra: false },
+    sel: null, selLayer: null, pos: null, posMarker: null, watch: null, fitted: false, classic: false,
+    pcTab: "rotas", pcQ: "", merging: false, comAt: null, comBusy: false, terraAt: null, terraBusy: false, drawnSig: ""
+  };
+  (function () {
+    try { var j = JSON.parse(localStorage.getItem(V100_LAYERS_KEY) || "null"); if (j) for (var k in j) if (k in v100.show) v100.show[k] = !!j[k]; } catch (e) {}
+  })();
+  ["rec", "layers", "locate", "flag", "tent", "user", "sun", "help", "star", "phone", "grid", "map", "x"].forEach(function (k) {
+    if (V90_ICONS[k]) return;
+    V90_ICONS[k] = {
+      rec: '<circle cx="12" cy="12" r="6.5" fill="currentColor" stroke="none"/>',
+      layers: '<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+      locate: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+      flag: '<path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/>',
+      tent: '<path d="M12 4 3 20h18z"/><path d="M12 4v16M9 20l3-6 3 6"/>',
+      user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+      sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+      help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5h.01"/>',
+      star: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+      phone: '<rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
+      grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+      map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',
+      x: '<path d="M6 6l12 12M18 6 6 18"/>'
+    }[k];
+  });
+
+  function v100Mobile() { return !window.matchMedia || window.matchMedia("(max-width: 768px)").matches; }
+  function v100OnHome() {
+    return !el.screenDashboard.classList.contains("hidden") && !v100.classic;
+  }
+  function v100Km(m) { return (m / 1000).toFixed(1).replace(".", ",") + " km"; }
+  function v100Date(ts) { var d = new Date(ts || Date.now()); return v55Pad(d.getDate()) + "/" + v55Pad(d.getMonth() + 1) + "/" + d.getFullYear(); }
+  function v100Routes() { return loadSavedRoutes().filter(function (r) { return !r.deleted && r.points && r.points.length >= 2; }); }
+  function v100Trips() { return v62LoadTrips().filter(function (t) { return t && t.track; }); }
+  function v100SaveLayers() { try { localStorage.setItem(V100_LAYERS_KEY, JSON.stringify(v100.show)); } catch (e) {} }
+
+  // ---------- montagem da tela ----------
+  function v100Build() {
+    var scr = el.screenDashboard;
+    var home = document.createElement("div");
+    home.id = "v100-home";
+    home.innerHTML =
+      '<div id="v100-map" role="application" aria-label="Mapa"></div>' +
+      '<div class="v100-top">' +
+        '<button type="button" class="v100-round v100-mob" id="v100-menu-m" aria-label="Menu">' + v90Svg("menu") + "</button>" +
+        '<button type="button" class="v100-search" id="v100-search">' + v90Svg("search") + "<span>Buscar lugar (cachoeira, camping…)</span></button>" +
+        '<span class="v100-spacer v100-pc"></span>' +
+        '<button type="button" class="v100-round" id="v100-layers-btn" aria-label="Camadas do mapa" aria-expanded="false">' + v90Svg("layers") + "</button>" +
+      "</div>" +
+      '<div id="v100-layers" class="hidden" role="dialog" aria-label="Camadas"></div>' +
+      '<div class="v100-side-btns">' +
+        '<button type="button" class="v100-round" id="v100-compass" aria-label="Bússola">' + v90Svg("compass") + "</button>" +
+        '<button type="button" class="v100-round" id="v100-locate" aria-label="Minha posição">' + v90Svg("locate") + "</button>" +
+      "</div>" +
+      '<div class="v100-legend" id="v100-legend"></div>' +
+      '<div id="v100-card" class="hidden" role="dialog" aria-live="polite"></div>' +
+      '<aside id="v100-pc" class="v100-pc">' +
+        '<div class="v100-pc-head"><img src="icons/icon-192.png" alt=""><div><b>Fora de Estrada</b><span>Navegador e planejador off-road</span></div>' +
+        '<button type="button" class="v100-round" id="v100-menu-pc" aria-label="Menu">' + v90Svg("menu") + "</button></div>" +
+        '<button type="button" class="v100-pc-plan" id="v100-pc-plan">' + v90Svg("plus") + "Planejar nova rota</button>" +
+        '<div class="v100-pc-tabs" role="tablist"><button type="button" data-t="rotas" class="on">Rotas</button><button type="button" data-t="passeios">Passeios feitos</button></div>' +
+        '<input type="search" class="v100-pc-q" id="v100-pc-q" placeholder="Procurar pelo nome ou pasta" aria-label="Procurar">' +
+        '<div class="v100-pc-list" id="v100-pc-list"></div>' +
+        '<div class="v100-pc-foot"><span id="v100-pc-ver"></span><button type="button" id="v100-pc-sync"></button></div>' +
+      "</aside>";
+    scr.insertBefore(home, scr.firstChild);
+    var back = document.createElement("button");
+    back.type = "button";
+    back.id = "v100-back-map";
+    back.innerHTML = v90Svg("map") + "Voltar ao mapa";
+    back.addEventListener("click", function () { v100SetClassic(false); });
+    scr.appendChild(back);
+
+    document.getElementById("v100-search").addEventListener("click", function () { v100Card(null); v89Open(true); });
+    document.getElementById("v100-layers-btn").addEventListener("click", function (ev) { ev.stopPropagation(); v100LayersPanel(document.getElementById("v100-layers").classList.contains("hidden")); });
+    document.getElementById("v100-locate").addEventListener("click", function () { v100Locate(true); });
+    document.getElementById("v100-compass").addEventListener("click", function () { document.getElementById("btn-dash-compass").click(); });
+    document.getElementById("v100-menu-m").addEventListener("click", function () { v100Drawer(true); });
+    document.getElementById("v100-menu-pc").addEventListener("click", function () { v100Drawer(true); });
+    document.getElementById("v100-pc-plan").addEventListener("click", function () { el.btnDashPlan.click(); });
+    document.querySelectorAll(".v100-pc-tabs button").forEach(function (b) {
+      b.addEventListener("click", function () { v100.pcTab = b.getAttribute("data-t"); v100RenderPc(); });
+    });
+    document.getElementById("v100-pc-q").addEventListener("input", function () { v100.pcQ = this.value; v100RenderPc(); });
+    document.getElementById("v100-pc-sync").addEventListener("click", function () {
+      if (com && com.user) { var b = document.getElementById("btn-acc-sync-now"); if (b) b.click(); }
+      else document.getElementById("btn-acc-login").click();
+    });
+    document.addEventListener("click", function (ev) {
+      var p = document.getElementById("v100-layers");
+      if (p && !p.classList.contains("hidden") && !p.contains(ev.target) && !document.getElementById("v100-layers-btn").contains(ev.target)) v100LayersPanel(false);
+    });
+  }
+
+  function v100InitMap() {
+    if (v100.map) return;
+    var m = L.map("v100-map", { zoomControl: false, maxZoom: 19, worldCopyJump: true, tap: true });
+    v100.map = m;
+    var view = null;
+    try { view = JSON.parse(localStorage.getItem(V100_VIEW_KEY) || "null"); } catch (e) {}
+    if (view && view.z) m.setView([view.lat, view.lng], view.z); else m.setView([-14.235, -51.9253], 5);
+    setupBaseMap(m, false);
+    // passeios: todos num "papel" só, com a transparência no papel inteiro — onde várias passadas
+    // se sobrepõem a faixa não escurece (fica uma faixa só, como no Maps.me)
+    var pT = m.createPane("v100trips"); pT.style.zIndex = 405; pT.style.opacity = "0.62";
+    var pR = m.createPane("v100routes"); pR.style.zIndex = 415;
+    var pX = m.createPane("v100extra"); pX.style.zIndex = 410;
+    var pS = m.createPane("v100sel"); pS.style.zIndex = 430;
+    v100.rTrips = L.canvas({ pane: "v100trips", tolerance: 10 });
+    v100.rRoutes = L.canvas({ pane: "v100routes", tolerance: 10 });
+    v100.rExtra = L.canvas({ pane: "v100extra", tolerance: 10 });
+    V100_DEFS.forEach(function (d) { v100.groups[d[0]] = L.layerGroup(); });
+    // um "papel" (canvas) por camada cobre o mapa todo e um esconderia o toque do outro:
+    // as linhas não recebem o toque — o mapa acha a linha mais perto do dedo (até ~16 px)
+    m.on("click", function (ev) { v100LayersPanel(false); var hit = v100Pick(ev); if (hit) v100Select(hit); else v100Card(null); });
+    m.on("moveend", function () {
+      var c = m.getCenter();
+      try { localStorage.setItem(V100_VIEW_KEY, JSON.stringify({ lat: +c.lat.toFixed(5), lng: +c.lng.toFixed(5), z: m.getZoom() })); } catch (e) {}
+      clearTimeout(v100.moveT);
+      v100.moveT = setTimeout(v100LoadExtras, 700);
+    });
+    m.on("dragstart", function () { v100.follow = false; });
+    v100Draw(true);
+  }
+
+  function v100Style(id, extra) {
+    var o = {
+      rotas: { color: "#e08a2c", weight: 4, opacity: 0.95, renderer: v100.rRoutes },
+      passeios: { color: "#3b9cff", weight: 7, opacity: 1, lineCap: "round", lineJoin: "round", renderer: v100.rTrips },
+      comunidade: { color: "#1f9d55", weight: 4, opacity: 0.9, dashArray: "8,6", renderer: v100.rExtra },
+      terra: { color: "#8a5a2b", weight: 3, opacity: 0.85, dashArray: "3,6", renderer: v100.rExtra }
+    }[id];
+    o.interactive = false;
+    if (extra) for (var k in extra) o[k] = extra[k];
+    return o;
+  }
+
+  // desenha rotas e passeios (só refaz se algo mudou)
+  function v100Draw(fit) {
+    if (!v100.map) return;
+    var routes = v100Routes(), trips = v100Trips();
+    var sig = routes.map(function (r) { return r.id + ":" + (r.savedAt || 0) + ":" + r.points.length; }).join("|") + "#" + trips.map(function (t) { return t.id + ":" + (t.rev || 0); }).join("|");
+    if (sig !== v100.drawnSig) {
+      v100.drawnSig = sig;
+      var gr = v100.groups.rotas; gr.clearLayers();
+      routes.forEach(function (r) {
+        L.polyline(r.points.map(function (p) { return [p.lat, p.lng]; }), v100Style("rotas", { v100: { kind: "rota", id: r.id } })).addTo(gr);
+      });
+      var gp = v100.groups.passeios; gp.clearLayers();
+      trips.forEach(function (t) {
+        var pts = decodePolyline(t.track);
+        if (pts.length < 2) return;
+        L.polyline(pts.map(function (p) { return [p.lat, p.lng]; }), v100Style("passeios", { v100: { kind: "passeio", id: t.id } })).addTo(gp);
+      });
+      v100.counts = { rotas: routes.length, passeios: trips.length };
+      if (v100.sel && v100.sel.kind !== "com" && v100.sel.kind !== "terra") v100Select(v100.sel, true);
+    }
+    v100Apply();
+    if (fit && !v100.fitted) v100FitAll();
+    v100Legend();
+    v100RenderPc();
+  }
+
+  function v100Apply() {
+    var m = v100.map; if (!m) return;
+    V100_DEFS.forEach(function (d) {
+      var g = v100.groups[d[0]], want = !!v100.show[d[0]];
+      if (want && !m.hasLayer(g)) g.addTo(m);
+      if (!want && m.hasLayer(g)) m.removeLayer(g);
+    });
+  }
+
+  function v100FitAll() {
+    var m = v100.map;
+    var b = null;
+    ["rotas", "passeios"].forEach(function (k) {
+      if (!v100.show[k]) return;
+      v100.groups[k].eachLayer(function (l) { var lb = l.getBounds(); if (lb.isValid()) b = b ? b.extend(lb) : L.latLngBounds(lb.getSouthWest(), lb.getNorthEast()); });
+    });
+    if (b && b.isValid()) {
+      v100.fitted = true;
+      m.fitBounds(b.pad(0.08), { maxZoom: 15 });
+    }
+  }
+
+  function v100Legend() {
+    var lg = document.getElementById("v100-legend"); if (!lg) return;
+    var h = "";
+    if (v100.show.rotas && v100.counts && v100.counts.rotas) h += '<span><i style="border-color:#e08a2c"></i>Rotas</span>';
+    if (v100.show.passeios && v100.counts && v100.counts.passeios) h += '<span><i style="border-color:#3b9cff"></i>Já rodei</span>';
+    lg.innerHTML = h;
+    lg.style.display = h ? "" : "none";
+  }
+
+  // ---------- Comunidade e estradas de terra (perto do centro do mapa) ----------
+  function v100LoadExtras() {
+    if (!v100.map || !v100OnHome()) return;
+    var c = v100.map.getCenter(), z = v100.map.getZoom();
+    if (v100.show.comunidade && z >= 10 && com && com.user && navigator.onLine !== false && !v100.comBusy &&
+        (!v100.comAt || haversineMeters(c.lat, c.lng, v100.comAt.lat, v100.comAt.lng) > 8000)) {
+      v100.comBusy = true;
+      comApi("feed.php?action=nearby&lat=" + c.lat.toFixed(4) + "&lng=" + c.lng.toFixed(4) + "&r=20")
+        .then(function (d) { v100.comAt = { lat: c.lat, lng: c.lng }; v100DrawCom(d.posts || []); })
+        .catch(function () { v100.comAt = { lat: c.lat, lng: c.lng }; })
+        .then(function () { v100.comBusy = false; });
+    }
+    if (v100.show.terra && z >= 12 && !v100.terraBusy && (!v100.terraAt || haversineMeters(c.lat, c.lng, v100.terraAt.lat, v100.terraAt.lng) > 2500)) {
+      v100.terraBusy = true;
+      var key = "area:" + c.lat.toFixed(2) + "," + c.lng.toFixed(2);
+      v66RoadsGet(key).then(function (cached) {
+        if (cached && cached.roads) { v100DrawTerra(cached.roads); v100.terraAt = { lat: c.lat, lng: c.lng }; if (Date.now() - cached.at < 30 * 86400000) return; }
+        if (navigator.onLine === false) return;
+        return v71RoadsServer({ mode: "area", lat: +c.lat.toFixed(5), lng: +c.lng.toFixed(5) }, 170000).then(function (j) {
+          v100DrawTerra(j.roads || []); v100.terraAt = { lat: c.lat, lng: c.lng };
+          if (!j.pending) v66RoadsPut(key, { at: Date.now(), roads: j.roads || [] });
+        });
+      }).catch(function () {}).then(function () { v100.terraBusy = false; });
+    }
+  }
+  function v100DrawCom(items) {
+    var g = v100.groups.comunidade; g.clearLayers();
+    (items || []).forEach(function (it) {
+      var pts = (it.pts || []).filter(function (q) { return q && q.length > 1; });
+      if (pts.length < 2) return;
+      L.polyline(pts, v100Style("comunidade", { v100: { kind: "com", item: it, pts: pts } })).addTo(g);
+    });
+    v100.counts = v100.counts || {}; v100.counts.comunidade = (items || []).length;
+  }
+  function v100DrawTerra(list) {
+    var g = v100.groups.terra; g.clearLayers();
+    v66UnpackRoads(list).forEach(function (w) {
+      var pts = w.geometry.map(function (q) { return [q.lat, q.lon]; });
+      L.polyline(pts, v100Style("terra", { v100: { kind: "terra", way: w, pts: pts } })).addTo(g);
+    });
+  }
+
+  // linha mais perto do toque (rotas ganham um pouco de preferência sobre passeios por cima delas)
+  function v100Pick(ev) {
+    var m = v100.map, cp = ev.containerPoint, tol = 16, best = null, bestD = Infinity;
+    var near = m.containerPointToLatLng([cp.x - tol, cp.y - tol]), far = m.containerPointToLatLng([cp.x + tol, cp.y + tol]);
+    var box = L.latLngBounds(near, far);
+    [["rotas", 4], ["comunidade", 2], ["terra", 0], ["passeios", 0]].forEach(function (g) {
+      if (!v100.show[g[0]] || !m.hasLayer(v100.groups[g[0]])) return;
+      v100.groups[g[0]].eachLayer(function (l) {
+        if (!l.getBounds().intersects(box)) return;
+        var ll = l.getLatLngs(), prev = null;
+        for (var i = 0; i < ll.length; i++) {
+          var q = m.latLngToContainerPoint(ll[i]);
+          if (prev) {
+            var d = L.LineUtil.pointToSegmentDistance(cp, prev, q) - g[1];
+            if (d < bestD) { bestD = d; best = l.options.v100; }
+          }
+          prev = q;
+        }
+      });
+    });
+    return bestD <= tol ? best : null;
+  }
+
+  // ---------- seleção + cartão de baixo ----------
+  function v100Select(sel, quiet) {
+    var m = v100.map;
+    if (v100.selLayer) { m.removeLayer(v100.selLayer); v100.selLayer = null; }
+    v100.sel = sel;
+    if (!sel) { v100Card(null); return; }
+    var latlngs = null, color = "#e08a2c";
+    if (sel.kind === "rota") {
+      var r = v100Routes().filter(function (x) { return x.id === sel.id; })[0];
+      if (!r) { v100Card(null); return; }
+      latlngs = r.points.map(function (p) { return [p.lat, p.lng]; });
+    } else if (sel.kind === "passeio") {
+      var t = v100Trips().filter(function (x) { return x.id === sel.id; })[0];
+      if (!t) { v100Card(null); return; }
+      latlngs = decodePolyline(t.track).map(function (p) { return [p.lat, p.lng]; });
+      color = "#3b9cff";
+    } else {
+      latlngs = sel.pts; color = sel.kind === "com" ? "#1f9d55" : "#8a5a2b";
+    }
+    v100.selLayer = L.layerGroup([
+      L.polyline(latlngs, { pane: "v100sel", color: "#fff", weight: 10, opacity: 0.95, interactive: false }),
+      L.polyline(latlngs, { pane: "v100sel", color: color, weight: 6, opacity: 1, interactive: false })
+    ]).addTo(m);
+    v100Card(sel);
+    v100RenderPc();
+    if (!quiet && sel.fit) {
+      var b = L.latLngBounds(latlngs);
+      if (b.isValid()) m.fitBounds(b.pad(0.15), { maxZoom: 16, paddingBottomRight: [0, v100Mobile() ? 170 : 0] });
+    }
+  }
+
+  function v100Card(sel) {
+    var card = document.getElementById("v100-card");
+    var home = document.getElementById("v100-home");
+    if (!card) return;
+    if (!sel) {
+      card.classList.add("hidden");
+      home.classList.remove("v100-card-open");
+      if (v100.selLayer && v100.map) { v100.map.removeLayer(v100.selLayer); v100.selLayer = null; }
+      v100.sel = null;
+      v100RenderPc();
+      return;
+    }
+    var h = "", btns = [];
+    if (sel.kind === "rota") {
+      var r = v100Routes().filter(function (x) { return x.id === sel.id; })[0];
+      var chips = [v100Km(polylineLengthMeters(r.points))];
+      var ev = r.elevation && r.elevation.stats;
+      if (ev && ev.gain != null) chips.push("↑ " + ev.gain + " m");
+      var nw = normalizeWaypoints(r.waypoints).length;
+      if (nw) chips.push(nw + (nw === 1 ? " marcação" : " marcações"));
+      if (v82IsReady(r)) chips.push("✔ offline");
+      var trips = v100Trips().filter(function (t) { return t.routeId === r.id; }).sort(function (a, b) { return (b.startedAt || 0) - (a.startedAt || 0); });
+      var sub = "";
+      if (trips.length) {
+        var lt = trips[0], st = lt.stats || {};
+        sub = "🧭 Último passeio: " + v100Date(lt.startedAt) + (st.totalMs ? " · " + fmtDuration(st.totalMs) : "") + (trips.length > 1 ? " · " + trips.length + " vezes" : "");
+      }
+      try { var runs = timingRunsFor(r.id) || []; var best = runs.length ? bestOf(runs) : null; if (best) sub += (sub ? "<br>" : "") + "⏱️ Rally: melhor " + v55Esc(fmtTime(best.time)); } catch (e) {}
+      h = '<div class="v100-c-k">' + (r.folder ? "📁 " + v55Esc(r.folder) : "Rota salva") + "</div>" +
+        '<div class="v100-c-name">' + v55Esc(r.name || "(sem nome)") + "</div>" +
+        '<div class="v100-c-chips">' + chips.map(function (c) { return "<span>" + v55Esc(c) + "</span>"; }).join("") + "</div>" +
+        (sub ? '<p class="v100-c-sub">' + sub + "</p>" : "");
+      btns = [
+        ["pri", v90Svg("play") + "Navegar", function () { v100Card(null); showScreen("navigation"); showNavSubview("picker"); openNavConfirm(r, "dashboard"); }],
+        ["", "Abrir", function () { v91Open(r.id); }],
+        ["", "Editar", function () { v100Card(null); goToPlanningScreen(function () { openSavedRoute(r); }); }]
+      ];
+    } else if (sel.kind === "passeio") {
+      var t = v100Trips().filter(function (x) { return x.id === sel.id; })[0];
+      var s = t.stats || {};
+      var ch = [v100Km(t.distance || 0)];
+      if (s.totalMs) ch.push("⏱ " + fmtDuration(s.totalMs));
+      if (s.movingMs) ch.push(fmtDuration(s.movingMs) + " andando");
+      if (s.gain) ch.push("↑ " + Math.round(s.gain) + " m");
+      var d = new Date(t.startedAt || Date.now());
+      h = '<div class="v100-c-k">Passeio feito · ' + v100Date(t.startedAt) + " " + v55Pad(d.getHours()) + ":" + v55Pad(d.getMinutes()) + "</div>" +
+        '<div class="v100-c-name">' + v55Esc(t.mode === "route" && t.routeName ? t.routeName : "Modo Livre (sem rota)") + "</div>" +
+        '<div class="v100-c-chips">' + ch.map(function (c) { return "<span>" + v55Esc(c) + "</span>"; }).join("") + "</div>";
+      var savedR = t.savedRouteId && v100Routes().filter(function (x) { return x.id === t.savedRouteId; })[0];
+      btns = [
+        savedR ? ["pri", "Abrir rota", function () { v91Open(savedR.id); }]
+               : ["pri", v90Svg("save") + "Salvar como rota", function () { v100TripToRoute(t); }],
+        ["", "📸 Cartão", function () { v94Open(t.id); }],
+        ["", "Histórico", function () { v100Card(null); showScreen("saved-routes"); var tb = document.getElementById("saved-tab-trips"); if (tb) tb.click(); }]
+      ];
+    } else if (sel.kind === "com") {
+      var it = sel.item;
+      h = '<div class="v100-c-k">👥 Trilha da Comunidade</div><div class="v100-c-name">' + v55Esc(it.title || "Trilha") + "</div>" +
+        '<div class="v100-c-chips"><span>@' + v55Esc(it.author || "") + "</span><span>" + String(it.km || 0).replace(".", ",") + " km</span>" + (it.difficulty ? "<span>dificuldade " + it.difficulty + "/5</span>" : "") + "</div>";
+      btns = [["pri", "⬇️ Baixar para Rotas", function () { fdDownload(it.id); v100Card(null); setTimeout(function () { v100Draw(false); }, 1800); }]];
+    } else {
+      var tg = sel.way.tags || {};
+      h = '<div class="v100-c-k">🟫 Estrada de terra (OpenStreetMap)</div><div class="v100-c-name">' + v55Esc(tg.name || V66_ROAD_NAME[tg.highway] || "estrada de terra") + "</div>" +
+        (tg.surface ? '<p class="v100-c-sub">Piso: ' + v55Esc(tg.surface) + "</p>" : "");
+    }
+    card.innerHTML = '<button type="button" class="v100-c-x" aria-label="Fechar">✕</button>' + h + (btns.length ? '<div class="v100-c-btns"></div>' : "");
+    card.querySelector(".v100-c-x").addEventListener("click", function () { v100Card(null); });
+    var bw = card.querySelector(".v100-c-btns");
+    btns.forEach(function (b) {
+      var x = document.createElement("button");
+      x.type = "button"; if (b[0]) x.className = b[0];
+      x.innerHTML = b[1];
+      x.addEventListener("click", b[2]);
+      bw.appendChild(x);
+    });
+    card.classList.remove("hidden");
+    home.classList.add("v100-card-open");
+  }
+
+  function v100TripToRoute(t) {
+    var name = v62DefaultTripName(t.mode === "route" ? t.routeName : "", t.startedAt);
+    fdePrompt("Nome da rota:", name).then(function (nm) {
+      if (nm == null) return;
+      nm = String(nm).trim() || name;
+      var rec = v62TripToRoute(t, nm, t.folder);
+      var routes = loadSavedRoutes();
+      routes.push(rec);
+      if (!persistSavedRoutes(routes)) return;
+      refreshSavedRoutesUI();
+      var all = v62LoadTrips();
+      all.forEach(function (x) { if (x.id === t.id) x.savedRouteId = rec.id; });
+      v62StoreTrips(all);
+      showToast('Salvo em Rotas como "' + nm + '".');
+      v100Draw(false);
+      v100Select({ kind: "rota", id: rec.id });
+    });
+  }
+
+  // ---------- camadas ----------
+  function v100LayersPanel(open) {
+    var p = document.getElementById("v100-layers");
+    var b = document.getElementById("v100-layers-btn");
+    if (!p) return;
+    if (!open) { p.classList.add("hidden"); if (b) b.setAttribute("aria-expanded", "false"); return; }
+    var base = v100.map && v100.map._fdeBase;
+    var opts = [];
+    if (base && base.google) opts.push(["google", "Satélite Google"]);
+    opts.push(["esri", "Satélite Esri (offline)"], ["otm", "Topográfico"], ["etopo", "Topográfico Esri"]);
+    var h = "<h4>Mapa</h4>";
+    opts.forEach(function (o) {
+      h += '<label><input type="radio" name="v100-base" value="' + o[0] + '"' + (base && base.current === o[0] ? " checked" : "") + ">" + o[1] + "</label>";
+    });
+    h += "<h4>Mostrar</h4>";
+    V100_DEFS.forEach(function (d) {
+      var n = v100.counts && v100.counts[d[0]];
+      var extra = d[0] === "comunidade" && !(com && com.user) ? "entre na conta" : n != null ? String(n) : "";
+      h += '<label><input type="checkbox" data-k="' + d[0] + '"' + (v100.show[d[0]] ? " checked" : "") + '><i style="border-color:' + d[2] + (d[3] ? ";border-top-style:dashed" : "") + '"></i>' + d[1] + (extra ? "<small>" + extra + "</small>" : "") + "</label>";
+    });
+    p.innerHTML = h;
+    p.querySelectorAll('input[name="v100-base"]').forEach(function (r) {
+      r.addEventListener("change", function () {
+        saveBasemapPref(r.value);
+        v78SetBase(v100.map, r.value);
+        if (map) v78SetBase(map, r.value);
+        if (navMap) v78SetBase(navMap, r.value);
+      });
+    });
+    p.querySelectorAll("input[data-k]").forEach(function (c) {
+      c.addEventListener("change", function () {
+        v100.show[c.getAttribute("data-k")] = c.checked; v100SaveLayers(); v100Apply(); v100Legend();
+        if (c.checked) { v100.comAt = null; v100.terraAt = null; v100LoadExtras(); }
+      });
+    });
+    p.classList.remove("hidden");
+    if (b) b.setAttribute("aria-expanded", "true");
+  }
+
+  // ---------- minha posição ----------
+  function v100OnPos(pos) {
+    var c = pos.coords;
+    v100.pos = { lat: c.latitude, lng: c.longitude, acc: c.accuracy };
+    if (!v100.map) return;
+    var ll = [c.latitude, c.longitude];
+    if (!v100.posMarker) v100.posMarker = L.marker(ll, { icon: youAreHereIcon(false), interactive: false, keyboard: false, zIndexOffset: 1000 }).addTo(v100.map);
+    else v100.posMarker.setLatLng(ll);
+    if (v100.follow) { v100.follow = false; v100.map.setView(ll, Math.max(v100.map.getZoom(), 14)); }
+  }
+  function v100Watch(on) {
+    if (!navigator.geolocation) return;
+    if (on && v100.watch == null) {
+      try { v100.watch = navigator.geolocation.watchPosition(v100OnPos, function () {}, { enableHighAccuracy: false, maximumAge: 30000, timeout: 30000 }); } catch (e) {}
+    } else if (!on && v100.watch != null) {
+      try { navigator.geolocation.clearWatch(v100.watch); } catch (e) {}
+      v100.watch = null;
+    }
+  }
+  function v100Locate(userAsked) {
+    if (v100.pos && v100.map) { v100.map.setView([v100.pos.lat, v100.pos.lng], Math.max(v100.map.getZoom(), 15)); }
+    else { v100.follow = true; if (userAsked) showToast("Procurando a sua posição…"); }
+    v100Watch(true);
+  }
+
+  // ---------- menu lateral ----------
+  function v100Drawer(open) {
+    var d = document.getElementById("v100-drawer");
+    if (!open) { if (d) d.classList.add("hidden"); return; }
+    if (!d) {
+      d = document.createElement("div");
+      d.id = "v100-drawer";
+      d.className = "hidden";
+      d.setAttribute("role", "dialog");
+      d.setAttribute("aria-label", "Menu");
+      document.body.appendChild(d);
+    }
+    var u = com && com.user;
+    var acc = u
+      ? '<div class="v100-dr-acc">👤 @' + v55Esc(u.username) + "<br><span>" + v55Esc((ax.text && ax.text.textContent) || "") + '</span><br><button type="button" data-a="sync">Sincronizar agora</button></div>'
+      : '<div class="v100-dr-acc">Entre na conta para ver suas rotas e passeios em todos os aparelhos (celular e PC).<br><button type="button" data-a="login">Entrar</button></div>';
+    var it = function (a, icon, label, sub) {
+      return '<button type="button" class="v100-dr-it" data-a="' + a + '">' + v90Svg(icon) + "<span>" + label + (sub ? "<small>" + sub + "</small>" : "") + "</span></button>";
+    };
+    var theme = (document.getElementById("theme-btn-label") || {}).textContent || "Auto";
+    d.innerHTML = '<div class="v100-dr-shade"></div><nav class="v100-dr-panel">' +
+      '<div class="v100-dr-head"><img src="icons/icon-192.png" alt=""><div><b>Fora de Estrada</b><span>Navegador e planejador off-road</span></div></div>' + acc +
+      '<div class="v100-dr-sec">Rotas</div>' +
+      it("plan", "plus", "Planejar nova rota") +
+      it("nav", "play", "Navegar uma rota") +
+      it("rec", "rec", "Gravar trajeto", "Modo Livre: grava por onde você anda") +
+      it("routes", "route", "Rotas salvas e passeios") +
+      it("import", "import", "Importar GPX ou KML") +
+      '<div class="v100-dr-sec">Mais</div>' +
+      it("rally", "flag", "Rally", "tomada de tempo e ranking") +
+      it("exp", "tent", "Expedições") +
+      it("com", "users", "Comunidade") +
+      it("gar", "wrench", "Garagem", "abastecimento e manutenção") +
+      it("compass", "compass", "Bússola", "funciona sem sinal") +
+      it("sendpos", "pin", "Enviar minha posição", "WhatsApp ou SMS") +
+      '<div class="v100-dr-sec">App</div>' +
+      it("theme", "sun", "Modo dia / noite", theme) +
+      (FDE_NATIVE ? "" : it("apk", "phone", "Baixar o app Android")) +
+      it("help", "help", "Como usar") +
+      it("news", "star", "Novidades") +
+      it("classic", "grid", "Painel antigo", "a tela inicial de antes (por algumas semanas)") +
+      '<div class="v100-dr-foot">v' + APP_VERSION + " · por Luiz Augusto de Oliveira Júnior</div>" +
+      "</nav>";
+    d.querySelector(".v100-dr-shade").addEventListener("click", function () { v100Drawer(false); });
+    d.querySelectorAll("[data-a]").forEach(function (b) {
+      b.addEventListener("click", function () { v100Drawer(false); v100Action(b.getAttribute("data-a")); });
+    });
+    d.classList.remove("hidden");
+  }
+
+  function v100Action(a) {
+    var click = function (id) { var b = document.getElementById(id); if (b) b.click(); };
+    if (a === "plan") click("btn-dash-plan");
+    else if (a === "nav") el.btnDashNavigate.click();
+    else if (a === "rec") v100Record();
+    else if (a === "routes") showScreen("saved-routes");
+    else if (a === "import") { goToPlanningScreen(); click("btn-import"); }
+    else if (a === "rally") click("btn-dash-timing");
+    else if (a === "exp") click("btn-dash-expeditions");
+    else if (a === "com") click("btn-dash-community");
+    else if (a === "gar") click("btn-dash-garage");
+    else if (a === "compass") click("btn-dash-compass");
+    else if (a === "sendpos") click("btn-dash-sendpos");
+    else if (a === "theme") click("btn-theme");
+    else if (a === "apk") { window.location.href = FDE_APK_URL; showToast("Baixando… depois abra o arquivo fora-de-estrada.apk para instalar."); }
+    else if (a === "help") window.location.href = "ajuda.html";
+    else if (a === "news") click("btn-changelog");
+    else if (a === "classic") v100SetClassic(true);
+    else if (a === "login") click("btn-acc-login");
+    else if (a === "sync") click("btn-acc-sync-now");
+  }
+
+  function v100SetClassic(on) {
+    v100.classic = !!on;
+    document.body.classList.toggle("v100-classic", v100.classic);
+    if (!v100.classic) v100OnShow();
+    else { v100Watch(false); try { v55RenderDashboardIfVisible(); } catch (e) {} try { window.scrollTo(0, 0); } catch (e) {} }
+    v90UpdateTabs();
+  }
+
+  // ⏺ Gravar: começa o Modo Livre (gravando) com as trilhas da região no mapa
+  function v100Record() {
+    if (v62NavRunning()) { v62GoToActiveNav(); return; }
+    primeSpeech();
+    startFreeNavigation();
+    setTimeout(function () { try { v79SetOn(true); } catch (e) {} }, 400);
+    showToast("⏺️ Gravando o seu caminho. Para parar, toque em Encerrar.");
+  }
+
+  // ---------- painel do PC ----------
+  function v100RenderPc() {
+    var list = document.getElementById("v100-pc-list");
+    if (!list || v100Mobile()) return;
+    document.querySelectorAll(".v100-pc-tabs button").forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-t") === v100.pcTab); });
+    var q = (v100.pcQ || "").trim().toLowerCase();
+    var h = "";
+    if (v100.pcTab === "rotas") {
+      var rs = v100Routes().filter(function (r) { return !q || ((r.name || "") + " " + (r.folder || "")).toLowerCase().indexOf(q) !== -1; })
+        .sort(function (a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
+      rs.forEach(function (r) {
+        var on = v100.sel && v100.sel.kind === "rota" && v100.sel.id === r.id;
+        h += '<button type="button" class="v100-pc-it' + (on ? " sel" : "") + '" data-k="rota" data-id="' + v55Esc(r.id) + '"><b>' + v55Esc(r.name || "(sem nome)") + "</b><span>" + v100Km(polylineLengthMeters(r.points)) + (r.folder ? " · 📁 " + v55Esc(r.folder) : "") + "</span></button>";
+      });
+      if (!rs.length) h = '<p class="v100-pc-empty">' + (q ? "Nenhuma rota com esse nome." : "Nenhuma rota salva ainda. Toque em “Planejar nova rota” para desenhar a primeira.") + "</p>";
+    } else {
+      var ts = v100Trips().filter(function (t) { return !q || (t.routeName || "modo livre").toLowerCase().indexOf(q) !== -1; });
+      ts.forEach(function (t) {
+        var on = v100.sel && v100.sel.kind === "passeio" && v100.sel.id === t.id;
+        h += '<button type="button" class="v100-pc-it' + (on ? " sel" : "") + '" data-k="passeio" data-id="' + v55Esc(t.id) + '"><b>' + v55Esc(t.mode === "route" && t.routeName ? t.routeName : "Modo Livre") + "</b><span>" + v100Date(t.startedAt) + " · " + v100Km(t.distance || 0) + (t.stats && t.stats.totalMs ? " · " + fmtDuration(t.stats.totalMs) : "") + "</span></button>";
+      });
+      if (!ts.length) h = '<p class="v100-pc-empty">' + (q ? "Nenhum passeio com esse nome." : "Nenhum passeio feito ainda. Os passeios gravados no celular aparecem aqui quando você entra na mesma conta.") + "</p>";
+    }
+    list.innerHTML = h;
+    list.querySelectorAll(".v100-pc-it").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var k = b.getAttribute("data-k");
+        if (k === "passeio" && !v100.show.passeios) { v100.show.passeios = true; v100Apply(); }
+        if (k === "rota" && !v100.show.rotas) { v100.show.rotas = true; v100Apply(); }
+        v100Select({ kind: k, id: b.getAttribute("data-id"), fit: true });
+      });
+    });
+    var ver = document.getElementById("v100-pc-ver"); if (ver) ver.textContent = "v" + APP_VERSION;
+    var sy = document.getElementById("v100-pc-sync"); if (sy) sy.textContent = com && com.user ? "👤 @" + com.user.username + " · sincronizar" : "👤 Entrar na conta";
+  }
+
+  // ---------- quando a tela inicial aparece ----------
+  function v100OnShow() {
+    if (!v100OnHome()) { v100Watch(false); return; }
+    setTimeout(function () {
+      try {
+        v100InitMap();
+        v100.map.invalidateSize();
+        v100Draw(true);
+        v100LoadExtras();
+        // celular: mostra a posição sozinho; PC: só quando pedir (não pergunta a localização à toa)
+        if (v100Mobile() || FDE_NATIVE) {
+          if (!v100.pos && !v100.fitted) v100.follow = true;
+          v100Watch(true);
+        }
+      } catch (e) { console.warn("v10.0 mapa inicial:", e); }
+    }, 30);
+  }
+
+  // Botão voltar do Android: fecha menu, camadas, cartão e o painel antigo antes de sair
+  function v100Back() {
+    var d = document.getElementById("v100-drawer");
+    if (d && !d.classList.contains("hidden")) { v100Drawer(false); return true; }
+    if (el.screenDashboard.classList.contains("hidden")) return false;
+    var p = document.getElementById("v100-layers");
+    if (p && !p.classList.contains("hidden")) { v100LayersPanel(false); return true; }
+    var sh = document.getElementById("v89-places");
+    if (sh && !sh.classList.contains("hidden")) { v89Open(false); return true; }
+    if (v100.sel) { v100Card(null); return true; }
+    if (v100.classic) { v100SetClassic(false); return true; }
+    return false;
+  }
+
+  // ---------- passeios pela conta ----------
+  function v100TombLoad() { try { return JSON.parse(localStorage.getItem(V100_TOMB_KEY) || "{}") || {}; } catch (e) { return {}; } }
+  function v100TombSave(t) { try { localStorage.setItem(V100_TOMB_KEY, JSON.stringify(t)); } catch (e) {} }
+  function v100Rev(t) { return t.rev || t.endedAt || t.startedAt || 1; }
+  function v100TripStart(id) { var m = /^trip_(\d+)_/.exec(id || ""); return m ? +m[1] : 0; }
+
+  // envia o que o servidor não tem, recebe o que falta aqui (em pedaços); exclusões viajam como "lápide"
+  function v100TripsSync() {
+    if (!accountSyncReady() || v100.tripsBusy) return Promise.resolve();
+    v100.tripsBusy = true;
+    return comApi("trips.php?action=list").then(function (d) {
+      var srv = {};
+      (d.trips || []).forEach(function (x) { srv[x.id] = x; });
+      var local = v62LoadTrips(), tomb = v100TombLoad();
+      var push = local.filter(function (t) { var s = srv[t.id]; return !s || (!s.deleted && s.rev < v100Rev(t)); })
+        .map(function (t) { var c = {}; for (var k in t) c[k] = t[k]; c.savedAt = v100Rev(t); return c; });
+      Object.keys(tomb).forEach(function (id) {
+        var s = srv[id];
+        if (s && !s.deleted) push.push({ id: id, deleted: true, deletedAt: tomb[id], savedAt: tomb[id] });
+      });
+      // pedaços de até ~1,5 MB
+      var chunks = [], cur = [], size = 0;
+      push.forEach(function (t) {
+        var n = JSON.stringify(t).length;
+        if (cur.length && size + n > 1500000) { chunks.push(cur); cur = []; size = 0; }
+        cur.push(t); size += n;
+      });
+      if (cur.length) chunks.push(cur);
+      var p = Promise.resolve();
+      chunks.forEach(function (c) { p = p.then(function () { return comApi("trips.php?action=sync", { trips: c }).then(function (r) { (r.trips || []).forEach(function (x) { srv[x.id] = x; }); }); }); });
+      return p.then(function () {
+        var have = {};
+        local.forEach(function (t) { have[t.id] = t; });
+        var oldest = local.length >= V62_MAX_TRIPS ? Math.min.apply(null, local.map(function (t) { return t.startedAt || 0; })) : 0;
+        var want = [], gone = [];
+        Object.keys(srv).forEach(function (id) {
+          var s = srv[id], h = have[id];
+          if (s.deleted) { if (h && s.rev >= v100Rev(h)) gone.push(id); return; }
+          if (tomb[id]) return;
+          if (h) { if (s.rev > v100Rev(h)) want.push(id); return; }
+          if (v100TripStart(id) > oldest) want.push(id);   // cheio de passeios: não traz os mais velhos de volta
+        });
+        var got = [];
+        var q = Promise.resolve();
+        for (var i = 0; i < want.length; i += 25) (function (ids) {
+          q = q.then(function () { return comApi("trips.php?action=get", { ids: ids }).then(function (r) { got = got.concat(r.trips || []); }); });
+        })(want.slice(i, i + 25));
+        return q.then(function () {
+          if (!got.length && !gone.length) return;
+          var all = v62LoadTrips().filter(function (t) { return gone.indexOf(t.id) === -1; });
+          got.forEach(function (t) {
+            delete t.savedAt;
+            all = all.filter(function (x) { return x.id !== t.id; });
+            all.push(t);
+          });
+          all.sort(function (a, b) { return (b.startedAt || 0) - (a.startedAt || 0); });
+          v100.merging = true;
+          try { v62StoreTrips(all); } finally { v100.merging = false; }
+          if (v100OnHome()) v100Draw(false);
+          try { if (!el.screenSavedRoutes.classList.contains("hidden")) v62RenderTrips(); } catch (e) {}
+        });
+      });
+    }).catch(function (err) {
+      if (err && err.status === 401) return;
+    }).then(function () { v100.tripsBusy = false; });
+  }
+
+  function initV100() {
+    if (!window.L) return;
+    document.body.classList.add("v100");
+    v100Build();
+
+    // as abas do celular viram: Mapa · Rotas · ⏺ Gravar · Menu
+    V90_TABS.length = 0;
+    V90_TABS.push(
+      { id: "home", label: "Mapa", icon: "map", screens: ["dashboard"] },
+      { id: "routes", label: "Rotas", icon: "route", screens: ["saved-routes"] },
+      { id: "rec", label: "Gravar", icon: "rec", screens: ["navigation"], go: true },
+      { id: "menu", label: "Menu", icon: "menu", screens: ["community", "garage", "timing", "expeditions", "compass"] }
+    );
+    var bar = document.getElementById("v90-tabs");
+    if (bar) {
+      bar.innerHTML = "";
+      V90_TABS.forEach(function (t) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "v90-tab" + (t.go ? " v90-go" : "");
+        b.setAttribute("data-tab", t.id);
+        b.innerHTML = (t.go ? '<span class="v90-go-ring v100-rec">' + v90Svg(t.icon) + "</span>" : v90Svg(t.icon)) + '<span class="v90-tab-lbl">' + t.label + "</span>";
+        b.addEventListener("click", function () {
+          if (t.id === "home") { v100Drawer(false); if (v100.classic) v100SetClassic(false); showScreen("dashboard"); }
+          else if (t.id === "routes") showScreen("saved-routes");
+          else if (t.id === "rec") v100Record();
+          else if (t.id === "menu") v100Drawer(true);
+          try { window.scrollTo(0, 0); } catch (e) {}
+          setTimeout(v90UpdateTabs, 0);
+        });
+        bar.appendChild(b);
+      });
+    }
+    // o botão Gravar mostra "Gravando" quando há navegação em andamento
+    var origTabs = v90UpdateTabs;
+    v90UpdateTabs = function () {
+      origTabs();
+      var rb = document.querySelector('#v90-tabs [data-tab="rec"] .v90-tab-lbl');
+      if (rb) rb.textContent = v62NavRunning() ? "Gravando" : "Gravar";
+      var hb = document.querySelector('#v90-tabs [data-tab="home"]');
+      if (hb && v100.classic) hb.classList.remove("on");
+    };
+
+    // toda vez que a tela inicial aparece: redesenha (passeio novo, rota nova…) e liga a posição
+    new MutationObserver(function () { v100OnShow(); }).observe(el.screenDashboard, { attributes: true, attributeFilter: ["class"] });
+    window.addEventListener("resize", function () { if (v100.map && v100OnHome()) { v100.map.invalidateSize(); v100RenderPc(); } });
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") v100Watch(false);
+      else if (v100OnHome() && (v100Mobile() || FDE_NATIVE)) v100Watch(true);
+    });
+
+    // rotas salvas mudaram (sincronização, comunidade, importação): redesenha
+    var origRefresh = refreshSavedRoutesUI;
+    refreshSavedRoutesUI = function () {
+      var out = origRefresh.apply(this, arguments);
+      if (v100.map && v100OnHome()) setTimeout(function () { v100Draw(false); }, 0);
+      return out;
+    };
+
+    // passeios: marca exclusões (lápide) e alterações para sincronizar pela conta
+    var origStore = v62StoreTrips;
+    v62StoreTrips = function (trips) {
+      if (!v100.merging) {
+        var prev = v62LoadTrips(), now = {}, tomb = null, ts = Date.now();
+        trips.forEach(function (t) { now[t.id] = t; });
+        prev.forEach(function (p) {
+          var n = now[p.id];
+          if (!n) { tomb = tomb || v100TombLoad(); tomb[p.id] = ts; return; }
+          var a = {}, b = {}, k;
+          for (k in p) if (k !== "rev") a[k] = p[k];
+          for (k in n) if (k !== "rev") b[k] = n[k];
+          if (JSON.stringify(a) !== JSON.stringify(b)) n.rev = ts;
+        });
+        if (tomb) v100TombSave(tomb);
+      }
+      var ok = origStore(trips);
+      if (!v100.merging) { if (typeof scheduleAccountSync === "function") scheduleAccountSync(); if (v100.map && v100OnHome()) setTimeout(function () { v100Draw(false); }, 0); }
+      return ok;
+    };
+    var origSync = accountSync;
+    accountSync = function () {
+      var p = origSync.apply(this, arguments);
+      if (p && p.then) p.then(function () { return v100TripsSync(); });
+      return p;
+    };
+
+    // a confirmação de navegação aberta pelo mapa volta para o mapa ao cancelar
+    el.btnNavConfirmCancel.addEventListener("click", function () {
+      if (navConfirmReturnTo === "dashboard") showScreen("dashboard");
+    });
+
+    v100OnShow();
+    if (accountSyncReady()) setTimeout(v100TripsSync, 3000);
+    v90UpdateTabs();
+    if (window.__fdeTest) window.__fdeV100 = { v: v100, sync: v100TripsSync };
+  }
+
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -21714,6 +22630,7 @@ button, input, select, textarea { font-family: var(--font); }
     safeInit(initV92, "rotas com foto e filtros (v9.2)");
     safeInit(initV93, "próximo aviso, luva e sol (v9.3)");
     safeInit(initV94, "planejamento no celular e cartão do passeio (v9.4)");
+    safeInit(initV100, "o app abre no mapa (v10.0)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 

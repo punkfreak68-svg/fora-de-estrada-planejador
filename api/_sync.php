@@ -11,14 +11,30 @@ const SYNC_QUOTA_BYTES = 50 * 1024 * 1024;    // v8.3: espaço máximo por conta
 const SYNC_DELETE_SKEW_MS = 10 * 60 * 1000;   // v8.3: exclusão "do futuro" (relógio adiantado) é recusada
 const SYNC_TRASH_DAYS = 30;
 
-// $table: 'routes' | 'expeditions' | 'garage'  (nomes fixos, nunca vindos do usuário)
+// $table: 'routes' | 'expeditions' | 'garage' | 'trips'  (nomes fixos, nunca vindos do usuário)
 // $valid: função que diz se um item não excluído tem o formato mínimo esperado
-function sync_handle(string $table, string $field, callable $valid): never {
-    if (!in_array($table, ['routes', 'expeditions', 'garage'], true)) throw new RuntimeException('tabela inválida');
+// $lite (v10.0, passeios): as respostas trazem só o índice (id, rev, deleted) e o conteúdo vem por 'get',
+//   em pedaços — passeios são grandes e quase nunca mudam, então não se manda tudo a cada sincronização.
+function sync_handle(string $table, string $field, callable $valid, bool $lite = false): never {
+    if (!in_array($table, ['routes', 'expeditions', 'garage', 'trips'], true)) throw new RuntimeException('tabela inválida');
     $action = $_GET['action'] ?? '';
     if ($action === 'list') {
         $u = require_user();
-        json_out(['ok' => true, $field => sync_all($table, (int)$u['id'])]);
+        json_out(['ok' => true, $field => $lite ? sync_index($table, (int)$u['id']) : sync_all($table, (int)$u['id'])]);
+    }
+    if ($lite && $action === 'get') {
+        require_post();
+        $u = require_user();
+        $ids = input()['ids'] ?? [];
+        if (!is_array($ids)) fail('Formato inválido.');
+        $ids = array_values(array_filter(array_slice($ids, 0, 40), fn($i) => is_string($i) && preg_match('/^[A-Za-z0-9_.\-]{1,64}$/', $i)));
+        $out = [];
+        if ($ids) {
+            $st = db()->prepare("SELECT data FROM $table WHERE user_id = ? AND deleted = 0 AND route_id IN (" . implode(',', array_fill(0, count($ids), '?')) . ")");
+            $st->execute(array_merge([(int)$u['id']], $ids));
+            foreach ($st->fetchAll() as $r) { $d = json_decode($r['data'], true); if (is_array($d)) $out[] = $d; }
+        }
+        json_out(['ok' => true, $field => $out]);
     }
     // v8.3 — lixeira: o que foi apagado nos últimos 30 dias
     if ($action === 'trash') {
@@ -56,7 +72,7 @@ function sync_handle(string $table, string $field, callable $valid): never {
             ON DUPLICATE KEY UPDATE rev = VALUES(rev), deleted = 0, data = VALUES(data)")->execute([$uid, $row['item_id'], $now, $json]);
         $pdo->prepare('DELETE FROM sync_trash WHERE id = ?')->execute([$tid]);
         $pdo->commit();
-        json_out(['ok' => true, $field => sync_all($table, $uid)]);
+        json_out(['ok' => true, $field => $lite ? sync_index($table, $uid) : sync_all($table, $uid)]);
     }
     if ($action !== 'sync') fail('Ação desconhecida.', 404);
 
@@ -118,11 +134,21 @@ function sync_handle(string $table, string $field, callable $valid): never {
     }
     $pdo->commit();
     if (random_int(1, 50) === 1) $pdo->exec('DELETE FROM sync_trash WHERE deleted_at < (NOW() - INTERVAL ' . SYNC_TRASH_DAYS . ' DAY)');
-    json_out(['ok' => true, 'accepted' => $accepted, 'rejected' => $rejected, 'over_quota' => $overQuota, $field => sync_all($table, $uid)]);
+    json_out(['ok' => true, 'accepted' => $accepted, 'rejected' => $rejected, 'over_quota' => $overQuota, $field => $lite ? sync_index($table, $uid) : sync_all($table, $uid)]);
+}
+
+// v10.0: só o índice (id, versão, excluído) — para os passeios
+function sync_index(string $table, int $uid): array {
+    if (!in_array($table, ['routes', 'expeditions', 'garage', 'trips'], true)) throw new RuntimeException('tabela inválida');
+    $st = db()->prepare("SELECT route_id, rev, deleted FROM $table WHERE user_id = ?");
+    $st->execute([$uid]);
+    $out = [];
+    foreach ($st->fetchAll() as $r) $out[] = ['id' => $r['route_id'], 'rev' => (int)$r['rev'], 'deleted' => (int)$r['deleted'] === 1];
+    return $out;
 }
 
 function sync_all(string $table, int $uid, bool $onlyLive = false): array {
-    if (!in_array($table, ['routes', 'expeditions', 'garage'], true)) throw new RuntimeException('tabela inválida');
+    if (!in_array($table, ['routes', 'expeditions', 'garage', 'trips'], true)) throw new RuntimeException('tabela inválida');
     $st = db()->prepare("SELECT data FROM $table WHERE user_id = ?" . ($onlyLive ? ' AND deleted = 0 ORDER BY updated_at' : ''));
     $st->execute([$uid]);
     $out = [];

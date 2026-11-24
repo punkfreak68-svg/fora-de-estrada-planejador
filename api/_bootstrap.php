@@ -3,7 +3,7 @@
 // o .htaccess da pasta bloqueia arquivos que começam com "_".
 declare(strict_types=1);
 
-const FDE_SCHEMA_VERSION = 10;
+const FDE_SCHEMA_VERSION = 11;
 const FDE_SESSION_COOKIE = 'fde_sess';
 const FDE_SESSION_DAYS = 60;
 
@@ -246,6 +246,19 @@ function fde_migrate(PDO $pdo): void {
             deleted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             INDEX (user_id, tbl, deleted_at),
             CONSTRAINT fk_trash_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+    if ($v < 11) {
+        // v10.0 — passeios (caminho percorrido) sincronizados pela conta: um documento por passeio
+        $pdo->exec("CREATE TABLE IF NOT EXISTS trips (
+            user_id INT UNSIGNED NOT NULL,
+            route_id VARCHAR(64) NOT NULL,
+            rev BIGINT NOT NULL DEFAULT 0,
+            deleted TINYINT(1) NOT NULL DEFAULT 0,
+            data MEDIUMTEXT NOT NULL,
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (user_id, route_id),
+            CONSTRAINT fk_trips_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     }
     $pdo->prepare("REPLACE INTO fde_meta (k, v) VALUES ('schema', ?)")->execute([(string)FDE_SCHEMA_VERSION]);
