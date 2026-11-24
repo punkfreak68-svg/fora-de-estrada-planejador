@@ -5925,6 +5925,24 @@ body.nav-running-shown #v102-bar { bottom: 78px; }
 body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto !important; z-index: 2450; }
 .v100-c-link { display: block; margin: -2px 0 8px; padding: 0; border: 0; background: transparent; color: var(--acc); font: 700 13.5px var(--font); cursor: pointer; }
 @media (min-width: 769px) { #v102-bar { left: 372px; right: auto; width: 460px; bottom: 14px; } }
+/* v10.3 — importar trilhas */
+.v103-body { padding: 14px 16px 20px; }
+.v103-p { margin: 0 0 12px; font: 500 14.5px/1.45 var(--font); }
+.v103-hint { margin: 4px 0 12px; font: 500 13px/1.4 var(--font); color: var(--muted); }
+.v103-err { margin: 0 0 12px; padding: 8px 10px; border-radius: 10px; background: rgba(220,38,38,.1); color: #b91c1c; font: 600 13px/1.4 var(--font); }
+.v103-pick { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; margin: 0 0 14px; border-radius: 14px; background: var(--acc); color: var(--onAcc); font: 800 16px var(--font); cursor: pointer; }
+.v103-pick .v90-ico { width: 22px; height: 22px; }
+.v103-all { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font: 700 13px var(--font); color: var(--muted); }
+.v103-all button { min-height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 18px; background: var(--btn); color: var(--ink); font: 700 13px var(--font); }
+.v103-it { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.v103-it.off { opacity: .55; }
+.v103-ck { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.v103-ck input { width: 20px; height: 20px; flex: 0 0 auto; accent-color: var(--acc); }
+.v103-ck b { display: block; font: 700 14.5px/1.25 var(--font); overflow-wrap: anywhere; }
+.v103-ck small { font: 600 12.5px var(--font); color: var(--muted); }
+.v103-seg { flex: 0 0 auto; display: flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.v103-seg button { min-height: 36px; padding: 0 10px; border: 0; background: var(--btn); color: var(--muted); font: 700 12.5px var(--font); }
+.v103-seg button.on { background: var(--acc); color: var(--onAcc); }
 </style>
 </head>
 <body>
@@ -6950,8 +6968,17 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "10.2.1";
+  var APP_VERSION = "10.3";
   var CHANGELOG = [
+    {
+      version: "10.3",
+      date: "24/11/2026",
+      changes: [
+        "📥 Importar trilhas (Menu): traga as trilhas gravadas no Maps.me (ou em outro app) — arquivos KMZ, KML ou GPX, vários de uma vez",
+        "Para cada trilha, escolha: Passeio (pinta o mapa “Por onde já passei” e entra em Passeios feitos, com 📥) ou Rota (vira rota salva, na pasta Importadas)",
+        "Trilha já importada não entra de novo; os passeios importados não tiram do histórico os passeios gravados (são guardados à parte, até 200)"
+      ]
+    },
     {
       version: "10.2.1",
       date: "24/11/2026",
@@ -22252,7 +22279,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
   // Grava; se faltar espaço, descarta os passeios mais antigos até caber.
   // v8.1: antes de apagar passeios antigos, libera a cópia de segurança; e avisa o que apagou
   function v62StoreTrips(trips) {
-    trips = trips.slice(0, V62_MAX_TRIPS);
+    trips = v103Cap(trips);   // v10.3: 60 gravados + importados
     var dropped = 0, freed = false;
     while (trips.length) {
       try {
@@ -22452,7 +22479,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
       card.setAttribute("data-trip-id", t.id);
       var title = document.createElement("div");
       title.className = "nav-route-card-name";
-      title.textContent = t.mode === "free" ? "🧭 Modo Livre" : (t.routeName || "(rota sem nome)");
+      title.textContent = t.imported ? "📥 " + (t.routeName || "Trilha importada") : t.mode === "free" ? "🧭 Modo Livre" : (t.routeName || "(rota sem nome)");
       if (t.recovered) {
         var b = document.createElement("span");
         b.className = "trip-badge";
@@ -25175,8 +25202,8 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
       if (s.movingMs) ch.push(fmtDuration(s.movingMs) + " andando");
       if (s.gain) ch.push("↑ " + Math.round(s.gain) + " m");
       var d = new Date(t.startedAt || Date.now());
-      h = '<div class="v100-c-k">Passeio feito · ' + v100Date(t.startedAt) + " " + v55Pad(d.getHours()) + ":" + v55Pad(d.getMinutes()) + "</div>" +
-        '<div class="v100-c-name">' + v55Esc(t.mode === "route" && t.routeName ? t.routeName : "Modo Livre (sem rota)") + "</div>" +
+      h = '<div class="v100-c-k">' + (t.imported ? "📥 Trilha importada" + (t.noDate ? "" : " · " + v100Date(t.startedAt)) : "Passeio feito · " + v100Date(t.startedAt) + " " + v55Pad(d.getHours()) + ":" + v55Pad(d.getMinutes())) + "</div>" +
+        '<div class="v100-c-name">' + v55Esc((t.mode === "route" || t.imported) && t.routeName ? t.routeName : "Modo Livre (sem rota)") + "</div>" +
         '<div class="v100-c-chips">' + ch.map(function (c) { return "<span>" + v55Esc(c) + "</span>"; }).join("") + "</div>" +
         '<button type="button" class="v100-c-link" data-hist>Ver no histórico de passeios ›</button>';
       var savedR = t.savedRouteId && v100Routes().filter(function (x) { return x.id === t.savedRouteId; })[0];
@@ -25329,7 +25356,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
       it("nav", "play", "Navegar uma rota") +
       it("rec", "rec", "Gravar trajeto", "Modo Livre: grava por onde você anda") +
       it("routes", "route", "Rotas salvas e passeios") +
-      it("import", "import", "Importar GPX ou KML") +
+      it("import", "import", "Importar trilhas", "do Maps.me e outros apps (KMZ, KML, GPX)") +
       '<div class="v100-dr-sec">Mais</div>' +
       it("rally", "flag", "Rally", "tomada de tempo e ranking") +
       it("exp", "tent", "Expedições") +
@@ -25358,7 +25385,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     else if (a === "nav") el.btnDashNavigate.click();
     else if (a === "rec") v100Record();
     else if (a === "routes") showScreen("saved-routes");
-    else if (a === "import") { goToPlanningScreen(); click("btn-import"); }
+    else if (a === "import") v103Open();
     else if (a === "rally") click("btn-dash-timing");
     else if (a === "exp") click("btn-dash-expeditions");
     else if (a === "com") click("btn-dash-community");
@@ -25410,7 +25437,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
       var ts = v100Trips().filter(function (t) { return !q || (t.routeName || "modo livre").toLowerCase().indexOf(q) !== -1; });
       ts.forEach(function (t) {
         var on = v100.sel && v100.sel.kind === "passeio" && v100.sel.id === t.id;
-        h += '<button type="button" class="v100-pc-it' + (on ? " sel" : "") + '" data-k="passeio" data-id="' + v55Esc(t.id) + '"><b>' + v55Esc(t.mode === "route" && t.routeName ? t.routeName : "Modo Livre") + "</b><span>" + v100Date(t.startedAt) + " · " + v100Km(t.distance || 0) + (t.stats && t.stats.totalMs ? " · " + fmtDuration(t.stats.totalMs) : "") + "</span></button>";
+        h += '<button type="button" class="v100-pc-it' + (on ? " sel" : "") + '" data-k="passeio" data-id="' + v55Esc(t.id) + '"><b>' + (t.imported ? "📥 " : "") + v55Esc((t.mode === "route" || t.imported) && t.routeName ? t.routeName : "Modo Livre") + "</b><span>" + v100Date(t.startedAt) + " · " + v100Km(t.distance || 0) + (t.stats && t.stats.totalMs ? " · " + fmtDuration(t.stats.totalMs) : "") + "</span></button>";
       });
       if (!ts.length) h = '<p class="v100-pc-empty">' + (q ? "Nenhum passeio com esse nome." : "Nenhum passeio feito ainda. Os passeios gravados no celular aparecem aqui quando você entra na mesma conta.") + "</p>";
     }
@@ -25493,14 +25520,15 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
       return p.then(function () {
         var have = {};
         local.forEach(function (t) { have[t.id] = t; });
-        var oldest = local.length >= V62_MAX_TRIPS ? Math.min.apply(null, local.map(function (t) { return t.startedAt || 0; })) : 0;
+        var realL = local.filter(function (t) { return !t.imported; });
+        var oldest = realL.length >= V62_MAX_TRIPS ? Math.min.apply(null, realL.map(function (t) { return t.startedAt || 0; })) : 0;
         var want = [], gone = [];
         Object.keys(srv).forEach(function (id) {
           var s = srv[id], h = have[id];
           if (s.deleted) { if (h && s.rev >= v100Rev(h)) gone.push(id); return; }
           if (tomb[id]) return;
           if (h) { if (s.rev > v100Rev(h)) want.push(id); return; }
-          if (v100TripStart(id) > oldest) want.push(id);   // cheio de passeios: não traz os mais velhos de volta
+          if (v100TripStart(id) > oldest || /_imp/.test(id)) want.push(id);   // cheio de passeios: não traz os mais velhos de volta
         });
         var got = [];
         var q = Promise.resolve();
@@ -25983,6 +26011,230 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     if (window.__fdeTest) window.__fdeV102 = v102;
   }
 
+  // ===================== v10.3 — importar as trilhas já gravadas no Maps.me (item 15e) =====================
+  // Menu › "Importar trilhas": um ou vários arquivos KMZ, KML ou GPX (o Maps.me exporta os favoritos e as
+  // trilhas gravadas nesses formatos). Cada trilha encontrada pode entrar como:
+  //  * PASSEIO — vai para "Passeios feitos" (marcado 📥) e pinta o mapa de cobertura ("Por onde já passei");
+  //  * ROTA — vira rota salva (pasta "Importadas"), para planejar e navegar.
+  // Trilha já importada antes não entra de novo. Passeios importados não empurram os passeios de verdade
+  // para fora do histórico: o aparelho guarda os 60 passeios gravados + até 200 importados.
+  var V103_MAX_IMP = 200;
+  var v103 = { items: [], files: 0, points: 0, busy: false };
+
+  function v103Kids(el, name) {
+    var out = [], all = el.getElementsByTagName("*");
+    for (var i = 0; i < all.length; i++) if ((all[i].localName || all[i].nodeName) === name) out.push(all[i]);
+    return out;
+  }
+  function v103Txt(el, name) { var k = v103Kids(el, name)[0]; return k ? (k.textContent || "").trim() : ""; }
+  function v103Time(s) { var t = s ? Date.parse(s) : NaN; return isFinite(t) ? t : null; }
+
+  // KMZ = zip com um .kml dentro (o navegador descompacta sozinho; sem biblioteca extra)
+  function v103Unzip(buf) {
+    var dv = new DataView(buf), u8 = new Uint8Array(buf);
+    var eocd = -1;
+    for (var i = buf.byteLength - 22; i >= Math.max(0, buf.byteLength - 66000); i--) if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    if (eocd < 0) return Promise.reject(new Error("arquivo KMZ inválido"));
+    var n = dv.getUint16(eocd + 10, true), off = dv.getUint32(eocd + 16, true), pick = null;
+    for (var k = 0; k < n; k++) {
+      if (dv.getUint32(off, true) !== 0x02014b50) break;
+      var method = dv.getUint16(off + 10, true), csize = dv.getUint32(off + 20, true);
+      var nl = dv.getUint16(off + 28, true), el = dv.getUint16(off + 30, true), cl = dv.getUint16(off + 32, true), lho = dv.getUint32(off + 42, true);
+      var name = new TextDecoder().decode(u8.subarray(off + 46, off + 46 + nl));
+      if (/\.kml$/i.test(name) && (!pick || /doc\.kml$/i.test(name))) pick = { method: method, csize: csize, lho: lho };
+      off += 46 + nl + el + cl;
+    }
+    if (!pick) return Promise.reject(new Error("não tem .kml dentro do KMZ"));
+    var start = pick.lho + 30 + dv.getUint16(pick.lho + 26, true) + dv.getUint16(pick.lho + 28, true);
+    var data = u8.subarray(start, start + pick.csize);
+    if (pick.method === 0) return Promise.resolve(new TextDecoder().decode(data));
+    if (pick.method !== 8 || typeof DecompressionStream === "undefined") return Promise.reject(new Error("este aparelho não abre KMZ — exporte em KML ou GPX"));
+    var ds = new DecompressionStream("deflate-raw");
+    var stream = new Blob([data]).stream().pipeThrough(ds);
+    return new Response(stream).text();
+  }
+
+  // devolve {tracks:[{name, pts:[{lat,lng}], at}], points:n}
+  function v103Parse(text, fname) {
+    var doc = new DOMParser().parseFromString(text, "application/xml");
+    if (doc.getElementsByTagName("parsererror").length) throw new Error("não consegui ler " + fname);
+    var tracks = [], points = 0;
+    var root = doc.documentElement.localName;
+    if (root === "gpx") {
+      var add = function (el, ptTag) {
+        var pts = [], first = null;
+        v103Kids(el, ptTag).forEach(function (p) {
+          var lat = parseFloat(p.getAttribute("lat")), lng = parseFloat(p.getAttribute("lon"));
+          if (isFinite(lat) && isFinite(lng)) { pts.push({ lat: lat, lng: lng }); if (first == null) first = v103Time(v103Txt(p, "time")); }
+        });
+        var nm = "";
+        for (var c = el.firstChild; c; c = c.nextSibling) if (c.nodeType === 1 && c.localName === "name") nm = c.textContent.trim();
+        if (pts.length > 1) tracks.push({ name: nm, pts: pts, at: first || v103Time(v103Txt(doc, "time")) });
+      };
+      v103Kids(doc, "trk").forEach(function (t) { add(t, "trkpt"); });
+      v103Kids(doc, "rte").forEach(function (r) { add(r, "rtept"); });
+      points = v103Kids(doc, "wpt").length;
+    } else {
+      v103Kids(doc, "Placemark").forEach(function (pm) {
+        var nm = "";
+        for (var c = pm.firstChild; c; c = c.nextSibling) if (c.nodeType === 1 && c.localName === "name") nm = c.textContent.trim();
+        var at = v103Time(v103Txt(pm, "when")) || v103Time(v103Txt(pm, "begin"));
+        var pts = [];
+        var coords = v103Kids(pm, "coord");   // gx:Track (lon lat alt, separado por espaço)
+        if (coords.length) coords.forEach(function (c) { var a = c.textContent.trim().split(/\s+/); var lng = parseFloat(a[0]), lat = parseFloat(a[1]); if (isFinite(lat) && isFinite(lng)) pts.push({ lat: lat, lng: lng }); });
+        else v103Kids(pm, "LineString").forEach(function (ls) {
+          (v103Txt(ls, "coordinates")).split(/\s+/).forEach(function (s) { var a = s.split(","); var lng = parseFloat(a[0]), lat = parseFloat(a[1]); if (isFinite(lat) && isFinite(lng)) pts.push({ lat: lat, lng: lng }); });
+        });
+        if (pts.length > 1) tracks.push({ name: nm, pts: pts, at: at });
+        else if (v103Kids(pm, "Point").length) points++;
+      });
+    }
+    tracks.forEach(function (t, i) { if (!t.name) t.name = fname.replace(/\.(kmz|kml|gpx)$/i, "") + (tracks.length > 1 ? " " + (i + 1) : ""); t.file = fname; });
+    return { tracks: tracks, points: points };
+  }
+
+  function v103Sig(pts) {
+    var a = pts[0], b = pts[pts.length - 1];
+    return [a.lat.toFixed(4), a.lng.toFixed(4), b.lat.toFixed(4), b.lng.toFixed(4), Math.round(polylineLengthMeters(pts) / 50)].join(",");
+  }
+  function v103Known() {
+    var k = {};
+    v62LoadTrips().forEach(function (t) { if (t.impSig) k[t.impSig] = "passeio"; });
+    loadSavedRoutes().forEach(function (r) { if (r.impSig && !r.deleted) k[r.impSig] = "rota"; });
+    return k;
+  }
+
+  function v103Open() {
+    var d = document.getElementById("v103-imp");
+    if (!d) {
+      d = document.createElement("div");
+      d.id = "v103-imp";
+      d.className = "modal-overlay v91-page";
+      d.setAttribute("role", "dialog");
+      d.setAttribute("aria-label", "Importar trilhas");
+      document.body.appendChild(d);
+    }
+    v103.items = []; v103.files = 0; v103.points = 0;
+    d.innerHTML = '<div class="v91-wrap"><header class="v91-top"><button type="button" class="v91-back" data-x>' + v90Svg("back") + 'Voltar</button><span class="v91-top-t">Importar trilhas</span></header>' +
+      '<div class="v91-scroll v103-body">' +
+      '<p class="v103-p"><b>Trilhas do Maps.me</b> (ou de outro app): no Maps.me, abra <b>Favoritos</b>, toque nos <b>⋯</b> da lista e em <b>Exportar arquivo</b> (KMZ, KML ou GPX). Mande o arquivo para este aparelho e escolha aqui. Pode escolher <b>vários de uma vez</b>.</p>' +
+      '<label class="v103-pick">' + v90Svg("import") + 'Escolher arquivos<input type="file" id="v103-file" accept=".kmz,.kml,.gpx,application/vnd.google-earth.kmz,application/vnd.google-earth.kml+xml,application/gpx+xml" multiple hidden></label>' +
+      '<div id="v103-list"></div></div>' +
+      '<div class="v91-actions hidden" id="v103-act"><button type="button" class="v91-go" id="v103-go">Importar</button></div></div>';
+    d.querySelector("[data-x]").addEventListener("click", function () { d.classList.remove("open"); });
+    d.querySelector("#v103-file").addEventListener("change", function () { v103Read(this.files); });
+    d.querySelector("#v103-go").addEventListener("click", v103Import);
+    d.classList.add("open");
+  }
+
+  function v103Read(files) {
+    files = Array.prototype.slice.call(files || []);
+    if (!files.length) return;
+    var list = document.getElementById("v103-list");
+    list.innerHTML = '<p class="v103-p">Lendo ' + files.length + (files.length === 1 ? " arquivo…" : " arquivos…") + "</p>";
+    var errs = [];
+    var known = v103Known();
+    var p = Promise.resolve();
+    files.forEach(function (f) {
+      p = p.then(function () {
+        var isKmz = /\.kmz$/i.test(f.name);
+        return (isKmz ? f.arrayBuffer().then(v103Unzip) : f.text()).then(function (txt) {
+          var r = v103Parse(txt, f.name);
+          v103.files++; v103.points += r.points;
+          r.tracks.forEach(function (t) {
+            t.sig = v103Sig(t.pts);
+            t.km = polylineLengthMeters(t.pts) / 1000;
+            t.dup = known[t.sig] || v103.items.some(function (x) { return x.sig === t.sig; }) ? (known[t.sig] || "repetida") : "";
+            t.on = !t.dup && t.km >= 0.05;
+            t.as = "passeio";
+            t.fileTime = f.lastModified || Date.now();
+            v103.items.push(t);
+          });
+        }).catch(function (e) { errs.push(f.name + ": " + (e && e.message || "não deu para ler")); });
+      });
+    });
+    p.then(function () { v103Render(errs); });
+  }
+
+  function v103Render(errs) {
+    var list = document.getElementById("v103-list");
+    var its = v103.items;
+    var h = "";
+    if (errs && errs.length) h += '<p class="v103-err">⚠ ' + errs.map(v55Esc).join("<br>⚠ ") + "</p>";
+    if (!its.length) { list.innerHTML = h + '<p class="v103-p">Nenhuma trilha nesses arquivos.' + (v103.points ? " Só pontos marcados (" + v103.points + "), que não entram." : "") + "</p>"; document.getElementById("v103-act").classList.add("hidden"); return; }
+    var dups = its.filter(function (t) { return t.dup; }).length;
+    h += '<p class="v103-p"><b>' + its.length + (its.length === 1 ? " trilha" : " trilhas") + "</b> em " + v103.files + (v103.files === 1 ? " arquivo" : " arquivos") +
+      (dups ? " · " + dups + " já importada" + (dups > 1 ? "s" : "") + " (desmarcada" + (dups > 1 ? "s" : "") + ")" : "") +
+      (v103.points ? " · " + v103.points + (v103.points === 1 ? " ponto marcado fica de fora" : " pontos marcados ficam de fora") : "") + ".</p>" +
+      '<div class="v103-all"><span>Entrar como:</span><button type="button" data-all="passeio">Todas passeio</button><button type="button" data-all="rota">Todas rota</button></div>' +
+      '<p class="v103-hint"><b>Passeio</b>: pinta o mapa “Por onde já passei” e vai para Passeios feitos. <b>Rota</b>: vira rota salva (pasta Importadas) para planejar e navegar.</p>';
+    its.forEach(function (t, i) {
+      h += '<div class="v103-it' + (t.on ? "" : " off") + '"><label class="v103-ck"><input type="checkbox" data-i="' + i + '"' + (t.on ? " checked" : "") + '><span><b>' + v55Esc(t.name) + "</b><small>" +
+        t.km.toFixed(1).replace(".", ",") + " km" + (t.at ? " · " + v100Date(t.at) : "") + (t.dup ? " · já importada como " + t.dup : "") + "</small></span></label>" +
+        '<div class="v103-seg" role="group"><button type="button" data-as="passeio" data-i="' + i + '" class="' + (t.as === "passeio" ? "on" : "") + '">Passeio</button><button type="button" data-as="rota" data-i="' + i + '" class="' + (t.as === "rota" ? "on" : "") + '">Rota</button></div></div>';
+    });
+    list.innerHTML = h;
+    list.querySelectorAll("input[data-i]").forEach(function (c) { c.addEventListener("change", function () { its[+c.getAttribute("data-i")].on = c.checked; v103Render(); }); });
+    list.querySelectorAll("button[data-as]").forEach(function (b) { b.addEventListener("click", function () { its[+b.getAttribute("data-i")].as = b.getAttribute("data-as"); v103Render(); }); });
+    list.querySelectorAll("button[data-all]").forEach(function (b) { b.addEventListener("click", function () { its.forEach(function (t) { t.as = b.getAttribute("data-all"); }); v103Render(); }); });
+    var sel = its.filter(function (t) { return t.on; });
+    var np = sel.filter(function (t) { return t.as === "passeio"; }).length, nr = sel.length - np;
+    var go = document.getElementById("v103-go");
+    go.disabled = !sel.length;
+    go.textContent = sel.length ? "Importar " + (np ? np + (np === 1 ? " passeio" : " passeios") : "") + (np && nr ? " e " : "") + (nr ? nr + (nr === 1 ? " rota" : " rotas") : "") : "Marque uma trilha";
+    document.getElementById("v103-act").classList.remove("hidden");
+  }
+
+  function v103Import() {
+    var sel = v103.items.filter(function (t) { return t.on; });
+    if (!sel.length) return;
+    var now = Date.now(), np = 0, nr = 0, bounds = null;
+    var routes = loadSavedRoutes(), newTrips = [];
+    sel.forEach(function (t, i) {
+      var simple = v101Simplify(t.pts);
+      var b = L.latLngBounds(simple.map(function (p) { return [p.lat, p.lng]; }));
+      bounds = bounds ? bounds.extend(b) : b;
+      if (t.as === "rota") {
+        routes.push({ id: "route_" + now + "_" + i + Math.random().toString(36).slice(2, 6), name: t.name, folder: "Importadas", points: simple.map(function (p) { return { lat: p.lat, lng: p.lng }; }), waypoints: [], savedAt: now + i, source: "import", impSig: t.sig });
+        nr++;
+      } else {
+        var at = t.at || ((t.fileTime || now) - i * 60000);   // sem data na trilha: usa a data do arquivo
+        newTrips.push({ v: 1, id: "trip_" + at + "_imp" + Math.random().toString(36).slice(2, 6), mode: "free", routeId: null, routeName: t.name, folder: "", startedAt: at, endedAt: at,
+          stats: null, distance: Math.round(polylineLengthMeters(t.pts)), n: simple.length, track: encodePolyline(simple), wps: [], imported: true, impFrom: t.file, impSig: t.sig, noDate: !t.at });
+        np++;
+      }
+    });
+    if (nr && !persistSavedRoutes(routes)) return;
+    if (nr) refreshSavedRoutesUI();
+    if (np) {
+      var all = v62LoadTrips().concat(newTrips);
+      all.sort(function (a, b) { return (b.startedAt || 0) - (a.startedAt || 0); });
+      v62StoreTrips(all);
+      // pinta a cobertura já (mesmo se algum ficar de fora do histórico por espaço, o caminho fica pintado)
+      v101Load(); v101.data.done = v101.data.done || [];
+      newTrips.slice().sort(function (a, b) { return a.startedAt - b.startedAt; }).forEach(function (t) { if (v101.data.done.indexOf(t.id) === -1) v101Process(t); });
+      v101Save(); v101.ver++;
+    }
+    var d = document.getElementById("v103-imp"); if (d) d.classList.remove("open");
+    showScreen("dashboard");
+    setTimeout(function () {
+      v100Draw(false);
+      if (bounds && bounds.isValid() && v100.map) v100.map.fitBounds(bounds.pad(0.1), { maxZoom: 15 });
+    }, 80);
+    showToast("📥 Importado: " + (np ? np + (np === 1 ? " passeio" : " passeios") : "") + (np && nr ? " e " : "") + (nr ? nr + (nr === 1 ? " rota" : " rotas") : "") + ".");
+  }
+
+  // histórico: 60 passeios gravados + até 200 importados (os importados ficam no fim: se faltar espaço, saem primeiro)
+  function v103Cap(trips) {
+    var real = trips.filter(function (t) { return !t.imported; }).slice(0, V62_MAX_TRIPS);
+    var imp = trips.filter(function (t) { return t.imported; }).slice(0, V103_MAX_IMP);
+    return real.concat(imp);
+  }
+
+  function initV103() {
+    if (window.__fdeTest) window.__fdeV103 = { v: v103, parse: v103Parse, unzip: v103Unzip, open: v103Open, read: v103Read };
+  }
+
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -26037,6 +26289,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     safeInit(initV101, "mapa de cobertura (v10.1)");
     safeInit(initV100, "o app abre no mapa (v10.0)");
     safeInit(initV102, "recortar trecho (v10.2)");
+    safeInit(initV103, "importar trilhas (v10.3)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
