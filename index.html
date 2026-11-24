@@ -3981,8 +3981,16 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "10.2";
+  var APP_VERSION = "10.2.1";
   var CHANGELOG = [
+    {
+      version: "10.2.1",
+      date: "24/11/2026",
+      changes: [
+        "Mapa inicial: nomes de cidades e bairros por cima do satélite (dá para desligar em Camadas)",
+        "Mapa inicial: saiu o botão de girar o mapa que ficava escondido atrás da busca"
+      ]
+    },
     {
       version: "10.2",
       date: "24/11/2026",
@@ -21837,7 +21845,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     ["terra", "Estradas de terra (todas)", "#8a5a2b", "3,6"]
   ];
   var v100 = {
-    map: null, groups: {}, show: { rotas: true, passeios: true, falta: false, comunidade: true, terra: false },
+    map: null, groups: {}, show: { nomes: true, rotas: true, passeios: true, falta: false, comunidade: true, terra: false },
     sel: null, selLayer: null, pos: null, posMarker: null, watch: null, fitted: false, classic: false,
     pcTab: "rotas", pcQ: "", merging: false, comAt: null, comBusy: false, terraAt: null, terraBusy: false, drawnSig: ""
   };
@@ -21933,7 +21941,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
 
   function v100InitMap() {
     if (v100.map) return;
-    var m = L.map("v100-map", { zoomControl: false, maxZoom: 19, worldCopyJump: true, tap: true });
+    var m = L.map("v100-map", { zoomControl: false, rotateControl: false, maxZoom: 19, worldCopyJump: true, tap: true });
     v100.map = m;
     var view = null;
     try { view = JSON.parse(localStorage.getItem(V100_VIEW_KEY) || "null"); } catch (e) {}
@@ -21945,6 +21953,9 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     var pR = m.createPane("v100routes"); pR.style.zIndex = 415;
     var pX = m.createPane("v100extra"); pX.style.zIndex = 410;
     var pS = m.createPane("v100sel"); pS.style.zIndex = 430;
+    // v10.2.1: nomes de cidades, bairros e divisas por cima do satélite (Esri, o mesmo do planejamento)
+    var pL = m.createPane("v100labels"); pL.style.zIndex = 395; pL.style.pointerEvents = "none";
+    v100.labels = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { pane: "v100labels", maxZoom: 19, attribution: "Esri Reference" });
     v100.rTrips = L.canvas({ pane: "v100trips", tolerance: 10 });
     v100.rRoutes = L.canvas({ pane: "v100routes", tolerance: 10 });
     v100.rExtra = L.canvas({ pane: "v100extra", tolerance: 10 });
@@ -22015,6 +22026,11 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
 
   function v100Apply() {
     var m = v100.map; if (!m) return;
+    if (v100.labels) {
+      var wantL = v100.show.nomes !== false;
+      if (wantL && !m.hasLayer(v100.labels)) v100.labels.addTo(m);
+      if (!wantL && m.hasLayer(v100.labels)) m.removeLayer(v100.labels);
+    }
     V100_DEFS.forEach(function (d) {
       var g = v100.groups[d[0]], want = !!v100.show[d[0]];
       if (want && !m.hasLayer(g)) g.addTo(m);
@@ -22264,6 +22280,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     opts.forEach(function (o) {
       h += '<label><input type="radio" name="v100-base" value="' + o[0] + '"' + (base && base.current === o[0] ? " checked" : "") + ">" + o[1] + "</label>";
     });
+    h += '<label><input type="checkbox" data-k="nomes"' + (v100.show.nomes !== false ? " checked" : "") + ">Nomes de cidades e bairros</label>";
     h += "<h4>Mostrar</h4>";
     V100_DEFS.forEach(function (d) {
       var n = v100.counts && v100.counts[d[0]];
