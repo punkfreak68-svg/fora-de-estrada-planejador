@@ -2954,6 +2954,18 @@ body.nav-running-shown #v100-card { bottom: 78px; }
   body.v90-tabs-on.nav-running-shown #toast { bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
 }
 @media (min-width: 769px) { #v100-back-map { bottom: 20px; } }
+/* v10.2 — recortar trecho */
+#v102-bar { position: absolute; z-index: 1002; left: 8px; right: 8px; bottom: 8px; padding: 12px 14px; border-radius: 18px; background: var(--surf); color: var(--ink); border: 2px solid #ff7a1a; box-shadow: 0 8px 28px rgba(0,0,0,.4); }
+body.nav-running-shown #v102-bar { bottom: 78px; }
+.v102-k { font: 800 12px var(--font); color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.v102-msg { margin: 4px 0 10px; font: 600 15.5px/1.35 var(--font); }
+.v102-warn { font: 600 13px var(--font); color: #b45309; }
+.v102-on .v100-side-btns, .v102-on .v100-legend, .v102-on #v100-card { display: none !important; }
+#v102-bar .v100-c-btns { flex-wrap: wrap; }
+#v102-bar .v100-c-btns .pri { flex: 1 1 100%; }
+body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto !important; z-index: 2450; }
+.v100-c-link { display: block; margin: -2px 0 8px; padding: 0; border: 0; background: transparent; color: var(--acc); font: 700 13.5px var(--font); cursor: pointer; }
+@media (min-width: 769px) { #v102-bar { left: 372px; right: auto; width: 460px; bottom: 14px; } }
 </style>
 </head>
 <body>
@@ -3969,8 +3981,16 @@ body.nav-running-shown #v100-card { bottom: 78px; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "10.1";
+  var APP_VERSION = "10.2";
   var CHANGELOG = [
+    {
+      version: "10.2",
+      date: "24/11/2026",
+      changes: [
+        "✂️ Recortar trecho: no cartão de um passeio (ou de um trecho azul), toque no começo e no fim do caminho que você gostou — o app pega os pontos reais gravados pelo GPS e salva como rota de verdade (planejar, navegar, GPX, Comunidade)",
+        "➕ Emendar: junte pedaços de passeios diferentes (ou de rotas) para montar uma trilha nova; o app vira cada pedaço para continuar de onde o anterior terminou e avisa se ficou um buraco entre eles"
+      ]
+    },
     {
       version: "10.1",
       date: "24/11/2026",
@@ -21933,6 +21953,7 @@ body.nav-running-shown #v100-card { bottom: 78px; }
     // as linhas não recebem o toque — o mapa acha a linha mais perto do dedo (até ~16 px)
     m.on("click", function (ev) {
       v100LayersPanel(false);
+      if (v102.active) { v102OnTap(ev); return; }   // v10.2: recortando um trecho
       var hit = v100Pick(ev);
       if (hit && hit.kind === "cob") {   // pedaço da cobertura: abre o passeio que passou ali
         var t = v101TripNear(ev);
@@ -22171,17 +22192,19 @@ body.nav-running-shown #v100-card { bottom: 78px; }
       var d = new Date(t.startedAt || Date.now());
       h = '<div class="v100-c-k">Passeio feito · ' + v100Date(t.startedAt) + " " + v55Pad(d.getHours()) + ":" + v55Pad(d.getMinutes()) + "</div>" +
         '<div class="v100-c-name">' + v55Esc(t.mode === "route" && t.routeName ? t.routeName : "Modo Livre (sem rota)") + "</div>" +
-        '<div class="v100-c-chips">' + ch.map(function (c) { return "<span>" + v55Esc(c) + "</span>"; }).join("") + "</div>";
+        '<div class="v100-c-chips">' + ch.map(function (c) { return "<span>" + v55Esc(c) + "</span>"; }).join("") + "</div>" +
+        '<button type="button" class="v100-c-link" data-hist>Ver no histórico de passeios ›</button>';
       var savedR = t.savedRouteId && v100Routes().filter(function (x) { return x.id === t.savedRouteId; })[0];
       btns = [
         savedR ? ["pri", "Abrir rota", function () { v91Open(savedR.id); }]
                : ["pri", v90Svg("save") + "Salvar como rota", function () { v100TripToRoute(t); }],
-        ["", "📸 Cartão", function () { v94Open(t.id); }],
-        ["", "Histórico", function () { v100Card(null); showScreen("saved-routes"); var tb = document.getElementById("saved-tab-trips"); if (tb) tb.click(); }]
+        ["", "✂️ Recortar", function () { v102Start(sel); }],
+        ["", "📸 Cartão", function () { v94Open(t.id); }]
       ];
     } else if (sel.kind === "cob") {
       h = '<div class="v100-c-k">Trecho percorrido' + (sel.at ? " · " + v100Date(sel.at) : "") + '</div><div class="v100-c-name">Passeio antigo</div>' +
         '<p class="v100-c-sub">O passeio deste trecho já saiu do histórico do aparelho (ele guarda os 60 mais recentes), mas o caminho continua pintado no mapa.</p>';
+      if (sel.pts && sel.pts.length > 1) btns = [["pri", "✂️ Recortar e salvar como rota", function () { v102Start(sel); }]];
     } else if (sel.kind === "com") {
       var it = sel.item;
       h = '<div class="v100-c-k">👥 Trilha da Comunidade</div><div class="v100-c-name">' + v55Esc(it.title || "Trilha") + "</div>" +
@@ -22202,6 +22225,8 @@ body.nav-running-shown #v100-card { bottom: 78px; }
       x.addEventListener("click", b[2]);
       bw.appendChild(x);
     });
+    var hl = card.querySelector("[data-hist]");
+    if (hl) hl.addEventListener("click", function () { v100Card(null); showScreen("saved-routes"); var tb = document.getElementById("saved-tab-trips"); if (tb) tb.click(); });
     card.classList.remove("hidden");
     home.classList.add("v100-card-open");
   }
@@ -22436,6 +22461,7 @@ body.nav-running-shown #v100-card { bottom: 78px; }
 
   // Botão voltar do Android: fecha menu, camadas, cartão e o painel antigo antes de sair
   function v100Back() {
+    if (typeof v102 !== "undefined" && v102.active && !el.screenDashboard.classList.contains("hidden")) { v102Stop(); return true; }
     var d = document.getElementById("v100-drawer");
     if (d && !d.classList.contains("hidden")) { v100Drawer(false); return true; }
     if (el.screenDashboard.classList.contains("hidden")) return false;
@@ -22792,6 +22818,185 @@ body.nav-running-shown #v100-card { bottom: 78px; }
     if (window.__fdeTest) window.__fdeV101 = { v: v101, sync: v101Sync, km: v101Km };
   }
 
+  // ===================== v10.2 — recortar um trecho rodado e salvar como rota (item 15d) =====================
+  // Achou um caminho legal num rolê? No cartão do passeio (ou de um trecho azul), "✂️ Recortar":
+  //  1) toque no começo do trecho, 2) toque no fim — o app pega os pontos REAIS gravados pelo GPS entre
+  //  os dois toques. Dá para "➕ Emendar" outro pedaço (de outro passeio ou de uma rota) para montar uma
+  //  trilha nova; no fim, "Salvar como rota" cria uma rota normal (planejamento, navegação, GPX…).
+  var v102 = { active: false, src: null, srcName: "", a: null, pieces: [], layer: null, step: "a" };
+
+  function v102Pts(sel) {
+    if (sel.kind === "passeio") {
+      var t = v100Trips().filter(function (x) { return x.id === sel.id; })[0];
+      return t ? { pts: decodePolyline(t.track), name: t.mode === "route" && t.routeName ? t.routeName : "passeio de " + v100Date(t.startedAt) } : null;
+    }
+    if (sel.kind === "rota") {
+      var r = v100Routes().filter(function (x) { return x.id === sel.id; })[0];
+      return r ? { pts: r.points.map(function (p) { return { lat: p.lat, lng: p.lng }; }), name: r.name || "rota" } : null;
+    }
+    if (sel.kind === "cob" && sel.pts && sel.pts.length > 1) return { pts: sel.pts.map(function (p) { return { lat: p[0], lng: p[1] }; }), name: "trecho percorrido" };
+    return null;
+  }
+
+  // ponto da fonte mais perto do toque (só aceita em cima da linha)
+  function v102Snap(ev) {
+    var m = v100.map, cp = ev.containerPoint, best = -1, bestD = Infinity, pts = v102.src;
+    for (var i = 0; i < pts.length; i++) {
+      var q = m.latLngToContainerPoint([pts[i].lat, pts[i].lng]);
+      var d = Math.sqrt((q.x - cp.x) * (q.x - cp.x) + (q.y - cp.y) * (q.y - cp.y));
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    return bestD <= 40 ? best : -1;
+  }
+
+  function v102Start(sel) {
+    var s = v102Pts(sel);
+    if (!s || s.pts.length < 2) { showToast("Esse trecho não tem pontos para recortar."); return; }
+    v100Card(null);
+    v102.active = true;
+    v102.pieces = v102.pieces || [];
+    v102.src = s.pts; v102.srcName = s.name; v102.a = null; v102.step = "a";
+    if (!v102.layer) v102.layer = L.layerGroup().addTo(v100.map);
+    v102Render();
+    var b = L.latLngBounds(s.pts.map(function (p) { return [p.lat, p.lng]; }));
+    if (b.isValid()) v100.map.fitBounds(b.pad(0.12), { maxZoom: 17, paddingBottomRight: [0, v100Mobile() ? 150 : 0] });
+  }
+
+  function v102Total() {
+    var all = v102Joined();
+    return all.length > 1 ? polylineLengthMeters(all) : 0;
+  }
+  // junta os pedaços na ordem, virando cada um para começar perto de onde o anterior terminou
+  function v102Joined() {
+    var out = [];
+    v102.pieces.forEach(function (pc) {
+      var p = pc.slice();
+      if (out.length) {
+        var last = out[out.length - 1];
+        var dS = haversineMeters(last.lat, last.lng, p[0].lat, p[0].lng), dE = haversineMeters(last.lat, last.lng, p[p.length - 1].lat, p[p.length - 1].lng);
+        if (dE < dS) p.reverse();
+        if (haversineMeters(last.lat, last.lng, p[0].lat, p[0].lng) < 3) p.shift();
+      }
+      out = out.concat(p);
+    });
+    return out;
+  }
+  function v102GapWarn() {
+    var w = [], out = [];
+    v102.pieces.forEach(function (pc, i) {
+      if (i === 0) { out = pc; return; }
+      var last = out[out.length - 1];
+      var g = Math.min(haversineMeters(last.lat, last.lng, pc[0].lat, pc[0].lng), haversineMeters(last.lat, last.lng, pc[pc.length - 1].lat, pc[pc.length - 1].lng));
+      if (g > 150) w.push(Math.round(g));
+      out = pc;
+    });
+    return w;
+  }
+
+  function v102Render() {
+    var g = v102.layer; if (!g) return;
+    g.clearLayers();
+    // fonte atual (onde tocar) + pedaços escolhidos (laranja tracejado)
+    if (v102.src) L.polyline(v102.src.map(function (p) { return [p.lat, p.lng]; }), { pane: "v100sel", color: "#fff", weight: 9, opacity: 0.55, interactive: false }).addTo(g);
+    v102.pieces.forEach(function (pc) {
+      var ll = pc.map(function (p) { return [p.lat, p.lng]; });
+      L.polyline(ll, { pane: "v100sel", color: "#1b1b1b", weight: 9, opacity: 0.6, interactive: false }).addTo(g);
+      L.polyline(ll, { pane: "v100sel", color: "#ff7a1a", weight: 5, opacity: 1, dashArray: "10,7", interactive: false }).addTo(g);
+    });
+    if (v102.a != null && v102.src) L.circleMarker([v102.src[v102.a].lat, v102.src[v102.a].lng], { pane: "v100sel", radius: 9, color: "#fff", weight: 3, fillColor: "#1f9d55", fillOpacity: 1, interactive: false }).addTo(g);
+    var bar = document.getElementById("v102-bar");
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "v102-bar";
+      bar.setAttribute("role", "dialog");
+      document.getElementById("v100-home").appendChild(bar);
+    }
+    var n = v102.pieces.length, km = v100Km(v102Total());
+    var msg = v102.step === "a" ? (n ? "Toque no <b>começo</b> do próximo pedaço" : "Toque no <b>começo</b> do trecho") + " (em cima da linha branca)"
+      : v102.step === "b" ? "Agora toque no <b>fim</b> do trecho"
+      : "<b>" + n + (n === 1 ? " trecho" : " trechos") + " · " + km + "</b>";
+    var gaps = v102.step === "done" ? v102GapWarn() : [];
+    if (gaps.length) msg += '<br><span class="v102-warn">⚠ Entre os pedaços há ' + gaps.map(function (x) { return x + " m"; }).join(", ") + " sem caminho gravado; a rota liga em linha reta.</span>";
+    var btns = v102.step === "done"
+      ? '<button type="button" class="pri" data-a="save">' + v90Svg("save") + 'Salvar como rota</button><button type="button" data-a="more">➕ Emendar</button><button type="button" data-a="undo">Desfazer</button>'
+      : (n ? '<button type="button" data-a="back">Voltar</button>' : "");
+    bar.innerHTML = '<div class="v102-k">✂️ Recortar trecho · ' + v55Esc(v102.srcName || "") + '</div><p class="v102-msg">' + msg + "</p>" +
+      '<div class="v100-c-btns">' + btns + '<button type="button" data-a="cancel">Cancelar</button></div>';
+    bar.querySelectorAll("[data-a]").forEach(function (b) { b.addEventListener("click", function () { v102Act(b.getAttribute("data-a")); }); });
+    document.getElementById("v100-home").classList.add("v102-on");
+    document.body.classList.add("v102");
+  }
+
+  function v102Act(a) {
+    if (a === "cancel") return v102Stop();
+    if (a === "undo") { v102.pieces.pop(); v102.step = v102.pieces.length ? "done" : "a"; v102.a = null; return v102Render(); }
+    if (a === "back") { v102.step = "done"; v102.a = null; return v102Render(); }
+    if (a === "more") {
+      v102.step = "pick"; v102.src = null; v102.a = null; v102Render();
+      var msg = document.querySelector("#v102-bar .v102-msg");
+      if (msg) msg.innerHTML = "Toque numa linha azul (passeio) ou laranja (rota) para escolher de onde vem o próximo pedaço";
+      return;
+    }
+    if (a === "save") return v102Save();
+  }
+
+  function v102OnTap(ev) {
+    if (v102.step === "pick") {
+      var hit = v100Pick(ev);
+      if (hit && hit.kind === "cob") { var t = v101TripNear(ev); hit = t ? { kind: "passeio", id: t.id } : { kind: "cob", pts: v101SegAt(ev) }; }
+      if (!hit || ["passeio", "rota", "cob"].indexOf(hit.kind) === -1) { showToast("Toque em cima de uma linha azul ou laranja."); return; }
+      var s = v102Pts(hit);
+      if (!s) return;
+      v102.src = s.pts; v102.srcName = s.name; v102.step = "a"; v102Render();
+      return;
+    }
+    if (!v102.src || v102.step === "done") return;
+    var i = v102Snap(ev);
+    if (i < 0) { showToast("Toque em cima da linha branca."); return; }
+    if (v102.step === "a") { v102.a = i; v102.step = "b"; return v102Render(); }
+    if (i === v102.a) { showToast("Toque num ponto diferente do começo."); return; }
+    var from = Math.min(v102.a, i), to = Math.max(v102.a, i);
+    var piece = v102.src.slice(from, to + 1);
+    if (i < v102.a) piece.reverse();   // segue a ordem dos toques: começo → fim
+    if (polylineLengthMeters(piece) < 30) { showToast("Trecho curto demais."); return; }
+    v102.pieces.push(piece);
+    v102.a = null; v102.step = "done";
+    v102Render();
+  }
+
+  function v102Save() {
+    var pts = v102Joined();
+    if (pts.length < 2) return;
+    var simple = v101Simplify(pts.map(function (p) { return { lat: p.lat, lng: p.lng }; }));
+    var d = new Date();
+    var def = "Trilha nova " + v55Pad(d.getDate()) + "/" + v55Pad(d.getMonth() + 1);
+    fdePrompt("Nome da rota:", def).then(function (nm) {
+      if (nm == null) return;
+      nm = String(nm).trim() || def;
+      var rec = { id: "route_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8), name: nm, folder: "", points: simple.map(function (p) { return { lat: p.lat, lng: p.lng }; }), waypoints: [], savedAt: Date.now(), source: "recorte" };
+      var routes = loadSavedRoutes();
+      routes.push(rec);
+      if (!persistSavedRoutes(routes)) return;
+      refreshSavedRoutesUI();
+      v102Stop();
+      showToast('Salvo em Rotas como "' + nm + '" (' + v100Km(polylineLengthMeters(rec.points)) + ").");
+      v100Draw(false);
+      v100Select({ kind: "rota", id: rec.id });
+    });
+  }
+
+  function v102Stop() {
+    v102.active = false; v102.src = null; v102.a = null; v102.pieces = []; v102.step = "a";
+    if (v102.layer) v102.layer.clearLayers();
+    var bar = document.getElementById("v102-bar"); if (bar) bar.remove();
+    var h = document.getElementById("v100-home"); if (h) h.classList.remove("v102-on");
+    document.body.classList.remove("v102");
+  }
+
+  function initV102() {
+    if (window.__fdeTest) window.__fdeV102 = v102;
+  }
+
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -22845,6 +23050,7 @@ body.nav-running-shown #v100-card { bottom: 78px; }
     safeInit(initV94, "planejamento no celular e cartão do passeio (v9.4)");
     safeInit(initV101, "mapa de cobertura (v10.1)");
     safeInit(initV100, "o app abre no mapa (v10.0)");
+    safeInit(initV102, "recortar trecho (v10.2)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
 
