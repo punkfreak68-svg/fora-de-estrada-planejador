@@ -25502,6 +25502,10 @@ body.nav-running-shown #v100-card { bottom: 78px; }
       else if (v100OnHome() && (v100Mobile() || FDE_NATIVE)) v100Watch(true);
     });
 
+    // entrou/saiu da conta ou sincronizou: atualiza o rodapé do painel do PC
+    var origAccR = renderAccountSync;
+    renderAccountSync = function () { var o = origAccR.apply(this, arguments); try { v100RenderPc(); } catch (e) {} return o; };
+
     // rotas salvas mudaram (sincronização, comunidade, importação): redesenha
     var origRefresh = refreshSavedRoutesUI;
     refreshSavedRoutesUI = function () {
