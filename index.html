@@ -2867,7 +2867,7 @@ body.v100.v100-classic #v100-back-map { display: flex; }
 .v100-side-btns { position: absolute; z-index: 1001; right: 10px; bottom: 18px; display: flex; flex-direction: column; gap: 10px; transition: bottom .15s; }
 body.nav-running-shown .v100-side-btns { bottom: 86px; }
 .v100-card-open .v100-side-btns { display: none; }
-.v100-legend { position: absolute; z-index: 1000; left: 10px; bottom: 24px; display: flex; gap: 10px; padding: 5px 10px; border-radius: 12px; background: rgba(20,26,22,.72); color: #fff; font: 700 11.5px var(--font); pointer-events: none; }
+.v100-legend { position: absolute; z-index: 1000; left: 10px; bottom: 24px; max-width: calc(100% - 84px); flex-wrap: wrap; white-space: nowrap; display: flex; gap: 4px 10px; padding: 5px 10px; border-radius: 12px; background: rgba(20,26,22,.72); color: #fff; font: 700 11.5px var(--font); pointer-events: none; }
 .v100-legend i { display: inline-block; width: 16px; height: 0; margin-right: 4px; vertical-align: middle; border-top: 4px solid; border-radius: 2px; }
 .v100-card-open .v100-legend, body.nav-running-shown .v100-legend { display: none; }
 /* cartão de baixo (rota, passeio, trilha) */
@@ -3969,8 +3969,18 @@ body.nav-running-shown #v100-card { bottom: 78px; }
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "10.0";
+  var APP_VERSION = "10.1";
   var CHANGELOG = [
+    {
+      version: "10.1",
+      date: "24/11/2026",
+      changes: [
+        "Mapa de cobertura: a linha azul agora é \"Por onde já passei\" — uma camada só, que guarda cada caminho uma vez. Cada passeio novo só acrescenta os trechos por onde você nunca tinha passado (nada de rota nova a cada saída, nada de traço repetido)",
+        "No fim do passeio, o resumo diz quantos km foram por caminho novo",
+        "Camadas › \"Estradas onde ainda não passei\": as estradas de terra do OpenStreetMap em amarelo, só nos pedaços que você ainda não percorreu, com a % já percorrida na área do mapa (aproxime o mapa; precisa de internet na primeira vez)",
+        "Passeio apagado sai do mapa; passeio antigo que o aparelho descartou por falta de espaço continua pintado"
+      ]
+    },
     {
       version: "10.0",
       date: "24/11/2026",
@@ -21801,12 +21811,13 @@ body.nav-running-shown #v100-card { bottom: 78px; }
   var V100_TOMB_KEY = "fde_trips_tomb_v1";
   var V100_DEFS = [
     ["rotas", "Minhas rotas", "#e08a2c", ""],
-    ["passeios", "Meus passeios", "#3b9cff", ""],
+    ["passeios", "Por onde já passei", "#3b9cff", ""],
+    ["falta", "Estradas onde ainda não passei", "#f5c542", ""],
     ["comunidade", "Trilhas da Comunidade", "#1f9d55", "8,6"],
-    ["terra", "Estradas de terra", "#8a5a2b", "3,6"]
+    ["terra", "Estradas de terra (todas)", "#8a5a2b", "3,6"]
   ];
   var v100 = {
-    map: null, groups: {}, show: { rotas: true, passeios: true, comunidade: true, terra: false },
+    map: null, groups: {}, show: { rotas: true, passeios: true, falta: false, comunidade: true, terra: false },
     sel: null, selLayer: null, pos: null, posMarker: null, watch: null, fitted: false, classic: false,
     pcTab: "rotas", pcQ: "", merging: false, comAt: null, comBusy: false, terraAt: null, terraBusy: false, drawnSig: ""
   };
@@ -21920,12 +21931,21 @@ body.nav-running-shown #v100-card { bottom: 78px; }
     V100_DEFS.forEach(function (d) { v100.groups[d[0]] = L.layerGroup(); });
     // um "papel" (canvas) por camada cobre o mapa todo e um esconderia o toque do outro:
     // as linhas não recebem o toque — o mapa acha a linha mais perto do dedo (até ~16 px)
-    m.on("click", function (ev) { v100LayersPanel(false); var hit = v100Pick(ev); if (hit) v100Select(hit); else v100Card(null); });
+    m.on("click", function (ev) {
+      v100LayersPanel(false);
+      var hit = v100Pick(ev);
+      if (hit && hit.kind === "cob") {   // pedaço da cobertura: abre o passeio que passou ali
+        var t = v101TripNear(ev);
+        if (t) hit = { kind: "passeio", id: t.id };
+        else hit = { kind: "cob", at: hit.at, pts: v101SegAt(ev) };
+      }
+      if (hit) v100Select(hit); else v100Card(null);
+    });
     m.on("moveend", function () {
       var c = m.getCenter();
       try { localStorage.setItem(V100_VIEW_KEY, JSON.stringify({ lat: +c.lat.toFixed(5), lng: +c.lng.toFixed(5), z: m.getZoom() })); } catch (e) {}
       clearTimeout(v100.moveT);
-      v100.moveT = setTimeout(v100LoadExtras, 700);
+      v100.moveT = setTimeout(function () { v100LoadExtras(); if (v100.show.falta) { try { v101DrawFalta(); } catch (e) {} } }, 700);
     });
     m.on("dragstart", function () { v100.follow = false; });
     v100Draw(true);
@@ -21936,7 +21956,8 @@ body.nav-running-shown #v100-card { bottom: 78px; }
       rotas: { color: "#e08a2c", weight: 4, opacity: 0.95, renderer: v100.rRoutes },
       passeios: { color: "#3b9cff", weight: 7, opacity: 1, lineCap: "round", lineJoin: "round", renderer: v100.rTrips },
       comunidade: { color: "#1f9d55", weight: 4, opacity: 0.9, dashArray: "8,6", renderer: v100.rExtra },
-      terra: { color: "#8a5a2b", weight: 3, opacity: 0.85, dashArray: "3,6", renderer: v100.rExtra }
+      terra: { color: "#8a5a2b", weight: 3, opacity: 0.85, dashArray: "3,6", renderer: v100.rExtra },
+      falta: { color: "#f5c542", weight: 4, opacity: 0.95, renderer: v100.rExtra }
     }[id];
     o.interactive = false;
     if (extra) for (var k in extra) o[k] = extra[k];
@@ -21947,7 +21968,8 @@ body.nav-running-shown #v100-card { bottom: 78px; }
   function v100Draw(fit) {
     if (!v100.map) return;
     var routes = v100Routes(), trips = v100Trips();
-    var sig = routes.map(function (r) { return r.id + ":" + (r.savedAt || 0) + ":" + r.points.length; }).join("|") + "#" + trips.map(function (t) { return t.id + ":" + (t.rev || 0); }).join("|");
+    try { v101Sync(); } catch (e) { console.warn("cobertura:", e); }
+    var sig = routes.map(function (r) { return r.id + ":" + (r.savedAt || 0) + ":" + r.points.length; }).join("|") + "#" + trips.map(function (t) { return t.id + ":" + (t.rev || 0); }).join("|") + "#c" + v101.ver;
     if (sig !== v100.drawnSig) {
       v100.drawnSig = sig;
       var gr = v100.groups.rotas; gr.clearLayers();
@@ -21955,10 +21977,11 @@ body.nav-running-shown #v100-card { bottom: 78px; }
         L.polyline(r.points.map(function (p) { return [p.lat, p.lng]; }), v100Style("rotas", { v100: { kind: "rota", id: r.id } })).addTo(gr);
       });
       var gp = v100.groups.passeios; gp.clearLayers();
-      trips.forEach(function (t) {
-        var pts = decodePolyline(t.track);
+      // v10.1: a camada azul é a cobertura (cada caminho uma vez só), não mais um traço por passeio
+      v101Load().segs.forEach(function (sg) {
+        var pts = decodePolyline(sg.e);
         if (pts.length < 2) return;
-        L.polyline(pts.map(function (p) { return [p.lat, p.lng]; }), v100Style("passeios", { v100: { kind: "passeio", id: t.id } })).addTo(gp);
+        L.polyline(pts.map(function (p) { return [p.lat, p.lng]; }), v100Style("passeios", { v100: { kind: "cob", at: sg.at, m: sg.m } })).addTo(gp);
       });
       v100.counts = { rotas: routes.length, passeios: trips.length };
       if (v100.sel && v100.sel.kind !== "com" && v100.sel.kind !== "terra") v100Select(v100.sel, true);
@@ -21995,7 +22018,9 @@ body.nav-running-shown #v100-card { bottom: 78px; }
     var lg = document.getElementById("v100-legend"); if (!lg) return;
     var h = "";
     if (v100.show.rotas && v100.counts && v100.counts.rotas) h += '<span><i style="border-color:#e08a2c"></i>Rotas</span>';
-    if (v100.show.passeios && v100.counts && v100.counts.passeios) h += '<span><i style="border-color:#3b9cff"></i>Já rodei</span>';
+    var km = 0; try { km = v101Km(); } catch (e) {}
+    if (v100.show.passeios && km > 0) h += '<span><i style="border-color:#3b9cff"></i>Já rodei ' + (km >= 10 ? Math.round(km) : km.toFixed(1).replace(".", ",")) + " km</span>";
+    if (v100.show.falta && v100.faltaPct != null) h += '<span><i style="border-color:#f5c542"></i>Estradas: ' + v100.faltaPct + "% feitas</span>";
     lg.innerHTML = h;
     lg.style.display = h ? "" : "none";
   }
@@ -22012,7 +22037,7 @@ body.nav-running-shown #v100-card { bottom: 78px; }
         .catch(function () { v100.comAt = { lat: c.lat, lng: c.lng }; })
         .then(function () { v100.comBusy = false; });
     }
-    if (v100.show.terra && z >= 12 && !v100.terraBusy && (!v100.terraAt || haversineMeters(c.lat, c.lng, v100.terraAt.lat, v100.terraAt.lng) > 2500)) {
+    if ((v100.show.terra || v100.show.falta) && z >= 12 && !v100.terraBusy && (!v100.terraAt || haversineMeters(c.lat, c.lng, v100.terraAt.lat, v100.terraAt.lng) > 2500)) {
       v100.terraBusy = true;
       var key = "area:" + c.lat.toFixed(2) + "," + c.lng.toFixed(2);
       v66RoadsGet(key).then(function (cached) {
@@ -22035,6 +22060,8 @@ body.nav-running-shown #v100-card { bottom: 78px; }
     v100.counts = v100.counts || {}; v100.counts.comunidade = (items || []).length;
   }
   function v100DrawTerra(list) {
+    v100.terraList = list;
+    try { v101DrawFalta(); } catch (e) {}
     var g = v100.groups.terra; g.clearLayers();
     v66UnpackRoads(list).forEach(function (w) {
       var pts = w.geometry.map(function (q) { return [q.lat, q.lon]; });
@@ -22047,7 +22074,7 @@ body.nav-running-shown #v100-card { bottom: 78px; }
     var m = v100.map, cp = ev.containerPoint, tol = 16, best = null, bestD = Infinity;
     var near = m.containerPointToLatLng([cp.x - tol, cp.y - tol]), far = m.containerPointToLatLng([cp.x + tol, cp.y + tol]);
     var box = L.latLngBounds(near, far);
-    [["rotas", 4], ["comunidade", 2], ["terra", 0], ["passeios", 0]].forEach(function (g) {
+    [["rotas", 4], ["comunidade", 2], ["falta", 1], ["terra", 0], ["passeios", 0]].forEach(function (g) {
       if (!v100.show[g[0]] || !m.hasLayer(v100.groups[g[0]])) return;
       v100.groups[g[0]].eachLayer(function (l) {
         if (!l.getBounds().intersects(box)) return;
@@ -22082,7 +22109,8 @@ body.nav-running-shown #v100-card { bottom: 78px; }
       latlngs = decodePolyline(t.track).map(function (p) { return [p.lat, p.lng]; });
       color = "#3b9cff";
     } else {
-      latlngs = sel.pts; color = sel.kind === "com" ? "#1f9d55" : "#8a5a2b";
+      latlngs = sel.pts; color = sel.kind === "com" ? "#1f9d55" : sel.kind === "cob" ? "#3b9cff" : "#8a5a2b";
+      if (!latlngs || latlngs.length < 2) { v100Card(sel); return; }
     }
     v100.selLayer = L.layerGroup([
       L.polyline(latlngs, { pane: "v100sel", color: "#fff", weight: 10, opacity: 0.95, interactive: false }),
@@ -22151,6 +22179,9 @@ body.nav-running-shown #v100-card { bottom: 78px; }
         ["", "📸 Cartão", function () { v94Open(t.id); }],
         ["", "Histórico", function () { v100Card(null); showScreen("saved-routes"); var tb = document.getElementById("saved-tab-trips"); if (tb) tb.click(); }]
       ];
+    } else if (sel.kind === "cob") {
+      h = '<div class="v100-c-k">Trecho percorrido' + (sel.at ? " · " + v100Date(sel.at) : "") + '</div><div class="v100-c-name">Passeio antigo</div>' +
+        '<p class="v100-c-sub">O passeio deste trecho já saiu do histórico do aparelho (ele guarda os 60 mais recentes), mas o caminho continua pintado no mapa.</p>';
     } else if (sel.kind === "com") {
       var it = sel.item;
       h = '<div class="v100-c-k">👥 Trilha da Comunidade</div><div class="v100-c-name">' + v55Esc(it.title || "Trilha") + "</div>" +
@@ -22225,7 +22256,9 @@ body.nav-running-shown #v100-card { bottom: 78px; }
     });
     p.querySelectorAll("input[data-k]").forEach(function (c) {
       c.addEventListener("change", function () {
-        v100.show[c.getAttribute("data-k")] = c.checked; v100SaveLayers(); v100Apply(); v100Legend();
+        v100.show[c.getAttribute("data-k")] = c.checked; v100SaveLayers(); v100Apply();
+        if (c.getAttribute("data-k") === "falta") { try { v101DrawFalta(); } catch (e) {} if (c.checked && v100.map && v100.map.getZoom() < 12) showToast("Aproxime o mapa (zoom de bairro) para ver as estradas de terra."); }
+        v100Legend();
         if (c.checked) { v100.comAt = null; v100.terraAt = null; v100LoadExtras(); }
       });
     });
@@ -22583,6 +22616,182 @@ body.nav-running-shown #v100-card { bottom: 78px; }
     if (window.__fdeTest) window.__fdeV100 = { v: v100, sync: v100TripsSync };
   }
 
+  // ===================== v10.1 — mapa de cobertura sem lixo (item 15c) =====================
+  // "Por onde já passei" vira UMA camada só, que guarda apenas os trechos novos de cada passeio:
+  //  * o caminho é dividido em quadradinhos de ~20 m; ao processar um passeio, só os pedaços que
+  //    passam fora dos quadradinhos já pintados (e dos vizinhos) entram na camada;
+  //  * não nasce rota nenhuma; o histórico de passeios continua como era (para tempo, km, cartão);
+  //  * passeio apagado sai da camada; passeio antigo que o aparelho descartou por falta de espaço
+  //    continua pintado (o trecho fica guardado na camada);
+  //  * "Estradas onde ainda não passei": as estradas de terra do OpenStreetMap em amarelo, só nos
+  //    pedaços que você ainda não percorreu, com a % já percorrida na área do mapa.
+  var V101_KEY = "fde_cov_v1";
+  var V101_CELL = 0.00018;   // ~20 m
+  var v101 = { data: null, cells: null, ver: 0 };
+
+  function v101Key(a, b) { return a + ":" + b; }
+  function v101Has(lat, lng) {
+    var a = Math.round(lat / V101_CELL), b = Math.round(lng / V101_CELL), s = v101.cells;
+    for (var da = -1; da <= 1; da++) for (var db = -1; db <= 1; db++) if (s.has(v101Key(a + da, b + db))) return true;
+    return false;
+  }
+  function v101Add(p) { v101.cells.add(v101Key(Math.round(p.lat / V101_CELL), Math.round(p.lng / V101_CELL))); }
+  // pontos a cada ~10 m (o GPS grava em intervalos variados)
+  function v101Dense(pts) {
+    var out = [];
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i];
+      if (i > 0) {
+        var q = pts[i - 1], d = haversineMeters(q.lat, q.lng, p.lat, p.lng), n = Math.floor(d / 10);
+        for (var k = 1; k < n && n < 2000; k++) out.push({ lat: q.lat + (p.lat - q.lat) * k / n, lng: q.lng + (p.lng - q.lng) * k / n });
+      }
+      out.push({ lat: p.lat, lng: p.lng });
+    }
+    return out;
+  }
+  function v101Simplify(run) {
+    if (run.length < 3) return run;
+    var c = Math.cos(run[0].lat * Math.PI / 180);
+    var pts = run.map(function (p) { var x = L.point(p.lng * 111320 * c, p.lat * 110540); x.ll = p; return x; });
+    return L.LineUtil.simplify(pts, 3).map(function (x) { return x.ll; });
+  }
+  function v101Load() {
+    if (v101.data) return v101.data;
+    var d = null;
+    try { d = JSON.parse(localStorage.getItem(V101_KEY) || "null"); } catch (e) {}
+    if (!d || d.v !== 1 || !Array.isArray(d.segs)) d = { v: 1, done: [], segs: [] };
+    v101.data = d;
+    v101.cells = new Set();
+    d.segs.forEach(function (s) { v101Dense(decodePolyline(s.e)).forEach(v101Add); });
+    return d;
+  }
+  function v101Save() {
+    try { localStorage.setItem(V101_KEY, JSON.stringify(v101.data)); } catch (e) { /* sem espaço: a camada é refeita dos passeios na próxima vez */ }
+  }
+  // acrescenta à camada só o que este passeio tem de novo; devolve os metros novos
+  function v101Process(trip) {
+    var pts = v101Dense(decodePolyline(trip.track || ""));
+    var LAG = 30;   // o próprio caminho só conta como "já passei" depois de ~300 m (ida e volta no mesmo passeio)
+    var runs = [], cur = [], prev = null;
+    for (var i = 0; i < pts.length; i++) {
+      if (i >= LAG) v101Add(pts[i - LAG]);
+      var p = pts[i];
+      if (!v101Has(p.lat, p.lng)) {
+        if (!cur.length && prev) cur.push(prev);   // liga o trecho novo ao caminho de onde saiu
+        cur.push(p);
+      } else if (cur.length) {
+        cur.push(p);
+        if (cur.length >= 4) runs.push(cur);
+        cur = [];
+      }
+      prev = p;
+    }
+    if (cur.length >= 4) runs.push(cur);
+    for (var j = Math.max(0, pts.length - LAG); j < pts.length; j++) v101Add(pts[j]);
+    var total = 0;
+    runs.forEach(function (r) {
+      var m = Math.round(polylineLengthMeters(r));
+      if (m < 30) return;
+      total += m;
+      v101.data.segs.push({ e: encodePolyline(v101Simplify(r)), t: trip.id, at: trip.startedAt || 0, m: m });
+    });
+    v101.data.done.push(trip.id);
+    return total;
+  }
+  // põe em dia com o histórico de passeios (novos, apagados, chegados de outro aparelho)
+  function v101Sync() {
+    var d = v101Load();
+    var trips = v62LoadTrips().filter(function (t) { return t && t.track; });
+    var tomb = v100TombLoad();
+    var local = {};
+    trips.forEach(function (t) { local[t.id] = 1; });
+    var changed = false, added = 0;
+    if (d.done.some(function (id) { return tomb[id]; })) {
+      // passeio apagado: refaz a camada (os trechos órfãos de passeios antigos ficam)
+      d.segs = d.segs.filter(function (s) { return !local[s.t] && !tomb[s.t]; });
+      d.done = d.segs.map(function (s) { return s.t; }).filter(function (id, i, a) { return a.indexOf(id) === i; });
+      v101.cells = new Set();
+      d.segs.forEach(function (s) { v101Dense(decodePolyline(s.e)).forEach(v101Add); });
+      changed = true;
+    }
+    var done = {};
+    d.done.forEach(function (id) { done[id] = 1; });
+    trips.filter(function (t) { return !done[t.id]; })
+      .sort(function (a, b) { return (a.startedAt || 0) - (b.startedAt || 0); })
+      .forEach(function (t) { added += v101Process(t); changed = true; });
+    if (changed) { v101Save(); v101.ver++; }
+    return added;
+  }
+  function v101Km() { return v101Load().segs.reduce(function (s, x) { return s + (x.m || 0); }, 0) / 1000; }
+
+  // passeio mais perto do toque (a camada de cobertura não diz de qual passeio é cada pedaço)
+  function v101TripNear(ev) {
+    var m = v100.map, cp = ev.containerPoint, tol = 18, best = null, bestD = Infinity;
+    var box = L.latLngBounds(m.containerPointToLatLng([cp.x - tol, cp.y - tol]), m.containerPointToLatLng([cp.x + tol, cp.y + tol]));
+    v100Trips().forEach(function (t) {
+      var pts = decodePolyline(t.track);
+      if (pts.length < 2 || !L.latLngBounds(pts.map(function (p) { return [p.lat, p.lng]; })).intersects(box)) return;
+      var prev = null;
+      for (var i = 0; i < pts.length; i++) {
+        var q = m.latLngToContainerPoint([pts[i].lat, pts[i].lng]);
+        if (prev) { var dd = L.LineUtil.pointToSegmentDistance(cp, prev, q); if (dd < bestD) { bestD = dd; best = t; } }
+        prev = q;
+      }
+    });
+    return bestD <= tol ? best : null;
+  }
+
+  // estradas de terra: só os pedaços onde ainda não passei, e a % já percorrida na área do mapa
+  function v101DrawFalta() {
+    var g = v100.groups.falta;
+    if (!g) return;
+    g.clearLayers();
+    v100.faltaPct = null;
+    if (!v100.show.falta || !v100.terraList) return;
+    v101Load();
+    var view = v100.map ? v100.map.getBounds() : null, tot = 0, ok = 0;
+    v66UnpackRoads(v100.terraList).forEach(function (w) {
+      var pts = v101Dense(w.geometry.map(function (q) { return { lat: q.lat, lng: q.lon }; }));
+      var cur = [];
+      for (var i = 0; i < pts.length; i++) {
+        var p = pts[i], has = v101Has(p.lat, p.lng);
+        if (i > 0 && view && view.contains([p.lat, p.lng])) {
+          var seg = haversineMeters(pts[i - 1].lat, pts[i - 1].lng, p.lat, p.lng);
+          tot += seg; if (has) ok += seg;
+        }
+        if (!has) cur.push([p.lat, p.lng]);
+        else { if (cur.length > 1) L.polyline(cur, v100Style("falta", { v100: { kind: "terra", way: w, pts: cur } })).addTo(g); cur = []; }
+      }
+      if (cur.length > 1) L.polyline(cur, v100Style("falta", { v100: { kind: "terra", way: w, pts: cur } })).addTo(g);
+    });
+    if (tot > 500) v100.faltaPct = Math.round(100 * ok / tot);
+    v100Legend();
+  }
+
+  function v101SegAt(ev) {
+    var m = v100.map, cp = ev.containerPoint, best = null, bestD = Infinity;
+    v100.groups.passeios.eachLayer(function (l) {
+      var ll = l.getLatLngs(), prev = null;
+      for (var i = 0; i < ll.length; i++) { var q = m.latLngToContainerPoint(ll[i]); if (prev) { var d = L.LineUtil.pointToSegmentDistance(cp, prev, q); if (d < bestD) { bestD = d; best = ll; } } prev = q; }
+    });
+    return best ? best.map(function (x) { return [x.lat, x.lng]; }) : null;
+  }
+
+  function initV101() {
+    // fim do passeio: diz quantos km foram por caminho novo
+    var origFinish = v62OnFinish;
+    v62OnFinish = function () {
+      var out = origFinish.apply(this, arguments);
+      try {
+        var add = v101Sync();
+        var txt = document.getElementById("nav-summary-trip-text");
+        if (txt && add >= 50) txt.textContent += " · 🆕 " + (add / 1000).toFixed(1).replace(".", ",") + " km por caminho novo";
+      } catch (e) {}
+      return out;
+    };
+    if (window.__fdeTest) window.__fdeV101 = { v: v101, sync: v101Sync, km: v101Km };
+  }
+
   // ---- init ----
   function safeInit(fn, label) {
     try {
@@ -22634,6 +22843,7 @@ body.nav-running-shown #v100-card { bottom: 78px; }
     safeInit(initV92, "rotas com foto e filtros (v9.2)");
     safeInit(initV93, "próximo aviso, luva e sol (v9.3)");
     safeInit(initV94, "planejamento no celular e cartão do passeio (v9.4)");
+    safeInit(initV101, "mapa de cobertura (v10.1)");
     safeInit(initV100, "o app abre no mapa (v10.0)");
     setTimeout(function () { safeInit(v57DailyPing, "contagem de aparelhos"); }, 4000);
   }
