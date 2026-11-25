@@ -2990,6 +2990,26 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
 #v105-back span { flex: 1 1 auto; }
 #v105-back .v105-go { flex: 1 1 100%; min-height: 48px; border: 0; border-radius: 12px; background: #fff; color: #1f7a4a; font: 800 16px var(--font); order: 3; }
 #v105-back .v105-x { width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(255,255,255,.2); color: #fff; font: 700 15px var(--font); }
+/* v10.6 — pastas, destaque, nomes, atalhos */
+#v106-bar { position: absolute; z-index: 1002; left: 50%; transform: translateX(-50%); top: calc(64px + env(safe-area-inset-top, 0px)); display: flex; align-items: center; gap: 8px; max-width: calc(100% - 100px); padding: 6px 6px 6px 14px; border-radius: 20px; background: rgba(20,26,22,.88); color: #fff; font: 600 13.5px var(--font); box-shadow: 0 3px 12px rgba(0,0,0,.3); }
+#v106-bar.hidden { display: none; }
+.v106-pin { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#v106-bar button { flex: 0 0 auto; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(255,255,255,.18); color: #fff; font: 700 13px var(--font); cursor: pointer; }
+.v102-on #v106-bar { display: none; }
+.v106-name span { display: inline-block; transform: translate(-50%, -130%); padding: 2px 7px; border-radius: 8px; background: rgba(20,26,22,.82); color: #ffd29a; font: 700 12px var(--font); white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
+@media (min-width: 769px) {
+  #v106-bar { left: calc(360px + (100% - 360px) / 2); top: 64px; max-width: 560px; }
+  .v106-short { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 0 14px 10px; }
+  .v106-short button { display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 54px; padding: 6px 2px; border: 1px solid var(--line); border-radius: 12px; background: var(--btn); color: var(--ink); font: 700 11.5px var(--font); cursor: pointer; }
+  .v106-short button:hover { border-color: var(--acc); }
+  .v106-short .v90-ico { width: 20px; height: 20px; color: var(--acc); }
+  .v106-fd { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 40px; margin-top: 2px; padding: 0 10px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 800 14px var(--font); text-align: left; cursor: pointer; }
+  .v106-fd:hover { background: var(--btn); }
+  .v106-fd.on { background: var(--btn); color: var(--acc); }
+  .v106-fd small { color: var(--muted); font: 700 12.5px var(--font); }
+  .v106-fd ~ .v100-pc-it { padding-left: 22px; }
+}
+@media (max-width: 768px) { .v106-short { display: none; } }
 </style>
 </head>
 <body>
@@ -4005,8 +4025,18 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "10.5";
+  var APP_VERSION = "10.6";
   var CHANGELOG = [
+    {
+      version: "10.6",
+      date: "25/11/2026",
+      changes: [
+        "PC: as rotas do painel ficam agrupadas por pasta; abrir uma pasta mostra só as rotas dela no mapa (e enquadra). \"Todas as rotas\" volta a mostrar tudo",
+        "Saber qual é qual: passar o mouse num nome acende a rota no mapa; a rota escolhida fica forte, as outras apagadas, e uma faixa em cima do mapa mostra o nome (✕ fecha)",
+        "Com o mapa perto, o nome de cada rota aparece em cima da linha (celular e PC)",
+        "PC abre no último lugar que você estava olhando; atalhos Garagem · Rally · Comunidade · Importar no painel"
+      ]
+    },
     {
       version: "10.5",
       date: "24/11/2026",
@@ -21966,6 +21996,12 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
         '<div class="v100-pc-head"><img src="icons/icon-192.png" alt=""><div><b>Fora de Estrada</b><span>Navegador e planejador off-road</span></div>' +
         '<button type="button" class="v100-round" id="v100-menu-pc" aria-label="Menu">' + v90Svg("menu") + "</button></div>" +
         '<button type="button" class="v100-pc-plan" id="v100-pc-plan">' + v90Svg("plus") + "Planejar nova rota</button>" +
+        '<div class="v106-short">' +
+          '<button type="button" data-a="gar">' + v90Svg("wrench") + "Garagem</button>" +
+          '<button type="button" data-a="rally">' + v90Svg("flag") + "Rally</button>" +
+          '<button type="button" data-a="com">' + v90Svg("users") + "Comunidade</button>" +
+          '<button type="button" data-a="import">' + v90Svg("import") + "Importar</button>" +
+        "</div>" +
         '<div class="v100-pc-tabs" role="tablist"><button type="button" data-t="rotas" class="on">Rotas</button><button type="button" data-t="passeios">Passeios feitos</button></div>' +
         '<input type="search" class="v100-pc-q" id="v100-pc-q" placeholder="Procurar pelo nome ou pasta" aria-label="Procurar">' +
         '<div class="v100-pc-list" id="v100-pc-list"></div>' +
@@ -21986,6 +22022,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     document.getElementById("v100-menu-m").addEventListener("click", function () { v100Drawer(true); });
     document.getElementById("v100-menu-pc").addEventListener("click", function () { v100Drawer(true); });
     document.getElementById("v100-pc-plan").addEventListener("click", function () { el.btnDashPlan.click(); });
+    document.querySelectorAll(".v106-short [data-a]").forEach(function (b) { b.addEventListener("click", function () { v100Action(b.getAttribute("data-a")); }); });
     document.querySelectorAll(".v100-pc-tabs button").forEach(function (b) {
       b.addEventListener("click", function () { v100.pcTab = b.getAttribute("data-t"); v100RenderPc(); });
     });
@@ -22007,6 +22044,8 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     var view = null;
     try { view = JSON.parse(localStorage.getItem(V100_VIEW_KEY) || "null"); } catch (e) {}
     if (view && view.z) m.setView([view.lat, view.lng], view.z); else m.setView([-14.235, -51.9253], 5);
+    // v10.6: no PC abre onde você estava olhando (não enquadra o estado inteiro por causa de uma rota longa)
+    if (view && view.z && !v100Mobile() && !FDE_NATIVE) v100.fitted = true;
     setupBaseMap(m, false);
     // passeios: todos num "papel" só, com a transparência no papel inteiro — onde várias passadas
     // se sobrepõem a faixa não escurece (fica uma faixa só, como no Maps.me)
@@ -22039,6 +22078,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
       try { localStorage.setItem(V100_VIEW_KEY, JSON.stringify({ lat: +c.lat.toFixed(5), lng: +c.lng.toFixed(5), z: m.getZoom() })); } catch (e) {}
       clearTimeout(v100.moveT);
       v100.moveT = setTimeout(function () { v100LoadExtras(); if (v100.show.falta) { try { v101DrawFalta(); } catch (e) {} } }, 700);
+      v106Names();
     });
     m.on("dragstart", function () { v100.follow = false; });
     v100Draw(true);
@@ -22061,14 +22101,16 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
   function v100Draw(fit) {
     if (!v100.map) return;
     var routes = v100Routes(), trips = v100Trips();
+    if (v100.folder != null) routes = routes.filter(function (r) { return (r.folder || "") === v100.folder; });   // v10.6: só a pasta aberta
     try { v101Sync(); } catch (e) { console.warn("cobertura:", e); }
-    var sig = routes.map(function (r) { return r.id + ":" + (r.savedAt || 0) + ":" + r.points.length; }).join("|") + "#" + trips.map(function (t) { return t.id + ":" + (t.rev || 0); }).join("|") + "#c" + v101.ver;
+    var sig = "f" + v100.folder + "|" + routes.map(function (r) { return r.id + ":" + (r.savedAt || 0) + ":" + r.points.length; }).join("|") + "#" + trips.map(function (t) { return t.id + ":" + (t.rev || 0); }).join("|") + "#c" + v101.ver;
     if (sig !== v100.drawnSig) {
       v100.drawnSig = sig;
       var gr = v100.groups.rotas; gr.clearLayers();
       routes.forEach(function (r) {
-        L.polyline(r.points.map(function (p) { return [p.lat, p.lng]; }), v100Style("rotas", { v100: { kind: "rota", id: r.id } })).addTo(gr);
+        L.polyline(r.points.map(function (p) { return [p.lat, p.lng]; }), v100Style("rotas", { v100: { kind: "rota", id: r.id, name: r.name } })).addTo(gr);
       });
+      v106.namesSig = null;
       var gp = v100.groups.passeios; gp.clearLayers();
       // v10.1: a camada azul é a cobertura (cada caminho uma vez só), não mais um traço por passeio
       v101Load().segs.forEach(function (sg) {
@@ -22080,6 +22122,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
       if (v100.sel && v100.sel.kind !== "com" && v100.sel.kind !== "terra") v100Select(v100.sel, true);
     }
     v100Apply();
+    v106Names();
     if (fit && !v100.fitted) v100FitAll();
     v100Legend();
     v100RenderPc();
@@ -22216,6 +22259,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     ]).addTo(m);
     v100Card(sel);
     v100RenderPc();
+    v106Focus();
     if (!quiet && sel.fit) {
       var b = L.latLngBounds(latlngs);
       if (b.isValid()) m.fitBounds(b.pad(0.15), { maxZoom: 16, paddingBottomRight: [0, v100Mobile() ? 170 : 0] });
@@ -22232,6 +22276,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
       if (v100.selLayer && v100.map) { v100.map.removeLayer(v100.selLayer); v100.selLayer = null; }
       v100.sel = null;
       v100RenderPc();
+      v106Focus();
       return;
     }
     var h = "", btns = [];
@@ -22493,10 +22538,23 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     if (v100.pcTab === "rotas") {
       var rs = v100Routes().filter(function (r) { return !q || ((r.name || "") + " " + (r.folder || "")).toLowerCase().indexOf(q) !== -1; })
         .sort(function (a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
-      rs.forEach(function (r) {
+      var item = function (r) {
         var on = v100.sel && v100.sel.kind === "rota" && v100.sel.id === r.id;
-        h += '<button type="button" class="v100-pc-it' + (on ? " sel" : "") + '" data-k="rota" data-id="' + v55Esc(r.id) + '"><b>' + v55Esc(r.name || "(sem nome)") + "</b><span>" + v100Km(polylineLengthMeters(r.points)) + (r.folder ? " · 📁 " + v55Esc(r.folder) : "") + "</span></button>";
-      });
+        return '<button type="button" class="v100-pc-it' + (on ? " sel" : "") + '" data-k="rota" data-id="' + v55Esc(r.id) + '"><b>' + v55Esc(r.name || "(sem nome)") + "</b><span>" + v100Km(polylineLengthMeters(r.points)) + (q && r.folder ? " · 📁 " + v55Esc(r.folder) : "") + "</span></button>";
+      };
+      if (q) rs.forEach(function (r) { h += item(r); });   // procurando: lista direta
+      else {
+        // v10.6: rotas agrupadas por pasta; abrir uma pasta mostra só as rotas dela no mapa
+        var groups = {}, names = [];
+        rs.forEach(function (r) { var f = r.folder || ""; if (!groups[f]) { groups[f] = []; names.push(f); } groups[f].push(r); });
+        names.sort(function (a, b) { return a === "" ? 1 : b === "" ? -1 : a.localeCompare(b, "pt-BR"); });
+        h += '<button type="button" class="v106-fd' + (v100.folder == null ? " on" : "") + '" data-fd="__all"><span>🗺️ Todas as rotas</span><small>' + rs.length + "</small></button>";
+        names.forEach(function (f) {
+          var open = v100.folder === f;
+          h += '<button type="button" class="v106-fd' + (open ? " on" : "") + '" data-fd="' + v55Esc(f) + '"><span>' + (f ? "📁 " + v55Esc(f) : "📄 Sem pasta") + "</span><small>" + groups[f].length + " " + (open ? "▾" : "▸") + "</small></button>";
+          if (open) groups[f].forEach(function (r) { h += item(r); });
+        });
+      }
       if (!rs.length) h = '<p class="v100-pc-empty">' + (q ? "Nenhuma rota com esse nome." : "Nenhuma rota salva ainda. Toque em “Planejar nova rota” para desenhar a primeira.") + "</p>";
     } else {
       var ts = v100Trips().filter(function (t) { return !q || (t.routeName || "modo livre").toLowerCase().indexOf(q) !== -1; });
@@ -22507,6 +22565,13 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
       if (!ts.length) h = '<p class="v100-pc-empty">' + (q ? "Nenhum passeio com esse nome." : "Nenhum passeio feito ainda. Os passeios gravados no celular aparecem aqui quando você entra na mesma conta.") + "</p>";
     }
     list.innerHTML = h;
+    list.querySelectorAll("[data-fd]").forEach(function (b) {
+      b.addEventListener("click", function () { var f = b.getAttribute("data-fd"); v106SetFolder(f === "__all" || v100.folder === f ? null : f); });
+    });
+    list.querySelectorAll('.v100-pc-it[data-k="rota"]').forEach(function (b) {
+      b.addEventListener("mouseenter", function () { v106Hover(b.getAttribute("data-id")); });
+      b.addEventListener("mouseleave", function () { v106Hover(null); });
+    });
     list.querySelectorAll(".v100-pc-it").forEach(function (b) {
       b.addEventListener("click", function () {
         var k = b.getAttribute("data-k");
@@ -23527,6 +23592,91 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     var origReset = resetNavSession;
     resetNavSession = function () { var b = document.getElementById("v105-back"); if (b) b.classList.add("hidden"); return origReset.apply(this, arguments); };
     if (window.__fdeTest) window.__fdeV105 = { v: v105, rev: v105Rev, flip: v105Flip };
+  }
+
+  // ===================== v10.6 — saber qual rota é qual (pedido do Luiz, 25/11) =====================
+  //  * PC: rotas agrupadas por pasta; abrir uma pasta mostra só as rotas dela no mapa (e enquadra);
+  //  * passar o mouse num nome acende a rota no mapa; a rota escolhida fica forte e as outras apagadas,
+  //    com uma faixa "📍 nome · km ✕" em cima do mapa;
+  //  * com o mapa perto (zoom 13+), o nome de cada rota aparece em cima da linha;
+  //  * PC abre no último lugar que você olhou; atalhos Garagem · Rally · Comunidade · Importar no painel.
+  var v106 = { hover: null, names: null, namesSig: null };
+
+  function v106SetFolder(f) {
+    v100.folder = f;
+    if (v100.sel && v100.sel.kind === "rota") v100Card(null);
+    v100.drawnSig = "";
+    v100Draw(false);
+    if (f != null) {
+      var b = null;
+      v100.groups.rotas.eachLayer(function (l) { var lb = l.getBounds(); b = b ? b.extend(lb) : L.latLngBounds(lb.getSouthWest(), lb.getNorthEast()); });
+      if (b && b.isValid()) v100.map.fitBounds(b.pad(0.1), { maxZoom: 15 });
+    }
+    v100RenderPc();
+    v106Focus();
+  }
+
+  function v106Hover(id) {
+    var m = v100.map; if (!m) return;
+    if (v106.hover) { m.removeLayer(v106.hover); v106.hover = null; }
+    if (!id) return;
+    var r = v100Routes().filter(function (x) { return x.id === id; })[0];
+    if (!r) return;
+    var ll = r.points.map(function (p) { return [p.lat, p.lng]; });
+    v106.hover = L.layerGroup([
+      L.polyline(ll, { pane: "v100sel", color: "#fff", weight: 9, opacity: 0.9, interactive: false }),
+      L.polyline(ll, { pane: "v100sel", color: "#ff7a1a", weight: 5, opacity: 1, interactive: false })
+    ]).addTo(m);
+  }
+
+  // rota escolhida forte, as outras apagadas; faixa com o nome e a pasta aberta
+  function v106Focus() {
+    var m = v100.map; if (!m) return;
+    var on = !!v100.sel;
+    try { m.getPane("v100routes").style.opacity = on ? "0.35" : ""; m.getPane("v100trips").style.opacity = on ? "0.3" : "0.62"; } catch (e) {}
+    var bar = document.getElementById("v106-bar");
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "v106-bar";
+      document.getElementById("v100-home").appendChild(bar);
+    }
+    var h = "";
+    if (v100.sel) {
+      var nm = "", km = "";
+      if (v100.sel.kind === "rota") { var r = v100Routes().filter(function (x) { return x.id === v100.sel.id; })[0]; if (r) { nm = r.name || "(sem nome)"; km = v100Km(polylineLengthMeters(r.points)); } }
+      else if (v100.sel.kind === "passeio") { var t = v100Trips().filter(function (x) { return x.id === v100.sel.id; })[0]; if (t) { nm = (t.routeName || "Passeio") + " · " + v100Date(t.startedAt); km = v100Km(t.distance || 0); } }
+      else if (v100.sel.kind === "com") nm = (v100.sel.item && v100.sel.item.title) || "Trilha da Comunidade";
+      if (nm) h = '<span class="v106-pin">📍 <b>' + v55Esc(nm) + "</b>" + (km ? " · " + km : "") + '</span><button type="button" data-x="sel" aria-label="Fechar">✕</button>';
+    } else if (v100.folder != null) {
+      h = '<span class="v106-pin">📁 <b>' + v55Esc(v100.folder || "Sem pasta") + '</b> · só esta pasta no mapa</span><button type="button" data-x="fd" aria-label="Mostrar todas">✕</button>';
+    }
+    bar.innerHTML = h;
+    bar.classList.toggle("hidden", !h);
+    var x = bar.querySelector("[data-x]");
+    if (x) x.addEventListener("click", function () { if (x.getAttribute("data-x") === "sel") v100Card(null); else v106SetFolder(null); });
+  }
+
+  // nomes das rotas em cima da linha (só com o mapa perto, só as que aparecem na tela)
+  function v106Names() {
+    var m = v100.map; if (!m) return;
+    if (!v106.names) { var pn = m.createPane("v100names"); pn.style.zIndex = 425; pn.style.pointerEvents = "none"; v106.names = L.layerGroup().addTo(m); }
+    var z = m.getZoom(), b = m.getBounds().pad(0.1);
+    var sig = z >= 13 && v100.show.rotas ? z + ":" + b.toBBoxString() + ":" + (v100.drawnSig || "").length : "off";
+    if (sig === v106.namesSig) return;
+    v106.namesSig = sig;
+    v106.names.clearLayers();
+    if (sig === "off") return;
+    var n = 0;
+    v100.groups.rotas.eachLayer(function (l) {
+      if (n >= 40 || !l.options.v100 || !l.getBounds().intersects(b)) return;
+      var ll = l.getLatLngs();
+      // ponto da linha que está na tela, perto do meio do trecho visível
+      var vis = ll.filter(function (p) { return b.contains(p); });
+      if (!vis.length) return;
+      var at = vis[Math.floor(vis.length / 2)];
+      L.marker(at, { pane: "v100names", interactive: false, keyboard: false, icon: L.divIcon({ className: "v106-name", html: "<span>" + v55Esc(l.options.v100.name || "") + "</span>", iconSize: null }) }).addTo(v106.names);
+      n++;
+    });
   }
 
   // ---- init ----
