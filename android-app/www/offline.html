@@ -5823,6 +5823,7 @@ body.v100.v100-classic #v100-back-map { display: flex; }
 .v100-round { flex: 0 0 auto; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: var(--surf); color: var(--ink); box-shadow: 0 3px 12px rgba(0,0,0,.28); cursor: pointer; font: 700 18px var(--font); }
 .v100-round .v90-ico { width: 22px; height: 22px; }
 .v100-round.on { color: var(--acc); }
+#v100-locate.on { background: var(--acc); color: var(--onAcc); }
 .v100-side-btns { position: absolute; z-index: 1001; right: 10px; bottom: 18px; display: flex; flex-direction: column; gap: 10px; transition: bottom .15s; }
 body.nav-running-shown .v100-side-btns { bottom: 86px; }
 .v100-card-open .v100-side-btns { display: none; }
@@ -6994,8 +6995,16 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
   var STORAGE_KEY = "jipeRotas_savedRoutes_v1";
   var DRAFT_KEY = "jipeRotas_draft_v1";
 
-  var APP_VERSION = "10.6";
+  var APP_VERSION = "10.6.1";
   var CHANGELOG = [
+    {
+      version: "10.6.1",
+      date: "26/11/2026",
+      changes: [
+        "Mapa inicial agora segue o carro (como o Maps.me): o mapa acompanha a sua posição enquanto você anda, com a seta apontando para onde você vai. Arrastou o mapa? Ele para de seguir; toque no botão de \"minha posição\" (fica laranja) para voltar a seguir",
+        "Posição no mapa inicial mais precisa e atualizada (antes podia ficar parada por até 30 segundos)"
+      ]
+    },
     {
       version: "10.6",
       date: "25/11/2026",
@@ -25049,7 +25058,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
       v100.moveT = setTimeout(function () { v100LoadExtras(); if (v100.show.falta) { try { v101DrawFalta(); } catch (e) {} } }, 700);
       v106Names();
     });
-    m.on("dragstart", function () { v100.follow = false; });
+    m.on("dragstart", function () { v100.follow = false; v100FollowBtn(); });   // arrastou: para de seguir até tocar em "minha posição"
     v100Draw(true);
   }
 
@@ -25230,6 +25239,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     v100RenderPc();
     v106Focus();
     if (!quiet && sel.fit) {
+      v100.follow = false; v100FollowBtn();
       var b = L.latLngBounds(latlngs);
       if (b.isValid()) m.fitBounds(b.pad(0.15), { maxZoom: 16, paddingBottomRight: [0, v100Mobile() ? 170 : 0] });
     }
@@ -25384,27 +25394,46 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
   }
 
   // ---------- minha posição ----------
+  // v10.6.1: o mapa inicial SEGUE o carro (como o Maps.me) até você arrastar o mapa;
+  // o botão "minha posição" volta a seguir. A seta mostra para onde você está indo.
   function v100OnPos(pos) {
     var c = pos.coords;
     v100.pos = { lat: c.latitude, lng: c.longitude, acc: c.accuracy };
     if (!v100.map) return;
     var ll = [c.latitude, c.longitude];
-    if (!v100.posMarker) v100.posMarker = L.marker(ll, { icon: youAreHereIcon(false), interactive: false, keyboard: false, zIndexOffset: 1000 }).addTo(v100.map);
-    else v100.posMarker.setLatLng(ll);
-    if (v100.follow) { v100.follow = false; v100.map.setView(ll, Math.max(v100.map.getZoom(), 14)); }
+    var hd = c.heading != null && !isNaN(c.heading) && (c.speed == null || c.speed > 1) ? c.heading : null;
+    if (!v100.posMarker) { v100.posMarker = L.marker(ll, { icon: youAreHereIcon(hd != null), interactive: false, keyboard: false, zIndexOffset: 1000 }).addTo(v100.map); v100.posHead = hd != null; }
+    else {
+      v100.posMarker.setLatLng(ll);
+      if ((hd != null) !== v100.posHead) { v100.posMarker.setIcon(youAreHereIcon(hd != null)); v100.posHead = hd != null; }
+    }
+    if (hd != null) { var el2 = v100.posMarker.getElement && v100.posMarker.getElement(); var pk = el2 && el2.querySelector(".you-are-here-puck"); if (pk) pk.style.transform = "rotate(" + Math.round(hd) + "deg)"; }
+    if (v100.follow) {
+      var z = v100.map.getZoom();
+      if (!v100.followZoomed) { z = Math.max(z, 15); v100.followZoomed = true; }
+      v100.map.setView(ll, z, { animate: true });
+    }
+    v100FollowBtn();
+  }
+  function v100FollowBtn() {
+    var b = document.getElementById("v100-locate");
+    if (b) b.classList.toggle("on", !!v100.follow);
   }
   function v100Watch(on) {
     if (!navigator.geolocation) return;
     if (on && v100.watch == null) {
-      try { v100.watch = navigator.geolocation.watchPosition(v100OnPos, function () {}, { enableHighAccuracy: false, maximumAge: 30000, timeout: 30000 }); } catch (e) {}
+      // posição precisa e atualizada (antes: aproximada e de até 30 s atrás — o ponto quase não andava)
+      try { v100.watch = navigator.geolocation.watchPosition(v100OnPos, function () {}, { enableHighAccuracy: true, maximumAge: 2000, timeout: 30000 }); } catch (e) {}
     } else if (!on && v100.watch != null) {
       try { navigator.geolocation.clearWatch(v100.watch); } catch (e) {}
       v100.watch = null;
     }
   }
   function v100Locate(userAsked) {
-    if (v100.pos && v100.map) { v100.map.setView([v100.pos.lat, v100.pos.lng], Math.max(v100.map.getZoom(), 15)); }
-    else { v100.follow = true; if (userAsked) showToast("Procurando a sua posição…"); }
+    v100.follow = true;
+    if (v100.pos && v100.map) { v100.map.setView([v100.pos.lat, v100.pos.lng], Math.max(v100.map.getZoom(), 15)); v100.followZoomed = true; }
+    else if (userAsked) showToast("Procurando a sua posição…");
+    v100FollowBtn();
     v100Watch(true);
   }
 
@@ -25564,7 +25593,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
         v100LoadExtras();
         // celular: mostra a posição sozinho; PC: só quando pedir (não pergunta a localização à toa)
         if (v100Mobile() || FDE_NATIVE) {
-          if (!v100.pos && !v100.fitted) v100.follow = true;
+          if (!v100.followSet) { v100.follow = true; v100.followSet = true; v100FollowBtn(); if (v100.pos) v100Locate(false); }
           v100Watch(true);
         }
       } catch (e) { console.warn("v10.0 mapa inicial:", e); }
@@ -25966,6 +25995,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     var s = v102Pts(sel);
     if (!s || s.pts.length < 2) { showToast("Esse trecho não tem pontos para recortar."); return; }
     v100Card(null);
+    v100.follow = false; v100FollowBtn();   // recortando: o mapa não pode sair andando
     v102.active = true;
     v102.pieces = v102.pieces || [];
     v102.src = s.pts; v102.srcName = s.name; v102.a = null; v102.step = "a";
@@ -26318,7 +26348,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
     showScreen("dashboard");
     setTimeout(function () {
       v100Draw(false);
-      if (bounds && bounds.isValid() && v100.map) v100.map.fitBounds(bounds.pad(0.1), { maxZoom: 15 });
+      if (bounds && bounds.isValid() && v100.map) { v100.follow = false; v100FollowBtn(); v100.map.fitBounds(bounds.pad(0.1), { maxZoom: 15 }); }
     }, 80);
     showToast("📥 Importado: " + (np ? np + (np === 1 ? " passeio" : " passeios") : "") + (np && nr ? " e " : "") + (nr ? nr + (nr === 1 ? " rota" : " rotas") : "") + ".");
   }
@@ -26573,6 +26603,7 @@ body.v102 #toast { top: calc(66px + env(safe-area-inset-top, 0px)); bottom: auto
 
   function v106SetFolder(f) {
     v100.folder = f;
+    if (f != null) { v100.follow = false; v100FollowBtn(); }
     if (v100.sel && v100.sel.kind === "rota") v100Card(null);
     v100.drawnSig = "";
     v100Draw(false);
